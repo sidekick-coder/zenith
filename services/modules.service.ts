@@ -14,6 +14,9 @@ interface ModuleFile {
     content: string;
 }
 
+interface Options {
+    build?: boolean;
+}
 
 export class ModulesService {
     public getFiles(moduleName: string) {
@@ -46,7 +49,7 @@ export class ModulesService {
         return files;
     }
 
-    public async enable(moduleName: string) {
+    public async enable(moduleName: string, options: Options = {}) {
         const enabled = config.get('modules.enabled', []);
 
         if (enabled.includes(moduleName)) return;
@@ -57,7 +60,7 @@ export class ModulesService {
             logger.debug(`module file: ${file.filename}`);
         }
 
-        if (isProduction) {
+        if (options?.build) {
             await build.all();
         }
 
@@ -68,7 +71,7 @@ export class ModulesService {
         logger.info(`module ${moduleName} enabled`);
     }
 
-    public async disable(moduleName: string) {
+    public async disable(moduleName: string, options: Options = {}) {
         const enabled = config.get('modules.enabled', []);
 
         if (!enabled.includes(moduleName)) return;
@@ -87,7 +90,7 @@ export class ModulesService {
             logger.debug(`removing module file: ${file.filename}`);
         }
 
-        if (isProduction) {
+        if (options?.build) {
             await build.all();
         }
 
@@ -96,14 +99,14 @@ export class ModulesService {
         logger.info(`module ${moduleName} disabled`);
     }
 
-    public async toggle(moduleName: string) {
+    public async toggle(moduleName: string, options: Options = {}) {
         const enabled = config.get('modules.enabled', []);
 
         if (enabled.includes(moduleName)) {
-            return this.disable(moduleName);
+            return this.disable(moduleName, options);
         }
 
-        return await this.enable(moduleName);
+        return await this.enable(moduleName, options);
     }
 }
 

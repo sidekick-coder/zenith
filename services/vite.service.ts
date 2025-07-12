@@ -23,7 +23,7 @@ export class ViteServer {
         }
 
         if (isProduction) {
-            app.use(express.static(basePath('client', 'dist', 'client')))
+            app.use(express.static(basePath('app', 'dist', 'client')))
         }
 
         app.use('*all', async (req, res) => {
@@ -34,7 +34,7 @@ export class ViteServer {
                 let render: any
 
                 if (isProduction) {
-                    template = fs.readFileSync(basePath('app', 'dist', 'client', 'client', 'index.html'), 'utf-8')
+                    template = fs.readFileSync(basePath('app', 'dist', 'client', 'index.html'), 'utf-8')
                     render = (await import(basePath('app', 'dist', 'server', 'entry-server.js'))).render
                 }
 

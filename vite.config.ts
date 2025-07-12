@@ -9,7 +9,7 @@ export default defineConfig({
     publicDir: 'app/public',
     build: {
         rollupOptions: {
-            input: 'app/index.html',
+            input: 'index.html',
         },
     },
     resolve: {
