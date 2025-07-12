@@ -4,6 +4,7 @@ import fs from 'fs';
 import { basePath } from "../utils/paths.ts";
 import build from "./build.service.ts";
 import router from "./router.service.ts";
+import env from "../env.ts";
 
 interface ModuleFile {
     source?: string;
@@ -16,10 +17,12 @@ interface Options {
 }
 
 class Module {
+    public id: string;
     public name: string;
     public enabled: boolean = false;
 
     constructor(name: string) {
+        this.id = name;
         this.name = name;
     }
 
@@ -116,7 +119,7 @@ export class ModulesService {
 
         await router.loadFile(mod.makePath('server', 'routes.ts'));
 
-        if (options?.build) {
+        if (options?.build || env.isProduction) {
             await build.all();
         }
 
@@ -154,7 +157,9 @@ export class ModulesService {
 
         await router.removeFile(mod.makePath('server', 'routes.ts'));
 
-        if (options?.build) {
+        console.log(env)
+
+        if (options?.build || env.isProduction) {
             await build.all();
         }
 

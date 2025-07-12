@@ -13,23 +13,31 @@ async function createServer() {
     await router.load()
 
     app.use('*all', (req, res) => {
-        const url = req.originalUrl
+        const url = new URL(req.originalUrl, `http://${req.headers.host}`)
         const method = req.method.toLowerCase()
 
-        logger.debug(`${method.toUpperCase()} ${url}`)
+        logger.debug(`${method.toUpperCase()} ${url.pathname}` )
 
         const ctx: HttpContext = {
+            params: req.params,
             request: req,
             response: res,
         }
 
-        const route = router.resolve(method, url)
+        const route = router.resolve(method, url.pathname)
 
         if (route){
-            return router.execute(method, url, ctx)
+            return router.execute(method, url.pathname, ctx)
         }
 
-        return vite.render(url, ctx)
+        if (url.pathname.startsWith('/api/')) {
+            return res.status(404).json({
+                error: 'Not Found',
+                message: `No API route found for ${method.toUpperCase()} ${url}`,
+            })
+        }
+
+        return vite.render(req.originalUrl, ctx)
     })
 
     app.listen(3000, () => {

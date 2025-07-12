@@ -9,6 +9,7 @@ import logger from "../logger.ts";
 export interface HttpContext {
     request: Request
     response: Response
+    params: Record<string, string>
 }
 
 interface Handler {
@@ -93,19 +94,16 @@ export class Router {
         return this.add({ method: 'DELETE', path, handler });
     }
 
-    // public resource(resourceName: string, controller: Controller) {
-    //     const base = `/${resourceName}`;
-    //     this.get(base, [controller, 'index']);
-    //     this.post(base, [controller, 'store']);
-    //     this.get(`${base}/:id`, [controller, 'show']);
-    //     this.put(`${base}/:id`, [controller, 'update']);
-    //     this.delete(`${base}/:id`, [controller, 'destroy']);
-    // }
-
     public resolve(method: string, path: string) {
         const routes = Array.from(this.routes.values());
 
-        const route = routes.find(r => r.path === path && r.method === method.toUpperCase());
+        const route = routes.find(r => {
+            if (r.method !== method.toUpperCase()) {
+                return false;
+            }
+            
+            return this.matchPath(r.path, path);
+        });
 
         if (!route) {
             return null;
@@ -114,12 +112,65 @@ export class Router {
         return route;
     }
 
+    public extractParams(routePath: string, requestPath: string): Record<string, string> {
+        const params: Record<string, string> = {};
+        
+        const routeSegments = routePath.split('/').filter(Boolean);
+        const requestSegments = requestPath.split('/').filter(Boolean);
+
+        for (let i = 0; i < routeSegments.length; i++) {
+            const routeSegment = routeSegments[i];
+            const requestSegment = requestSegments[i];
+
+            if (routeSegment.startsWith(':')) {
+                const paramName = routeSegment.slice(1); // Remove the ':' prefix
+                params[paramName] = requestSegment;
+            }
+        }
+
+        return params;
+    }
+
+    private matchPath(routePath: string, requestPath: string): boolean {
+        // Split paths into segments
+        const routeSegments = routePath.split('/').filter(Boolean);
+        const requestSegments = requestPath.split('/').filter(Boolean);
+
+        // Different number of segments means no match
+        if (routeSegments.length !== requestSegments.length) {
+            return false;
+        }
+
+        // Check each segment
+        for (let i = 0; i < routeSegments.length; i++) {
+            const routeSegment = routeSegments[i];
+            const requestSegment = requestSegments[i];
+
+            // If route segment is a parameter (starts with :), it matches any value
+            if (routeSegment.startsWith(':')) {
+                continue;
+            }
+
+            // Otherwise, segments must match exactly
+            if (routeSegment !== requestSegment) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     public async execute(method: string, path: string, ctx: HttpContext) {
         const route = this.resolve(method, path);
 
         if (!route) {
             throw new Error(`Route not found: ${method} ${path}`);
         }
+
+        // Extract route parameters and add them to context
+        const params = this.extractParams(route.path, path);
+        ctx.params = params;
+        ctx.request.params = params; // For compatibility with Express
 
         const [error, result] = await tryCatch(() => route.handler(ctx));
 
@@ -175,7 +226,7 @@ export class Router {
 
         // load root routes 
         for await (const filename of fs.readdirSync(basePath('routes'))) {
-            this.loadFile(basePath('routes', filename));
+            await this.loadFile(basePath('routes', filename));
         }
 
         // load module routes

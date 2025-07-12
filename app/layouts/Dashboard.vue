@@ -26,6 +26,13 @@ export interface MenuModule {
 <script setup lang="ts">
 const open = useLocalStorage('sidebar-open', true);
 
+defineProps({
+    padding: {
+        type: Boolean,
+        default: true,
+    },
+})
+
 const menu = defineModel("menu", {
     type: Array as () => MenuItem[],
     default: null,
@@ -116,7 +123,11 @@ const grouped = menu.value.filter(item => 'items' in item) as MenuGroup[];
                         overflow-auto
                         lg:max-w-[calc(100dvw-8px-var(--sidebar-width))]
                         group-has-data-[collapsible=icon]/sidebar-wrapper:max-w-[calc(100dvw-var(--sidebar-width-icon))]
-                    ">
+                    "
+                    :class="{
+                        'p-5': padding,
+                    }"
+                    >
                     <slot />
                 </div>
             </div>

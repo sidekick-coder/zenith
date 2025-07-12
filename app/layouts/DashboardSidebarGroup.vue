@@ -1,18 +1,9 @@
 <script lang="ts">
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@app/components/ui/dropdown-menu'
-import { Sidebar, SidebarInset, SidebarTrigger, SidebarProvider, SidebarHeader, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupLabel, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarMenuSubItem, SidebarMenuSub } from '@app/components/ui/sidebar';
+import { SidebarGroup, SidebarGroupLabel, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarMenuSubItem, SidebarMenuSub } from '@app/components/ui/sidebar';
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from '@app/components/ui/collapsible';
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@app/components/ui/breadcrumb';
-import { useBreakpoints, useLocalStorage } from '@vueuse/core';
+import { useBreakpoints } from '@vueuse/core';
 import Icon from '@app/components/Icon.vue';
-import Logo from '@app/components/Logo.vue';
-import { computed } from 'vue';
-
-export interface BreadcrumbItem {
-    label: string;
-    to?: string;
-    icon?: string;
-}
 
 interface MenuBase {
     label: string;

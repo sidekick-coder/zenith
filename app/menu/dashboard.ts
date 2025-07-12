@@ -1,7 +1,7 @@
-import type { MenuItem } from "@app/layouts/Dashboard.vue";
+import type { LayoutMenuItem } from "@app/layouts/Dashboard.vue";
 import { $t } from "@app/utils/lang";
 
-const menu: MenuItem[] = [
+const menu: LayoutMenuItem [] = [
     {
         label: $t('Users'),
         icon: 'UsersIcon',
@@ -14,22 +14,13 @@ const menu: MenuItem[] = [
     },
     {
         label: $t('Advanced'),
+        order: 900,
         items: [
             {
-                label: $t('Settings'),
-                to: '/settings',
-                icon: 'SettingsIcon',
+                label: $t('Modules'),
+                to: '/admin/modules',
+                icon: 'PuzzleIcon',
             },
-            {
-                label: $t('Logs'),
-                to: '/logs',
-                icon: 'LogsIcon',
-            },
-            {
-                label: $t('Documentation'),
-                to: '/docs',
-                icon: 'File',
-            }
         ]
     }
 ]
