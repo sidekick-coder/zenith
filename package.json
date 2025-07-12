@@ -1,0 +1,29 @@
+{
+  "name": "exp-express-vuejs",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "node artisan serve -w",
+    "build": "vue-tsc -b && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@vue/server-renderer": "^3.5.17",
+    "commander": "^14.0.0",
+    "express": "^5.1.0",
+    "node-schedule": "^2.1.1",
+    "vue": "^3.5.17",
+    "winston": "^3.17.0"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.3",
+    "@types/node": "^24.0.12",
+    "@types/node-schedule": "^2.1.7",
+    "@vitejs/plugin-vue": "^6.0.0",
+    "@vue/tsconfig": "^0.7.0",
+    "typescript": "~5.8.3",
+    "vite": "^7.0.3",
+    "vue-tsc": "^2.2.12"
+  }
+}
