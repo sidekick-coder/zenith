@@ -3,8 +3,9 @@ import { importAll } from "../utils/importAll.ts";
 import { basePath } from "../utils/paths.ts";
 import fs from 'fs';
 import modules from "./modules.service.ts";
+import { tryCatch } from "../utils/tryCatch.ts";
 
-interface HttpContext {
+export interface HttpContext {
     request: Request
     response: Response
 }
@@ -100,10 +101,10 @@ export class Router {
     //     this.delete(`${base}/:id`, [controller, 'destroy']);
     // }
 
-    public resolve(path: string, httpMethod?: string) {
-        const method = httpMethod ? httpMethod.toUpperCase() : 'GET';
+    public resolve(method: string, path: string) {
         const routes = Array.from(this.routes.values());
-        const route = routes.find(r => r.path === path && r.method === method);
+
+        const route = routes.find(r => r.path === path && r.method === method.toUpperCase());
 
         if (!route) {
             return null;
@@ -112,7 +113,35 @@ export class Router {
         return route;
     }
 
-    public async list() {
+    public async execute(method: string, path: string, ctx: HttpContext) {
+        const route = this.resolve(method, path);
+
+        if (!route) {
+            throw new Error(`Route not found: ${method} ${path}`);
+        }
+
+        const [error, result] = await tryCatch(() => route.handler(ctx));
+
+        if (error) {
+            ctx.response.status(500).send(`Internal Server Error: ${error.message}`);
+            return;
+        }
+
+        if (ctx.response.headersSent) {
+            return; // if headers are already sent, do not modify the response
+        }
+
+        // headers not set 
+        ctx.response.status(200) 
+
+        if (typeof result === 'object' || Array.isArray(result)) {
+            ctx.response.setHeader('Content-Type', 'application/json');
+        }
+
+        ctx.response.send(result);
+    }
+
+    public async load() {
         // clear 
         this.routes.clear();
 
@@ -141,10 +170,10 @@ export class Router {
             this.close();
 
         }
+    }
 
-        const routes = Array.from(this.routes.values())
-
-        return routes
+    public list() {
+        return Array.from(this.routes.values())
     }
 }
 

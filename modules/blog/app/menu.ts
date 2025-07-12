@@ -11,6 +11,12 @@ const menu: LayoutMenuItem[] = [
                 icon: 'File',
                 to: '/blog/posts',
             },
+            {
+                label: $t('API'),
+                icon: 'Code',
+                to: '/api/blog/posts',
+                target: '_blank',
+            },
         ]
     }
 ]

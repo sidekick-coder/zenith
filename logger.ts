@@ -1,9 +1,5 @@
 import winston from 'winston';
 
-declare global {
-    var logger: winston.Logger;
-}
-
 export const logger = winston.createLogger({
     level: 'debug',
     format: winston.format.json(),
@@ -19,5 +15,4 @@ export const logger = winston.createLogger({
     ],
 });
 
-// make it available globally 
-globalThis.logger = logger;
+export default logger;

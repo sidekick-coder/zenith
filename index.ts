@@ -1,48 +1,36 @@
 import express from 'express'
 import vite from './services/vite.service.ts'
-import { importAll } from './utils/importAll.ts'
-import path from 'path'
-import schedule from 'node-schedule'
 
-import './logger.ts'
+import type { HttpContext } from './services/router.service.ts'
+import router from './services/router.service.ts'
+import logger from './logger.ts'
 
 async function createServer() {
     const app = express()
 
-    const routes = await importAll(path.join(import.meta.dirname, 'routes'))
-
-    Object.entries(routes).forEach(([filename, m]) => {
-        const route = m.router
-
-        if (!route) {
-            logger.debug(`No route found in ${filename}`)
-            return
-        }
-
-        logger.debug(`registering route from ${filename}`)
-
-        app.use(route)
-    })
-
-
-    const routines = await importAll(path.join(import.meta.dirname, 'routines'))
-
-    Object.entries(routines).forEach(([filename, m]) => {
-        const routine = m.default
-
-        if (!routine || !routine.cron || !routine.execute) {
-            logger.debug(`No routine found in ${filename}`)
-            return
-        }
-
-        logger.debug(`registering routine from ${filename}`)
-
-        // Schedule the routine to run every minute
-        schedule.scheduleJob(routine.cron, routine.execute)
-    })
-
-
     await vite.init(app)
+
+    await router.load()
+
+    app.use('*all', (req, res) => {
+        const url = req.originalUrl
+        const method = req.method.toLowerCase()
+
+        logger.debug(`${method.toUpperCase()} ${url}`)
+
+        const ctx: HttpContext = {
+            request: req,
+            response: res,
+        }
+
+        const route = router.resolve(method, url)
+
+        if (route){
+            return router.execute(method, url, ctx)
+        }
+
+        return vite.render(url, ctx)
+    })
 
     app.listen(3000, () => {
         logger.info('Server started at http://localhost:3000', {

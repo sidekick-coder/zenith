@@ -22,6 +22,7 @@ interface MenuBase {
 interface MenuSingle  extends MenuBase {
     icon: string;
     to: string;
+    target?: '_blank' | '_self' | '_parent' | '_top';
 }
 
 interface MenuWithChildren extends MenuBase {
@@ -90,7 +91,7 @@ defineProps({
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent side="right" align="start">
                                     <DropdownMenuItem v-for="child in item.children" :key="child.label" as-child>
-                                        <RouterLink :to="child.to">
+                                    <RouterLink :to="child.to" :target="child.target ?? '_self'">
                                             {{ child.label }}
                                         </RouterLink>
                                     </DropdownMenuItem>
@@ -102,7 +103,7 @@ defineProps({
 
                 <SidebarMenuItem v-else>
                     <SidebarMenuButton as-child :is-active="item.to === $route.path" :tooltip="item.label">
-                        <RouterLink :to="item.to">
+                    <RouterLink :to="item.to" :target="item.target ?? '_self'">
                             <Icon :name="item.icon" />
                             <span>{{ item.label }}</span>
                         </RouterLink>

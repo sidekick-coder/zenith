@@ -5,7 +5,9 @@ import Table from 'cli-table3';
 
 program.command('route:list')
     .action(async () => {
-        const routes = await router.list()
+        await router.load()
+
+        const routes = router.list()
 
         if (routes.length === 0) {
             console.log('No routes found');
