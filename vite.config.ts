@@ -5,14 +5,15 @@ import vue from '@vitejs/plugin-vue'
 export default defineConfig({
     plugins: [vue()],
     root: '.',
-    publicDir: 'client/public',
+    publicDir: 'app/public',
     build: {
         rollupOptions: {
-            input: 'client/index.html',
+            input: 'app/index.html',
         },
     },
     resolve: {
         alias: {
+            '@app': '/app',
             '@modules': '/modules',
         },
     },

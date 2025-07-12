@@ -10,8 +10,8 @@
         "noUncheckedSideEffectImports": true,
         "baseUrl": ".",
         "paths": {
-            "@/*": [
-                "src/*"
+            "@app/*": [
+                "app/*"
             ],
             "@modules/*": [
                 "modules/*"
@@ -19,8 +19,8 @@
         }
     },
     "include": [
-        "client/**/*.ts",
-        "client/**/*.tsx",
-        "client/**/*.vue"
+        "app/**/*.ts",
+        "app/**/*.tsx",
+        "app/**/*.vue"
     ]
 }
