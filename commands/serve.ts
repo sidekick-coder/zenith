@@ -11,7 +11,7 @@ program.command('serve').option('-w, --watch', 'Watch for changes and restart se
         '--experimental-strip-types',
     ];
 
-    const ignore = ['client', 'dist', 'node_modules', '.git', 'logs'];
+    const ignore = ['app', 'node_modules', '.git', 'logs'];
 
     const watchDirs = fs.readdirSync(basePath()).filter(dir => !ignore.includes(dir));
 

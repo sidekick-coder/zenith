@@ -9,6 +9,7 @@
   "dependencies": {
     "@tailwindcss/vite": "^4.1.11",
     "@vue/server-renderer": "^3.5.17",
+    "@vueuse/core": "^13.5.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "commander": "^14.0.0",

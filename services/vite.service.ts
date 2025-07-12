@@ -34,14 +34,14 @@ export class ViteServer {
                 let render: any
 
                 if (isProduction) {
-                    template = fs.readFileSync(basePath('client', 'dist', 'client', 'client', 'index.html'), 'utf-8')
-                    render = (await import(basePath('client', 'dist', 'server', 'entry-server.js'))).render
+                    template = fs.readFileSync(basePath('app', 'dist', 'client', 'client', 'index.html'), 'utf-8')
+                    render = (await import(basePath('app', 'dist', 'server', 'entry-server.js'))).render
                 }
 
                 if (!isProduction) {
-                    template = fs.readFileSync(basePath('client', 'index.html'), 'utf-8')
+                    template = fs.readFileSync(basePath('app', 'index.html'), 'utf-8')
                     template = await vite!.transformIndexHtml(url, template)
-                    render = (await vite!.ssrLoadModule('/client/entry-server.ts')).render
+                    render = (await vite!.ssrLoadModule('/app/entry-server.ts')).render
                 }
 
                 const rendered = await render(url)
