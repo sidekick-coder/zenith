@@ -3,27 +3,36 @@ import { logger } from "../logger.ts";
 import { basePath } from "../utils/paths.ts";
 import * as fs from 'fs';
 import path from "path";
+import { build as viteBuild, mergeConfig } from 'vite'
 
 export class BuildService {
-    public async prepare() {
-        const modulesEnabled = config.get('modules.enabled', []);
-        const pageFiles = new Map<string, string>();
-
-        for (const moduleName of modulesEnabled) {
-            const filename = basePath(`modules/${moduleName}/pages.ts`);
-
-            if (fs.existsSync(filename)) {
-                pageFiles.set(moduleName, `export * from '@modules/${moduleName}/pages.ts'`);
+    public async server(){
+        await viteBuild({
+            build: {
+                ssr: 'client/entry-server.ts',
+                outDir: 'client/dist/server',
             }
-        }
+        });
 
-        for (const [moduleName, content] of pageFiles.entries()) {
-            const outputFile = basePath('client', 'routes', `modules.${moduleName}.ts`);
-            fs.mkdirSync(path.dirname(outputFile), { recursive: true });
-            fs.writeFileSync(outputFile, content);
+        logger.debug('Server build completed');
+    }
 
-            logger.debug(`Built pages for module: ${moduleName}`);
-        }
+    public async client() {
+        await viteBuild({
+            build: {
+                outDir: 'client/dist/client',
+                rollupOptions: {
+                    input: 'client/index.html',
+                },
+            },
+        });
+
+        logger.debug('Client build completed');
+    }
+
+    public async all() {
+        await this.server();
+        await this.client();
     }
 }
 

@@ -4,7 +4,7 @@ import { createApp } from './main'
 /**
  * @param {string} _url
  */
-export async function render(_url) {
+export async function render(_url: string) {
   const { app } = createApp()
 
   // passing SSR context object which will be available via useSSRContext()

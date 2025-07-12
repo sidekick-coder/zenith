@@ -1,5 +1,5 @@
-import express, { type Request, type Response } from 'express'
-import vite from './services/vite.ts'
+import express from 'express'
+import vite from './services/vite.service.ts'
 import { importAll } from './utils/importAll.ts'
 import path from 'path'
 import schedule from 'node-schedule'
@@ -44,12 +44,13 @@ async function createServer() {
     })
 
 
-    await vite.init(app, {
-        mode: isProd ? 'prod' : 'dev',
-    })
+    await vite.init(app)
 
     app.listen(3000, () => {
-        logger.info('Server started at http://localhost:3000')
+        logger.info('Server started at http://localhost:3000', {
+            pid: process.pid,
+            env: process.env.NODE_ENV,
+        })
     })
 }
 

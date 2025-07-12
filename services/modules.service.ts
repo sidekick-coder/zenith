@@ -3,6 +3,7 @@ import { logger } from "../logger.ts";
 import fs from 'fs';
 import { basePath } from "../utils/paths.ts";
 import path from "path";
+import build from "./build.service.ts";
 
 export class ModulesService {
     public async enable(moduleName: string) {
@@ -18,6 +19,7 @@ export class ModulesService {
             fs.writeFileSync(outputFile, `import pages from '@modules/${moduleName}/pages.ts';\n\nexport default pages;`, 'utf-8');
         }
 
+        await build.all();
 
         enabled.push(moduleName);
 
@@ -46,9 +48,21 @@ export class ModulesService {
             }
         }
 
+        await build.all();
+
         config.set('modules.enabled', enabled);
 
         logger.info(`module ${moduleName} disabled`);
+    }
+
+    public async toggle(moduleName: string) {
+        const enabled = config.get('modules.enabled', []);
+
+        if (enabled.includes(moduleName)) {
+            return this.disable(moduleName);
+        }
+
+        return await this.enable(moduleName);
     }
 }
 

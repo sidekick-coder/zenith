@@ -4,15 +4,13 @@ import fs from 'fs'
 import path from 'path'
 import express from 'express'
 import { basePath } from "../utils/paths.ts"
+import env from "../env.ts"
 const __dirname = path.dirname(new URL(import.meta.url).pathname)
 
-interface InitOptions {
-    mode: 'prod' | 'dev'
-}
+const isProduction = env.NODE_ENV === 'production'
 
-export class Vite {
-    public async init(app: Application, options?: InitOptions) {
-        const isProduction = options?.mode === 'prod'
+export class ViteServer {
+    public async init(app: Application) {
         let vite: ViteDevServer | undefined
 
         if (!isProduction) {
@@ -24,30 +22,9 @@ export class Vite {
             app.use(vite.middlewares)
         }
 
-        if (options?.mode === 'prod') {
-            app.use(
-                express.static(path.resolve(__dirname, '../dist/client'), {
-                    index: false,
-                })
-            )
-
-            app.use('*all', async (req, res) => {
-                const url = req.originalUrl
-
-                const template = fs.readFileSync(
-                    path.resolve(__dirname, '../dist/client/index.html'),
-                    'utf-8'
-                )
-
-                const manifest = require('../dist/client/ssr-manifest.json')
-                const { render } = require('../dist/server/entry-server.js')
-                const appHtml = await render(url, manifest)
-
-                const html = template.replace(`<!--ssr-outlet-->`, appHtml)
-                res.status(200).set({ 'Content-Type': 'text/html' }).end(html)
-            })
+        if (isProduction) {
+            app.use(express.static(basePath('client', 'dist', 'client')))
         }
-
 
         app.use('*all', async (req, res) => {
             const url = req.originalUrl
@@ -57,8 +34,8 @@ export class Vite {
                 let render: any
 
                 if (isProduction) {
-                    template = fs.readFileSync(basePath('client', 'dist', 'index.html'), 'utf-8')
-                    render = (await import(basePath('client', 'dist', 'entry-server.js'))).render
+                    template = fs.readFileSync(basePath('client', 'dist', 'client', 'client', 'index.html'), 'utf-8')
+                    render = (await import(basePath('client', 'dist', 'server', 'entry-server.js'))).render
                 }
 
                 if (!isProduction) {
@@ -91,4 +68,7 @@ export class Vite {
     }
 }
 
-export default new Vite();
+const vite = new ViteServer()
+
+export default vite
+
