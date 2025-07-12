@@ -128,7 +128,7 @@ export class Router {
         });
 
         for await (const mod of enabled) {
-            const filename = mod.makePath('api', 'routes.ts');
+            const filename = mod.makePath('server', 'routes.ts');
 
             if (!fs.existsSync(filename)) {
                 continue;
