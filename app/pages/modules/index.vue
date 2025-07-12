@@ -40,6 +40,16 @@ const toggling = ref(false);
 async function toggle(item: any) {
     toggling.value = true;
 
+    // Prevent full reload in development mode
+    if (import.meta.hot) {
+        import.meta.hot.on('vite:beforeFullReload', () => {
+            throw '(skipping full reload)';
+        });
+        import.meta.hot.on('vite:beforeUpdate', () => {
+            throw '(skipping full reload)';
+        });
+    }
+
     const response = await fetch(`/api/modules/${item.id}/toggle`, {
         method: 'POST',
         headers: {
@@ -56,7 +66,7 @@ async function toggle(item: any) {
     setTimeout(() => {
         toggling.value = false;
         window.location.reload();
-    }, 5000);
+    }, 1000);
 
 }
 
