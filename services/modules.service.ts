@@ -4,6 +4,9 @@ import fs from 'fs';
 import { basePath } from "../utils/paths.ts";
 import path from "path";
 import build from "./build.service.ts";
+import env from "../env.ts";
+
+const isProduction = env.NODE_ENV === 'production';
 
 export class ModulesService {
     public async enable(moduleName: string) {
@@ -19,7 +22,9 @@ export class ModulesService {
             fs.writeFileSync(outputFile, `import pages from '@modules/${moduleName}/pages.ts';\n\nexport default pages;`, 'utf-8');
         }
 
-        await build.all();
+        if (isProduction) {
+            await build.all();
+        }
 
         enabled.push(moduleName);
 
@@ -48,7 +53,9 @@ export class ModulesService {
             }
         }
 
-        await build.all();
+        if (isProduction) {
+            await build.all();
+        }
 
         config.set('modules.enabled', enabled);
 
