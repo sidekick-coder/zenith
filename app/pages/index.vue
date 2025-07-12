@@ -4,6 +4,6 @@ import Dashboard from '@app/layouts/Dashboard.vue';
 
 <template>
     <Dashboard>
-      home  
+        home  
     </Dashboard>
 </template>

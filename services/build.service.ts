@@ -1,6 +1,5 @@
-import config from "./config.service.ts";
 import { logger } from "../logger.ts";
-import { build as viteBuild, mergeConfig } from 'vite'
+import { build as viteBuild } from 'vite'
 
 export class BuildService {
     public async server(){

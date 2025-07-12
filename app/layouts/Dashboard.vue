@@ -65,11 +65,17 @@ const grouped = menu.value.filter(item => 'items' in item) as MenuGroup[];
 
 <template>
     <SidebarProvider v-model:open="open">
-        <Sidebar collapsible="icon" variant="inset">
+        <Sidebar
+            collapsible="icon"
+            variant="inset"
+        >
             <SidebarHeader>
                 <SidebarMenu>
                     <SidebarMenuItem>
-                        <SidebarMenuButton size="lg" as-child>
+                        <SidebarMenuButton
+                            size="lg"
+                            as-child
+                        >
                             <router-link to="/">
                                 <Logo />
                             </router-link>
@@ -79,9 +85,20 @@ const grouped = menu.value.filter(item => 'items' in item) as MenuGroup[];
             </SidebarHeader>
 
             <SidebarContent>
-                <DashboardSidebarGroup :open="open" :items="ungrouped" :label="$t('General')" class="py-0" />
-                <DashboardSidebarGroup v-for="group in grouped" :key="group.label" :open :items="group.items"
-                    class="py-0" :label="group.label" />
+                <DashboardSidebarGroup
+                    :open="open"
+                    :items="ungrouped"
+                    :label="$t('General')"
+                    class="py-0"
+                />
+                <DashboardSidebarGroup
+                    v-for="group in grouped"
+                    :key="group.label"
+                    :open
+                    :items="group.items"
+                    class="py-0"
+                    :label="group.label"
+                />
             </SidebarContent>
 
             <SidebarFooter>
@@ -91,13 +108,17 @@ const grouped = menu.value.filter(item => 'items' in item) as MenuGroup[];
 
         <SidebarInset variant="sidebar">
             <header
-                class="flex h-16 shrink-0 items-center gap-2 border-b border-sidebar-border/70 px-6 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12 md:px-4">
+                class="flex h-16 shrink-0 items-center gap-2 border-b border-sidebar-border/70 px-6 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12 md:px-4"
+            >
                 <div class="flex items-center gap-2">
                     <SidebarTrigger class="-ml-1" />
                     <template v-if="breadcrumbs && breadcrumbs.length > 0">
                         <Breadcrumb>
                             <BreadcrumbList>
-                                <template v-for="(item, index) in breadcrumbs" :key="index">
+                                <template
+                                    v-for="(item, index) in breadcrumbs"
+                                    :key="index"
+                                >
                                     <BreadcrumbItem>
                                         <template v-if="index === breadcrumbs.length - 1">
                                             <BreadcrumbPage>{{ item.label }}</BreadcrumbPage>
@@ -118,7 +139,8 @@ const grouped = menu.value.filter(item => 'items' in item) as MenuGroup[];
                 </div>
             </header>
             <div class="h-[calc(100dvh-5rem)] overflow-hidden">
-                <div class="
+                <div
+                    class="
                         h-full
                         overflow-auto
                         lg:max-w-[calc(100dvw-8px-var(--sidebar-width))]
@@ -127,7 +149,7 @@ const grouped = menu.value.filter(item => 'items' in item) as MenuGroup[];
                     :class="{
                         'p-5': padding,
                     }"
-                    >
+                >
                     <slot />
                 </div>
             </div>

@@ -41,7 +41,7 @@ function onClick() {
         return
     }
 
-   emit('click');
+    emit('click');
 }
 
 let is = null
@@ -58,12 +58,28 @@ if (props.to) {
 <template>
     <Tooltip v-if="tooltip">
         <TooltipTrigger>
-            <MComponent :is="is" :href :to>
-                <Button v-bind="$attrs" :loading="loading" :disabled="disabled || loading" class="cursor-pointer"
-                    @click="onClick">
-                    <Icon v-if="loading" name="Loader2" class="animate-spin" />
+            <MComponent
+                :is="is"
+                :href
+                :to
+            >
+                <Button
+                    v-bind="$attrs"
+                    :loading="loading"
+                    :disabled="disabled || loading"
+                    class="cursor-pointer"
+                    @click="onClick"
+                >
+                    <Icon
+                        v-if="loading"
+                        name="Loader2"
+                        class="animate-spin"
+                    />
 
-                    <span v-else-if="label" class="text-sm">
+                    <span
+                        v-else-if="label"
+                        class="text-sm"
+                    >
                         {{ label }}
                     </span>
 
@@ -75,12 +91,29 @@ if (props.to) {
             {{ tooltip }}
         </TooltipContent>
     </Tooltip>
-    <MComponent :is :href :to v-else>
-        <Button v-bind="$attrs" :loading="loading" :disabled="disabled || loading" class="cursor-pointer"
-            @click="onClick">
-            <Icon v-if="loading" name="Loader2" class="animate-spin" />
+    <MComponent
+        :is
+        v-else
+        :href
+        :to
+    >
+        <Button
+            v-bind="$attrs"
+            :loading="loading"
+            :disabled="disabled || loading"
+            class="cursor-pointer"
+            @click="onClick"
+        >
+            <Icon
+                v-if="loading"
+                name="Loader2"
+                class="animate-spin"
+            />
 
-            <span v-else-if="label" class="text-sm">
+            <span
+                v-else-if="label"
+                class="text-sm"
+            >
                 {{ label }}
             </span>
 

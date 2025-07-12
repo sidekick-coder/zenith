@@ -1,5 +1,4 @@
 import type { Request, Response } from "express";
-import { importAll } from "../utils/importAll.ts";
 import { basePath } from "../utils/paths.ts";
 import fs from 'fs';
 import modules from "./modules.service.ts";
@@ -58,7 +57,7 @@ export class Router {
     }
 
     public add(payload: Pick<Route, 'method' | 'path' | 'handler'>) {
-        let key = `${payload.method.toUpperCase()} ${payload.path}`;
+        const key = `${payload.method.toUpperCase()} ${payload.path}`;
 
         if (!this.filename) {
             throw new Error(`Cannot add route without a filename. Did you forget to call open()?`);

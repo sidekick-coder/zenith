@@ -30,7 +30,7 @@ export class ViteServer {
             const rendered = await render(url)
 
             let head = rendered.head ?? ''
-            let body = rendered.html ?? ''
+            const body = rendered.html ?? ''
 
             // only inject styles in development mode
             if (!isProduction) {

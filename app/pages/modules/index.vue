@@ -17,7 +17,6 @@ import DialogHeader from '@app/components/ui/dialog/DialogHeader.vue';
 import DialogTitle from '@app/components/ui/dialog/DialogTitle.vue';
 import DialogDescription from '@app/components/ui/dialog/DialogDescription.vue';
 import Icon from '@app/components/Icon.vue';
-import DialogClose from '@app/components/ui/dialog/DialogClose.vue';
 
 const items = ref<any[]>([])
 
@@ -65,7 +64,10 @@ async function toggle(item: any) {
 <template>
     <Dashboard>
         <Dialog :open="toggling">
-            <DialogContent class="sm:max-w-[425px]" hide-close>
+            <DialogContent
+                class="sm:max-w-[425px]"
+                hide-close
+            >
                 <DialogHeader>
                     <DialogTitle>{{ $t('Updating module status') }}</DialogTitle>
                     <DialogDescription>
@@ -73,13 +75,20 @@ async function toggle(item: any) {
                     </DialogDescription>
                 </DialogHeader>
                 <div class="flex items-center justify-center">
-                    <Icon name="LoaderCircle" class="size-10 animate-spin text-gray-500" />
+                    <Icon
+                        name="LoaderCircle"
+                        class="size-10 animate-spin text-gray-500"
+                    />
                 </div>
             </DialogContent>
         </Dialog>
 
         <div class="flex flex-wrap gap-4">
-            <Card v-for="(item, index) in items" :key="index" class="w-full lg:w-3/12 xl:w-2/12">
+            <Card
+                v-for="(item, index) in items"
+                :key="index"
+                class="w-full lg:w-3/12 xl:w-2/12"
+            >
                 <CardHeader class="mb-auto">
                     <CardTitle>
                         {{ item.name }}
@@ -94,7 +103,10 @@ async function toggle(item: any) {
                         {{ $t('Configure') }}
                     </Button>
                     <div class="flex-1" />
-                    <Switch :model-value="item.enabled" @click="toggle(item)" />
+                    <Switch
+                        :model-value="item.enabled"
+                        @click="toggle(item)"
+                    />
                 </CardFooter>
             </Card>
         </div>

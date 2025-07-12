@@ -49,8 +49,15 @@ defineProps({
             {{ label }} 
         </SidebarGroupLabel>
         <SidebarMenu>
-            <template v-for="item in items" :key="item.label">
-                <Collapsible v-if="'children' in item" default-open class="group/collapsible">
+            <template
+                v-for="item in items"
+                :key="item.label"
+            >
+                <Collapsible
+                    v-if="'children' in item"
+                    default-open
+                    class="group/collapsible"
+                >
                     <SidebarMenuItem>
                         <template v-if="open || !isLg">
                             <CollapsibleTrigger as-child>
@@ -62,8 +69,13 @@ defineProps({
                             <CollapsibleContent>
                                 <SidebarMenuSub>
                                     <SidebarMenuSubItem>
-                                        <SidebarMenuButton v-for="child in item.children" :key="child.label" as-child
-                                            :is-active="child.to === $route.path" :tooltip="child.label">
+                                        <SidebarMenuButton
+                                            v-for="child in item.children"
+                                            :key="child.label"
+                                            as-child
+                                            :is-active="child.to === $route.path"
+                                            :tooltip="child.label"
+                                        >
                                             <router-link :to="child.to ?? '#'">
                                                 {{ child.label }}
                                             </router-link>
@@ -80,9 +92,19 @@ defineProps({
                                         <span>{{ item.label }}</span>
                                     </SidebarMenuButton>
                                 </DropdownMenuTrigger>
-                                <DropdownMenuContent side="right" align="start">
-                                    <DropdownMenuItem v-for="child in item.children" :key="child.label" as-child>
-                                    <RouterLink :to="child.to" :target="child.target ?? '_self'">
+                                <DropdownMenuContent
+                                    side="right"
+                                    align="start"
+                                >
+                                    <DropdownMenuItem
+                                        v-for="child in item.children"
+                                        :key="child.label"
+                                        as-child
+                                    >
+                                        <RouterLink
+                                            :to="child.to"
+                                            :target="child.target ?? '_self'"
+                                        >
                                             {{ child.label }}
                                         </RouterLink>
                                     </DropdownMenuItem>
@@ -93,8 +115,15 @@ defineProps({
                 </Collapsible>
 
                 <SidebarMenuItem v-else>
-                    <SidebarMenuButton as-child :is-active="item.to === $route.path" :tooltip="item.label">
-                    <RouterLink :to="item.to" :target="item.target ?? '_self'">
+                    <SidebarMenuButton
+                        as-child
+                        :is-active="item.to === $route.path"
+                        :tooltip="item.label"
+                    >
+                        <RouterLink
+                            :to="item.to"
+                            :target="item.target ?? '_self'"
+                        >
                             <Icon :name="item.icon" />
                             <span>{{ item.label }}</span>
                         </RouterLink>

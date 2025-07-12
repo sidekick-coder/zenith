@@ -15,7 +15,7 @@ export function autoRoutes(options: Options): RouteRecordRaw[] {
     const lowerCase = options.lowerCase !== undefined ? options.lowerCase : true;
 
     for (const [filename, component] of Object.entries(options.imports)) {
-        let parts = filename.split('/')
+        const parts = filename.split('/')
             .filter(part => part && !part.startsWith('.'))
             .filter(part => !filterParsts.includes(part))
             .map(part => lowerCase ? part.toLowerCase() : part);

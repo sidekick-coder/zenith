@@ -1,5 +1,4 @@
 import { program } from 'commander';
-import modules from '../services/modules.service.ts';
 import router from '../services/router.service.ts';
 import Table from 'cli-table3';
 

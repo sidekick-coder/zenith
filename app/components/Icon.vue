@@ -15,6 +15,7 @@ const props = withDefaults(defineProps<Props>(), {
     class: '',
     size: 16,
     strokeWidth: 2,
+    color: 'currentColor',
 });
 
 const className = computed(() => cn('h-4 w-4', props.class));
@@ -26,5 +27,11 @@ const icon = computed(() => {
 </script>
 
 <template>
-    <component :is="icon" :class="className" :size="size" :stroke-width="strokeWidth" :color="color" />
+    <component
+        :is="icon"
+        :class="className"
+        :size="size"
+        :stroke-width="strokeWidth"
+        :color="color"
+    />
 </template>
