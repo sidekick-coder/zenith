@@ -12,6 +12,11 @@ export function createRouter() {
 
     const routes = Object.values(files).map(f => f.default || f).flat()
 
+    routes.push({
+        path: '/:pathMatch(.*)*',
+        component: () => import('./pages/Errors/404.vue'),
+    })
+
     return createVueRouter({
         history: ssr ? createMemoryHistory() : createWebHistory(),
         routes,

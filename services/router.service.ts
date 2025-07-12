@@ -4,6 +4,7 @@ import { basePath } from "../utils/paths.ts";
 import fs from 'fs';
 import modules from "./modules.service.ts";
 import { tryCatch } from "../utils/tryCatch.ts";
+import logger from "../logger.ts";
 
 export interface HttpContext {
     request: Request
@@ -132,7 +133,7 @@ export class Router {
         }
 
         // headers not set 
-        ctx.response.status(200) 
+        ctx.response.status(200)
 
         if (typeof result === 'object' || Array.isArray(result)) {
             ctx.response.setHeader('Content-Type', 'application/json');
@@ -141,34 +142,55 @@ export class Router {
         ctx.response.send(result);
     }
 
+    public async loadFile(filename: string) {
+        if (!fs.existsSync(filename)) {
+            logger.warn(`File not found: ${filename}`);
+            return
+        }
+
+        this.open(filename);
+
+        const [error] = await tryCatch(() => import(filename));
+
+        if (error) {
+            logger.error(`Failed to load routes from ${filename}`, error);
+        }
+
+        this.close();
+    }
+
+    public async removeFile(filename: string) {
+        const routes = Array.from(this.routes.values());
+
+        const toRemove = routes.filter(route => route.filename === filename);
+
+        for (const route of toRemove) {
+            this.routes.delete(`${route.method} ${route.path}`);
+        }
+    }
+
     public async load() {
         // clear 
         this.routes.clear();
 
         // load root routes 
-        await importAll(basePath('routes'), {
-            onBeforeImport: (filename) => this.open(filename),
-            onAfterImport: () => this.close()
-        });
+        for await (const filename of fs.readdirSync(basePath('routes'))) {
+            this.loadFile(basePath('routes', filename));
+        }
 
         // load module routes
-        const enabled = await modules.list({
+        const mods = await modules.list({
             enabled: true
         });
 
-        for await (const mod of enabled) {
+        for await (const mod of mods) {
             const filename = mod.makePath('server', 'routes.ts');
 
             if (!fs.existsSync(filename)) {
                 continue;
             }
 
-            this.open(filename);
-
-            await import(filename);
-
-            this.close();
-
+            this.loadFile(filename);
         }
     }
 

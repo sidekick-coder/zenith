@@ -2,11 +2,8 @@ import config from "./config.service.ts";
 import { logger } from "../logger.ts";
 import fs from 'fs';
 import { basePath } from "../utils/paths.ts";
-import path from "path";
 import build from "./build.service.ts";
-import env from "../env.ts";
-
-const isProduction = env.NODE_ENV === 'production';
+import router from "./router.service.ts";
 
 interface ModuleFile {
     source?: string;
@@ -91,10 +88,25 @@ export class ModulesService {
         return items;
     }
 
-    public async enable(moduleName: string, options: Options = {}) {
-        const enabled = config.get('modules.enabled', []);
+    public async find(moduleName: string) {
+        const allModules = await this.list();
 
-        if (enabled.includes(moduleName)) return;
+        const mod = allModules.find(mod => mod.name === moduleName);
+
+        return mod || null;
+    }
+
+    public async enable(moduleName: string, options: Options = {}) {
+        const mod = await this.find(moduleName);
+
+        if (!mod) {
+            throw new Error(`Module ${moduleName} not found`);
+        }
+
+        if (mod.enabled) {
+            logger.debug(`Module ${moduleName} is already enabled`);
+            return;
+        }
 
         for await (const file of this.getFiles(moduleName)) {
             fs.writeFileSync(file.filename, file.content, 'utf-8');
@@ -102,11 +114,17 @@ export class ModulesService {
             logger.debug(`module file: ${file.filename}`);
         }
 
+        await router.loadFile(mod.makePath('server', 'routes.ts'));
+
         if (options?.build) {
             await build.all();
         }
 
+        let enabled = config.get('modules.enabled', []);
+
         enabled.push(moduleName);
+
+        enabled = [...new Set(enabled)]; // Ensure unique entries
 
         config.set('modules.enabled', enabled);
 
@@ -114,15 +132,17 @@ export class ModulesService {
     }
 
     public async disable(moduleName: string, options: Options = {}) {
-        const enabled = config.get('modules.enabled', []);
+        const mod = await this.find(moduleName);
 
-        if (!enabled.includes(moduleName)) return;
-
-        const index = enabled.indexOf(moduleName);
-
-        if (index > -1) {
-            enabled.splice(index, 1);
+        if (!mod) {
+            throw new Error(`Module ${moduleName} not found`);
         }
+
+        if (!mod.enabled) {
+            logger.debug(`Module ${moduleName} is already disabled`);
+            return;
+        }
+
 
         for (const file of this.getFiles(moduleName)) {
             if (!fs.existsSync(file.filename)) continue;
@@ -132,8 +152,18 @@ export class ModulesService {
             logger.debug(`removing module file: ${file.filename}`);
         }
 
+        await router.removeFile(mod.makePath('server', 'routes.ts'));
+
         if (options?.build) {
             await build.all();
+        }
+
+        const enabled = config.get('modules.enabled', []);
+
+        const index = enabled.indexOf(moduleName);
+
+        if (index > -1) {
+            enabled.splice(index, 1);
         }
 
         config.set('modules.enabled', enabled);
