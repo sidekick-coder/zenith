@@ -7,3 +7,7 @@ export function basePath(...args: string[]): string {
 
     return path.join(root, ...args);
 }
+
+export function configPath(...args: string[]): string {
+    return basePath('config', ...args);
+}
