@@ -1,0 +1,132 @@
+import type { Request, Response } from "express";
+import { importAll } from "../utils/importAll.ts";
+import { basePath } from "../utils/paths.ts";
+import fs from 'fs';
+
+interface HttpContext {
+    request: Request
+    response: Response
+}
+
+interface Handler {
+    (ctx: HttpContext): Promise<any> | any;
+}
+
+class Route {
+    public method: string;
+    public path: string;
+    public handler: Handler;
+    public metas: Record<string, any> = {};
+    public filename: string | null = null;
+
+    constructor(method: string, path: string, filename: string | null = null, handler: Handler) {
+        this.method = method.toUpperCase();
+        this.path = path;
+        this.handler = handler;
+        this.filename = filename;
+    }
+
+    public meta(key: string, value: any) {
+        this.metas[key] = value;
+        return this;
+    }
+
+    public name(name: string) {
+        return this.meta('name', name);
+    }
+
+}
+
+export class Router {
+    private routes = new Map<string, Route>();
+    private filename = null as string | null;
+
+    public open(filename: string) {
+        this.filename = filename;
+    }
+
+    public close() {
+        if (!this.filename) {
+            throw new Error(`Cannot close router without a filename`);
+        }
+
+        this.filename = null;
+    }
+
+    public add(payload: Pick<Route, 'method' | 'path' | 'handler'>) {
+        let key = `${payload.method.toUpperCase()} ${payload.path}`;
+
+        if (!this.filename) {
+            throw new Error(`Cannot add route without a filename. Did you forget to call open()?`);
+        }
+
+        const route = new Route(payload.method, payload.path, this.filename, payload.handler);
+
+        this.routes.set(key, route);
+
+        return route;
+    }
+
+    public remove(path: string, httpMethod?: string) {
+        const method = httpMethod ? httpMethod.toUpperCase() : 'GET';
+        const key = `${method} ${path}`;
+
+        this.routes.delete(key);
+    }
+
+    public get(path: string, handler: Handler) {
+        return this.add({ method: 'GET', path, handler });
+    }
+
+    public post(path: string, handler: Handler) {
+        return this.add({ method: 'POST', path, handler });
+    }
+
+    public put(path: string, handler: Handler) {
+        return this.add({ method: 'PUT', path, handler });
+    }
+
+    public delete(path: string, handler: Handler) {
+        return this.add({ method: 'DELETE', path, handler });
+    }
+
+    // public resource(resourceName: string, controller: Controller) {
+    //     const base = `/${resourceName}`;
+    //     this.get(base, [controller, 'index']);
+    //     this.post(base, [controller, 'store']);
+    //     this.get(`${base}/:id`, [controller, 'show']);
+    //     this.put(`${base}/:id`, [controller, 'update']);
+    //     this.delete(`${base}/:id`, [controller, 'destroy']);
+    // }
+
+    public resolve(path: string, httpMethod?: string) {
+        const method = httpMethod ? httpMethod.toUpperCase() : 'GET';
+        const routes = Array.from(this.routes.values());
+        const route = routes.find(r => r.path === path && r.method === method);
+
+        if (!route) {
+            return null;
+        }
+
+        return route;
+    }
+
+    public async list() {
+        // clear 
+        this.routes.clear();
+
+        // load root routes 
+        await importAll(basePath('routes'), {
+            onBeforeImport: (filename) => this.open(filename),
+            onAfterImport: () => this.close()
+        });
+
+    const routes = Array.from(this.routes.values())
+
+        return routes
+    }
+}
+
+const router = new Router();
+
+export default router;

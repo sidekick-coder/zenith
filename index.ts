@@ -6,8 +6,6 @@ import schedule from 'node-schedule'
 
 import './logger.ts'
 
-const isProd = process.env.NODE_ENV === 'production'
-
 async function createServer() {
     const app = express()
 

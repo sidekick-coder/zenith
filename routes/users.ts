@@ -1,8 +1,6 @@
-import { Router } from 'express'
+import router from "../services/router.service.ts"
 
-export const router = Router()
-
-router.get('/users', (_req, res) => {
+router.get('/users', () => {
     // Simulate fetching users from a database
     const users = [
         { id: 1, name: 'Alice' },
@@ -10,5 +8,5 @@ router.get('/users', (_req, res) => {
         { id: 3, name: 'Charlie' }
     ]
     
-    res.json(users)
+    return users
 })
