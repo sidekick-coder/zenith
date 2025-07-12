@@ -16,8 +16,6 @@ async function createServer() {
         const url = new URL(req.originalUrl, `http://${req.headers.host}`)
         const method = req.method.toLowerCase()
 
-        logger.debug(`${method.toUpperCase()} ${url.pathname}` )
-
         const ctx: HttpContext = {
             params: req.params,
             request: req,
@@ -26,7 +24,8 @@ async function createServer() {
 
         const route = router.resolve(method, url.pathname)
 
-        if (route){
+        if (route) {
+            logger.debug(`${method.toUpperCase()} ${url.pathname}`)
             return router.execute(method, url.pathname, ctx)
         }
 

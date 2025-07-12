@@ -9,6 +9,7 @@ program.command('serve').option('-w, --watch', 'Watch for changes and restart se
     const args = [
         '--no-warnings',
         '--experimental-strip-types',
+
     ];
 
     const ignore = [
@@ -27,7 +28,8 @@ program.command('serve').option('-w, --watch', 'Watch for changes and restart se
     }
 
     if (options.watch) {
-        args.push('--watch');
+        args.push('--watch', '--watch-preserve-output');
+
         entries.forEach(dir => {
             args.push(`--watch-path=./${dir}`);
         });

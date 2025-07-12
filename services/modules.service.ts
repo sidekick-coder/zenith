@@ -157,8 +157,6 @@ export class ModulesService {
 
         await router.removeFile(mod.makePath('server', 'routes.ts'));
 
-        console.log(env)
-
         if (options?.build || env.isProduction) {
             await build.all();
         }

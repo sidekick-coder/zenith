@@ -201,13 +201,17 @@ export class Router {
 
         this.open(filename);
 
-        const [error] = await tryCatch(() => import(filename));
+        const path = `${filename}?t=${Date.now()}`; // Prevent caching issues
+
+        const [error] = await tryCatch(() => import(path));
 
         if (error) {
             logger.error(`Failed to load routes from ${filename}`, error);
         }
 
         this.close();
+
+        logger.debug(`loaded routes from ${filename}`);
     }
 
     public async removeFile(filename: string) {
@@ -218,6 +222,8 @@ export class Router {
         for (const route of toRemove) {
             this.routes.delete(`${route.method} ${route.path}`);
         }
+
+        logger.debug(`removed routes from ${filename}`);
     }
 
     public async load() {
@@ -241,7 +247,7 @@ export class Router {
                 continue;
             }
 
-            this.loadFile(filename);
+            await this.loadFile(filename);
         }
     }
 
