@@ -4,10 +4,16 @@ import vue from '@vitejs/plugin-vue'
 // https://vite.dev/config/
 export default defineConfig({
     plugins: [vue()],
-    root: './client',
+    root: '.',
+    publicDir: 'client/public',
     build: {
         rollupOptions: {
-            input: '/entry-client.js',
+            input: 'client/index.html',
+        },
+    },
+    resolve: {
+        alias: {
+            '@modules': '/modules',
         },
     },
 })

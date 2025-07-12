@@ -64,7 +64,7 @@ export class Vite {
                 if (!isProduction) {
                     template = fs.readFileSync(basePath('client', 'index.html'), 'utf-8')
                     template = await vite!.transformIndexHtml(url, template)
-                    render = (await vite!.ssrLoadModule('/entry-server.ts')).render
+                    render = (await vite!.ssrLoadModule('/client/entry-server.ts')).render
                 }
 
                 const rendered = await render(url)
