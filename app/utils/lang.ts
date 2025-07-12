@@ -6,7 +6,6 @@ const locales: Record<string, Record<string, string>> = {
 
 const current = 'en';
 
-
 export function $t(key: string, ...args: any[]): string {
 
     const entries = locales[current] || {};

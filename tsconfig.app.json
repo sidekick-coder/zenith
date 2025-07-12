@@ -20,7 +20,8 @@
     },
     "include": [
         "app/**/*.ts",
-        "app/**/*.tsx",
-        "app/**/*.vue"
+        "app/**/*.vue",
+        "modules/**/app/**/*.ts",
+        "modules/**/app/**/*.vue"
     ]
 }

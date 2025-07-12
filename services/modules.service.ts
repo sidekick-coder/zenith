@@ -8,18 +8,53 @@ import env from "../env.ts";
 
 const isProduction = env.NODE_ENV === 'production';
 
+interface ModuleFile {
+    source?: string;
+    filename: string;
+    content: string;
+}
+
+
 export class ModulesService {
+    public getFiles(moduleName: string) {
+        const files: ModuleFile[] = [];
+
+        if (fs.existsSync(basePath(`modules/${moduleName}/app/routes.ts`))) {
+            files.push({
+                source: basePath(`modules/${moduleName}/app/routes.ts`),
+                filename: basePath(`app/routes/module.${moduleName}.ts`),
+                content: [
+                    `import original from '@modules/${moduleName}/app/routes.ts'`,
+                    '',
+                    'export default original;',
+                ].join('\n'),
+            })
+        }
+
+        if (fs.existsSync(basePath(`modules/${moduleName}/app/menu.ts`))) {
+            files.push({
+                source: basePath(`modules/${moduleName}/app/menu.ts`),
+                filename: basePath(`app/menu/module.${moduleName}.ts`),
+                content: [
+                    `import original from '@modules/${moduleName}/app/menu.ts'`,
+                    '',
+                    'export default original;',
+                ].join('\n'),
+            });
+        }
+
+        return files;
+    }
+
     public async enable(moduleName: string) {
         const enabled = config.get('modules.enabled', []);
 
         if (enabled.includes(moduleName)) return;
 
-        const pagesFile = basePath(`modules/${moduleName}/pages.ts`);
+        for await (const file of this.getFiles(moduleName)) {
+            fs.writeFileSync(file.filename, file.content, 'utf-8');
 
-        if (fs.existsSync(pagesFile)) {
-            const outputFile = basePath('client', 'routes', `modules.${moduleName}.ts`);
-            fs.mkdirSync(path.dirname(outputFile), { recursive: true });
-            fs.writeFileSync(outputFile, `import pages from '@modules/${moduleName}/pages.ts';\n\nexport default pages;`, 'utf-8');
+            logger.debug(`module file: ${file.filename}`);
         }
 
         if (isProduction) {
@@ -44,13 +79,12 @@ export class ModulesService {
             enabled.splice(index, 1);
         }
 
-        const files = [basePath('client', 'routes', `modules.${moduleName}.ts`)];
+        for (const file of this.getFiles(moduleName)) {
+            if (!fs.existsSync(file.filename)) continue;
 
-        for (const file of files) {
-            if (fs.existsSync(file)) {
-                fs.unlinkSync(file);
-                logger.debug(`Removed module route file: ${file}`);
-            }
+            fs.unlinkSync(file.filename);
+
+            logger.debug(`removing module file: ${file.filename}`);
         }
 
         if (isProduction) {
