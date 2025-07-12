@@ -2,6 +2,7 @@ import type { Request, Response } from "express";
 import { importAll } from "../utils/importAll.ts";
 import { basePath } from "../utils/paths.ts";
 import fs from 'fs';
+import modules from "./modules.service.ts";
 
 interface HttpContext {
     request: Request
@@ -121,7 +122,27 @@ export class Router {
             onAfterImport: () => this.close()
         });
 
-    const routes = Array.from(this.routes.values())
+        // load module routes
+        const enabled = await modules.list({
+            enabled: true
+        });
+
+        for await (const mod of enabled) {
+            const filename = mod.makePath('api', 'routes.ts');
+
+            if (!fs.existsSync(filename)) {
+                continue;
+            }
+
+            this.open(filename);
+
+            await import(filename);
+
+            this.close();
+
+        }
+
+        const routes = Array.from(this.routes.values())
 
         return routes
     }

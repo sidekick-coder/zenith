@@ -18,6 +18,23 @@ interface Options {
     build?: boolean;
 }
 
+class Module {
+    public name: string;
+    public enabled: boolean = false;
+
+    constructor(name: string) {
+        this.name = name;
+    }
+
+    public makePath(...parts: string[]) {
+        return basePath('modules', this.name, ...parts);
+    }
+}
+
+interface ListOptions {
+    enabled?: boolean;
+}
+
 export class ModulesService {
     public getFiles(moduleName: string) {
         const files: ModuleFile[] = [];
@@ -47,6 +64,31 @@ export class ModulesService {
         }
 
         return files;
+    }
+
+    public async list(options: ListOptions = {}) {
+        const modulesPath = basePath('modules');
+        const moduleNames = fs.readdirSync(modulesPath, { withFileTypes: true })
+            .filter(dirent => dirent.isDirectory())
+            .map(dirent => dirent.name);
+
+        const enabled = config.get('modules.enabled', []);
+
+        let items = [] as Module[];
+
+        for (const name of moduleNames) {
+            const mod = new Module(name);
+
+            mod.enabled = enabled.includes(name);
+
+            items.push(mod);
+        }
+
+        if (options?.enabled) {
+            items = items.filter(mod => mod.enabled);
+        }
+
+        return items;
     }
 
     public async enable(moduleName: string, options: Options = {}) {

@@ -1,4 +1,4 @@
-import router from "../../../services/router.service";
+import router from "../../../services/router.service.ts";
 
 router.get('/api/blog/posts', async ({ request }) => {
     const page = request.query.page ? parseInt(request.query.page as string, 10) : 1;
