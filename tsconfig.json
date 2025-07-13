@@ -8,7 +8,10 @@
             ],
             "@modules/*": [
                 "modules/*"
-            ]
+            ],
+            "@database/*": [
+                "database/*"
+            ],
         }
     },
     "references": [

@@ -15,7 +15,31 @@
     "noUnusedParameters": true,
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true,
-    "noUncheckedSideEffectImports": true
+    "noUncheckedSideEffectImports": true,
+    "baseUrl": ".",
+    "paths": {
+        "@app/*": [
+            "app/*"
+        ],
+        "@modules/*": [
+            "modules/*"
+        ],
+        "@database/*": [
+            "database/*"
+        ],
+        "#database": [
+            "database.d.ts"
+        ],
+    }
+    
   },
-  "include": ["vite.config.ts", "server/**/*.ts", "artisan"]
+  "include": [
+    "vite.config.ts", 
+    "database.d.ts",
+    "database/**/*.ts",
+    "routes/**/*.ts",
+    "server/**/*.ts",
+    "modules/**/server/**/**/*.ts",
+    "artisan"
+]
 }
