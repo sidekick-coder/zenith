@@ -1,52 +1,377 @@
-import {  Migrator as KyselyMigrator } from "kysely";
 import { basePath } from "../utils/paths.ts";
 import { db } from "./index.ts";
 import fs from 'fs';
+import path from 'path';
 import modules from "../services/modules.service.ts";
-import { MultiFolderMigrationProvider } from "./multiFolderMigrationProvider.ts";
+import { tryCatch } from "../utils/tryCatch.ts";
+
+interface Migration {
+    name: string;
+    module: string | null;
+    filePath: string;
+    executedAt: Date | null;
+    up: (db: any) => Promise<void>;
+    down: (db: any) => Promise<void>;
+}
+
+interface MigrationResult {
+    filename: string;
+    module: string | null;
+    result: 'success' | 'failed';
+    error?: string;
+}
 
 export class Migrator {
-    public async make() {
-        const folders: string[] = [
-            basePath('database', 'migrations'),
-        ];
+    private async ensureMigrationsTable() {
+        await db.schema
+            .createTable('migrations')
+            .ifNotExists()
+            .addColumn('name', 'text', (col) => col.primaryKey())
+            .addColumn('module', 'text')
+            .addColumn('executed_at', 'timestamp', (col) => col.notNull())
+            .execute();
+    }
 
-        const mods = await modules.list();
+    public async list(): Promise<Migration[]> {
+        await this.ensureMigrationsTable();
 
-        for (const mod of mods) {
-            if (fs.existsSync(mod.makePath('server', 'database', 'migrations'))) {
-                folders.push(mod.makePath('server', 'database', 'migrations'));
+        const allMigrations: Migration[] = [];
+
+        // Load root migrations
+        const rootFolder = basePath('database', 'migrations');
+        if (fs.existsSync(rootFolder)) {
+            const entries = await fs.promises.readdir(rootFolder);
+            
+            for (const entry of entries) {
+                if (!entry.endsWith('.js') && !entry.endsWith('.ts')) continue;
+
+                const fullPath = path.join(rootFolder, entry);
+                const filename = path.basename(entry, path.extname(entry));
+
+                const [error, migration] = await tryCatch(() => import(fullPath));
+
+                if (error) {
+                    console.warn(`Failed to load migration ${filename}:`, error);
+                    continue;
+                }
+
+                allMigrations.push({
+                    name: filename,
+                    module: null,
+                    filePath: fullPath,
+                    executedAt: null,
+                    up: migration.up,
+                    down: migration.down,
+                });
             }
         }
 
-        return new KyselyMigrator({
-            db,
-            provider: new MultiFolderMigrationProvider(folders),
-        })
+        // Load module migrations
+        const mods = await modules.list();
+        for (const mod of mods) {
+            const migrationPath = mod.makePath('server', 'database', 'migrations');
+            if (!fs.existsSync(migrationPath)) continue;
+
+            const entries = await fs.promises.readdir(migrationPath);
+            
+            for (const entry of entries) {
+                if (!entry.endsWith('.js') && !entry.endsWith('.ts')) continue;
+
+                const fullPath = path.join(migrationPath, entry);
+                const filename = path.basename(entry, path.extname(entry));
+
+                const [error, migration] = await tryCatch(() => import(fullPath));
+
+                if (error) {
+                    console.warn(`Failed to load migration ${filename}:`, error);
+                    continue;
+                }
+
+                allMigrations.push({
+                    name: filename,
+                    module: mod.name,
+                    filePath: fullPath,
+                    executedAt: null,
+                    up: migration.up,
+                    down: migration.down,
+                });
+            }
+        }
+
+        // Sort all migrations by name
+        allMigrations.sort((a, b) => a.name.localeCompare(b.name));
+
+        // Get executed migrations from database
+        const executedMigrations = await db
+            .selectFrom('migrations')
+            .selectAll()
+            .execute();
+
+        // Mark executed migrations
+        const executedMap = new Map(executedMigrations.map(m => [m.name, m.executed_at]));
+        
+        return allMigrations.map(migration => ({
+            ...migration,
+            executedAt: executedMap.get(migration.name) || null
+        }));
     }
 
-    public async list() {
-        const migrator = await this.make();
+    public async migrateFile(fileName: string): Promise<MigrationResult> {
+        await this.ensureMigrationsTable();
+        
+        const migrations = await this.list();
+        const migration = migrations.find(m => m.name === fileName);
 
-        return await migrator.getMigrations();
+        if (!migration) {
+            return {
+                filename: fileName,
+                module: null,
+                result: 'failed',
+                error: `Migration ${fileName} not found`
+            };
+        }
+
+        if (migration.executedAt) {
+            return {
+                filename: fileName,
+                module: migration.module,
+                result: 'failed',
+                error: `Migration ${fileName} already executed`
+            };
+        }
+
+        try {
+            await migration.up(db);
+            
+            await db
+                .insertInto('migrations')
+                .values({
+                    name: migration.name,
+                    module: migration.module,
+                    executed_at: new Date().toISOString()
+                })
+                .execute();
+
+            return {
+                filename: migration.name,
+                module: migration.module,
+                result: 'success'
+            };
+        } catch (error) {
+            return {
+                filename: migration.name,
+                module: migration.module,
+                result: 'failed',
+                error: error instanceof Error ? error.message : String(error)
+            };
+        }
     }
 
-    public async up() {
-        const migrator = await this.make();
+    public async rollbackFile(fileName: string): Promise<MigrationResult> {
+        await this.ensureMigrationsTable();
+        
+        const migrations = await this.list();
+        const migration = migrations.find(m => m.name === fileName);
 
-        return await migrator.migrateUp();
+        if (!migration) {
+            return {
+                filename: fileName,
+                module: null,
+                result: 'failed',
+                error: `Migration ${fileName} not found`
+            };
+        }
+
+        if (!migration.executedAt) {
+            return {
+                filename: fileName,
+                module: migration.module,
+                result: 'failed',
+                error: `Migration ${fileName} not executed`
+            };
+        }
+
+        try {
+            await migration.down(db);
+            
+            await db
+                .deleteFrom('migrations')
+                .where('name', '=', migration.name)
+                .execute();
+
+            return {
+                filename: migration.name,
+                module: migration.module,
+                result: 'success'
+            };
+        } catch (error) {
+            return {
+                filename: migration.name,
+                module: migration.module,
+                result: 'failed',
+                error: error instanceof Error ? error.message : String(error)
+            };
+        }
     }
 
-    public async down() {
-        const migrator = await this.make();
+    
 
-        return await migrator.migrateDown();
+    public async migrateFolder(folderPath: string): Promise<MigrationResult[]> {
+        if (!fs.existsSync(folderPath)) {
+            throw new Error(`Folder ${folderPath} does not exist`);
+        }
+
+        const entries = await fs.promises.readdir(folderPath);
+
+        const migrationFiles = entries
+            .filter(entry => entry.endsWith('.js') || entry.endsWith('.ts'))
+            .map(entry => path.basename(entry, path.extname(entry)))
+            .sort();
+
+        if (migrationFiles.length === 0) {
+            return [];
+        }
+
+        const allResults: MigrationResult[] = [];
+
+        for (const fileName of migrationFiles) {
+            const result = await this.migrateFile(fileName);
+            allResults.push(result);
+            
+            // Stop processing if migration failed
+            if (result.result === 'failed') {
+                break;
+            }
+        }
+
+        return allResults;
     }
 
-    public async latest() {
-        const migrator = await this.make();
+    public async rollbackFolder(folderPath: string): Promise<MigrationResult[]> {
+        if (!fs.existsSync(folderPath)) {
+            throw new Error(`Folder ${folderPath} does not exist`);
+        }
 
-        return await migrator.migrateToLatest();
+        const entries = await fs.promises.readdir(folderPath);
+
+        const migrationFiles = entries
+            .filter(entry => entry.endsWith('.js') || entry.endsWith('.ts'))
+            .map(entry => path.basename(entry, path.extname(entry)))
+            .sort()
+            .reverse(); // Reverse order for rollback
+
+        if (migrationFiles.length === 0) {
+            return [];
+        }
+
+        const allResults: MigrationResult[] = [];
+
+        for (const fileName of migrationFiles) {
+            const result = await this.rollbackFile(fileName);
+            allResults.push(result);
+            
+            // Stop processing if rollback failed
+            if (result.result === 'failed') {
+                break;
+            }
+        }
+
+        return allResults;
+    }
+
+    public async migrateByModule(moduleName: string): Promise<MigrationResult[]> {
+        const mod = await modules.findOrFail(moduleName);
+
+        return this.migrateFolder(mod.makePath('server', 'database', 'migrations'));
+    }
+
+    public async rollbackByModule(moduleName: string): Promise<MigrationResult[]> {
+        const mod = await modules.findOrFail(moduleName);
+
+        return this.rollbackFolder(mod.makePath('server', 'database', 'migrations'));
+    }
+
+    public async up(steps: number = 1): Promise<MigrationResult[]> {
+        await this.ensureMigrationsTable();
+        
+        const migrations = await this.list();
+        const pendingMigrations = migrations
+            .filter(m => !m.executedAt)
+            .sort((a, b) => a.name.localeCompare(b.name));
+
+        if (pendingMigrations.length === 0) {
+            return [];
+        }
+
+        const results: MigrationResult[] = [];
+        const migrationsToProcess = pendingMigrations.slice(0, steps);
+        
+        for (const migration of migrationsToProcess) {
+            const result = await this.migrateFile(migration.name);
+            results.push(result);
+            
+            // Stop on first failure
+            if (result.result === 'failed') {
+                break;
+            }
+        }
+
+        return results;
+    }
+
+    public async down(steps: number = 1): Promise<MigrationResult[]> {
+        await this.ensureMigrationsTable();
+        
+        const migrations = await this.list();
+        const executedMigrations = migrations
+            .filter(m => m.executedAt)
+            .sort((a, b) => b.name.localeCompare(a.name));
+
+        if (executedMigrations.length === 0) {
+            return [];
+        }
+
+        const results: MigrationResult[] = [];
+        const migrationsToProcess = executedMigrations.slice(0, steps);
+        
+        for (const migration of migrationsToProcess) {
+            const result = await this.rollbackFile(migration.name);
+            results.push(result);
+            
+            // Stop on first failure
+            if (result.result === 'failed') {
+                break;
+            }
+        }
+
+        return results;
+    }
+
+    public async latest(): Promise<MigrationResult[]> {
+        await this.ensureMigrationsTable();
+        
+        const migrations = await this.list();
+        const pendingMigrations = migrations
+            .filter(m => !m.executedAt)
+            .sort((a, b) => a.name.localeCompare(b.name));
+
+        if (pendingMigrations.length === 0) {
+            return [];
+        }
+
+        const results: MigrationResult[] = [];
+        
+        for (const migration of pendingMigrations) {
+            const result = await this.migrateFile(migration.name);
+            results.push(result);
+            
+            // Stop on first failure
+            if (result.result === 'failed') {
+                break;
+            }
+        }
+
+        return results;
     }
 }
 

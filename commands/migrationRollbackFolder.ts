@@ -2,14 +2,14 @@ import { program } from 'commander';
 import migrator from '../database/migrator.ts';
 import cli from '../services/cli.service.ts';
 
-program.command('migration:latest')
+program.command('migration:rollback-folder')
     .helpGroup('migration')
-    .description('Run all pending migrations')
-    .action(async () => {
-        const results = await migrator.latest();
+    .argument('<folderPath>', 'Folder path to rollback')
+    .action(async (folderPath) => {
+        const results = await migrator.rollbackFolder(folderPath);
 
         if (results.length === 0) {
-            console.log('No pending migrations');
+            console.log('No migrations found in folder');
             return;
         }
 

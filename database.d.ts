@@ -14,9 +14,16 @@ export interface UserTable {
   deleted_at: ColumnType<Date | null, string | undefined, null>
 }
 
+export interface MigrationsTable {
+  name: string
+  module: string | null
+  executed_at: ColumnType<Date, string | undefined, never>
+}
+
 // Base interface that modules can extend
 export interface Tables {
   users: UserTable
+  migrations: MigrationsTable
 }
 
 declare global {

@@ -3,29 +3,17 @@ import migrator from '../database/migrator.ts';
 import cli from '../services/cli.service.ts';
 
 program.command('migration:down')
-    .option('-s, --step <number>', 'Number of steps to migrate up', Number)
+    .helpGroup('migration')
+    .description('Rollback executed migrations')
+    .option('-s, --step <number>', 'Number of migrations to rollback', Number)
     .action(async (options) => {
-        const results = [] as any[];
+        const results = await migrator.down(options.step);
 
-        const step = options.step || 1;
-
-        for await (const _ of Array(step).keys()) {
-            const { error, results: stepResults } = await migrator.down();
-
-            if (error) {
-                console.error(error);
-                return;
-            }
-
-            if (stepResults?.length) {
-                results.push(...stepResults);
-            } else {
-                break; // No more migrations to apply
-            }
+        if (results.length === 0) {
+            console.log('No migrations to rollback');
+            return;
         }
 
-        if (results?.length) {
-            cli.ui.table(results)
-        }
+        cli.ui.table(results);
     });
 

@@ -3,28 +3,16 @@ import migrator from '../database/migrator.ts';
 import cli from '../services/cli.service.ts';
 
 program.command('migration:up')
-    .option('-s, --step <number>', 'Number of steps to migrate up', Number)
+    .helpGroup('migration')
+    .description('Run pending migrations')
+    .option('-s, --step <number>', 'Number of migrations to run', Number)
     .action(async (options) => {
-        const results = [] as any[];
+        const results = await migrator.up(options.step);
 
-        const step = options.step || 1;
-
-        for await (const _ of Array(step).keys()) {
-            const { error, results: stepResults } = await migrator.up();
-
-            if (error) {
-                console.error(error);
-                return;
-            }
-
-            if (stepResults?.length) {
-                results.push(...stepResults);
-            } else {
-                break; // No more migrations to apply
-            }
+        if (results.length === 0) {
+            console.log('No pending migrations');
+            return;
         }
 
-        if (results?.length) {
-            cli.ui.table(results)
-        }
+        cli.ui.table(results);
     });
