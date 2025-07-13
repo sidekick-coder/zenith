@@ -3,6 +3,7 @@ import modules from '../services/modules.service.ts';
 import Table from 'cli-table3';
 
 program.command('module:list')
+    .helpGroup('module')
     .action(async () => {
         const items = await modules.list();
 
