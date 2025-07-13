@@ -23,5 +23,6 @@ dist-ssr
 *.sln
 *.sw?
 
+database.sqlite
 config/*
 !config/.gitkeep
