@@ -18,20 +18,19 @@
     "noUncheckedSideEffectImports": true,
     "baseUrl": ".",
     "paths": {
-        "@app/*": [
+        "#app/*": [
             "app/*"
         ],
-        "@modules/*": [
+        "#modules/*": [
             "modules/*"
         ],
-        "@database/*": [
+        "#database/*": [
             "database/*"
         ],
-        "#database": [
+        "#database/schema": [
             "database.d.ts"
-        ],
+        ]
     }
-    
   },
   "include": [
     "vite.config.ts", 

@@ -2,18 +2,34 @@ import { program } from 'commander';
 import { format, } from 'date-fns';
 import { basePath } from '../utils/paths.ts';
 import template from '../services/template.service.ts';
-import fs from 'fs/promises';
+import fs from 'fs';
+import path from 'path';
+import modules from '../services/modules.service.ts';
 
 program.command('make:migration')
     .argument('<name>', 'Migration name')
-    .action(async (name) => {
+    .option('-m, --module <module>', 'Module name')
+    .action(async (name, options) => {
         const timesmap = format(new Date(), 'yyyy_MM_dd_HH_mm');
 
         const migrationName = `${timesmap}_${name}.ts`;
 
-        const filename = basePath('database', 'migrations', migrationName);
+        let filename = basePath('database', 'migrations', migrationName);
 
-        const contents = await template.fromFile(basePath('templates', 'migration.ts'))
+        if (options.module) {
+            const mod = await modules.findOrFail(options.module);
 
-        await fs.writeFile(filename, contents)
+            filename = mod.makePath('server', 'database', 'migrations', migrationName);
+        }
+
+        const contents = await template.fromFile(basePath('templates', 'migration.ts'));
+
+        if (!fs.existsSync(path.dirname(filename))) {
+            await fs.promises.mkdir(path.dirname(filename), { recursive: true });
+        }
+
+        fs.writeFileSync(filename, contents);
+
+        console.log(`Migration created: ${filename}`);
+
     });

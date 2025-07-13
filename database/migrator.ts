@@ -1,44 +1,52 @@
-import { FileMigrationProvider, Migrator as KyselyMigrator } from "kysely";
+import {  Migrator as KyselyMigrator } from "kysely";
 import { basePath } from "../utils/paths.ts";
 import { db } from "./index.ts";
 import fs from 'fs';
-import path from 'path';
-import dbManager from "./manager.ts";
+import modules from "../services/modules.service.ts";
+import { MultiFolderMigrationProvider } from "./multiFolderMigrationProvider.ts";
 
 export class Migrator {
     public async make() {
+        const folders: string[] = [
+            basePath('database', 'migrations'),
+        ];
+
+        const mods = await modules.list();
+
+        for (const mod of mods) {
+            if (fs.existsSync(mod.makePath('server', 'database', 'migrations'))) {
+                folders.push(mod.makePath('server', 'database', 'migrations'));
+            }
+        }
+
         return new KyselyMigrator({
             db,
-            provider: new FileMigrationProvider({
-                fs: fs.promises,
-                path: path,
-                migrationFolder: basePath('database', 'migrations'),
-            })
+            provider: new MultiFolderMigrationProvider(folders),
         })
     }
 
-    public async list(){
+    public async list() {
         const migrator = await this.make();
 
-        const items = await migrator.getMigrations()
-
-        return items;
+        return await migrator.getMigrations();
     }
 
     public async up() {
         const migrator = await this.make();
 
-        const items = await migrator.migrateUp();
-
-        return items;
+        return await migrator.migrateUp();
     }
 
     public async down() {
         const migrator = await this.make();
 
-        const items = await migrator.migrateDown();
+        return await migrator.migrateDown();
+    }
 
-        return items;
+    public async latest() {
+        const migrator = await this.make();
+
+        return await migrator.migrateToLatest();
     }
 }
 

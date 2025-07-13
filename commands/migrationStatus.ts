@@ -1,27 +1,28 @@
 import { program } from 'commander';
 import migrator from '../database/migrator.ts';
-import Table from 'cli-table3';
 import chalk from 'chalk';
+import cli from '../services/cli.service.ts';
 
 program.command('migration:status')
     .action(async () => {
-        const migrations = await migrator.list();
+        const items = await migrator.list();
 
-        const table = new Table({
-            head: ['Status', 'Migration'],
-            colWidths: [10, 50],
-            style: {
-                head: [],
+        const data = items.map(item => ({
+            status: item.executedAt ? chalk.green('Executed') : chalk.red('Pending'),
+            name: item.name,
+        }))
+
+        cli.ui.table(data, [
+            {
+                label: 'status',
+                value: 'status',
+                width: 15,
+            },
+            {
+                label: 'name',
+                value: 'name',
             }
-        })
-
-        migrations.forEach(migration => {
-            const status = migration.executedAt ? chalk.green('Executed') : chalk.red('Pending');
-
-            table.push([status, migration.name]);
-        });
-
-
-        console.log(table.toString());
+        ])
 
     });
+

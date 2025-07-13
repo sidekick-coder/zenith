@@ -99,6 +99,16 @@ export class ModulesService {
         return mod || null;
     }
 
+    public async findOrFail(moduleName: string) {
+        const mod = await this.find(moduleName);
+
+        if (!mod) {
+            throw new Error(`Module ${moduleName} not found`);
+        }
+
+        return mod;
+    }
+
     public async enable(moduleName: string, options: Options = {}) {
         const mod = await this.find(moduleName);
 

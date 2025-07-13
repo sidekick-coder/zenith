@@ -1,38 +1,31 @@
-
 import { program } from 'commander';
 import migrator from '../database/migrator.ts';
-import Table from 'cli-table3';
-import chalk from 'chalk';
-import dbManager from '../database/manager.ts';
+import cli from '../services/cli.service.ts';
 
 program.command('migration:down')
-    .action(async () => {
-        await dbManager.load();
+    .option('-s, --step <number>', 'Number of steps to migrate up', Number)
+    .action(async (options) => {
+        const results = [] as any[];
 
-        await migrator.up();
+        const step = options.step || 1;
 
-        const { error, results }= await migrator.down();
+        for await (const _ of Array(step).keys()) {
+            const { error, results: stepResults } = await migrator.down();
 
-        if (error) {
-            console.error(chalk.red('Error during migration:'), error);
-            return;
+            if (error) {
+                console.error(error);
+                return;
+            }
+
+            if (stepResults?.length) {
+                results.push(...stepResults);
+            } else {
+                break; // No more migrations to apply
+            }
         }
 
-        const table = new Table({
-            head: ['Status', 'Migration'],
-            colWidths: [10, 50],
-            style: {
-                head: [],
-            }
-        })
-
-        results?.forEach(migration => {
-            const status = migration.status === 'Success' ? chalk.green('Executed') : chalk.red('Failed');
-
-            table.push([status, migration.migrationName]);
-        });
-
-
-        console.log(table.toString());
-
+        if (results?.length) {
+            cli.ui.table(results)
+        }
     });
+
