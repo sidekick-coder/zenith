@@ -37,7 +37,7 @@ export default class DIService {
     }
 
     public proxy<T = unknown>(key: EntryKey): T {
-        return new Proxy<T>({}, {
+        return new Proxy({}, {
             get: (_target, prop) => {
                 const entry = this.get<T>(key) as any
 
@@ -54,6 +54,6 @@ export default class DIService {
 
                 return true
             }
-        })
+        }) as T
     }
 }

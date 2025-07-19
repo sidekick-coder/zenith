@@ -12,6 +12,11 @@ const memory = new SqliteDialect({
 })
 
 export default class DatabaseManager extends Kysely<Database> {
+    public static readonly DI_KEY = 'db'
+    public configConnectionName = 'initial'
+    public configConnection = ''
+
+
     constructor(kyselyConfig?: { dialect: Dialect }) {
         const config = kyselyConfig || { dialect: memory }
         
@@ -46,6 +51,13 @@ export default class DatabaseManager extends Kysely<Database> {
             dialect: dialect
         })
 
-        di.set(DatabaseManager, db)
+        db.configConnectionName = name
+        db.configConnection = connection.database
+
+        if (di.has(DatabaseManager.DI_KEY)) {
+            await di.get<DatabaseManager>(DatabaseManager.DI_KEY).destroy()
+        }
+
+        di.set(DatabaseManager.DI_KEY, db)
     }
 }

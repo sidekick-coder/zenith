@@ -10,7 +10,7 @@ export interface MigrationsTable {
 
 export interface UserTable extends WithTimestamp, WithSoftDelete {
   id: Generated<number>
-  name: string
+  username: string
   email: string
   password: string
 }
