@@ -1,5 +1,8 @@
 import express from 'express'
-import type { Request, Response } from 'express'
+import cookieParser from 'cookie-parser'
+import type {
+    CookieOptions, Request, Response 
+} from 'express'
 import vite from './services/vite.service.ts'
 
 import type Route from '#router/route.ts'
@@ -31,6 +34,20 @@ async function execute(url: URL, request: Request, response: Response, route: Ro
         params: request.params,
         query: Object.fromEntries(url.searchParams.entries()),
         body: request.body,
+        cookie: {
+            get(name: string) {
+                return request.cookies?.[name]
+            },
+            set(name, value, cookiOptions) {
+                const options: CookieOptions = {
+                    httpOnly: true,
+                    secure: process.env.NODE_ENV === 'production',
+                    ...cookiOptions
+                }
+
+                response.cookie(name, value, options)
+            }
+        }
     }
 
     const [error, result] = await tryCatch(() => route.handler(ctx)) 
@@ -57,6 +74,7 @@ async function execute(url: URL, request: Request, response: Response, route: Ro
 async function main() {
     const app = express()
 
+    app.use(cookieParser())
     app.use(express.json())
     app.use(express.urlencoded({
         extended: true 
