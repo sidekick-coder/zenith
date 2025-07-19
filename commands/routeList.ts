@@ -1,6 +1,6 @@
 import { program } from 'commander';
-import router from '../services/router.service.ts';
 import Table from 'cli-table3';
+import router from '#facades/router.ts';
 
 program.command('route:list')
     .action(async () => {

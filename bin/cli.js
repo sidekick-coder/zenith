@@ -1,9 +1,9 @@
-import { program } from 'commander';
-import { importAll } from '../utils/importAll.ts';
-import { basePath } from '../utils/paths.ts';
-import dbManager from '../database/manager.ts';
+import { program } from 'commander'
+import { importAll } from '#utils/importAll.ts'
+import { basePath } from '#utils/paths.ts'
+import db from '#facades/db.ts'
 
-await dbManager.load();
+await db.load()
 
 await importAll(basePath('commands'))
 

@@ -1,4 +1,5 @@
 {
+    "extends": "./tsconfig.base.json",
   "compilerOptions": {
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo",
     "target": "ES2023",
@@ -16,29 +17,14 @@
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true,
-    "baseUrl": ".",
-    "paths": {
-        "#app/*": [
-            "app/*"
-        ],
-        "#modules/*": [
-            "modules/*"
-        ],
-        "#database/*": [
-            "database/*"
-        ],
-        "#database/schema": [
-            "database.d.ts"
-        ],
-        "#server/router": [
-            "services/router.service.ts"
-        ]
-    }
   },
   "include": [
     "vite.config.ts", 
     "database.d.ts",
     "database/**/*.ts",
+    "router/**/*.ts",
+    "services/**/*.ts",
+    "facades/**/*.ts",
     "routes/**/*.ts",
     "server/**/*.ts",
     "modules/**/server/**/**/*.ts",

@@ -10,8 +10,8 @@ export interface TaskTable extends WithTimestamp, WithSoftDelete {
 }
 
 // Extend the global DatabaseTables interface
-declare module '#database/schema' {
-  interface Tables {
+declare module '#database/types' {
+  interface Database {
     tasks: TaskTable
   }
 }

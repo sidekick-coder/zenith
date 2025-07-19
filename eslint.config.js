@@ -1,7 +1,7 @@
-import vue from 'eslint-plugin-vue';
-import js from '@eslint/js';
-import { defineConfigWithVueTs, vueTsConfigs } from '@vue/eslint-config-typescript';
-import importPlugin from 'eslint-plugin-import';
+import vue from 'eslint-plugin-vue'
+import js from '@eslint/js'
+import { defineConfigWithVueTs, vueTsConfigs } from '@vue/eslint-config-typescript'
+import importPlugin from 'eslint-plugin-import'
 
 export default defineConfigWithVueTs(
     {
@@ -19,7 +19,9 @@ export default defineConfigWithVueTs(
     {
         rules: {
             'indent': ['error', 4],
-            // Add these rules to fix object formatting
+            'semi': ['error', 'never'],
+            'quotes': ['error', 'single'],
+            'import/extensions': ['error', 'always'],
             'object-curly-newline': ['error', {
                 'ObjectExpression': {
                     'multiline': true, 
@@ -56,4 +58,4 @@ export default defineConfigWithVueTs(
             }]
         },
     },
-);
+)

@@ -22,11 +22,9 @@ export interface Tables {
 }
 
 
-declare global {
-  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-  interface Database extends Tables {
-
-  }
+export interface Database  {
+  users: UserTable
+  migrations: MigrationsTable
 }
 
 export {}

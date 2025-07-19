@@ -1,35 +1,60 @@
 import express from 'express'
+import type { Request, Response } from 'express'
 import vite from './services/vite.service.ts'
 
-import type { HttpContext } from './services/router.service.ts'
-import router from './services/router.service.ts'
+import type Route from '#router/route.ts'
 import logger from './logger.ts'
-import dbManager from '#database/manager.ts'
+import router from '#facades/router.ts'
+import db from '#facades/db.ts'
+import { tryCatch } from '#utils/tryCatch.ts'
+import type { HttpContext } from '#router/types.ts'
 
-async function createServer() {
+async function execute(url: URL, request: Request, response: Response, route: Route) {        
+    const ctx: HttpContext = {
+        params: request.params,
+        query: Object.fromEntries(url.searchParams.entries()),
+        body: request.body,
+    }
+
+    const [error, result] = await tryCatch(() => route.handler(ctx)) 
+
+    if (error) {
+        response.status(500).send(`Internal Server Error: ${error.message}`)
+        return
+    }
+
+    if (response.headersSent) {
+        return // if headers are already sent, do not modify the response
+    }
+
+    // headers not set 
+    response.status(200)
+
+    if (typeof result === 'object' || Array.isArray(result)) {
+        response.setHeader('Content-Type', 'application/json')
+    }
+
+    response.send(result)
+}
+
+async function main() {
     const app = express()
 
     await vite.init(app)
 
     await router.load()
 
-    await dbManager.load();
+    await db.load()
 
     app.use('*all', (req, res) => {
         const url = new URL(req.originalUrl, `http://${req.headers.host}`)
         const method = req.method.toLowerCase()
 
-        const ctx: HttpContext = {
-            params: req.params,
-            request: req,
-            response: res,
-        }
-
         const route = router.resolve(method, url.pathname)
 
         if (route) {
             logger.debug(`${method.toUpperCase()} ${url.pathname}`)
-            return router.execute(method, url.pathname, ctx)
+            return execute(url, req, res, route)
         }
 
         if (url.pathname.startsWith('/api/')) {
@@ -39,7 +64,7 @@ async function createServer() {
             })
         }
 
-        return vite.render(req.originalUrl, ctx)
+        return vite.render(req.originalUrl, req, res)
     })
 
     app.listen(3000, () => {
@@ -50,7 +75,7 @@ async function createServer() {
     })
 }
 
-createServer().catch((err) => {
+main().catch((err) => {
     console.error(err)
     process.exit(1)
 })

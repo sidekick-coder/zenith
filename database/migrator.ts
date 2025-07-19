@@ -1,9 +1,9 @@
 import { basePath } from "../utils/paths.ts";
-import { db } from "./index.ts";
 import fs from 'fs';
 import path from 'path';
 import modules from "../services/modules.service.ts";
 import { tryCatch } from "../utils/tryCatch.ts";
+import db from "#facades/db.ts";
 
 interface Migration {
     name: string;

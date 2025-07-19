@@ -1,19 +1,5 @@
 {
     "files": [],
-    "compilerOptions": {
-        "baseUrl": ".",
-        "paths": {
-            "@app/*": [
-                "app/*"
-            ],
-            "@modules/*": [
-                "modules/*"
-            ],
-            "@database/*": [
-                "database/*"
-            ],
-        }
-    },
     "references": [
         {
             "path": "./tsconfig.app.json"

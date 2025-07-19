@@ -4,17 +4,15 @@ import fs from 'fs'
 import express from 'express'
 import { basePath } from "../utils/paths.ts"
 import env from "../env.ts"
-import type { HttpContext } from "./router.service.ts"
+import type { Request, Response } from "express";
 
 const isProduction = env.NODE_ENV === 'production'
 
 export class ViteServer {
     private vite: ViteDevServer | undefined
 
-    public async render(url: string, ctx: HttpContext) {
+    public async render(url: string,_request: Request, response: Response) {
         try {
-            
-
             const template = isProduction 
                 ? fs.readFileSync(basePath('app', 'dist', 'client', 'index.html'), 'utf-8')
                 : await this.vite!.transformIndexHtml(url, fs.readFileSync(basePath('index.html'), 'utf-8'))
@@ -37,11 +35,12 @@ export class ViteServer {
                 .replace(`<!--app-head-->`, head)
                 .replace(`<!--app-html-->`, body)
 
-            ctx.response.status(200).set({ 'Content-Type': 'text/html' }).end(html)
+            response.status(200).set({ 'Content-Type': 'text/html' }).end(html)
         } catch (e) {
-            this.vite?.ssrFixStacktrace(e)
-            console.log(e.stack)
-            ctx.response.status(500).end(e.stack)
+            const error = e as Error
+            this.vite?.ssrFixStacktrace(error)
+            console.log(error.stack)
+            response.status(500).end(error.stack)
         }
     }
     public async init(app: Application) {

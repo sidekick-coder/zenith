@@ -1,9 +1,9 @@
+import fs from 'fs';
 import config from "./config.service.ts";
 import { logger } from "../logger.ts";
-import fs from 'fs';
 import { basePath } from "../utils/paths.ts";
 import build from "./build.service.ts";
-import router from "./router.service.ts";
+import router from "#facades/router.ts";
 import env from "../env.ts";
 
 interface ModuleFile {

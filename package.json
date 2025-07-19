@@ -6,6 +6,10 @@
     "imports": {
         "#app/*": "./app/*",
         "#modules/*": "./modules/*",
+        "#router/*": "./router/*",
+        "#services/*": "./services/*",
+        "#utils/*": "./utils/*",
+        "#facades/*": "./facades/*",
         "#database/*": "./database/*",
         "#database/schema": "./database.d.ts",
         "#server/router": "./services/router.service.ts"
@@ -27,7 +31,6 @@
         "clsx": "^2.1.1",
         "commander": "^14.0.0",
         "date-fns": "^4.1.0",
-        "eslint-plugin-import": "^2.32.0",
         "express": "^5.1.0",
         "kysely": "^0.28.2",
         "lodash": "^4.17.21",
