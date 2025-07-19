@@ -84,7 +84,7 @@ export default class AuthService {
         return hasher.hash(password)
     }
 
-    async validateToken(tokenValue: string): Promise<{ user: any; token: any } | null> {
+    async authenticate(tokenValue: string) {
         const token = await this.tokenService.findToken(tokenValue)
         
         if (!token) {
@@ -92,6 +92,7 @@ export default class AuthService {
         }
 
         const isValid = await this.tokenService.isTokenValid(tokenValue)
+
         if (!isValid) {
             return null
         }
@@ -106,14 +107,7 @@ export default class AuthService {
             return null
         }
 
-        return {
-            user: {
-                id: user.id,
-                username: user.username,
-                email: user.email
-            },
-            token
-        }
+        return user
     }
 
     async logout(tokenValue: string): Promise<boolean> {

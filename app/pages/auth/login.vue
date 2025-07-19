@@ -12,9 +12,10 @@ import { $fetch } from '#app/utils/fetcher'
 import { ref } from 'vue'
 import { tryCatch } from '#common/tryCatch'
 import { toast } from 'vue-sonner'
-
+import { useRouter } from 'vue-router'
 
 const isLoading = ref(false)
+const router = useRouter()
 
 const { handleSubmit } = useForm({
     initialValues: {
@@ -31,12 +32,10 @@ const { handleSubmit } = useForm({
 const onSubmit = handleSubmit(async (formValues) => {
     isLoading.value = true
 
-    const [error, result] = await tryCatch(() => {
+    const [error] = await tryCatch(() => {
         return $fetch('/auth/login', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers: {'Content-Type': 'application/json',},
             body: JSON.stringify(formValues),
         })
     })
@@ -46,12 +45,11 @@ const onSubmit = handleSubmit(async (formValues) => {
         return
     }
 
-    console.log(result)
-
     toast.success('Logged in successfully!')
 
-    setTimeout(() => {
-        isLoading.value = false
+    setTimeout(async () => {
+        // isLoading.value = false
+        window.location.href = '/admin'
     }, 1000)
 })
 </script>

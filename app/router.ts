@@ -1,5 +1,10 @@
 // router.js
-import { createRouter as createVueRouter, createMemoryHistory, createWebHistory, type RouteRecordRaw } from 'vue-router'
+import {
+    createRouter as createVueRouter,
+    createMemoryHistory,
+    createWebHistory,
+    type RouteRecordRaw
+} from 'vue-router'
 
 interface RouteModule {
     default: Array<RouteRecordRaw>

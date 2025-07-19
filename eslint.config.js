@@ -1,7 +1,7 @@
 import vue from 'eslint-plugin-vue'
 import js from '@eslint/js'
 import ts from 'typescript-eslint'
-import { defineConfigWithVueTs, vueTsConfigs } from '@vue/eslint-config-typescript'
+import {defineConfigWithVueTs, vueTsConfigs} from '@vue/eslint-config-typescript'
 import importPlugin from 'eslint-plugin-import'
 
 export default defineConfigWithVueTs(
@@ -26,9 +26,12 @@ export default defineConfigWithVueTs(
             'import/extensions': ['error', 'always'],
             'import/no-unresolved': 'off',
             'object-curly-newline': ['error', {
-                'ObjectExpression': 'always',
+                'ObjectExpression': {
+                    'multiline': true,
+                    'minProperties': 3
+                },
                 'ObjectPattern': {
-                    'multiline': true 
+                    'multiline': true
                 },
                 'ImportDeclaration': {
                     'multiline': true,
@@ -40,13 +43,13 @@ export default defineConfigWithVueTs(
                 }
             }],
             'object-property-newline': ['error', {
-                'allowAllPropertiesOnSameLine': false 
+                'allowAllPropertiesOnSameLine': false
             }],
             'array-element-newline': ['error', {
-                'ArrayExpression': 'consistent' 
+                'ArrayExpression': 'consistent'
             }],
             'brace-style': ['error', '1tbs', {
-                'allowSingleLine': true 
+                'allowSingleLine': true
             }],
             '@typescript-eslint/no-explicit-any': 'off',
             '@typescript-eslint/no-unsafe-function-type': 'off',

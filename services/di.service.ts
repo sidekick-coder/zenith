@@ -14,11 +14,12 @@ export default class DIService {
     }
 
     public get<T>(key: EntryKey): T {
-        const entry = this.entries.get(key)
-        
-        if (!entry) {
+        if (!this.has(key)) {
             throw new Error(`entry not found: ${String(key)}`)
         }
+
+        const entry = this.entries.get(key)
+        
         
         return entry
     }
@@ -34,6 +35,12 @@ export default class DIService {
         const newInstance = new classConstructor()
         this.entries.set(key, newInstance)
         return newInstance
+    }
+
+    public load(entries: Record<any, any>): void {
+        Object.entries(entries).forEach(([key, value]) => {
+            this.set(key, value)
+        })
     }
 
     public proxy<T = unknown>(key: EntryKey): T {

@@ -1,9 +1,18 @@
 <script lang="ts">
-import { Sidebar, SidebarInset, SidebarTrigger, SidebarProvider, SidebarHeader, SidebarContent, SidebarFooter, SidebarMenu, SidebarMenuItem, SidebarMenuButton } from '@app/components/ui/sidebar'
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@app/components/ui/breadcrumb'
+import {
+    Sidebar, SidebarInset, SidebarTrigger, SidebarProvider, SidebarHeader, SidebarContent, SidebarFooter, SidebarMenu, SidebarMenuItem, SidebarMenuButton 
+} from '@app/components/ui/sidebar'
+import {
+    Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator 
+} from '@app/components/ui/breadcrumb'
 import { useLocalStorage } from '@vueuse/core'
 import Logo from '@app/components/Logo.vue'
 import DashboardSidebarGroup, { type MenuItem } from './DashboardSidebarGroup.vue'
+import { useRouter } from 'vue-router'
+import { $fetch } from '#app/utils/fetcher.ts'
+import { tryCatch } from '#common/tryCatch.ts'
+import { toast } from 'vue-sonner'
+import { $t } from '#app/utils/lang.ts'
 
 export interface BreadcrumbItem {
     label: string;
@@ -25,6 +34,7 @@ export interface MenuModule {
 </script>
 <script setup lang="ts">
 const open = useLocalStorage('sidebar-open', true)
+const router = useRouter()
 
 defineProps({
     padding: {
@@ -61,6 +71,18 @@ menu.value.sort((a, b) => {
 
 const ungrouped = menu.value.filter(item => 'to' in item || 'children' in item)
 const grouped = menu.value.filter(item => 'items' in item) as MenuGroup[]
+
+async function onLogout() {
+    const [error] = await tryCatch(() =>  $fetch('/auth/logout', {method: 'POST',}))
+
+    if (error) {
+        return
+    }
+
+    toast.error($t('You have been logged out.'))
+
+    window.location.href = '/admin/auth/login'
+}
 </script>
 
 <template>
@@ -102,7 +124,12 @@ const grouped = menu.value.filter(item => 'items' in item) as MenuGroup[]
             </SidebarContent>
 
             <SidebarFooter>
-                Footer
+                <button
+                    class="w-full py-2 px-4 text-left hover:bg-gray-100 transition rounded"
+                    @click="onLogout"
+                >
+                    Logout
+                </button>
             </SidebarFooter>
         </Sidebar>
 

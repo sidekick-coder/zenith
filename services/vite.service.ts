@@ -6,6 +6,7 @@ import { basePath } from '../utils/paths.ts'
 import env from '../env.ts'
 import type { Request, Response } from 'express'
 import router from '#facades/router.ts'
+import auth from '#facades/auth.ts'
 
 const isProduction = env.NODE_ENV === 'production'
 
@@ -22,9 +23,16 @@ export class ViteServer {
                 ? (await import(basePath('app', 'dist', 'server', 'entry-server.js'))).render
                 : (await this.vite!.ssrLoadModule('/app/entry-server.ts')).render
 
+            const user = await auth.authenticate(_request.cookies['Authorization'] || '')
+
+            const state = {
+                'auth:user': user,
+            }
+
             const rendered = await render({
                 url,
-                router: router
+                router,
+                state
             })
 
             let head = rendered.head ?? ''
@@ -35,11 +43,16 @@ export class ViteServer {
                 head += '<link rel="stylesheet" href="/app/style.css">'
             }
 
+            // state
+            head += `<script>window.__INITIAL_STATE__ = ${JSON.stringify(state)}</script>`
+
             const html = template
                 .replace('<!--app-head-->', head)
                 .replace('<!--app-html-->', body)
 
-            response.status(200).set({ 'Content-Type': 'text/html' }).end(html)
+            response.status(200).set({
+                'Content-Type': 'text/html' 
+            }).end(html)
         } catch (e) {
             const error = e as Error
             this.vite?.ssrFixStacktrace(error)
@@ -47,10 +60,13 @@ export class ViteServer {
             response.status(500).end(error.stack)
         }
     }
+    
     public async init(app: Application) {
         if (!isProduction) {
             this.vite = await createViteServer({
-                server: { middlewareMode: true },
+                server: {
+                    middlewareMode: true 
+                },
                 appType: 'custom',
             })
 
