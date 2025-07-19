@@ -12,20 +12,6 @@ export function createApp() {
     app.use(router)
     app.config.globalProperties.$t = $t
 
-    router.beforeEach((to, _from) => {
-        const user = di.get<any>('auth:user')
-
-        if (!user && to.path !== '/admin/auth/login') {
-            return '/admin/auth/login'
-        }
-
-        if (user && to.path === '/admin/auth/login') {
-            console.log(`User ${user.email} is authenticated`)
-
-            return '/admin'
-        }
-    })
-
     return {
         app,
         router 

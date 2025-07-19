@@ -1,6 +1,4 @@
 <script setup lang="ts">
-// import InputError from '@/components/InputError.vue'
-// import TextLink from '@/components/TextLink.vue'
 import AuthLayout from '#app/layouts/Auth.vue'
 import FormTextField from '#app/components/FormTextField.vue'
 import { Button } from '#app/components/ui/button'
@@ -12,10 +10,8 @@ import { $fetch } from '#app/utils/fetcher'
 import { ref } from 'vue'
 import { tryCatch } from '#common/tryCatch'
 import { toast } from 'vue-sonner'
-import { useRouter } from 'vue-router'
 
 const isLoading = ref(false)
-const router = useRouter()
 
 const { handleSubmit } = useForm({
     initialValues: {

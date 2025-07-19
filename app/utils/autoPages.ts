@@ -1,42 +1,56 @@
-import type { DefineComponent } from "vue";
-import type { RouteRecordRaw } from "vue-router";
+import type { DefineComponent } from 'vue'
+import type { NavigationGuard, RouteRecordRaw } from 'vue-router'
 
 interface Options {
     basePath?: string;
     imports: Record<string, DefineComponent | (() => Promise<DefineComponent>)>;
     filterParts?: string[];
     lowerCase?: boolean;
+    guards?: NavigationGuard[];
+    onRegister?: (record: RouteRecordRaw) => void;
 }
 
 export function autoRoutes(options: Options): RouteRecordRaw[] {
-    const routes: RouteRecordRaw[] = [];
-    const basePath = options.basePath || '/';
-    const filterParsts = options.filterParts || [];
-    const lowerCase = options.lowerCase !== undefined ? options.lowerCase : true;
+    const routes: RouteRecordRaw[] = []
+    const basePath = options.basePath || '/'
+    const filterParsts = options.filterParts || []
+    const lowerCase = options.lowerCase !== undefined ? options.lowerCase : true
 
     for (const [filename, component] of Object.entries(options.imports)) {
         const parts = filename.split('/')
             .filter(part => part && !part.startsWith('.'))
             .filter(part => !filterParsts.includes(part))
-            .map(part => lowerCase ? part.toLowerCase() : part);
+            .map(part => lowerCase ? part.toLowerCase() : part)
 
         let path = parts.join('/').replace(/\.vue$/, '').replace(/index$/, '')
 
-        if (!path.startsWith('/')) {
-            path = '/' + path;
+        const guards = [] as NavigationGuard[]
+        
+        if (options.guards) {
+            guards.push(...options.guards)
         }
 
-        path = basePath + path;
-
         if (!path.startsWith('/')) {
-            path = '/' + path;
+            path = '/' + path
         }
 
+        path = basePath + path
 
-        routes.push({
+        if (!path.startsWith('/')) {
+            path = '/' + path
+        }
+
+        const record = {
             path: path,
             component: component as DefineComponent,
-        })
+            beforeEnter: guards
+        }
+
+        if (options.onRegister) {
+            options.onRegister(record)
+        }
+
+        routes.push(record)
     }
 
     return routes
