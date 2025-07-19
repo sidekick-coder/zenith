@@ -11,14 +11,15 @@ import * as v from 'valibot'
 import { $fetch } from '#app/utils/fetcher'
 import { ref } from 'vue'
 import { tryCatch } from '#common/tryCatch'
+import { toast } from 'vue-sonner'
 
 
 const isLoading = ref(false)
 
 const { handleSubmit } = useForm({
     initialValues: {
-        email: '',
-        password: '',
+        email: 'henrique@sidekick-coder.com',
+        password: 'rick-1232',
     },
     validationSchema: toTypedSchema(
         v.object({
@@ -30,7 +31,7 @@ const { handleSubmit } = useForm({
 const onSubmit = handleSubmit(async (formValues) => {
     isLoading.value = true
 
-    const [error, result] = await tryCatch(() => {
+    const [error] = await tryCatch(() => {
         return $fetch('/auth/login', {
             method: 'POST',
             headers: {
@@ -45,7 +46,7 @@ const onSubmit = handleSubmit(async (formValues) => {
         return
     }
 
-    console.log('Login successful:', result)
+    toast.success('Logged in successfully!')
 
     setTimeout(() => {
         isLoading.value = false
