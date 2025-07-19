@@ -6,6 +6,7 @@
     "imports": {
         "#app/*": "./app/*",
         "#modules/*": "./modules/*",
+        "#common/*": "./common/*",
         "#router/*": "./router/*",
         "#services/*": "./services/*",
         "#utils/*": "./utils/*",
@@ -25,6 +26,8 @@
         "@types/bcrypt": "^6.0.0",
         "@types/better-sqlite3": "^7.6.13",
         "@types/qs": "^6.14.0",
+        "@vee-validate/valibot": "^4.15.1",
+        "@vee-validate/zod": "^4.15.1",
         "@vue/server-renderer": "^3.5.17",
         "@vueuse/core": "^13.5.0",
         "bcrypt": "^6.0.0",
@@ -47,9 +50,12 @@
         "tailwindcss": "^4.1.11",
         "tw-animate-css": "^1.3.5",
         "valibot": "^1.1.0",
+        "vee-validate": "^4.15.1",
         "vue": "^3.5.17",
         "vue-router": "^4.5.1",
-        "winston": "^3.17.0"
+        "vue-sonner": "^2.0.2",
+        "winston": "^3.17.0",
+        "zod": "^3.25.76"
     },
     "devDependencies": {
         "@types/express": "^5.0.3",

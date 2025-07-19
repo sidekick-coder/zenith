@@ -1,5 +1,5 @@
-import router from "#facades/router.ts"
-import modules from "#services/modules.service.ts"
+import router from '#facades/router.ts'
+import modules from '#services/modules.service.ts'
 
 router.get('/api/modules', () => {
     return modules.list()

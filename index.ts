@@ -6,7 +6,7 @@ import type Route from '#router/route.ts'
 import logger from './logger.ts'
 import router from '#facades/router.ts'
 import db from '#facades/db.ts'
-import { tryCatch } from '#utils/tryCatch.ts'
+import { tryCatch } from '#common/tryCatch.ts'
 import type { HttpContext } from '#router/types.ts'
 
 async function execute(url: URL, request: Request, response: Response, route: Route) {        
@@ -15,6 +15,8 @@ async function execute(url: URL, request: Request, response: Response, route: Ro
         query: Object.fromEntries(url.searchParams.entries()),
         body: request.body,
     }
+
+    console.log(ctx)
 
     const [error, result] = await tryCatch(() => route.handler(ctx)) 
 
@@ -39,6 +41,11 @@ async function execute(url: URL, request: Request, response: Response, route: Ro
 
 async function main() {
     const app = express()
+
+    app.use(express.json())
+    app.use(express.urlencoded({
+        extended: true 
+    }))
 
     await vite.init(app)
 

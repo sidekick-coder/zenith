@@ -20,15 +20,12 @@
         "#services/*": [
             "services/*"
         ],
+        "#common/*": [
+            "common/*"
+        ],
         "#utils/*": [
             "utils/*"
         ],
-        "#database/schema": [
-            "database.d.ts"
-        ],
-        "#server/router": [
-            "services/router.service.ts"
-        ]
     }
   },
 }

@@ -1,7 +1,7 @@
 import fs from 'fs'
 import modules from '#services/modules.service.ts'
 import { basePath } from '#utils/paths.ts'
-import { tryCatch } from '#utils/tryCatch.ts'
+import { tryCatch } from '#common/tryCatch.ts'
 import logger from '../logger.ts'
 import Route from './route.ts'
 import type { Handler } from './types.ts'
@@ -94,7 +94,8 @@ export default class Router {
     }
 
     public extractParams(routePath: string, requestPath: string): Record<string, string> {
-        const params: Record<string, string> = {}
+        const params: Record<string, string> = {
+        }
         
         const routeSegments = routePath.split('/').filter(Boolean)
         const requestSegments = requestPath.split('/').filter(Boolean)
@@ -113,7 +114,8 @@ export default class Router {
     }
 
     public extractQuery(requestPath: string): Record<string, string> {
-        const query: Record<string, string> = {}
+        const query: Record<string, string> = {
+        }
         const queryString = requestPath.split('?')[1]
     
         if (!queryString) {
@@ -205,7 +207,9 @@ export default class Router {
         }
 
         // load module routes
-        const mods = await modules.list({ enabled: true })
+        const mods = await modules.list({
+            enabled: true 
+        })
 
         for await (const mod of mods) {
             const filename = mod.makePath('server', 'routes.ts')

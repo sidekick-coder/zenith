@@ -2,28 +2,55 @@
 // import InputError from '@/components/InputError.vue'
 // import TextLink from '@/components/TextLink.vue'
 import AuthLayout from '#app/layouts/Auth.vue'
+import FormTextField from '#app/components/FormTextField.vue'
 import { Button } from '#app/components/ui/button'
-import { Checkbox } from '#app/components/ui/checkbox'
-import { Input } from '#app/components/ui/input'
-import { Label } from '#app/components/ui/label'
 import { LoaderCircle } from 'lucide-vue-next'
+import {useForm} from 'vee-validate'
+import { toTypedSchema } from '@vee-validate/valibot'
+import * as v from 'valibot'
+import { $fetch } from '#app/utils/fetcher'
+import { ref } from 'vue'
+import { tryCatch } from '#common/tryCatch'
 
-defineProps<{
-    status?: string;
-    canResetPassword: boolean;
-}>()
 
-// const form = useForm({
-//     email: '',
-//     password: '',
-//     remember: false,
-// })
+const isLoading = ref(false)
 
-const submit = () => {
-    // form.post(route('login'), {
-    //     onFinish: () => form.reset('password'),
-    // })
-}
+const { handleSubmit } = useForm({
+    initialValues: {
+        email: '',
+        password: '',
+    },
+    validationSchema: toTypedSchema(
+        v.object({
+            email: v.pipe(v.string(), v.email()),
+            password: v.pipe(v.string(), v.minLength(6)),
+        })),
+})
+
+const onSubmit = handleSubmit(async (formValues) => {
+    isLoading.value = true
+
+    const [error, result] = await tryCatch(() => {
+        return $fetch('/auth/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formValues),
+        })
+    })
+
+    if (error) {
+        isLoading.value = false
+        return
+    }
+
+    console.log('Login successful:', result)
+
+    setTimeout(() => {
+        isLoading.value = false
+    }, 1000)
+})
 </script>
 
 <template>
@@ -31,61 +58,37 @@ const submit = () => {
         title="Log in to your account"
         description="Enter your email and password below to log in"
     >
-        <!-- <Head title="Log in" /> -->
-
-        <div
-            v-if="status"
-            class="mb-4 text-center text-sm font-medium text-green-600"
-        >
-            {{ status }}
-        </div>
-
-        <form
+        <form 
             class="flex flex-col gap-6"
-            @submit.prevent="submit"
+            @submit.prevent="onSubmit"
         >
             <div class="grid gap-6">
-                <div class="grid gap-2">
-                    <Label for="email">Email address</Label>
-                    <Input
-                        id="email"
-                        name="email"
-                        type="email"
-                        required
-                        autofocus
-                        :tabindex="1"
-                        autocomplete="email"
-                        placeholder="email@example.com"
-                    />
-                </div>
+                <FormTextField
+                    name="email"
+                    type="email"
+                    label="Email address"
+                    placeholder="email@example.com"
+                    autocomplete="email"
+                />
 
-                <div class="grid gap-2">
-                    <div class="flex items-center justify-between">
-                        <Label for="password">Password</Label>
-                        <RouterLink
-                            v-if="canResetPassword"
-                            to="/auth/reset-password"
-                            class="text-sm"
-                            :tabindex="5"
-                        >
-                            Forgot password?
-                        </RouterLink>
-                    </div>
-                    <Input
-                        id="password"
-                        type="password"
-                        required
-                        :tabindex="2"
-                        autocomplete="current-password"
-                        placeholder="Password"
-                    />
-                </div>
+                <FormTextField
+                    name="password"
+                    type="password"
+                    label="Password"
+                    placeholder="Password"
+                    autocomplete="current-password"
+                />
 
                 <Button
                     type="submit"
                     class="mt-4 w-full"
+                    :disabled="isLoading"
                     :tabindex="4"
                 >
+                    <LoaderCircle
+                        v-if="isLoading"
+                        class="mr-2 h-4 w-4 animate-spin"
+                    />
                     Log in
                 </Button>
             </div>

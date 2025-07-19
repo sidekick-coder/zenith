@@ -15,6 +15,7 @@ export default defineConfigWithVueTs(
     vue.configs['flat/recommended'],
     vue.configs['flat/strongly-recommended'],
     vueTsConfigs.recommended,
+    // importPlugin.flatConfigs.recommended,
     importPlugin.flatConfigs.typescript,
     {
         rules: {
@@ -22,24 +23,30 @@ export default defineConfigWithVueTs(
             'semi': ['error', 'never'],
             'quotes': ['error', 'single'],
             'import/extensions': ['error', 'always'],
+            'import/no-unresolved': 'off',
             'object-curly-newline': ['error', {
-                'ObjectExpression': {
-                    'multiline': true, 
-                    'consistent': true 
-                },
+                'ObjectExpression': 'always',
                 'ObjectPattern': {
-                    'multiline': true,
-                    'consistent': true 
+                    'multiline': true 
                 },
-                'ImportDeclaration': 'never',
+                'ImportDeclaration': {
+                    'multiline': true,
+                    'minProperties': 3
+                },
                 'ExportDeclaration': {
                     'multiline': true,
-                    'consistent': true 
+                    'minProperties': 3 
                 }
             }],
-            'object-property-newline': ['error', { 'allowAllPropertiesOnSameLine': false }],
-            'array-element-newline': ['error', { 'ArrayExpression': 'consistent' }],
-            'brace-style': ['error', '1tbs', { 'allowSingleLine': true }],
+            'object-property-newline': ['error', {
+                'allowAllPropertiesOnSameLine': false 
+            }],
+            'array-element-newline': ['error', {
+                'ArrayExpression': 'consistent' 
+            }],
+            'brace-style': ['error', '1tbs', {
+                'allowSingleLine': true 
+            }],
             '@typescript-eslint/no-explicit-any': 'off',
             '@typescript-eslint/no-unsafe-function-type': 'off',
             '@typescript-eslint/no-unused-vars': ['error', {
