@@ -31,7 +31,7 @@ const { handleSubmit } = useForm({
 const onSubmit = handleSubmit(async (formValues) => {
     isLoading.value = true
 
-    const [error] = await tryCatch(() => {
+    const [error, result] = await tryCatch(() => {
         return $fetch('/auth/login', {
             method: 'POST',
             headers: {
@@ -45,6 +45,8 @@ const onSubmit = handleSubmit(async (formValues) => {
         isLoading.value = false
         return
     }
+
+    console.log(result)
 
     toast.success('Logged in successfully!')
 

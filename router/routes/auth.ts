@@ -11,9 +11,5 @@ router.post('/auth/login', async ({ body }) => {
         throw new BaseException(result.message, 401)
     }
 
-    return {
-        success: true,
-        message: result.message,
-        user: result.user
-    }
+    return result
 })

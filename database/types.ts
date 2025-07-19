@@ -15,15 +15,25 @@ export interface UserTable extends WithTimestamp, WithSoftDelete {
   password: string
 }
 
+export interface TokenTable extends WithTimestamp {
+  id: Generated<number>
+  user_id: number
+  token: string
+  type: string
+  expires_at: string | null
+}
+
 // Base interface that modules can extend
 export interface Tables {
   users: UserTable
+  tokens: TokenTable
   migrations: MigrationsTable
 }
 
 
 export interface Database  {
   users: UserTable
+  tokens: TokenTable
   migrations: MigrationsTable
 }
 

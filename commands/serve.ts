@@ -2,6 +2,7 @@ import { program } from 'commander'
 import cp from 'child_process'
 import fs from 'fs'
 import { basePath } from '../utils/paths.ts'
+import logger from '../logger.ts'
 
 program.command('serve').option('-w, --watch', 'Watch for changes and restart server').action((options) => {
     const bin = 'node'
@@ -22,6 +23,7 @@ program.command('serve').option('-w, --watch', 'Watch for changes and restart se
         'package-lock.json',
         'package.json',
         'tsconfig.json',
+        'database.sqlite',
         'tsconfig.build.json',
     ]
 
@@ -42,7 +44,7 @@ program.command('serve').option('-w, --watch', 'Watch for changes and restart se
             args.push(`--watch-path=./${dir}`)
         })
 
-        console.log(`Watching directories: ${entries.join(', ')}`)
+        logger.debug('Watching directories', entries)
     }
 
     args.push('index.ts')
