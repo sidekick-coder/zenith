@@ -29,6 +29,9 @@
         ],
         "#database/schema": [
             "database.d.ts"
+        ],
+        "#server/router": [
+            "services/router.service.ts"
         ]
     }
   },

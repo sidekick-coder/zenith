@@ -13,19 +13,15 @@ export class ViteServer {
 
     public async render(url: string, ctx: HttpContext) {
         try {
-            let template: string = ''
-            let render: any
+            
 
-            if (isProduction) {
-                template = fs.readFileSync(basePath('app', 'dist', 'client', 'index.html'), 'utf-8')
-                render = (await import(basePath('app', 'dist', 'server', 'entry-server.js'))).render
-            }
+            const template = isProduction 
+                ? fs.readFileSync(basePath('app', 'dist', 'client', 'index.html'), 'utf-8')
+                : await this.vite!.transformIndexHtml(url, fs.readFileSync(basePath('index.html'), 'utf-8'))
 
-            if (!isProduction) {
-                template = fs.readFileSync(basePath('index.html'), 'utf-8')
-                template = await this.vite!.transformIndexHtml(url, template)
-                render = (await this.vite!.ssrLoadModule('/app/entry-server.ts')).render
-            }
+            const render = isProduction
+                ? (await import(basePath('app', 'dist', 'server', 'entry-server.js'))).render
+                : (await this.vite!.ssrLoadModule('/app/entry-server.ts')).render
 
             const rendered = await render(url)
 

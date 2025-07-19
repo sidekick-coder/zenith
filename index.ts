@@ -4,6 +4,7 @@ import vite from './services/vite.service.ts'
 import type { HttpContext } from './services/router.service.ts'
 import router from './services/router.service.ts'
 import logger from './logger.ts'
+import dbManager from '#database/manager.ts'
 
 async function createServer() {
     const app = express()
@@ -11,6 +12,8 @@ async function createServer() {
     await vite.init(app)
 
     await router.load()
+
+    await dbManager.load();
 
     app.use('*all', (req, res) => {
         const url = new URL(req.originalUrl, `http://${req.headers.host}`)

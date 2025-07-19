@@ -7,7 +7,8 @@
         "#app/*": "./app/*",
         "#modules/*": "./modules/*",
         "#database/*": "./database/*",
-        "#database/schema": "./database.d.ts"
+        "#database/schema": "./database.d.ts",
+        "#server/router": "./services/router.service.ts"
     },
     "scripts": {
         "dev": "node art serve -w",
