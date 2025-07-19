@@ -1,17 +1,31 @@
 <script lang="ts">
-import {
-    Sidebar, SidebarInset, SidebarTrigger, SidebarProvider, SidebarHeader, SidebarContent, SidebarFooter, SidebarMenu, SidebarMenuItem, SidebarMenuButton 
-} from '@app/components/ui/sidebar'
-import {
-    Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator 
-} from '@app/components/ui/breadcrumb'
 import { useLocalStorage } from '@vueuse/core'
 import Logo from '@app/components/Logo.vue'
-import DashboardSidebarGroup, { type MenuItem } from './DashboardSidebarGroup.vue'
 import { useRouter } from 'vue-router'
+import { toast } from 'vue-sonner'
+import DashboardSidebarGroup from './DashboardSidebarGroup.vue'
+import type { MenuItem } from './DashboardSidebarGroup.vue'
+import {
+    Breadcrumb,
+    BreadcrumbItem,
+    BreadcrumbLink,
+    BreadcrumbList,
+    BreadcrumbPage,
+    BreadcrumbSeparator
+} from '#app/components/ui/breadcrumb'
+import {
+    Sidebar,
+    SidebarInset,
+    SidebarTrigger,
+    SidebarProvider,
+    SidebarHeader,
+    SidebarContent,
+    SidebarFooter,
+    SidebarMenu,
+    SidebarMenuItem,SidebarMenuButton
+} from '#app/components/ui/sidebar'
 import { $fetch } from '#app/utils/fetcher.ts'
 import { tryCatch } from '#common/tryCatch.ts'
-import { toast } from 'vue-sonner'
 import { $t } from '#app/utils/lang.ts'
 
 export interface BreadcrumbItem {
@@ -34,7 +48,6 @@ export interface MenuModule {
 </script>
 <script setup lang="ts">
 const open = useLocalStorage('sidebar-open', true)
-const router = useRouter()
 
 defineProps({
     padding: {
@@ -54,7 +67,9 @@ const breadcrumbs = defineModel('breadcrumbs', {
 })
 
 if (!menu.value) {
-    const files = import.meta.glob<MenuModule>('../menu/*.ts', { eager: true })
+    const files = import.meta.glob<MenuModule>('../menu/*.ts', {
+        eager: true 
+    })
 
     menu.value = Object.values(files).map(f => f.default).flat()
 }
@@ -73,7 +88,9 @@ const ungrouped = menu.value.filter(item => 'to' in item || 'children' in item)
 const grouped = menu.value.filter(item => 'items' in item) as MenuGroup[]
 
 async function onLogout() {
-    const [error] = await tryCatch(() =>  $fetch('/auth/logout', {method: 'POST',}))
+    const [error] = await tryCatch(() =>  $fetch('/auth/logout', {
+        method: 'POST',
+    }))
 
     if (error) {
         return
