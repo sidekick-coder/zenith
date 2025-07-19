@@ -1,5 +1,4 @@
 import { program } from 'commander'
-import { createHash } from 'crypto'
 import { UserRepository } from '../repositories/user.repository.ts'
 
 program.command('user:create')
@@ -19,25 +18,21 @@ program.command('user:create')
             return
         }
 
-        // Hash the password using SHA-256
-        const hashedPassword = createHash('sha256').update(password).digest('hex')
-
         const userData = {
             username: name,
             email,
-            password: hashedPassword
+            password // Raw password - repository will hash it
         }
 
         const newUser = await userRepository.create(userData)
 
-        if (newUser) {
-            console.log(`✓ User '${name}' created successfully`)
-            console.log(`  ID: ${newUser.id}`)
-            console.log(`  Username: ${newUser.username}`)
-            console.log(`  Email: ${newUser.email}`)
-        }
-        
         if (!newUser) {
             console.log(`❌ Failed to create user '${name}'`)
+            return
         }
+
+        console.log(`✓ User '${name}' created successfully`)
+        console.log(`  ID: ${newUser.id}`)
+        console.log(`  Username: ${newUser.username}`)
+        console.log(`  Email: ${newUser.email}`)
     })

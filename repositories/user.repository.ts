@@ -1,5 +1,6 @@
 import type { UserTable } from '../database/types.ts'
 import db from '#facades/db.ts'
+import hasher from '#facades/hasher.ts'
 
 export type UserInsert = Omit<UserTable, 'id' | 'created_at' | 'updated_at' | 'deleted_at'>
 export type UserUpdate = Partial<Omit<UserTable, 'id' | 'created_at' | 'updated_at' | 'deleted_at'>>
@@ -96,15 +97,26 @@ export class UserRepository {
     }
 
     async create(payload: UserInsert) {
+        const userData = {
+            ...payload,
+            password: await hasher.hash(payload.password)
+        }
+
         return db.insertInto('users')
-            .values(payload)
+            .values(userData)
             .returningAll()
             .executeTakeFirst()
     }
 
     async update(id: number, payload: UserUpdate) {
+        const updateData = { ...payload }
+        
+        if (updateData.password) {
+            updateData.password = await hasher.hash(updateData.password)
+        }
+
         return db.updateTable('users')
-            .set(payload)
+            .set(updateData)
             .where('id', '=', id)
             .returningAll()
             .executeTakeFirst()
