@@ -26,6 +26,9 @@
         "#utils/*": [
             "utils/*"
         ],
+        "#exceptions/*": [
+            "exceptions/*"
+        ],
     }
   },
 }

@@ -1,5 +1,6 @@
 import vue from 'eslint-plugin-vue'
 import js from '@eslint/js'
+import ts from 'typescript-eslint'
 import { defineConfigWithVueTs, vueTsConfigs } from '@vue/eslint-config-typescript'
 import importPlugin from 'eslint-plugin-import'
 
@@ -11,11 +12,11 @@ export default defineConfigWithVueTs(
         ignores: ['node_modules', 'app/dist', 'app/components/ui', 'templates']
     },
     js.configs.recommended,
+    ts.configs.recommended,
     vue.configs['flat/essential'],
     vue.configs['flat/recommended'],
     vue.configs['flat/strongly-recommended'],
     vueTsConfigs.recommended,
-    // importPlugin.flatConfigs.recommended,
     importPlugin.flatConfigs.typescript,
     {
         rules: {

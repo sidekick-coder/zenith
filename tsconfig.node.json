@@ -27,6 +27,7 @@
     "facades/**/*.ts",
     "routes/**/*.ts",
     "server/**/*.ts",
+    "exceptions/*.ts",
     "modules/**/server/**/**/*.ts",
     "modules/**/server/**/**/*.d.ts",
     "artisan"

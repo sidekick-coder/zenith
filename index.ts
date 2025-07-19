@@ -8,6 +8,23 @@ import router from '#facades/router.ts'
 import db from '#facades/db.ts'
 import { tryCatch } from '#common/tryCatch.ts'
 import type { HttpContext } from '#router/types.ts'
+import BaseException from '#exceptions/base.ts'
+
+function handleError(error: Error, response: Response) {
+    if (error instanceof BaseException) {
+        return response.status(error.statusCode).json({
+            error: error.name,
+            message: error.message,
+        })
+    }
+
+    response.status(500).json({
+        error: 'Internal Server Error',
+        message: 'An unexpected error occurred',
+    })
+
+
+}
 
 async function execute(url: URL, request: Request, response: Response, route: Route) {        
     const ctx: HttpContext = {
@@ -16,12 +33,10 @@ async function execute(url: URL, request: Request, response: Response, route: Ro
         body: request.body,
     }
 
-    console.log(ctx)
-
     const [error, result] = await tryCatch(() => route.handler(ctx)) 
 
     if (error) {
-        response.status(500).send(`Internal Server Error: ${error.message}`)
+        handleError(error, response)
         return
     }
 

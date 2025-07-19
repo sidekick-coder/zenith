@@ -1,15 +1,35 @@
 import di from './di'
 import type Router from '#router/router'
+import { toast } from 'vue-sonner'
+import { $t } from './lang'
 
 interface Options extends RequestInit {
- query?: Record<string, string>;
+    query?: Record<string, string>
 }
-
+    
 interface Fetcher {
     <T>(url: string, options?: Options): Promise<T>;
 }
 
-export async function defaultFetcher<T>(url: string, options: Options = {}): Promise<T> {
+async function handleError(response: Response) {    
+    const contentType = response.headers.get('Content-Type') || ''
+
+    if (!contentType.includes('application/json')) {
+        return toast.error($t('Internal Server Error'))
+    }
+
+    const errorData = await response.json()
+        .catch(() => ({
+            message: $t('Internal Server Error')
+        }))
+
+    if (errorData.message) {
+        toast.error(errorData.message)
+    }    
+}
+
+export async function defaultFetcher<T>(url: string, options: Options = {
+}): Promise<T> {
     const fetchOptions: RequestInit = {
         ...options
     }
@@ -23,6 +43,7 @@ export async function defaultFetcher<T>(url: string, options: Options = {}): Pro
     const response = await fetch(url, fetchOptions)
 
     if (!response.ok) {
+        await handleError(response)
         throw new Error(`HTTP error! status: ${response.status}`)
     }
 
@@ -30,7 +51,8 @@ export async function defaultFetcher<T>(url: string, options: Options = {}): Pro
 }
 
 export function createServerFetcher(router: Router) {
-    async function fetcher<T>(url: string, options: Options = {}): Promise<T> {
+    async function fetcher<T>(url: string, options: Options = {
+    }): Promise<T> {
         const isInternal = !url.startsWith('http://') && !url.startsWith('https://')
 
         if (!isInternal) {
@@ -57,7 +79,8 @@ export function createServerFetcher(router: Router) {
     return fetcher
 }
 
-export async function $fetch<T>(url: string, options: Options = {}): Promise<T> {
+export async function $fetch<T>(url: string, options: Options = {
+}): Promise<T> {
     let fetcher: Fetcher = defaultFetcher
 
     if (di.has('fetcher')) {
