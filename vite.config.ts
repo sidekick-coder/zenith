@@ -8,11 +8,6 @@ export default defineConfig({
     plugins: [vue(), tailwindcss()],
     root: '.',
     publicDir: 'app/public',
-    build: {
-        rollupOptions: {
-            input: 'index.html',
-        },
-    },
     resolve: {
         alias: {
             '@app': '/app',

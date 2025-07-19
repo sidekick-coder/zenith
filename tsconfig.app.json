@@ -1,5 +1,5 @@
 {
-    "extends": "@vue/tsconfig/tsconfig.dom.json",
+    "extends": ["@vue/tsconfig/tsconfig.dom.json", "./tsconfig.base.json"],
     "compilerOptions": {
         "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
         "strict": true,
@@ -8,19 +8,10 @@
         "erasableSyntaxOnly": true,
         "noFallthroughCasesInSwitch": true,
         "noUncheckedSideEffectImports": true,
-        "baseUrl": ".",
-        "paths": {
-            "@app/*": [
-                "app/*"
-            ],
-            "@modules/*": [
-                "modules/*"
-            ]
-        }
     },
     "include": [
-        "app/**/*.ts",
-        "app/**/*.vue",
+        "app/**/**/*.ts",
+        "app/**/**/*.vue",
         "modules/**/app/**/*.ts",
         "modules/**/app/**/*.vue"
     ]
