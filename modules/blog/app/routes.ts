@@ -1,7 +1,10 @@
 export default [
     {
         path: '/blog/posts',
-        component: () => import('./pages/Post/Index.vue'),
+        component: () => import('@app/components/PageTable.vue'),
+        props: {
+            url: '/api/blog/posts',
+        }
     },
     {
         path: '/blog/posts/:id',

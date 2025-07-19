@@ -1,10 +1,11 @@
-import type { Application } from "express"
+import type { Application } from 'express'
 import { createServer as createViteServer, type ViteDevServer } from 'vite'
 import fs from 'fs'
 import express from 'express'
-import { basePath } from "../utils/paths.ts"
-import env from "../env.ts"
-import type { Request, Response } from "express";
+import { basePath } from '../utils/paths.ts'
+import env from '../env.ts'
+import type { Request, Response } from 'express'
+import router from '#facades/router.ts'
 
 const isProduction = env.NODE_ENV === 'production'
 
@@ -21,19 +22,22 @@ export class ViteServer {
                 ? (await import(basePath('app', 'dist', 'server', 'entry-server.js'))).render
                 : (await this.vite!.ssrLoadModule('/app/entry-server.ts')).render
 
-            const rendered = await render(url)
+            const rendered = await render({
+                url,
+                router: router
+            })
 
             let head = rendered.head ?? ''
             const body = rendered.html ?? ''
 
             // only inject styles in development mode
             if (!isProduction) {
-                head += '<link rel="stylesheet" href="/style.css">'
+                head += '<link rel="stylesheet" href="/app/style.css">'
             }
 
             const html = template
-                .replace(`<!--app-head-->`, head)
-                .replace(`<!--app-html-->`, body)
+                .replace('<!--app-head-->', head)
+                .replace('<!--app-html-->', body)
 
             response.status(200).set({ 'Content-Type': 'text/html' }).end(html)
         } catch (e) {

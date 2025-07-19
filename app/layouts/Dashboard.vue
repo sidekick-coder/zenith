@@ -1,9 +1,9 @@
 <script lang="ts">
-import { Sidebar, SidebarInset, SidebarTrigger, SidebarProvider, SidebarHeader, SidebarContent, SidebarFooter, SidebarMenu, SidebarMenuItem, SidebarMenuButton } from '@app/components/ui/sidebar';
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@app/components/ui/breadcrumb';
-import { useLocalStorage } from '@vueuse/core';
-import Logo from '@app/components/Logo.vue';
-import DashboardSidebarGroup, { type MenuItem } from './DashboardSidebarGroup.vue';
+import { Sidebar, SidebarInset, SidebarTrigger, SidebarProvider, SidebarHeader, SidebarContent, SidebarFooter, SidebarMenu, SidebarMenuItem, SidebarMenuButton } from '@app/components/ui/sidebar'
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@app/components/ui/breadcrumb'
+import { useLocalStorage } from '@vueuse/core'
+import Logo from '@app/components/Logo.vue'
+import DashboardSidebarGroup, { type MenuItem } from './DashboardSidebarGroup.vue'
 
 export interface BreadcrumbItem {
     label: string;
@@ -24,7 +24,7 @@ export interface MenuModule {
 }
 </script>
 <script setup lang="ts">
-const open = useLocalStorage('sidebar-open', true);
+const open = useLocalStorage('sidebar-open', true)
 
 defineProps({
     padding: {
@@ -33,34 +33,34 @@ defineProps({
     },
 })
 
-const menu = defineModel("menu", {
+const menu = defineModel('menu', {
     type: Array as () => MenuItem[],
     default: null,
-});
+})
 
-const breadcrumbs = defineModel("breadcrumbs", {
+const breadcrumbs = defineModel('breadcrumbs', {
     type: Array as () => BreadcrumbItem[],
     default: null,
-});
+})
 
 if (!menu.value) {
-    const files = import.meta.glob<MenuModule>('../menu/*.ts', { eager: true });
+    const files = import.meta.glob<MenuModule>('../menu/*.ts', { eager: true })
 
-    menu.value = Object.values(files).map(f => f.default).flat();
+    menu.value = Object.values(files).map(f => f.default).flat()
 }
 
 if (!breadcrumbs.value) {
-    breadcrumbs.value = [];
+    breadcrumbs.value = []
 }
 
 menu.value.sort((a, b) => {
-    const orderA = a.order ? a.order : 98;
-    const orderB = b.order ? b.order : 98;
-    return orderA - orderB;
-});
+    const orderA = a.order ? a.order : 98
+    const orderB = b.order ? b.order : 98
+    return orderA - orderB
+})
 
-const ungrouped = menu.value.filter(item => 'to' in item || 'children' in item);
-const grouped = menu.value.filter(item => 'items' in item) as MenuGroup[];
+const ungrouped = menu.value.filter(item => 'to' in item || 'children' in item)
+const grouped = menu.value.filter(item => 'items' in item) as MenuGroup[]
 </script>
 
 <template>
@@ -141,6 +141,7 @@ const grouped = menu.value.filter(item => 'items' in item) as MenuGroup[];
             <div class="h-[calc(100dvh-5rem)] overflow-hidden">
                 <div
                     class="
+                       dashboard-layout-content
                         h-full
                         overflow-auto
                         lg:max-w-[calc(100dvw-8px-var(--sidebar-width))]

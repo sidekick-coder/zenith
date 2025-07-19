@@ -11,5 +11,8 @@ export function createApp() {
     app.use(router)
     app.config.globalProperties.$t = $t
 
-    return { app, router }
+    return {
+        app,
+        router 
+    }
 }

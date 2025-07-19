@@ -1,8 +1,8 @@
-import router from "#facades/router.ts";
+import router from '#facades/router.ts'
 
 router.get('/api/blog/posts', async ({ query }) => {
-    const page = query.page ? parseInt(query.page as string, 10) : 1;
-    const limit = query.limit ? parseInt(query.limit as string, 10) : 10;
+    const page = query.page ? parseInt(query.page as string, 10) : 1
+    const limit = query.limit ? parseInt(query.limit as string, 10) : 10
     const posts = [
         {
             id: 1,
@@ -20,5 +20,5 @@ router.get('/api/blog/posts', async ({ query }) => {
     return { 
         meta,
         data: posts
-    };
+    }
 })

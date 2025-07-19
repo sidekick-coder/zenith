@@ -43,19 +43,25 @@ export default defineConfigWithVueTs(
             '@typescript-eslint/no-explicit-any': 'off',
             '@typescript-eslint/no-unsafe-function-type': 'off',
             '@typescript-eslint/no-unused-vars': ['error', {
-                "argsIgnorePattern": "^_",
-                "varsIgnorePattern": "^_"
+                'argsIgnorePattern': '^_',
+                'varsIgnorePattern': '^_'
             }],
             'vue/html-indent': ['error', 4],
             'vue/multi-word-component-names': 'off',
-            "vue/max-attributes-per-line": ["error", {
-                "singleline": {
-                    "max": 1
+            'vue/max-attributes-per-line': ['error', {
+                'singleline': {
+                    'max': 1
                 },
-                "multiline": {
-                    "max": 1
+                'multiline': {
+                    'max': 1
                 }
             }]
         },
     },
+    {
+        files: ['**/app/**/*.ts', '**/app/**/*.vue'],
+        rules: {
+            'import/extensions': 'off',
+        }
+    }
 )

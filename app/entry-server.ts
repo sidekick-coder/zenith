@@ -1,11 +1,18 @@
 import { renderToString } from 'vue/server-renderer'
 import { createApp } from './main'
+import di from './utils/di'
+import { createServerFetcher } from './utils/fetcher'
 
-/**
- * @param {string} _url
- */
-export async function render(_url: string) {
-    const { app } = createApp()
+interface RenderContext {
+    url: string;
+    router: any;
+}
+
+export async function render(context: RenderContext) {
+    const url = context.url
+    const serverRouter = context.router
+    
+    const { app, router } = createApp()
 
     // passing SSR context object which will be available via useSSRContext()
     // @vitejs/plugin-vue injects code into a component's setup() that registers
@@ -13,8 +20,13 @@ export async function render(_url: string) {
     // components that have been instantiated during this render call.
     const ctx = {}
 
-    const html = await renderToString(app, ctx)
+    di.set('fetcher', createServerFetcher(serverRouter))
 
+    await router.push(url)
+
+    await router.isReady()
+
+    const html = await renderToString(app, ctx)
 
     return { html }
 }

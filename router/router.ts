@@ -1,10 +1,10 @@
 import fs from 'fs'
-import modules from "#services/modules.service.ts"
-import { basePath } from "#utils/paths.ts"
-import { tryCatch } from "#utils/tryCatch.ts"
-import logger from "../logger.ts"
-import Route from "./route.ts"
-import type { Handler } from "./types.ts"
+import modules from '#services/modules.service.ts'
+import { basePath } from '#utils/paths.ts'
+import { tryCatch } from '#utils/tryCatch.ts'
+import logger from '../logger.ts'
+import Route from './route.ts'
+import type { Handler } from './types.ts'
 
 export default class Router {
     private routes = new Map<string, Route>()
@@ -16,7 +16,7 @@ export default class Router {
 
     public close() {
         if (!this.filename) {
-            throw new Error(`Cannot close router without a filename`)
+            throw new Error('Cannot close router without a filename')
         }
 
         this.filename = null
@@ -26,7 +26,7 @@ export default class Router {
         const key = `${payload.method.toUpperCase()} ${payload.path}`
 
         if (!this.filename) {
-            throw new Error(`Cannot add route without a filename. Did you forget to call open()?`)
+            throw new Error('Cannot add route without a filename. Did you forget to call open()?')
         }
 
         const route = new Route(payload.method, payload.path, this.filename, payload.handler)
@@ -110,6 +110,27 @@ export default class Router {
         }
 
         return params
+    }
+
+    public extractQuery(requestPath: string): Record<string, string> {
+        const query: Record<string, string> = {}
+        const queryString = requestPath.split('?')[1]
+    
+        if (!queryString) {
+            return query
+        }
+
+        const pairs = queryString.split('&')
+    
+        for (const pair of pairs) {
+            const [key, value] = pair.split('=')
+        
+            if (key) {
+                query[decodeURIComponent(key)] = value ? decodeURIComponent(value) : ''
+            }
+        }
+
+        return query
     }
 
     private matchPath(routePath: string, requestPath: string): boolean {

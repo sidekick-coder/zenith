@@ -9,14 +9,18 @@ export default class DIService {
         this.entries.set(key, value)
     }
 
+    public has(key: EntryKey): boolean {
+        return this.entries.has(key)
+    }
+
     public get<T>(key: EntryKey): T {
-        const service = this.entries.get(key)
+        const entry = this.entries.get(key)
         
-        if (!service) {
-            throw new Error(`Service not found: ${String(key)}`)
+        if (!entry) {
+            throw new Error(`entry not found: ${String(key)}`)
         }
         
-        return service
+        return entry
     }
 
     public singleton<T>(classConstructor: Constructor<T>): T {
@@ -30,5 +34,26 @@ export default class DIService {
         const newInstance = new classConstructor()
         this.entries.set(key, newInstance)
         return newInstance
+    }
+
+    public proxy<T = unknown>(key: EntryKey): T {
+        return new Proxy<T>({}, {
+            get: (_target, prop) => {
+                const entry = this.get<T>(key) as any
+
+                if (typeof entry[prop] === 'function') {
+                    return (...args: any[]) => entry[prop](...args)
+                }
+
+                return entry[prop]
+            },
+            set: (_target, prop, value) => {
+                const entry = this.get<T>(key) as any
+
+                entry[prop] = value
+
+                return true
+            }
+        })
     }
 }
