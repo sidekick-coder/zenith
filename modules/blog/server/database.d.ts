@@ -18,7 +18,7 @@ export interface CommentTable {
 }
 
 // Extend the global DatabaseTables interface
-declare module '#database' {
+declare module '#database/schema' {
   interface Tables {
     posts: PostTable
     comments: CommentTable

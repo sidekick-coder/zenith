@@ -1,18 +1,6 @@
  
-import type {
-    ColumnType,
-    Generated,
-} from 'kysely'
-
-export interface UserTable {
-  id: Generated<number>
-  name: string
-  email: string
-  password: string
-  created_at: ColumnType<Date, string | undefined, never>
-  updated_at: ColumnType<Date, string | undefined, never>
-  deleted_at: ColumnType<Date | null, string | undefined, null>
-}
+import type { WithSoftDelete, WithTimestamp } from '#database/common.ts'
+import type { ColumnType, Generated } from 'kysely'
 
 export interface MigrationsTable {
   name: string
@@ -20,11 +8,19 @@ export interface MigrationsTable {
   executed_at: ColumnType<Date, string | undefined, never>
 }
 
+export interface UserTable extends WithTimestamp, WithSoftDelete {
+  id: Generated<number>
+  name: string
+  email: string
+  password: string
+}
+
 // Base interface that modules can extend
 export interface Tables {
   users: UserTable
   migrations: MigrationsTable
 }
+
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-empty-object-type

@@ -39,6 +39,7 @@
     "routes/**/*.ts",
     "server/**/*.ts",
     "modules/**/server/**/**/*.ts",
+    "modules/**/server/**/**/*.d.ts",
     "artisan"
 ]
 }

@@ -1,4 +1,12 @@
-import { CreateTableBuilder, sql } from "kysely";
+import { CreateTableBuilder, sql, type ColumnType } from "kysely";
+
+export interface WithTimestamp {
+  created_at: ColumnType<Date, string | undefined, never>
+  updated_at: ColumnType<Date, string | undefined, never>
+}
+export interface WithSoftDelete {
+  deleted_at: ColumnType<Date | null, string | undefined, null>
+}
 
 export function withTimestamps(qb: CreateTableBuilder<any>): CreateTableBuilder<any> {
     return qb
