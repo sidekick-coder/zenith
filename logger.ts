@@ -1,5 +1,6 @@
 import winston from 'winston'
 import chalk from 'chalk'
+
 const { format } = winston
 
 export function printObject(object: any, indent: number = 0): string {
@@ -55,13 +56,13 @@ export function formatLog(data: any) {
     }
 
     let result = `${timestamp}`
-    result += levelColor(` [${level}]`)
+    result += levelColor(` [${level}]`) + ':'
 
     if (label) {
-        result += `(${chalk.gray(label)})`
+        result += ` ${chalk.gray(label)}`
     }
 
-    result += `: ${message}`
+    result += ` ${message}`
 
     if (stack) {
         result += `\n${stack}`
@@ -85,9 +86,7 @@ export const logger = winston.createLogger({
         new winston.transports.File({ filename: 'logs/app.log' }),
         new winston.transports.Console({
             format: format.combine(
-                format.timestamp({
-                    format: 'YYYY-MM-DD HH:mm:ss',
-                }),
+                format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss', }),
                 format.printf(formatLog)
             ),
         }),

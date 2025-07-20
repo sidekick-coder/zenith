@@ -24,6 +24,7 @@
     "database/**/*.ts",
     "router/**/*.ts",
     "services/**/*.ts",
+    "repositories/**/*.ts",
     "facades/**/*.ts",
     "routes/**/*.ts",
     "server/**/*.ts",

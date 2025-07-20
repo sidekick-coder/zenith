@@ -16,6 +16,11 @@ import { basePath } from '#utils/paths.ts'
 import modules from '#services/modules.service.ts'
 
 function handleError(error: Error, response: Response) {
+    logger.error('Error occurred while processing request', {
+        error: error.message,
+        stack: error.stack,
+    })
+
     if (error instanceof BaseException) {
         return response.status(error.statusCode).json({
             error: error.name,
@@ -27,8 +32,6 @@ function handleError(error: Error, response: Response) {
         error: 'Internal Server Error',
         message: 'An unexpected error occurred',
     })
-
-
 }
 
 async function execute(url: URL, request: Request, response: Response, route: Route) {        
@@ -52,7 +55,7 @@ async function execute(url: URL, request: Request, response: Response, route: Ro
         }
     }
 
-    const [error, result] = await tryCatch(() => router.execute(route, ctx)) 
+    const [error, result] = await tryCatch(() => router.execute(route, ctx))
 
     if (error) {
         handleError(error, response)

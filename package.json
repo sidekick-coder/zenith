@@ -9,6 +9,7 @@
         "#common/*": "./common/*",
         "#router/*": "./router/*",
         "#services/*": "./services/*",
+        "#repositories/*": "./repositories/*",
         "#utils/*": "./utils/*",
         "#facades/*": "./facades/*",
         "#exceptions/*": "./exceptions/*",

@@ -20,6 +20,9 @@
         "#services/*": [
             "services/*"
         ],
+        "#repositories*": [
+            "repositories*"
+        ],
         "#common/*": [
             "common/*"
         ],

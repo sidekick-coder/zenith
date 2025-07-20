@@ -10,7 +10,7 @@ export type AuthMiddlewareContext = MiddlewareHandleResult<[AuthMiddleware]>
 export class AuthMiddleware implements Middleware {
     public async handle(ctx: HttpContext){
         // Example authentication logic
-        const token = ctx.cookie.get('Authorization') || ctx.query.token || ctx.body.token
+        const token = ctx.cookie.get('Authorization')
 
         if (!token) {
             throw new BaseException('Authentication token is missing', 401)

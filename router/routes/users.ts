@@ -1,22 +1,12 @@
-import db from '#facades/db.ts'
 import router from '#facades/router.ts'
-import authMiddleware, { AuthMiddleware } from '#router/middlewares/auth.middleware.ts'
-import type { HttpContext } from '#router/types.ts'
+import authMiddleware from '#router/middlewares/auth.middleware.ts'
+import userRepository from '#repositories/user.repository.ts'
 
 router
     .middleware(authMiddleware)
     .get('/api/users', async (ctx) => {
-        console.log(ctx.body)
-        const users = await db.selectFrom('users').execute()
+        const page = ctx.query.page ? Number(ctx.query.page as string) : 1
+        const limit = ctx.query.limit ? Number(ctx.query.limit as string) : 10
 
-        return { users }
-    })
-
-router
-    .middleware(authMiddleware)
-    .get('/api/users/:id', async (ctx: HttpContext<[AuthMiddleware]>) => {
-        console.log(ctx.user)
-        const users = await db.selectFrom('users').execute()
-
-        return { users }
+        return userRepository.paginate(page, limit)
     })

@@ -25,7 +25,6 @@ export default class DIService {
     }
 
     public singleton<T>(classConstructor: Constructor<T>): T {
-        console.log(classConstructor)
         const key = classConstructor.name
         const existingInstance = this.entries.get(key)
         
@@ -50,7 +49,7 @@ export default class DIService {
                 const entry = this.get<T>(key) as any
 
                 if (typeof entry[prop] === 'function') {
-                    return (...args: any[]) => entry[prop](...args)
+                    return (...args: any[]) => entry[prop].bind(entry)(...args)
                 }
 
                 return entry[prop]

@@ -1,6 +1,5 @@
 <script lang="ts">
 import { useLocalStorage } from '@vueuse/core'
-import { useRouter } from 'vue-router'
 import { toast } from 'vue-sonner'
 import DashboardSidebarGroup from './DashboardSidebarGroup.vue'
 import type { MenuItem } from './DashboardSidebarGroup.vue'

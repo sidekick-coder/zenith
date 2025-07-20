@@ -1,15 +1,15 @@
-import { type Dialect , SqliteDialect } from 'kysely'
+import {   SqliteDialect } from 'kysely'
+import type { Dialect } from 'kysely'
 import { Kysely } from 'kysely'
 import SQLite from 'better-sqlite3'
-import config from '#services/config.service.ts'
+import logger from '../logger.ts'
 import type { Database } from './types'
+import config from '#services/config.service.ts'
 import di from '#facades/di.ts'
 
 // In-memory SQLite dialect for initialization
 // This is used to create the Kysely instance before loading the actual database connection
-const memory = new SqliteDialect({
-    database: new SQLite(':memory:')
-})
+const memory = new SqliteDialect({ database: new SQLite(':memory:') })
 
 export default class DatabaseManager extends Kysely<Database> {
     public static readonly DI_KEY = 'db'
@@ -38,18 +38,14 @@ export default class DatabaseManager extends Kysely<Database> {
         let dialect: Dialect | undefined = undefined
 
         if (connection.driver === 'sqlite') {
-            dialect = new SqliteDialect({
-                database: new SQLite(connection.database)
-            })
+            dialect = new SqliteDialect({ database: new SQLite(connection.database) })
         }
 
         if (!dialect) {
             throw new Error(`Unsupported database driver: ${connection.driver}`)
         }
 
-        const db = new DatabaseManager({
-            dialect: dialect
-        })
+        const db = new DatabaseManager({ dialect: dialect })
 
         db.configConnectionName = name
         db.configConnection = connection.database
@@ -59,5 +55,6 @@ export default class DatabaseManager extends Kysely<Database> {
         }
 
         di.set(DatabaseManager.DI_KEY, db)
+        logger.info(`connection "${name}" loaded.`, { label: 'db' })
     }
 }

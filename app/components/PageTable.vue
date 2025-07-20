@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import { $fetch } from '#app/utils/fetcher.ts'
 import { ref } from 'vue'
+import { $fetch } from '#app/utils/fetcher.ts'
 
 import Dashboard from '#app/layouts/Dashboard.vue'
 
