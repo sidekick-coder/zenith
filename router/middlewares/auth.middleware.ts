@@ -1,6 +1,11 @@
 import BaseException from '#exceptions/base.ts'
 import auth from '#facades/auth.ts'
-import type { HttpContext, Middleware } from '#router/types.ts'
+import type {
+    HttpContext, Middleware, 
+    MiddlewareHandleResult 
+} from '#router/types.ts'
+
+export type AuthMiddlewareContext = MiddlewareHandleResult<[AuthMiddleware]>
 
 export class AuthMiddleware implements Middleware {
     public async handle(ctx: HttpContext){

@@ -8,7 +8,7 @@ const menu: LayoutMenuItem [] = [
         children: [
             {
                 label: $t('List'),
-                to: '/users',
+                to: '/admin/users',
             }
         ]
     },

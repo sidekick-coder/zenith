@@ -1,11 +1,13 @@
-import type { Handler, Middleware } from './types.ts'
+import type {
+    Handler, HttpContext, Middleware 
+} from './types.ts'
 
 export default class Route {
 
     private data = {
         path: '',
         method: '',
-        handler: null as Handler | null,
+        handler: null as Handler<any> | null,
         filename: null as string | null,
         middlewares: [] as Middleware[],
     }
@@ -22,7 +24,7 @@ export default class Route {
         return this
     }
 
-    public handler(handler: Handler) {
+    public handler(handler: Handler<any>) {
         this.data.handler = handler
         return this
     }
@@ -52,7 +54,7 @@ export default class Route {
         }
     }
 
-    public get(path: string, handler: Handler) {
+    public get<T extends Handler<any> = Handler<HttpContext>>(path: string, handler: T) {
         return this.method('GET').path(path).handler(handler)
     }
 
