@@ -17,12 +17,20 @@ export function autoRoutes(options: Options): RouteRecordRaw[] {
     const lowerCase = options.lowerCase !== undefined ? options.lowerCase : true
 
     for (const [filename, component] of Object.entries(options.imports)) {
-        const parts = filename.split('/')
+        const parts = filename
+            .replace(/\.vue$/, '')
+            .split('/')
             .filter(part => part && !part.startsWith('.'))
             .filter(part => !filterParsts.includes(part))
-            .map(part => lowerCase ? part.toLowerCase() : part)
+            .map(part => {
+                let p = lowerCase ? part.toLowerCase() : part
+                if (p.startsWith('[') && p.endsWith(']')) {
+                    p = ':' + p.slice(1, -1)
+                }
+                return p
+            })
 
-        let path = parts.join('/').replace(/\.vue$/, '').replace(/index$/, '')
+        let path = parts.join('/').replace(/index$/, '')
 
         const guards = [] as NavigationGuard[]
         
@@ -34,6 +42,10 @@ export function autoRoutes(options: Options): RouteRecordRaw[] {
             path = '/' + path
         }
 
+        if (path.endsWith('/')) {
+            path = path.slice(0, -1)
+        }
+
         path = basePath + path
 
         if (!path.startsWith('/')) {
@@ -42,6 +54,7 @@ export function autoRoutes(options: Options): RouteRecordRaw[] {
 
         const record = {
             path: path,
+            name: parts.join('-').replace(/:/g, ''),
             component: component as DefineComponent,
             beforeEnter: guards
         }

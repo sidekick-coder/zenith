@@ -105,7 +105,7 @@ async function toggle(item: any) {
                 </CardHeader>
 
                 <CardFooter class="flex justify-end gap-2">
-                    <Button :to="`/modules/${item.id}`">
+                    <Button :to="`/admin/modules/${item.id}`">
                         {{ $t('Configure') }}
                     </Button>
                     <div class="flex-1" />

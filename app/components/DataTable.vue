@@ -1,12 +1,8 @@
 <script lang="ts">
 import {
-    CellContext, FlexRender, getCoreRowModel, useVueTable  
+    FlexRender, getCoreRowModel, useVueTable  
 } from '@tanstack/vue-table'
 import type { ColumnDef } from '@tanstack/vue-table'
-import { h } from 'vue'
-import MButton from './Button.vue'
-import type { MButtonProps } from './Button.vue'
-import MRender, { RenderProps } from './Render.vue'
 import {
     Table,
     TableBody,
@@ -16,9 +12,6 @@ import {
     TableRow,
 } from '#app/components/ui/table'
 
-export interface TableColumn<TData, TValue> extends Omit<ColumnDef<TData, TValue>, 'cell'> {
-    cell?: RenderProps;
-}
 
 </script>
 <script setup lang="ts" generic="TData, TValue">
@@ -28,7 +21,7 @@ const props = defineProps({
         default: () => [],
     },
     columns: {
-        type: Array as () => TableColumn<TData, TValue>[],
+        type: Array as () => ColumnDef<TData, TValue>[],
         required: true,
     },
     page: {
@@ -57,54 +50,15 @@ const props = defineProps({
     },
 })
 
-function renderCell(colunm: TableColumn<TData, TValue>, ctx: CellContext<TData, TValue>) {
-    if (!colunm.cell) {
-        const cellValue = ctx.getValue() as string
-
-        return h('span', { class: 'text-sm' }, cellValue)
-    }
-
-    const injects = {
-        row: ctx.row.original,
-        column: colunm.id,
-        value: ctx.getValue(),
-        ...colunm.cell.injects,
-    }
-
-    const props = {
-        ...colunm.cell.props,
-        row: ctx.row.original,
-        column: colunm.id,
-        value: ctx.getValue(),
-    }
-
-    return h(MRender, {
-        ...colunm.cell,
-        injects: injects,
-        props: props,
-    })
-
-}
-
-const formatedColumns = JSON.parse(JSON.stringify(props.columns))
-    .map((c: TableColumn<TData, TValue>) => {
-        return {
-            ...c,
-            cell: (ctx: CellContext<TData, TValue>) => {
-                return renderCell(c, ctx)
-            },
-        }
-    })
-
 const table = useVueTable({
     get data() { return props.items },
-    get columns() { return formatedColumns },
+    get columns() { return props.columns },
     getCoreRowModel: getCoreRowModel(),
 })
 </script>
 
 <template>
-    <div class="border rounded-md">
+    <div class="border">
         <Table>
             <TableHeader>
                 <TableRow
