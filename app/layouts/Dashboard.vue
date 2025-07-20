@@ -1,6 +1,6 @@
 <script lang="ts">
-import { useLocalStorage } from '@vueuse/core'
 import { toast } from 'vue-sonner'
+import { ref } from 'vue'
 import DashboardSidebarGroup from './DashboardSidebarGroup.vue'
 import type { MenuItem } from './DashboardSidebarGroup.vue'
 import Logo from '#app/components/Logo.vue'
@@ -46,7 +46,7 @@ export interface MenuModule {
 }
 </script>
 <script setup lang="ts">
-const open = useLocalStorage('sidebar-open', true)
+const open = ref( true)
 
 defineProps({
     padding: {
