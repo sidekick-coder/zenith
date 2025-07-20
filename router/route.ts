@@ -1,17 +1,30 @@
-import type { Handler } from "./types.ts"
+import type { Handler, Middleware } from './types.ts'
 
 export default class Route {
-    public method: string
-    public path: string
-    public handler: Handler
-    public metas: Record<string, any> = {}
-    public filename: string | null = null
 
-    constructor(method: string, path: string, filename: string | null = null, handler: Handler) {
-        this.method = method.toUpperCase()
-        this.path = path
-        this.handler = handler
-        this.filename = filename
+    private data = {
+        path: '',
+        method: '',
+        handler: null as Handler | null,
+        filename: null as string | null,
+        middlewares: [] as Middleware[],
+    }
+
+    private metas: Record<string, any> = {}
+
+    public path(path: string) {
+        this.data.path = path
+        return this
+    }
+
+    public method(method: string) {
+        this.data.method = method.toUpperCase()
+        return this
+    }
+
+    public handler(handler: Handler) {
+        this.data.handler = handler
+        return this
     }
 
     public meta(key: string, value: any) {
@@ -21,6 +34,22 @@ export default class Route {
 
     public name(name: string) {
         return this.meta('name', name)
+    }
+
+    public middleware(middleware: Middleware) {
+        this.data.middlewares.push(middleware)
+        return this
+    }
+
+    public get filename() {
+        return this.data.filename
+    }
+
+    public seralize() {
+        return {
+            ...this.data,
+            metas: this.metas,
+        }
     }
 
 }

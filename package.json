@@ -19,7 +19,8 @@
     "scripts": {
         "dev": "node art serve -w",
         "build": "node art build",
-        "lint": "eslint"
+        "lint": "eslint",
+        "test": "vitest"
     },
     "dependencies": {
         "@tailwindcss/vite": "^4.1.11",
@@ -73,6 +74,7 @@
         "eslint-plugin-vue": "^10.3.0",
         "typescript": "~5.8.3",
         "vite": "^7.0.3",
+        "vitest": "^3.2.4",
         "vue-tsc": "^2.2.12"
     }
 }

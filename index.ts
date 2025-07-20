@@ -5,13 +5,15 @@ import type {
 } from 'express'
 import vite from './services/vite.service.ts'
 
-import type Route from '#router/route.ts'
 import logger from './logger.ts'
+import type Route from '#router/route.ts'
 import router from '#facades/router.ts'
 import db from '#facades/db.ts'
 import { tryCatch } from '#common/tryCatch.ts'
 import type { HttpContext } from '#router/types.ts'
 import BaseException from '#exceptions/base.ts'
+import { basePath } from '#utils/paths.ts'
+import modules from '#services/modules.service.ts'
 
 function handleError(error: Error, response: Response) {
     if (error instanceof BaseException) {
@@ -71,18 +73,29 @@ async function execute(url: URL, request: Request, response: Response, route: Ro
     response.send(result)
 }
 
+async function loadRoutes(){
+    router.clear()
+
+    await router.loadDirectory(basePath('router', 'routes'))
+
+    // load module routes
+    const mods = await modules.list({ enabled: true })
+
+    for await (const mod of mods) {
+        await mod.loadRoutes()
+    }
+}
+
 async function main() {
     const app = express()
 
     app.use(cookieParser())
     app.use(express.json())
-    app.use(express.urlencoded({
-        extended: true 
-    }))
+    app.use(express.urlencoded({ extended: true }))
 
     await vite.init(app)
 
-    await router.load()
+    await loadRoutes()
 
     await db.load()
 

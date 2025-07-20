@@ -1,13 +1,12 @@
 import fs from 'fs'
-import modules from '#services/modules.service.ts'
-import { basePath } from '#utils/paths.ts'
-import { tryCatch } from '#common/tryCatch.ts'
+import path from 'path'
 import logger from '../logger.ts'
 import Route from './route.ts'
-import type { Handler } from './types.ts'
+import type { Handler, Middleware } from './types.ts'
+import { tryCatch } from '#common/tryCatch.ts'
 
 export default class Router {
-    private routes = new Map<string, Route>()
+    private routes: Route[] = []
     private filename = null as string | null
 
     public open(filename: string) {
@@ -22,69 +21,46 @@ export default class Router {
         this.filename = null
     }
 
-    public add(payload: Pick<Route, 'method' | 'path' | 'handler'>) {
-        const key = `${payload.method.toUpperCase()} ${payload.path}`
+    public middleware(middleware: Middleware) {
+        const route = new Route()
 
-        if (!this.filename) {
-            throw new Error('Cannot add route without a filename. Did you forget to call open()?')
-        }
+        route.middleware(middleware)
 
-        const route = new Route(payload.method, payload.path, this.filename, payload.handler)
+        this.routes.push(route)
+    }
 
-        this.routes.set(key, route)
+    public get(path: string, handler: Handler) {
+        const route = new Route()
+            .method('GET')
+            .path(path)
+            .handler(handler)
+
+        this.routes.push(route)
 
         return route
     }
 
-    public remove(path: string, httpMethod?: string) {
-        const method = httpMethod ? httpMethod.toUpperCase() : 'GET'
-        const key = `${method} ${path}`
-
-        this.routes.delete(key)
-    }
-
-    public get(path: string, handler: Handler) {
-        return this.add({
-            method: 'GET',
-            path,
-            handler 
-        })
-    }
-
     public post(path: string, handler: Handler) {
-        return this.add({
-            method: 'POST',
-            path,
-            handler 
-        })
-    }
+        const route = new Route()
+            .method('POST')
+            .path(path)
+            .handler(handler)
 
-    public put(path: string, handler: Handler) {
-        return this.add({
-            method: 'PUT',
-            path,
-            handler 
-        })
-    }
+        this.routes.push(route)
 
-    public delete(path: string, handler: Handler) {
-        return this.add({
-            method: 'DELETE',
-            path,
-            handler 
-        })
+        return route
     }
 
     public resolve(method: string, path: string) {
-        const routes = Array.from(this.routes.values())
-
-        const route = routes.find(r => {
-            if (r.method !== method.toUpperCase()) {
-                return false
-            }
+        const route = this.routes
+            .map(r => r.seralize())
+            .find(r => {
+                if (r.method !== method.toUpperCase()) {
+                    return false
+                }
             
-            return this.matchPath(r.path, path)
-        })
+                return this.matchPath(r.path, path)
+            })
 
         if (!route) {
             return null
@@ -94,8 +70,7 @@ export default class Router {
     }
 
     public extractParams(routePath: string, requestPath: string): Record<string, string> {
-        const params: Record<string, string> = {
-        }
+        const params: Record<string, string> = {}
         
         const routeSegments = routePath.split('/').filter(Boolean)
         const requestSegments = requestPath.split('/').filter(Boolean)
@@ -114,8 +89,7 @@ export default class Router {
     }
 
     public extractQuery(requestPath: string): Record<string, string> {
-        const query: Record<string, string> = {
-        }
+        const query: Record<string, string> = {}
         const queryString = requestPath.split('?')[1]
     
         if (!queryString) {
@@ -135,7 +109,7 @@ export default class Router {
         return query
     }
 
-    private matchPath(routePath: string, requestPath: string): boolean {
+    public matchPath(routePath: string, requestPath: string): boolean {
         // Split paths into segments
         const routeSegments = routePath.split('/').filter(Boolean)
         const requestSegments = requestPath.split('/').filter(Boolean)
@@ -191,35 +165,28 @@ export default class Router {
         const toRemove = routes.filter(route => route.filename === filename)
 
         for (const route of toRemove) {
-            this.routes.delete(`${route.method} ${route.path}`)
+            this.routes = this.routes.filter(r => r !== route)
         }
 
         logger.debug(`removed routes from ${filename}`)
     }
 
-    public async load() {
-        // clear 
-        this.routes.clear()
-
-        // load root routes 
-        for await (const filename of fs.readdirSync(basePath('router', 'routes'))) {
-            await this.loadFile(basePath('router', 'routes', filename))
+    public async loadDirectory(directory: string) {
+        if (!fs.existsSync(directory)) {
+            logger.warn(`Directory not found: ${directory}`)
+            return
         }
 
-        // load module routes
-        const mods = await modules.list({
-            enabled: true 
-        })
+        const files = fs.readdirSync(directory).filter(file => file.endsWith('.ts'))
 
-        for await (const mod of mods) {
-            const filename = mod.makePath('server', 'routes.ts')
-
-            if (!fs.existsSync(filename)) {
-                continue
-            }
-
-            await this.loadFile(filename)
+        for (const file of files) {
+            await this.loadFile(path.join(directory, file))
         }
+    }
+
+    public clear(){
+        this.routes = []
+        logger.debug('cleared all routes')
     }
 
     public list() {

@@ -1,6 +1,8 @@
-import Router from "#router/router.ts"
-import di from "./di.ts"
+import di from './di.ts'
+import Router from '#router/router.ts'
 
-const router = di.singleton(Router)
+di.set('router', Router)
+
+const router = di.proxy<Router>('router')
 
 export default router

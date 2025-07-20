@@ -1,10 +1,10 @@
-import fs from 'fs';
-import config from "./config.service.ts";
-import { logger } from "../logger.ts";
-import { basePath } from "../utils/paths.ts";
-import build from "./build.service.ts";
-import router from "#facades/router.ts";
-import env from "../env.ts";
+import fs from 'fs'
+import { logger } from '../logger.ts'
+import { basePath } from '../utils/paths.ts'
+import env from '../env.ts'
+import config from './config.service.ts'
+import build from './build.service.ts'
+import router from '#facades/router.ts'
 
 interface ModuleFile {
     source?: string;
@@ -17,17 +17,27 @@ interface Options {
 }
 
 class Module {
-    public id: string;
-    public name: string;
-    public enabled: boolean = false;
+    public id: string
+    public name: string
+    public enabled: boolean = false
 
     constructor(name: string) {
-        this.id = name;
-        this.name = name;
+        this.id = name
+        this.name = name
     }
 
     public makePath(...parts: string[]) {
-        return basePath('modules', this.name, ...parts);
+        return basePath('modules', this.name, ...parts)
+    }
+
+    public async loadRoutes(){
+        const filename = this.makePath('server', 'routes.ts')
+
+        if (!fs.existsSync(filename)) {
+            return
+        }
+
+        await router.loadFile(filename)
     }
 }
 
@@ -37,7 +47,7 @@ interface ListOptions {
 
 export class ModulesService {
     public getFiles(moduleName: string) {
-        const files: ModuleFile[] = [];
+        const files: ModuleFile[] = []
 
         if (fs.existsSync(basePath(`modules/${moduleName}/app/routes.ts`))) {
             files.push({
@@ -60,141 +70,141 @@ export class ModulesService {
                     '',
                     'export default original;',
                 ].join('\n'),
-            });
+            })
         }
 
-        return files;
+        return files
     }
 
     public async list(options: ListOptions = {}) {
-        const modulesPath = basePath('modules');
+        const modulesPath = basePath('modules')
         const moduleNames = fs.readdirSync(modulesPath, { withFileTypes: true })
             .filter(dirent => dirent.isDirectory())
-            .map(dirent => dirent.name);
+            .map(dirent => dirent.name)
 
-        const enabled = config.get('modules.enabled', []);
+        const enabled = config.get('modules.enabled', [])
 
-        let items = [] as Module[];
+        let items = [] as Module[]
 
         for (const name of moduleNames) {
-            const mod = new Module(name);
+            const mod = new Module(name)
 
-            mod.enabled = enabled.includes(name);
+            mod.enabled = enabled.includes(name)
 
-            items.push(mod);
+            items.push(mod)
         }
 
         if (options?.enabled) {
-            items = items.filter(mod => mod.enabled);
+            items = items.filter(mod => mod.enabled)
         }
 
-        return items;
+        return items
     }
 
     public async find(moduleName: string) {
-        const allModules = await this.list();
+        const allModules = await this.list()
 
-        const mod = allModules.find(mod => mod.name === moduleName);
+        const mod = allModules.find(mod => mod.name === moduleName)
 
-        return mod || null;
+        return mod || null
     }
 
     public async findOrFail(moduleName: string) {
-        const mod = await this.find(moduleName);
+        const mod = await this.find(moduleName)
 
         if (!mod) {
-            throw new Error(`Module ${moduleName} not found`);
+            throw new Error(`Module ${moduleName} not found`)
         }
 
-        return mod;
+        return mod
     }
 
     public async enable(moduleName: string, options: Options = {}) {
-        const mod = await this.find(moduleName);
+        const mod = await this.find(moduleName)
 
         if (!mod) {
-            throw new Error(`Module ${moduleName} not found`);
+            throw new Error(`Module ${moduleName} not found`)
         }
 
         if (mod.enabled) {
-            logger.debug(`Module ${moduleName} is already enabled`);
-            return;
+            logger.debug(`Module ${moduleName} is already enabled`)
+            return
         }
 
         for await (const file of this.getFiles(moduleName)) {
-            fs.writeFileSync(file.filename, file.content, 'utf-8');
+            fs.writeFileSync(file.filename, file.content, 'utf-8')
 
-            logger.debug(`module file: ${file.filename}`);
+            logger.debug(`module file: ${file.filename}`)
         }
 
-        await router.loadFile(mod.makePath('server', 'routes.ts'));
+        await router.loadFile(mod.makePath('server', 'routes.ts'))
 
         if (options?.build || env.isProduction) {
-            await build.all();
+            await build.all()
         }
 
-        let enabled = config.get('modules.enabled', []);
+        let enabled = config.get('modules.enabled', [])
 
-        enabled.push(moduleName);
+        enabled.push(moduleName)
 
-        enabled = [...new Set(enabled)]; // Ensure unique entries
+        enabled = [...new Set(enabled)] // Ensure unique entries
 
-        config.set('modules.enabled', enabled);
+        config.set('modules.enabled', enabled)
 
-        logger.info(`module ${moduleName} enabled`);
+        logger.info(`module ${moduleName} enabled`)
     }
 
     public async disable(moduleName: string, options: Options = {}) {
-        const mod = await this.find(moduleName);
+        const mod = await this.find(moduleName)
 
         if (!mod) {
-            throw new Error(`Module ${moduleName} not found`);
+            throw new Error(`Module ${moduleName} not found`)
         }
 
         if (!mod.enabled) {
-            logger.debug(`Module ${moduleName} is already disabled`);
-            return;
+            logger.debug(`Module ${moduleName} is already disabled`)
+            return
         }
 
 
         for (const file of this.getFiles(moduleName)) {
-            if (!fs.existsSync(file.filename)) continue;
+            if (!fs.existsSync(file.filename)) continue
 
-            fs.unlinkSync(file.filename);
+            fs.unlinkSync(file.filename)
 
-            logger.debug(`removing module file: ${file.filename}`);
+            logger.debug(`removing module file: ${file.filename}`)
         }
 
-        await router.removeFile(mod.makePath('server', 'routes.ts'));
+        await router.removeFile(mod.makePath('server', 'routes.ts'))
 
         if (options?.build || env.isProduction) {
-            await build.all();
+            await build.all()
         }
 
-        const enabled = config.get('modules.enabled', []);
+        const enabled = config.get('modules.enabled', [])
 
-        const index = enabled.indexOf(moduleName);
+        const index = enabled.indexOf(moduleName)
 
         if (index > -1) {
-            enabled.splice(index, 1);
+            enabled.splice(index, 1)
         }
 
-        config.set('modules.enabled', enabled);
+        config.set('modules.enabled', enabled)
 
-        logger.info(`module ${moduleName} disabled`);
+        logger.info(`module ${moduleName} disabled`)
     }
 
     public async toggle(moduleName: string, options: Options = {}) {
-        const enabled = config.get('modules.enabled', []);
+        const enabled = config.get('modules.enabled', [])
 
         if (enabled.includes(moduleName)) {
-            return this.disable(moduleName, options);
+            return this.disable(moduleName, options)
         }
 
-        return await this.enable(moduleName, options);
+        return await this.enable(moduleName, options)
     }
 }
 
-const modules = new ModulesService();
+const modules = new ModulesService()
 
-export default modules;
+export default modules

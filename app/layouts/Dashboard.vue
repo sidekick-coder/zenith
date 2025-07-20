@@ -169,7 +169,7 @@ async function onLogout() {
                                         </template>
                                         <template v-else>
                                             <BreadcrumbLink as-child>
-                                                <RouterLink :to="item.to">
+                                                <RouterLink :to="item.to!">
                                                     {{ item.label }}
                                                 </RouterLink>
                                             </BreadcrumbLink>
