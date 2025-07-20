@@ -51,74 +51,75 @@ defineProps({
 
 <template>
     <SidebarGroup>
-        <SidebarGroupLabel v-if="label">
+        <SidebarGroupLabel v-if="label && open">
             {{ label }} 
         </SidebarGroupLabel>
         <SidebarMenu>
             <template
-                v-for="item in items"
-                :key="item.label"
+                v-for="(item, index) in items"
+                :key="index"
             >
                 <Collapsible
-                    v-if="'children' in item"
+                    v-if="'children' in item && open"
                     default-open
                     class="group/collapsible"
                 >
                     <SidebarMenuItem>
-                        <template v-if="open || !isLg">
-                            <CollapsibleTrigger as-child>
-                                <SidebarMenuButton :tooltip="item.label">
-                                    <Icon :name="item.icon" />
-                                    <span>{{ item.label }}</span>
-                                </SidebarMenuButton>
-                            </CollapsibleTrigger>
-                            <CollapsibleContent>
-                                <SidebarMenuSub>
-                                    <SidebarMenuSubItem>
-                                        <SidebarMenuButton
-                                            v-for="child in item.children"
-                                            :key="child.label"
-                                            as-child
-                                            :is-active="child.to === $route.path"
-                                            :tooltip="child.label"
-                                        >
-                                            <router-link :to="child.to ?? '#'">
-                                                {{ child.label }}
-                                            </router-link>
-                                        </SidebarMenuButton>
-                                    </SidebarMenuSubItem>
-                                </SidebarMenuSub>
-                            </CollapsibleContent>
-                        </template>
-                        <template v-if="!open && isLg">
-                            <DropdownMenu>
-                                <DropdownMenuTrigger as-child>
-                                    <SidebarMenuButton>
-                                        <Icon :name="item.icon" />
-                                        <span>{{ item.label }}</span>
-                                    </SidebarMenuButton>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent
-                                    side="right"
-                                    align="start"
-                                >
-                                    <DropdownMenuItem
+                        <CollapsibleTrigger as-child>
+                            <SidebarMenuButton
+                                :tooltip="item.label"
+                            >
+                                <Icon :name="item.icon" />
+                                <span>{{ item.label }}</span>
+                            </SidebarMenuButton>
+                        </CollapsibleTrigger>
+                        <CollapsibleContent>
+                            <SidebarMenuSub>
+                                <SidebarMenuSubItem>
+                                    <SidebarMenuButton
                                         v-for="child in item.children"
                                         :key="child.label"
                                         as-child
+                                        :is-active="child.to === $route.path"
+                                        :tooltip="child.label"
                                     >
-                                        <RouterLink
-                                            :to="child.to"
-                                            :target="child.target ?? '_self'"
-                                        >
+                                        <router-link :to="child.to ?? '#'">
                                             {{ child.label }}
-                                        </RouterLink>
-                                    </DropdownMenuItem>
-                                </DropdownMenuContent>
-                            </DropdownMenu>
-                        </template>
+                                        </router-link>
+                                    </SidebarMenuButton>
+                                </SidebarMenuSubItem>
+                            </SidebarMenuSub>
+                        </CollapsibleContent>
                     </SidebarMenuItem>
                 </Collapsible>
+
+                <SidebarMenuItem v-else-if="'children' in item">
+                    <DropdownMenu>
+                        <DropdownMenuTrigger>
+                            <SidebarMenuButton>
+                                <Icon :name="item.icon" />
+                            </SidebarMenuButton>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent
+                            side="right"
+                            align="start"
+                        >
+                            <DropdownMenuItem
+                                v-for="child in item.children"
+                                :key="child.label"
+                                as-child
+                            >
+                                <RouterLink
+                                    :to="child.to"
+                                    :target="child.target ?? '_self'"
+                                >
+                                    {{ child.label }}
+                                </RouterLink>
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                </SidebarMenuItem>
+
 
                 <SidebarMenuItem v-else>
                     <SidebarMenuButton

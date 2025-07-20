@@ -120,7 +120,7 @@ async function onLogout() {
 
             <SidebarContent>
                 <DashboardSidebarGroup
-                    :open="open"
+                    :open
                     :items="ungrouped"
                     :label="$t('General')"
                     class="py-0"
