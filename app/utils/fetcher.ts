@@ -1,7 +1,7 @@
-import di from './di'
-import type Router from '#router/router'
 import { toast } from 'vue-sonner'
+import di from './di'
 import { $t } from './lang'
+import type Router from '#router/router'
 
 interface Options extends RequestInit {
     query?: Record<string, string>
@@ -18,21 +18,19 @@ async function handleError(response: Response) {
         return toast.error($t('Internal Server Error'))
     }
 
-    const errorData = await response.json()
-        .catch(() => ({
-            message: $t('Internal Server Error')
-        }))
+    if (response.headers.get('Content-Type')?.includes('json')) {
+        const data = await response.json()
+            .catch(() => ({ message: $t('Internal Server Error') }))
+    
+        if (data.message) {
+            toast.error(data.message)
+        }    
+    }
 
-    if (errorData.message) {
-        toast.error(errorData.message)
-    }    
 }
 
-export async function defaultFetcher<T>(url: string, options: Options = {
-}): Promise<T> {
-    const fetchOptions: RequestInit = {
-        ...options
-    }
+export async function defaultFetcher<T>(url: string, options: Options = {}): Promise<T> {
+    const fetchOptions: RequestInit = { ...options }
 
     if (options.query) {
         const queryString = new URLSearchParams(options.query).toString()
@@ -47,12 +45,15 @@ export async function defaultFetcher<T>(url: string, options: Options = {
         throw new Error(`HTTP error! status: ${response.status}`)
     }
 
-    return response.json() as Promise<T>
+    if (response.headers.get('Content-Type')?.includes('json')) {
+        return response.json() as Promise<T>
+    }
+
+    return response.text() as Promise<T>
 }
 
 export function createServerFetcher(router: Router) {
-    async function fetcher<T>(url: string, options: Options = {
-    }): Promise<T> {
+    async function fetcher<T>(url: string, options: Options = {}): Promise<T> {
         const isInternal = !url.startsWith('http://') && !url.startsWith('https://')
 
         if (!isInternal) {
@@ -79,8 +80,7 @@ export function createServerFetcher(router: Router) {
     return fetcher
 }
 
-export async function $fetch<T>(url: string, options: Options = {
-}): Promise<T> {
+export async function $fetch<T>(url: string, options: Options = {}): Promise<T> {
     let fetcher: Fetcher = defaultFetcher
 
     if (di.has('fetcher')) {

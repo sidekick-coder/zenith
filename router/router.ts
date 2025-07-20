@@ -9,8 +9,13 @@ import { tryCatch } from '#common/tryCatch.ts'
 export default class Router {
     private routes: Route[] = []
     private filename = null as string | null
+    
     private middlewares: Middleware[] = []
     private prefixes: string[] = []
+
+    private groupMiddlewares: Middleware[] = []
+    private groupPrefixes: string[] = []
+    
     private groups: Router[] = []
 
     public open(filename: string) {
@@ -38,15 +43,18 @@ export default class Router {
     }
 
     public makePath(args: string): string {
-        return join(...this.prefixes, args)
+        return join(...this.groupPrefixes, ...this.prefixes, args)
     }
 
-    public get(path: string, handler: Handler<any>) {
+    public add(payload: Pick<Route, 'path' | 'method' | 'handler'>) {
         const route = new Route({
-            method: 'GET',
-            path: this.makePath(path),
-            handler,
-            middlewares: this.middlewares,
+            method: payload.method,
+            path: this.makePath(payload.path),
+            handler: payload.handler,
+            middlewares:[
+                ...this.groupMiddlewares,
+                ...this.middlewares,
+            ],
         })
 
         this.middlewares = [] // Reset middlewares after use
@@ -55,12 +63,28 @@ export default class Router {
         this.routes.push(route)
     }
 
+    public get(path: string, handler: Handler<any>) {
+        this.add({
+            path,
+            method: 'GET',
+            handler, 
+        })
+    }
+    
+    public post(path: string, handler: Handler<any>) {
+        this.add({
+            path,
+            method: 'POST',
+            handler, 
+        })
+    }
+
     public group() {        
         const group = new Router()
 
         group.filename = this.filename // Inherit filename from parent
-        group.middlewares = this.middlewares // Inherit middlewares from parent
-        group.prefixes = this.prefixes // Inherit prefixes from parent
+        group.groupMiddlewares = this.middlewares // Inherit middlewares from parent
+        group.groupPrefixes = this.prefixes // Inherit prefixes from parent
 
         this.groups.push(group)
 

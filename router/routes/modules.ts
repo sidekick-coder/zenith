@@ -1,17 +1,23 @@
-import router from '#facades/router.ts'
+import root from '#facades/router.ts'
+import authMiddleware from '#router/middlewares/auth.middleware.ts'
 import modules from '#services/modules.service.ts'
 
-router.get('/api/modules', () => {
+const router = root.use(authMiddleware)
+    .prefix('/api/modules')
+    .group()
+
+router.get('/', () => {
     return modules.list()
 })
 
-router.get('/api/modules/:name', ({ params }) => {
+router.get('/:name', ({ params }) => {
     const name = params.name
 
     return modules.find(name)
 })
 
-router.post('/api/modules/:name/toggle', async ({ params, query }) => {
+router.post('/:name/toggle', async ({ params, query }) => {
+    console.log('toggle module', params, query)
     const name = params.name
 
     return modules.toggle(name, query)

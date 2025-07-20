@@ -36,7 +36,7 @@ function handleError(error: Error, response: Response) {
 
 async function execute(url: URL, request: Request, response: Response, route: Route) {        
     const ctx: HttpContext = {
-        params: request.params,
+        params: router.extractParams(route.path, url.pathname),
         query: Object.fromEntries(url.searchParams.entries()),
         body: request.body,
         cookie: {

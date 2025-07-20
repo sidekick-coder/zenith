@@ -11,6 +11,8 @@ import CardTitle from '#app/components/ui/card/CardTitle.vue'
 import Switch from '#app/components/ui/switch/Switch.vue'
 
 import { $t } from '#app/utils/lang'
+import { $fetch } from '#app/utils/fetcher'
+import { tryCatch } from '#common/tryCatch'
 import Dialog from '#app/components/ui/dialog/Dialog.vue'
 import DialogContent from '#app/components/ui/dialog/DialogContent.vue'
 import DialogHeader from '#app/components/ui/dialog/DialogHeader.vue'
@@ -48,13 +50,11 @@ async function toggle(item: any) {
         })
     }
 
-    const response = await fetch(`/api/modules/${item.id}/toggle`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', },
-    })
+    const [error] = await tryCatch(() => $fetch(`/api/modules/${item.id}/toggle`, { method: 'POST', }))
 
-    if (!response.ok) {
+    if (error) {
         console.error('Failed to toggle module:', item.name)
+        console.error(error)
         toggling.value = false
         return
     }
