@@ -1,5 +1,6 @@
 import fs from 'fs'
 import path from 'path'
+import { join } from 'path'
 import logger from '../logger.ts'
 import Route from './route.ts'
 import type { Handler, Middleware } from './types.ts'
@@ -8,6 +9,9 @@ import { tryCatch } from '#common/tryCatch.ts'
 export default class Router {
     private routes: Route[] = []
     private filename = null as string | null
+    private middlewares: Middleware[] = []
+    private prefixes: string[] = []
+    private groups: Router[] = []
 
     public open(filename: string) {
         this.filename = filename
@@ -21,43 +25,59 @@ export default class Router {
         this.filename = null
     }
 
-    public middleware(middleware: Middleware) {
-        const route = new Route()
+    public use(middleware: Middleware) {
+        this.middlewares.push(middleware)
 
-        route.middleware(middleware)
-
-        this.routes.push(route)
-
-        return route
+        return this
     }
 
-    public get(path: string, handler: Handler) {
-        const route = new Route().get(path, handler)
+    public prefix(prefix: string) {
+        this.prefixes.push(prefix)
 
-        this.routes.push(route)
-
-        return route
+        return this
     }
 
-    public post(path: string, handler: Handler) {
-        const route = new Route()
-            .method('POST')
-            .path(path)
-            .handler(handler)
+    public makePath(args: string): string {
+        return join(...this.prefixes, args)
+    }
+
+    public get(path: string, handler: Handler<any>) {
+        const route = new Route({
+            method: 'GET',
+            path: this.makePath(path),
+            handler,
+            middlewares: this.middlewares,
+        })
+
+        this.middlewares = [] // Reset middlewares after use
+        this.prefixes = [] // Reset prefixes after use
 
         this.routes.push(route)
+    }
 
-        return route
+    public group() {        
+        const group = new Router()
+
+        group.filename = this.filename // Inherit filename from parent
+        group.middlewares = this.middlewares // Inherit middlewares from parent
+        group.prefixes = this.prefixes // Inherit prefixes from parent
+
+        this.groups.push(group)
+
+        this.middlewares = [] // Reset middlewares for the new group
+        this.prefixes = [] // Reset prefixes after use
+        
+        return group
     }
 
     public resolve(method: string, path: string) {
-        const route = this.routes
+        const route = this.list()
             .find(r => {
-                if (r.seralize().method !== method.toUpperCase()) {
+                if (r.method !== method.toUpperCase()) {
                     return false
                 }
-            
-                return this.matchPath(r.seralize().path, path)
+
+                return this.matchPath(r.path, path)
             })
 
         if (!route) {
@@ -68,21 +88,19 @@ export default class Router {
     }
 
     public async execute(route: Route, initialCtx: any) {
-        const data = route.seralize()
-
-        if (!data.handler) {
-            throw new Error(`Route handler not found for ${data.method} ${data.path}`)
+        if (!route.handler) {
+            throw new Error(`Route handler not found for ${route.method} ${route.path}`)
         }
 
         const ctx = { ...initialCtx }
 
-        for await (const middleware of data.middlewares) {
+        for await (const middleware of route.middlewares) {
             const result = await middleware.handle(ctx)
             
             Object.assign(ctx, result)
         }
 
-        return data.handler(ctx)
+        return route.handler(ctx)
     }
 
     public extractParams(routePath: string, requestPath: string): Record<string, string> {
@@ -206,6 +224,6 @@ export default class Router {
     }
 
     public list() {
-        return Array.from(this.routes.values())
+        return this.routes.concat(...this.groups.map(g => g.routes))
     }
 }

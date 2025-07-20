@@ -172,8 +172,8 @@ export class UserRepository {
             meta: {
                 total,
                 page,
-                lastPage: Math.ceil(total / limit),
-                perPage: limit
+                last_page: Math.ceil(total / limit),
+                per_page: limit
             }
         }
     }

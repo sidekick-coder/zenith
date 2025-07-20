@@ -2,6 +2,7 @@ import { program } from 'commander'
 import Table from 'cli-table3'
 import router from '#facades/router.ts'
 import modules from '#services/modules.service.ts'
+import { basePath } from '#utils/paths.ts'
 
 program.command('route:list')
     .action(async () => {
@@ -27,7 +28,6 @@ program.command('route:list')
         })
 
         routes
-            .map(route => route.seralize())
             .forEach(route => {
                 table.push([route.method, route.path, route.filename])
             })
