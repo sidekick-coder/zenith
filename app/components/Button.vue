@@ -1,9 +1,11 @@
 <script lang="ts">
-import { Tooltip, TooltipContent, TooltipTrigger } from '@app/components/ui/tooltip';
-import Button from '@app/components/ui/button/Button.vue';
-import MComponent from './Component.vue';
-import Icon from './Icon.vue';
-import { RouterLink } from 'vue-router';
+import { RouterLink } from 'vue-router'
+import MComponent from './Component.vue'
+import Icon from './Icon.vue'
+import {
+    Tooltip, TooltipContent, TooltipTrigger 
+} from '#app/components/ui/tooltip'
+import Button from '#app/components/ui/button/Button.vue'
 
 export interface MButtonProps {
     label?: string | null;
@@ -25,23 +27,23 @@ const props = withDefaults(
         tooltip: null,
         tooltipSide: 'top',
     }
-);
+)
 
 const loading = defineModel<boolean>('loading', {
     type: Boolean,
     default: false,
-});
+})
 
 const emit = defineEmits<{
     (e: 'click'): void;
-}>();
+}>()
 
 function onClick() {
     if (props.href) {
         return
     }
 
-    emit('click');
+    emit('click')
 }
 
 let is = null

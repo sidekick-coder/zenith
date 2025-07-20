@@ -54,7 +54,7 @@ export class ModulesService {
                 source: basePath(`modules/${moduleName}/app/routes.ts`),
                 filename: basePath(`app/routes/module.${moduleName}.ts`),
                 content: [
-                    `import original from '@modules/${moduleName}/app/routes.ts'`,
+                    `import original from '#modules/${moduleName}/app/routes.ts'`,
                     '',
                     'export default original;',
                 ].join('\n'),
@@ -66,7 +66,7 @@ export class ModulesService {
                 source: basePath(`modules/${moduleName}/app/menu.ts`),
                 filename: basePath(`app/menu/module.${moduleName}.ts`),
                 content: [
-                    `import original from '@modules/${moduleName}/app/menu.ts'`,
+                    `import original from '#modules/${moduleName}/app/menu.ts'`,
                     '',
                     'export default original;',
                 ].join('\n'),

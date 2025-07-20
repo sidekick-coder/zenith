@@ -1,9 +1,15 @@
 <script lang="ts">
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@app/components/ui/dropdown-menu'
-import { SidebarGroup, SidebarGroupLabel, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarMenuSubItem, SidebarMenuSub } from '@app/components/ui/sidebar';
-import { Collapsible, CollapsibleTrigger, CollapsibleContent } from '@app/components/ui/collapsible';
-import { useBreakpoints } from '@vueuse/core';
-import Icon from '@app/components/Icon.vue';
+import { useBreakpoints } from '@vueuse/core'
+import {
+    DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem 
+} from '#app/components/ui/dropdown-menu'
+import {
+    SidebarGroup, SidebarGroupLabel, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarMenuSubItem, SidebarMenuSub 
+} from '#app/components/ui/sidebar'
+import {
+    Collapsible, CollapsibleTrigger, CollapsibleContent 
+} from '#app/components/ui/collapsible'
+import Icon from '#app/components/Icon.vue'
 
 interface MenuBase {
     label: string;
@@ -24,8 +30,8 @@ interface MenuWithChildren extends MenuBase {
 export type MenuItem = MenuSingle | MenuWithChildren 
 </script>
 <script setup lang="ts">
-const breakpoints = useBreakpoints({ lg: 1024 });
-const isLg = breakpoints.greater('lg');
+const breakpoints = useBreakpoints({ lg: 1024 })
+const isLg = breakpoints.greater('lg')
 
 defineProps({
     open: {
@@ -40,7 +46,7 @@ defineProps({
         type: String,
         default: null
     },
-});
+})
 </script>
 
 <template>

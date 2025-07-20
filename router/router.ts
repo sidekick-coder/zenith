@@ -27,13 +27,12 @@ export default class Router {
         route.middleware(middleware)
 
         this.routes.push(route)
+
+        return route
     }
 
     public get(path: string, handler: Handler) {
-        const route = new Route()
-            .method('GET')
-            .path(path)
-            .handler(handler)
+        const route = new Route().get(path, handler)
 
         this.routes.push(route)
 
@@ -53,13 +52,12 @@ export default class Router {
 
     public resolve(method: string, path: string) {
         const route = this.routes
-            .map(r => r.seralize())
             .find(r => {
-                if (r.method !== method.toUpperCase()) {
+                if (r.seralize().method !== method.toUpperCase()) {
                     return false
                 }
             
-                return this.matchPath(r.path, path)
+                return this.matchPath(r.seralize().path, path)
             })
 
         if (!route) {
@@ -67,6 +65,24 @@ export default class Router {
         }
 
         return route
+    }
+
+    public async execute(route: Route, initialCtx: any) {
+        const data = route.seralize()
+
+        if (!data.handler) {
+            throw new Error(`Route handler not found for ${data.method} ${data.path}`)
+        }
+
+        const ctx = { ...initialCtx }
+
+        for await (const middleware of data.middlewares) {
+            const result = await middleware.handle(ctx)
+            
+            Object.assign(ctx, result)
+        }
+
+        return data.handler(ctx)
     }
 
     public extractParams(routePath: string, requestPath: string): Record<string, string> {

@@ -52,4 +52,8 @@ export default class Route {
         }
     }
 
+    public get(path: string, handler: Handler) {
+        return this.method('GET').path(path).handler(handler)
+    }
+
 }

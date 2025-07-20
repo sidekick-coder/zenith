@@ -1,10 +1,10 @@
 <script lang="ts">
 import { useLocalStorage } from '@vueuse/core'
-import Logo from '@app/components/Logo.vue'
 import { useRouter } from 'vue-router'
 import { toast } from 'vue-sonner'
 import DashboardSidebarGroup from './DashboardSidebarGroup.vue'
 import type { MenuItem } from './DashboardSidebarGroup.vue'
+import Logo from '#app/components/Logo.vue'
 import {
     Breadcrumb,
     BreadcrumbItem,
@@ -67,9 +67,7 @@ const breadcrumbs = defineModel('breadcrumbs', {
 })
 
 if (!menu.value) {
-    const files = import.meta.glob<MenuModule>('../menu/*.ts', {
-        eager: true 
-    })
+    const files = import.meta.glob<MenuModule>('../menu/*.ts', { eager: true })
 
     menu.value = Object.values(files).map(f => f.default).flat()
 }
@@ -88,9 +86,7 @@ const ungrouped = menu.value.filter(item => 'to' in item || 'children' in item)
 const grouped = menu.value.filter(item => 'items' in item) as MenuGroup[]
 
 async function onLogout() {
-    const [error] = await tryCatch(() =>  $fetch('/auth/logout', {
-        method: 'POST',
-    }))
+    const [error] = await tryCatch(() =>  $fetch('/auth/logout', { method: 'POST', }))
 
     if (error) {
         return

@@ -1,5 +1,12 @@
 <script lang="ts">
-import { CellContext, FlexRender, getCoreRowModel, useVueTable, type ColumnDef } from '@tanstack/vue-table'
+import {
+    CellContext, FlexRender, getCoreRowModel, useVueTable  
+} from '@tanstack/vue-table'
+import type { ColumnDef } from '@tanstack/vue-table'
+import { h } from 'vue'
+import MButton from './Button.vue'
+import type { MButtonProps } from './Button.vue'
+import MRender, { RenderProps } from './Render.vue'
 import {
     Table,
     TableBody,
@@ -7,10 +14,7 @@ import {
     TableHead,
     TableHeader,
     TableRow,
-} from '@app/components/ui/table'
-import { h } from 'vue';
-import MButton, { type MButtonProps } from './Button.vue';
-import MRender, { RenderProps } from './Render.vue';
+} from '#app/components/ui/table'
 
 export interface TableColumn<TData, TValue> extends Omit<ColumnDef<TData, TValue>, 'cell'> {
     cell?: RenderProps;
@@ -55,9 +59,9 @@ const props = defineProps({
 
 function renderCell(colunm: TableColumn<TData, TValue>, ctx: CellContext<TData, TValue>) {
     if (!colunm.cell) {
-        const cellValue = ctx.getValue() as string;
+        const cellValue = ctx.getValue() as string
 
-        return h('span', { class: 'text-sm' }, cellValue);
+        return h('span', { class: 'text-sm' }, cellValue)
     }
 
     const injects = {
@@ -87,9 +91,9 @@ const formatedColumns = JSON.parse(JSON.stringify(props.columns))
         return {
             ...c,
             cell: (ctx: CellContext<TData, TValue>) => {
-                return renderCell(c, ctx);
+                return renderCell(c, ctx)
             },
-        };
+        }
     })
 
 const table = useVueTable({
@@ -103,29 +107,52 @@ const table = useVueTable({
     <div class="border rounded-md">
         <Table>
             <TableHeader>
-                <TableRow v-for="headerGroup in table.getHeaderGroups()" :key="headerGroup.id">
-                    <TableHead v-for="header in headerGroup.headers" :key="header.id" :style="{
-                        width: header.getSize() + 'px',
-                    }">
-                        <FlexRender v-if="!header.isPlaceholder" :render="header.column.columnDef.header"
-                            :props="header.getContext()" />
+                <TableRow
+                    v-for="headerGroup in table.getHeaderGroups()"
+                    :key="headerGroup.id"
+                >
+                    <TableHead
+                        v-for="header in headerGroup.headers"
+                        :key="header.id"
+                        :style="{
+                            width: header.getSize() + 'px',
+                        }"
+                    >
+                        <FlexRender
+                            v-if="!header.isPlaceholder"
+                            :render="header.column.columnDef.header"
+                            :props="header.getContext()"
+                        />
                     </TableHead>
                 </TableRow>
             </TableHeader>
             <TableBody>
                 <template v-if="table.getRowModel().rows?.length">
-                    <TableRow v-for="row in table.getRowModel().rows" :key="row.id"
-                        :data-state="row.getIsSelected() ? 'selected' : undefined">
-                        <TableCell v-for="cell in row.getVisibleCells()" :key="cell.id" :style="{
-                            width: cell.column.getSize() + 'px',
-                        }">
-                            <FlexRender :render="cell.column.columnDef.cell" :props="cell.getContext()" />
+                    <TableRow
+                        v-for="row in table.getRowModel().rows"
+                        :key="row.id"
+                        :data-state="row.getIsSelected() ? 'selected' : undefined"
+                    >
+                        <TableCell
+                            v-for="cell in row.getVisibleCells()"
+                            :key="cell.id"
+                            :style="{
+                                width: cell.column.getSize() + 'px',
+                            }"
+                        >
+                            <FlexRender
+                                :render="cell.column.columnDef.cell"
+                                :props="cell.getContext()"
+                            />
                         </TableCell>
                     </TableRow>
                 </template>
                 <template v-else>
                     <TableRow>
-                        <TableCell :colspan="columns.length" class="h-24 text-center">
+                        <TableCell
+                            :colspan="columns.length"
+                            class="h-24 text-center"
+                        >
                             No data available
                         </TableCell>
                     </TableRow>

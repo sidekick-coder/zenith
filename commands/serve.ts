@@ -1,6 +1,6 @@
-import { program } from 'commander'
 import cp from 'child_process'
 import fs from 'fs'
+import { program } from 'commander'
 import { basePath } from '../utils/paths.ts'
 import logger from '../logger.ts'
 
@@ -15,6 +15,8 @@ program.command('serve').option('-w, --watch', 'Watch for changes and restart se
 
     const ignore = [
         'app',
+        'bin',
+        'commands',
         'config',
         'node_modules',
         '.git',

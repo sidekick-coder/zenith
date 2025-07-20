@@ -52,7 +52,7 @@ async function execute(url: URL, request: Request, response: Response, route: Ro
         }
     }
 
-    const [error, result] = await tryCatch(() => route.handler(ctx)) 
+    const [error, result] = await tryCatch(() => router.execute(route, ctx)) 
 
     if (error) {
         handleError(error, response)

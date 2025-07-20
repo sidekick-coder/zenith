@@ -1,72 +1,68 @@
 <script setup lang="ts">
-import Button from '@app/components/Button.vue';
-import Dashboard from '@app/layouts/Dashboard.vue';
+import { onMounted, ref } from 'vue'
+import Button from '#app/components/Button.vue'
+import Dashboard from '#app/layouts/Dashboard.vue'
 
-import Card from '@app/components/ui/card/Card.vue';
-import CardDescription from '@app/components/ui/card/CardDescription.vue';
-import CardFooter from '@app/components/ui/card/CardFooter.vue';
-import CardHeader from '@app/components/ui/card/CardHeader.vue';
-import CardTitle from '@app/components/ui/card/CardTitle.vue';
-import Switch from '@app/components/ui/switch/Switch.vue';
+import Card from '#app/components/ui/card/Card.vue'
+import CardDescription from '#app/components/ui/card/CardDescription.vue'
+import CardFooter from '#app/components/ui/card/CardFooter.vue'
+import CardHeader from '#app/components/ui/card/CardHeader.vue'
+import CardTitle from '#app/components/ui/card/CardTitle.vue'
+import Switch from '#app/components/ui/switch/Switch.vue'
 
-import { $t } from '@app/utils/lang';
-import { onMounted, ref } from 'vue';
-import Dialog from '@app/components/ui/dialog/Dialog.vue';
-import DialogContent from '@app/components/ui/dialog/DialogContent.vue';
-import DialogHeader from '@app/components/ui/dialog/DialogHeader.vue';
-import DialogTitle from '@app/components/ui/dialog/DialogTitle.vue';
-import DialogDescription from '@app/components/ui/dialog/DialogDescription.vue';
-import Icon from '@app/components/Icon.vue';
+import { $t } from '#app/utils/lang'
+import Dialog from '#app/components/ui/dialog/Dialog.vue'
+import DialogContent from '#app/components/ui/dialog/DialogContent.vue'
+import DialogHeader from '#app/components/ui/dialog/DialogHeader.vue'
+import DialogTitle from '#app/components/ui/dialog/DialogTitle.vue'
+import DialogDescription from '#app/components/ui/dialog/DialogDescription.vue'
+import Icon from '#app/components/Icon.vue'
 
 const items = ref<any[]>([])
 
 async function load() {
     const response = await fetch('/api/modules', {
         method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-    });
+        headers: { 'Content-Type': 'application/json', },
+    })
 
-    const json = await response.json();
+    const json = await response.json()
 
     items.value = json
 }
 
-onMounted(load);
+onMounted(load)
 
-const toggling = ref(false);
+const toggling = ref(false)
 
 async function toggle(item: any) {
-    toggling.value = true;
+    toggling.value = true
 
     // Prevent full reload in development mode
     if (import.meta.hot) {
         import.meta.hot.on('vite:beforeFullReload', () => {
-            throw '(skipping full reload)';
-        });
+            throw '(skipping full reload)'
+        })
         import.meta.hot.on('vite:beforeUpdate', () => {
-            throw '(skipping full reload)';
-        });
+            throw '(skipping full reload)'
+        })
     }
 
     const response = await fetch(`/api/modules/${item.id}/toggle`, {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-    });
+        headers: { 'Content-Type': 'application/json', },
+    })
 
     if (!response.ok) {
-        console.error('Failed to toggle module:', item.name);
-        toggling.value = false;
-        return;
+        console.error('Failed to toggle module:', item.name)
+        toggling.value = false
+        return
     }
 
     setTimeout(() => {
-        toggling.value = false;
-        window.location.reload();
-    }, 1000);
+        toggling.value = false
+        window.location.reload()
+    }, 1000)
 
 }
 
