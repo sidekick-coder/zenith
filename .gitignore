@@ -28,3 +28,6 @@ dist-ssr
 database.sqlite
 config/*
 !config/.gitkeep
+
+modules/*
+!modules/.gitkeep
