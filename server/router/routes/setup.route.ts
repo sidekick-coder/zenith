@@ -1,11 +1,11 @@
 import BaseException from '#server/exceptions/base.ts'
-import router from '#server/facades/router.ts'
+import router from '#server/facades/router.facade.ts'
 import config from '#server/services/config.service.ts'
 import { $t } from '#common/lang.ts'
 import { basePath } from '#server/utils/paths.ts'
 import migrator from '#server/database/migrator.ts'
 import { tryCatch } from '#common/tryCatch.ts'
-import db from '#server/facades/db.ts'
+import db from '#server/facades/db.facade.ts'
 import userRepository from '#server/repositories/user.repository.ts'
 
 router.post('/setup/database', async ({ body }) => {

@@ -5,10 +5,10 @@ import type {
 } from 'express'
 import vite from './server/services/vite.service.ts'
 
-import logger from './logger.ts'
+import logger from './server/facades/logger.facade.ts'
 import type Route from '#server/router/route.ts'
-import router from '#server/facades/router.ts'
-import db from '#server/facades/db.ts'
+import router from '#server/facades/router.facade.ts'
+import db from '#server/facades/db.facade.ts'
 import { tryCatch } from '#common/tryCatch.ts'
 import type { HttpContext } from '#server/router/types.ts'
 import BaseException from '#server/exceptions/base.ts'

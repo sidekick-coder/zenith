@@ -1,4 +1,4 @@
-import di from './di.ts'
+import di from './di.facade.ts'
 import AuthService from '#server/services/auth.service.ts'
 
 di.set(AuthService.DI_KEY, new AuthService())

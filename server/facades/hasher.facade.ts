@@ -1,4 +1,4 @@
-import di from './di.ts'
+import di from './di.facade.ts'
 import HashService from '#server/services/hash.service.ts'
 
 di.set(HashService.DI_KEY, new HashService())

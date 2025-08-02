@@ -1,4 +1,4 @@
-import di from './di.ts'
+import di from './di.facade.ts'
 import DatabaseManager from '#server/database/manager.ts'
 
 di.set(DatabaseManager.DI_KEY, new DatabaseManager())

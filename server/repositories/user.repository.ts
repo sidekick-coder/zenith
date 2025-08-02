@@ -1,6 +1,6 @@
 import type { UserTable } from '../database/types.ts'
-import db from '#server/facades/db.ts'
-import hasher from '#server/facades/hasher.ts'
+import db from '#server/facades/db.facade.ts'
+import hasher from '#server/facades/hasher.facade.ts'
 
 export type UserInsert = Omit<UserTable, 'id' | 'created_at' | 'updated_at' | 'deleted_at'>
 export type UserUpdate = Partial<Omit<UserTable, 'id' | 'created_at' | 'updated_at' | 'deleted_at'>>

@@ -1,4 +1,4 @@
-import di from './di.ts'
+import di from './di.facade.ts'
 import Router from '#server/router/router.ts'
 import setupMiddleware from '#server/router/middlewares/setup.middleware.ts'
 

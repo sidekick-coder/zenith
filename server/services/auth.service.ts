@@ -1,5 +1,5 @@
-import hasher from '#server/facades/hasher.ts'
-import db from '#server/facades/db.ts'
+import hasher from '#server/facades/hasher.facade.ts'
+import db from '#server/facades/db.facade.ts'
 import TokenService from '#server/services/token.service.ts'
 
 export interface LoginCredentials {

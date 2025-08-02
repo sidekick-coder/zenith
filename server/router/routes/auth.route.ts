@@ -1,5 +1,5 @@
-import router from '#server/facades/router.ts'
-import auth from '#server/facades/auth.ts'
+import router from '#server/facades/router.facade.ts'
+import auth from '#server/facades/auth.facade.ts'
 import BaseException from '#server/exceptions/base.ts'
 
 router.post('/auth/login', async ({ body, cookie }) => {

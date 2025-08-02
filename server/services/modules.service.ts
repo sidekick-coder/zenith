@@ -1,10 +1,10 @@
 import fs from 'fs'
-import { logger } from '../../logger.ts'
+import { logger } from '../facades/logger.facade.ts'
 import { basePath } from '../utils/paths.ts'
 import env from '../../env.ts'
 import config from './config.service.ts'
 import build from './build.service.ts'
-import router from '#server/facades/router.ts'
+import router from '#server/facades/router.facade.ts'
 
 interface ModuleFile {
     source?: string;

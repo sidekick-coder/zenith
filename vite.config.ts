@@ -1,7 +1,7 @@
 import { createLogger, defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import tailwindcss from '@tailwindcss/vite'
-import logger from './logger.ts'
+import logger from './server/facades/logger.facade.ts'
 
 const viteLogger = createLogger()
 

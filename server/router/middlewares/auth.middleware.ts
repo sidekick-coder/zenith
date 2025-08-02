@@ -1,5 +1,5 @@
 import BaseException from '#server/exceptions/base.ts'
-import auth from '#server/facades/auth.ts'
+import auth from '#server/facades/auth.facade.ts'
 import type {
     HttpContext, Middleware, 
     MiddlewareHandleResult 

@@ -1,7 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 import { join } from 'path'
-import logger from '../../logger.ts'
+import logger from '../facades/logger.facade.ts'
 import Route from './route.ts'
 import type { Handler, Middleware } from './types.ts'
 import { tryCatch } from '#common/tryCatch.ts'
