@@ -13,7 +13,7 @@
         "baseUrl": ".",
         "paths": {
             "#app/*": [
-                "app/*"
+                "client/*"
             ],
             "#modules/*": [
                 "modules/*"
@@ -30,8 +30,8 @@
         }
     },
     "include": [
-        "app/**/**/*.ts",
-        "app/**/**/*.vue",
+        "client/**/**/*.ts",
+        "client/**/**/*.vue",
         "modules/**/app/**/*.ts",
         "modules/**/app/**/*.vue"
 , "common/lang.ts"    ]
