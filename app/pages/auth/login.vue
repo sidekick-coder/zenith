@@ -1,15 +1,15 @@
 <script setup lang="ts">
-import AuthLayout from '#app/layouts/Auth.vue'
-import FormTextField from '#app/components/FormTextField.vue'
-import { Button } from '#app/components/ui/button'
 import { LoaderCircle } from 'lucide-vue-next'
-import {useForm} from 'vee-validate'
+import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/valibot'
 import * as v from 'valibot'
-import { $fetch } from '#app/utils/fetcher'
 import { ref } from 'vue'
-import { tryCatch } from '#common/tryCatch'
 import { toast } from 'vue-sonner'
+import { $fetch } from '#app/utils/fetcher'
+import { tryCatch } from '#common/tryCatch'
+import { Button } from '#app/components/ui/button'
+import FormTextField from '#app/components/FormTextField.vue'
+import AuthLayout from '#app/layouts/Auth.vue'
 
 const isLoading = ref(false)
 
@@ -31,7 +31,7 @@ const onSubmit = handleSubmit(async (formValues) => {
     const [error] = await tryCatch(() => {
         return $fetch('/auth/login', {
             method: 'POST',
-            headers: {'Content-Type': 'application/json',},
+            headers: { 'Content-Type': 'application/json', },
             body: JSON.stringify(formValues),
         })
     })

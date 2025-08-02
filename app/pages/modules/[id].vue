@@ -12,7 +12,7 @@ import CardDescription from '#app/components/ui/card/CardDescription.vue'
 import CardHeader from '#app/components/ui/card/CardHeader.vue'
 import CardTitle from '#app/components/ui/card/CardTitle.vue'
 
-import { $t } from '#app/utils/lang'
+import { $t } from '#common/lang.ts'
 import { $fetch } from '#app/utils/fetcher.ts'
 import { tryCatch } from '#common/tryCatch.ts'
 

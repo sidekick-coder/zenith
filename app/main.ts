@@ -2,7 +2,7 @@ import { createSSRApp } from 'vue'
 import './style.css'
 import App from './App.vue'
 import { createRouter } from './router'
-import { $t } from './utils/lang'
+import { $t } from '../common/lang'
 import di from './utils/di'
 
 export function createApp() {

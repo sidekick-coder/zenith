@@ -7,7 +7,7 @@ import DataTable from './DataTable.vue'
 import Button from './Button.vue'
 import { CardHeader, CardTitle } from './ui/card'
 import { tryCatch } from '#common/tryCatch.ts'
-import { $t } from '#app/utils/lang.ts'
+import { $t } from '#common/lang.ts'
 
 const props = defineProps<{ id: string }>()
 

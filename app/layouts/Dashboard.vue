@@ -25,7 +25,7 @@ import {
 } from '#app/components/ui/sidebar'
 import { $fetch } from '#app/utils/fetcher.ts'
 import { tryCatch } from '#common/tryCatch.ts'
-import { $t } from '#app/utils/lang.ts'
+import { $t } from '#common/lang.ts'
 
 export interface BreadcrumbItem {
     label: string;
