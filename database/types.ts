@@ -1,6 +1,6 @@
  
-import type { WithSoftDelete, WithTimestamp } from '#database/common.ts'
 import type { ColumnType, Generated } from 'kysely'
+import type { WithSoftDelete, WithTimestamp } from '#database/common.ts'
 
 export interface MigrationsTable {
   name: string
@@ -10,6 +10,7 @@ export interface MigrationsTable {
 
 export interface UserTable extends WithTimestamp, WithSoftDelete {
   id: Generated<number>
+  name: string
   username: string
   email: string
   password: string

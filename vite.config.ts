@@ -26,4 +26,12 @@ export default defineConfig({
             '#services': '/services',
         },
     },
+    server: {
+        watch: {
+            ignored: [
+                '**/router',
+                '**/config',
+            ]
+        }
+    }
 })

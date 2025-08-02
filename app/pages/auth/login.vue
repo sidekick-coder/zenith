@@ -14,10 +14,6 @@ import AuthLayout from '#app/layouts/Auth.vue'
 const isLoading = ref(false)
 
 const { handleSubmit } = useForm({
-    initialValues: {
-        email: 'henrique@sidekick-coder.com',
-        password: 'rick-1232',
-    },
     validationSchema: toTypedSchema(
         v.object({
             email: v.pipe(v.string(), v.email()),
@@ -44,7 +40,6 @@ const onSubmit = handleSubmit(async (formValues) => {
     toast.success('Logged in successfully!')
 
     setTimeout(async () => {
-        // isLoading.value = false
         window.location.href = '/admin'
     }, 1000)
 })

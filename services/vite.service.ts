@@ -32,10 +32,11 @@ export class ViteServer {
                 'setup': config.get('setup') || {},
             }
 
-            if (state.setup.completed) {
+            if (state.setup.user) {
                 state['auth:user'] = await auth.authenticate(_request.cookies['Authorization'] || '')
-
             }
+
+            console.log(state)
 
             const rendered = await render({
                 url,

@@ -4,7 +4,17 @@ import di from '#app/utils/di.ts'
 const setupGuard: NavigationGuard = (to) => {
     const setup = di.get<any>('setup')
 
-    if (!setup?.completed && !to.path.startsWith('/admin/setup')) {
+    const completed = setup?.database && setup?.user
+
+    if (completed && to.path.startsWith('/admin/setup')) {
+        return '/'
+    }
+
+    if (completed) {
+        return true
+    }
+
+    if (!to.path.startsWith('/admin/setup')) {
         return '/admin/setup'
     }
 
@@ -12,7 +22,11 @@ const setupGuard: NavigationGuard = (to) => {
         return true
     }
 
-    if (setup?.database && to.path === '/admin/setup/database') {
+    if (!setup?.database && to.path !== '/admin/setup/database') {
+        return '/admin/setup/database'
+    }
+    
+    if (!setup?.user && to.path !== '/admin/setup/user') {
         return '/admin/setup/user'
     }
 }

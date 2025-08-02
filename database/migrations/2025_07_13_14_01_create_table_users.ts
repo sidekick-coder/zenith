@@ -1,9 +1,10 @@
 import { Kysely } from 'kysely'
-import { withSoftDelete, withTimestamps } from '../common.ts';
+import { withSoftDelete, withTimestamps } from '../common.ts'
 
 export async function up(db: Kysely<any>): Promise<void> {
     db.schema.createTable('users')
         .addColumn('id', 'integer', col => col.primaryKey())
+        .addColumn('name', 'text')
         .addColumn('username', 'text', col => col.notNull().unique())
         .addColumn('email', 'text', col => col.notNull())
         .addColumn('password', 'text', col => col.notNull())
@@ -13,6 +14,6 @@ export async function up(db: Kysely<any>): Promise<void> {
 }
 
 export async function down(db: Kysely<any>): Promise<void> {
-    await db.schema.dropTable('users').execute();
+    await db.schema.dropTable('users').execute()
 }
 

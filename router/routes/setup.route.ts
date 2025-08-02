@@ -6,6 +6,7 @@ import { basePath } from '#utils/paths.ts'
 import migrator from '#database/migrator.ts'
 import { tryCatch } from '#common/tryCatch.ts'
 import db from '#facades/db.ts'
+import userRepository from '#repositories/user.repository.ts'
 
 router.post('/setup/database', async ({ body }) => {
     const payload = body
@@ -44,6 +45,35 @@ router.post('/setup/database', async ({ body }) => {
     }
 
     config.set('setup.database', true)
+
+    return { status: 200, }
+})
+
+router.post('/setup/user', async ({ body }) => {
+    const payload = body
+
+    if (config.get('setup.user')) {
+        throw new BaseException($t('User setup already completed'), 400)
+    }
+
+    if (!payload.username || !payload.email || !payload.password) {
+        throw new BaseException($t('Username, Email and password are required'), 400)
+    }
+
+    const [error] = await tryCatch(async () => {
+        return userRepository.create({
+            name: payload.name || '',
+            username: payload.username,
+            email: payload.email || '',
+            password: payload.password // Raw password - repository will hash it
+        })
+    })
+
+    if (error) {
+        throw BaseException.fromError(error)
+    }
+
+    config.set('setup.user', true)
 
     return { status: 200, }
 })

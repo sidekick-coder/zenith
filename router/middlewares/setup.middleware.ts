@@ -22,7 +22,11 @@ export class SetupMiddleware implements Middleware {
             return
         }
 
-        console.log('SetupMiddleware.handle', ctx)
+        const setup = config.get('setup')
+
+        if (setup && setup.database && setup.user) {
+            return
+        }
 
         return { redirect: '/setup', }
     }
