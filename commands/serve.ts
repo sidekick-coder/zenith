@@ -10,7 +10,6 @@ program.command('serve').option('-w, --watch', 'Watch for changes and restart se
     const args = [
         '--no-warnings',
         '--experimental-strip-types',
-
     ]
 
     const ignore = [
@@ -31,7 +30,10 @@ program.command('serve').option('-w, --watch', 'Watch for changes and restart se
 
     const entries = fs.readdirSync(basePath()).filter(dir => !ignore.includes(dir))
 
-    const modules = fs.readdirSync(basePath('modules')).filter(dir => !ignore.includes(dir))
+    const modules = fs.readdirSync(basePath('modules'), { withFileTypes: true })
+        .filter(dirent => dirent.isDirectory())
+        .map(dirent => dirent.name)
+        .filter(dir => !ignore.includes(dir))
 
     for (const module of modules) {
         const modulePaths = fs.readdirSync(basePath(`modules/${module}`)).filter(dir => !ignore.includes(dir))
