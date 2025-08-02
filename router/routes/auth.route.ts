@@ -3,7 +3,10 @@ import auth from '#facades/auth.ts'
 import BaseException from '#exceptions/base.ts'
 
 router.post('/auth/login', async ({ body, cookie }) => {
-    if (cookie.get('Authorization')) {
+    const token = cookie.get('Authorization')
+    const user = await auth.authenticate(token)
+
+    if (user) {
         throw new BaseException('Already logged in', 400)
     }
 
@@ -32,5 +35,8 @@ router.post('/auth/logout', async ({ cookie }) => {
         sameSite: true,
         expires: new Date(0),
     })
-    return { success: true, message: 'Logged out' }
+    return {
+        success: true,
+        message: 'Logged out' 
+    }
 })
