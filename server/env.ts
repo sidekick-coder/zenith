@@ -1,8 +1,6 @@
-import * as v from 'valibot';
+import * as v from 'valibot'
 
-const base = v.object({
-    NODE_ENV: v.optional(v.union([v.literal('development'), v.literal('production'), v.literal('test')]), 'development') 
-})
+const base = v.object({ NODE_ENV: v.optional(v.union([v.literal('development'), v.literal('production'), v.literal('test')]), 'development') })
 
 const schema = v.pipe(base, v.transform((value) => {
     return {
@@ -13,6 +11,6 @@ const schema = v.pipe(base, v.transform((value) => {
     }
 }))
 
-const env = v.parse(schema, process.env);
+const env = v.parse(schema, process.env)
 
-export default env;
+export default env

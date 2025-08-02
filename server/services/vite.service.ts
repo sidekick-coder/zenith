@@ -4,10 +4,10 @@ import { createServer as createViteServer  } from 'vite'
 import type { ViteDevServer } from 'vite'
 import express from 'express'
 import type { Request, Response } from 'express'
-import env from '../../env.ts'
+import env from '../env.ts'
 import config from './config.service.ts'
 import logger from '#server/facades/logger.facade.ts'
-import { basePath } from '#server/utils/paths.ts'
+import { basePath, clientPath } from '#server/utils/paths.ts'
 import router from '#server/facades/router.facade.ts'
 import auth from '#server/facades/auth.facade.ts'
 
@@ -19,11 +19,11 @@ export class ViteServer {
     public async render(url: string,_request: Request, response: Response) {
         try {
             const template = isProduction 
-                ? fs.readFileSync(basePath('client', 'dist', 'client', 'index.html'), 'utf-8')
-                : await this.vite!.transformIndexHtml(url, fs.readFileSync(basePath('index.html'), 'utf-8'))
+                ? fs.readFileSync(clientPath('dist', 'index.html'), 'utf-8')
+                : await this.vite!.transformIndexHtml(url, fs.readFileSync(clientPath('index.html'), 'utf-8'))
 
             const render = isProduction
-                ? (await import(basePath('client', 'dist', 'server', 'entry-server.js'))).render
+                ? (await import(clientPath('dist', 'server', 'entry-server.js'))).render
                 : (await this.vite!.ssrLoadModule('/client/entry-server.ts')).render
 
                 
@@ -35,8 +35,6 @@ export class ViteServer {
             if (state.setup.user) {
                 state['auth:user'] = await auth.authenticate(_request.cookies['Authorization'] || '')
             }
-
-            console.log(state)
 
             const rendered = await render({
                 url,

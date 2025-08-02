@@ -13,19 +13,11 @@ program.command('serve').option('-w, --watch', 'Watch for changes and restart se
     ]
 
     const ignore = [
-        'app',
-        'bin',
-        'commands',
+        'client',
         'config',
         'node_modules',
         '.git',
-        'logs',
-        'modules',
-        'package-lock.json',
-        'package.json',
-        'tsconfig.json',
-        'database.sqlite',
-        'tsconfig.build.json',
+        'storage'
     ]
 
     const entries = fs.readdirSync(basePath()).filter(dir => !ignore.includes(dir))

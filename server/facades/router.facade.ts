@@ -1,6 +1,6 @@
 import di from './di.facade.ts'
 import Router from '#server/router/router.ts'
-import setupMiddleware from '#server/router/middlewares/setup.middleware.ts'
+import setupMiddleware from '#server/middlewares/setup.middleware.ts'
 
 di.set('router', new Router())
 

@@ -11,3 +11,11 @@ export function basePath(...args: string[]): string {
 export function configPath(...args: string[]): string {
     return basePath('config', ...args)
 }
+
+export function serverPath(...args: string[]): string {
+    return basePath('server', ...args)
+}
+
+export function clientPath(...args: string[]): string {
+    return basePath('client', ...args)
+}

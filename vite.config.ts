@@ -16,7 +16,7 @@ export default defineConfig({
     customLogger: viteLogger,
     plugins: [vue(), tailwindcss()],
     root: '.',
-    publicDir: 'app/public',
+    publicDir: 'client/public',
     resolve: {
         alias: {
             '#client': '/client',
@@ -26,11 +26,13 @@ export default defineConfig({
             '#server/services': '/services',
         },
     },
+    build: { rollupOptions: { input: { app: 'client/index.html', }, }, },
     server: {
         watch: {
             ignored: [
-                '**/router',
-                '**/config',
+                '**/server',
+                '**/console',
+                '**/modules/**/server',
             ]
         }
     }

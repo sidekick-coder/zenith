@@ -1,5 +1,5 @@
 import rootRouter from '#server/facades/router.facade.ts'
-import authMiddleware from '#server/router/middlewares/auth.middleware.ts'
+import authMiddleware from '#server/middlewares/auth.middleware.ts'
 import userRepository from '#server/repositories/user.repository.ts'
 
 const router = rootRouter.use(authMiddleware)

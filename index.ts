@@ -12,7 +12,7 @@ import db from '#server/facades/db.facade.ts'
 import { tryCatch } from '#shared/tryCatch.ts'
 import type { HttpContext } from '#server/router/types.ts'
 import BaseException from '#server/exceptions/base.ts'
-import { basePath } from '#server/utils/paths.ts'
+import { basePath, serverPath } from '#server/utils/paths.ts'
 import modules from '#server/services/modules.service.ts'
 
 function handleError(error: Error, response: Response) {
@@ -86,7 +86,7 @@ async function execute(url: URL, request: Request, response: Response, route: Ro
 async function loadRoutes(){
     router.clear()
 
-    await router.loadDirectory(basePath('router', 'routes'))
+    await router.loadDirectory(serverPath('routes'))
 
     // load module routes
     const mods = await modules.list({ enabled: true })

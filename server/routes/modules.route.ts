@@ -1,7 +1,7 @@
 import path from 'path'
 import migrator from '#server/database/migrator.ts'
 import root from '#server/facades/router.facade.ts'
-import authMiddleware from '#server/router/middlewares/auth.middleware.ts'
+import authMiddleware from '#server/middlewares/auth.middleware.ts'
 import modules from '#server/services/modules.service.ts'
 import { basePath } from '#server/utils/paths.ts'
 
