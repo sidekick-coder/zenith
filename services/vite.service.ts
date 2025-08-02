@@ -1,10 +1,12 @@
-import type { Application } from 'express'
-import { createServer as createViteServer, type ViteDevServer } from 'vite'
 import fs from 'fs'
+import type { Application } from 'express'
+import { createServer as createViteServer  } from 'vite'
+import type { ViteDevServer } from 'vite'
 import express from 'express'
+import type { Request, Response } from 'express'
 import { basePath } from '../utils/paths.ts'
 import env from '../env.ts'
-import type { Request, Response } from 'express'
+import config from './config.service.ts'
 import router from '#facades/router.ts'
 import auth from '#facades/auth.ts'
 
@@ -27,6 +29,7 @@ export class ViteServer {
 
             const state = {
                 'auth:user': user,
+                'setup': config.get('setup') || {},
             }
 
             const rendered = await render({
@@ -50,9 +53,7 @@ export class ViteServer {
                 .replace('<!--app-head-->', head)
                 .replace('<!--app-html-->', body)
 
-            response.status(200).set({
-                'Content-Type': 'text/html' 
-            }).end(html)
+            response.status(200).set({ 'Content-Type': 'text/html' }).end(html)
         } catch (e) {
             const error = e as Error
             this.vite?.ssrFixStacktrace(error)
@@ -64,9 +65,7 @@ export class ViteServer {
     public async init(app: Application) {
         if (!isProduction) {
             this.vite = await createViteServer({
-                server: {
-                    middlewareMode: true 
-                },
+                server: { middlewareMode: true },
                 appType: 'custom',
             })
 

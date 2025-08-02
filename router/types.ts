@@ -11,11 +11,17 @@ export interface HttpContextBase {
     [key: string]: any; // Allow additional properties
 }
 
+export interface Redirect {
+    redirect: string;
+}
+
 export type HttpContext<M extends Middleware[] = Middleware[]> = HttpContextBase & MiddlewareHandleResult<M>
+
+export type HandleResult = Record<string, any> | Redirect | void;
 
 
 export interface Middleware {
-    handle(ctx: any): Promise<Record<string, any> | Promise<Record<string, any>> | void>;
+    handle(ctx: any): HandleResult | Promise<HandleResult>;
 }
 // export type MiddlewareHandleResult<T extends Middleware = Middleware> = T extends Middleware ? Awaited<ReturnType<T['handle']>> : never;
 export type MiddlewareHandleResult<T extends Middleware[] = Middleware[]> = 

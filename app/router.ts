@@ -2,9 +2,11 @@
 import {
     createRouter as createVueRouter,
     createMemoryHistory,
-    createWebHistory,
-    type RouteRecordRaw
+    createWebHistory
+    
 } from 'vue-router'
+import type { RouteRecordRaw } from 'vue-router'
+import setupGuard from './guards/setup.guard'
 
 interface RouteModule {
     default: Array<RouteRecordRaw>
@@ -22,9 +24,13 @@ export function createRouter() {
         component: () => import('./pages/Errors/404.vue'),
     })
 
-    return createVueRouter({
+    const router = createVueRouter({
         history: ssr ? createMemoryHistory() : createWebHistory(),
         routes,
     })
+
+    router.beforeEach(setupGuard)
+
+    return router
 }
 

@@ -133,6 +133,10 @@ export default class Router {
         for await (const middleware of route.middlewares) {
             const result = await middleware.handle(ctx)
 
+            if (result && 'redirect' in result) {
+                return result
+            }
+
             Object.assign(ctx, result)
         }
 

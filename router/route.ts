@@ -1,6 +1,4 @@
-import type {
-    Handler, HttpContext, Middleware 
-} from './types.ts'
+import type { Handler,  Middleware } from './types.ts'
 
 export default class Route {
     public path: string = ''

@@ -66,6 +66,11 @@ async function execute(url: URL, request: Request, response: Response, route: Ro
         return // if headers are already sent, do not modify the response
     }
 
+    if (result.redirect) {
+        response.redirect(result.redirect)
+        return
+    }
+
     // headers not set 
     response.status(200)
 
@@ -87,8 +92,6 @@ async function loadRoutes(){
     for await (const mod of mods) {
         await mod.loadRoutes()
     }
-
-    console.log(router.list())
 }
 
 async function main() {
