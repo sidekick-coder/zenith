@@ -26,7 +26,8 @@
     "include": [
         "client/**/**/*.ts",
         "client/**/**/*.vue",
-        "modules/**/app/**/*.ts",
-        "modules/**/app/**/*.vue"
-, "shared/lang.ts"    ]
+        "shared/**/*.ts",
+        "modules/**/client/**/*.ts",
+        "modules/**/client/**/*.vue",
+    ]
 }

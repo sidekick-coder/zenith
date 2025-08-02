@@ -37,17 +37,8 @@
   "include": [
     "vite.config.ts",
     "index.ts",
-    "database.d.ts",
-    "server/database/**/*.ts",
-    "server/router/**/*.ts",
-    "server/services/**/*.ts",
-    "server/repositories/**/*.ts",
-    "server/facades/**/*.ts",
-    "routes/**/*.ts",
+    "arte",
     "server/**/*.ts",
-    "server/exceptions/*.ts",
-    "modules/**/server/**/**/*.ts",
-    "modules/**/server/**/**/*.d.ts",
-    "artisan"
+    "modules/**/server/**/**/*.ts"
   ]
 }
