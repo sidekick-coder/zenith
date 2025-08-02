@@ -32,7 +32,8 @@ export default class DatabaseManager extends Kysely<Database> {
         const connection = connections[name]
 
         if (!connection) {
-            throw new Error(`Database connection "${name}" not found.`)
+            logger.warn(`Database connection "${name}" not found. Using in-memory database.`)
+            return
         }
 
         let dialect: Dialect | undefined = undefined

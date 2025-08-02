@@ -1,6 +1,8 @@
 import type { CookieOptions } from 'express'
 
 export interface HttpContextBase {
+    url: string;
+    method: string;
     params: Record<string, string>
     query: Record<string, string | string[]>
     body: any

@@ -36,6 +36,8 @@ function handleError(error: Error, response: Response) {
 
 async function execute(url: URL, request: Request, response: Response, route: Route) {        
     const ctx: HttpContext = {
+        url: url.pathname,
+        method: request.method.toLowerCase(),
         params: router.extractParams(route.path, url.pathname),
         query: Object.fromEntries(url.searchParams.entries()),
         body: request.body,
@@ -66,7 +68,7 @@ async function execute(url: URL, request: Request, response: Response, route: Ro
         return // if headers are already sent, do not modify the response
     }
 
-    if (result.redirect) {
+    if (result && result.redirect) {
         response.redirect(result.redirect)
         return
     }

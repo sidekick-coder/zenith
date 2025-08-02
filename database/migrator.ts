@@ -373,6 +373,16 @@ export class Migrator {
 
         return results
     }
+
+    public async latestOrFail(): Promise<MigrationResult[]> {
+        const results = await this.latest()
+        
+        if (results.some(r => r.result === 'failed')) {
+            throw new Error('Failed to run all migrations')
+        }
+
+        return results
+    }
 }
 
 const migrator = new Migrator()

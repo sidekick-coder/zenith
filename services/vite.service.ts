@@ -4,6 +4,7 @@ import { createServer as createViteServer  } from 'vite'
 import type { ViteDevServer } from 'vite'
 import express from 'express'
 import type { Request, Response } from 'express'
+import logger from '../logger.ts'
 import { basePath } from '../utils/paths.ts'
 import env from '../env.ts'
 import config from './config.service.ts'
@@ -25,11 +26,15 @@ export class ViteServer {
                 ? (await import(basePath('app', 'dist', 'server', 'entry-server.js'))).render
                 : (await this.vite!.ssrLoadModule('/app/entry-server.ts')).render
 
-            const user = await auth.authenticate(_request.cookies['Authorization'] || '')
-
-            const state = {
-                'auth:user': user,
+                
+            const state: Record<string, any> = {
+                'auth:user': null,
                 'setup': config.get('setup') || {},
+            }
+
+            if (state.setup.completed) {
+                state['auth:user'] = await auth.authenticate(_request.cookies['Authorization'] || '')
+
             }
 
             const rendered = await render({
@@ -55,6 +60,10 @@ export class ViteServer {
 
             response.status(200).set({ 'Content-Type': 'text/html' }).end(html)
         } catch (e) {
+            logger.error('Error during Vite SSR render', {
+                error: e,
+                label: 'vite' 
+            })
             const error = e as Error
             this.vite?.ssrFixStacktrace(error)
             console.log(error.stack)

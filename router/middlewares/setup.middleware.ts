@@ -1,4 +1,5 @@
 import type {
+    HttpContext,
     Middleware, 
     MiddlewareHandleResult 
 } from '#router/types.ts'
@@ -8,12 +9,20 @@ export type SetupMiddlewareContext = MiddlewareHandleResult<[SetupMiddleware]>
 
 export class SetupMiddleware implements Middleware {
     public checked: boolean = false
-    public async handle(){
-        // if (this.checked) return
+    public async handle(ctx: HttpContext){
+        const allowedPaths = [
+            '/admin/setup',
+            '/setup',
+            '/setup/database',
+            '/setup/user',
+            '/setup/complete',
+        ]
 
-        // const database = config.get('database')
+        if (allowedPaths.includes(ctx.url)) {
+            return
+        }
 
-        // console.log(database)
+        console.log('SetupMiddleware.handle', ctx)
 
         return { redirect: '/setup', }
     }
