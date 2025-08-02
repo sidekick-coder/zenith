@@ -31,3 +31,6 @@ config/*
 
 modules/*
 !modules/.gitkeep
+
+storage/*
+!storage/.gitkeep
