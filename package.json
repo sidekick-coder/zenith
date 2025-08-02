@@ -18,8 +18,8 @@
         "#server/router": "./services/router.service.ts"
     },
     "scripts": {
-        "dev": "node art serve -w",
-        "build": "node art build",
+        "dev": "node arte serve -w",
+        "build": "node arte build",
         "lint": "eslint",
         "test": "vitest"
     },

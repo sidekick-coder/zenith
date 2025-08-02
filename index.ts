@@ -87,6 +87,8 @@ async function loadRoutes(){
     for await (const mod of mods) {
         await mod.loadRoutes()
     }
+
+    console.log(router.list())
 }
 
 async function main() {

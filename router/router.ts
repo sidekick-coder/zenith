@@ -6,16 +6,24 @@ import Route from './route.ts'
 import type { Handler, Middleware } from './types.ts'
 import { tryCatch } from '#common/tryCatch.ts'
 
+
+type RouteContext = 'global' | 'group' | 'route'
+
+interface MiddlewareRegister {
+    middleware: Middleware
+    context: RouteContext
+}
+
+
 export default class Router {
     private routes: Route[] = []
     private filename = null as string | null
-    
-    private middlewares: Middleware[] = []
+
+    private middlewares: MiddlewareRegister[] = []
     private prefixes: string[] = []
 
-    private groupMiddlewares: Middleware[] = []
     private groupPrefixes: string[] = []
-    
+
     private groups: Router[] = []
 
     public open(filename: string) {
@@ -30,8 +38,11 @@ export default class Router {
         this.filename = null
     }
 
-    public use(middleware: Middleware) {
-        this.middlewares.push(middleware)
+    public use(middleware: Middleware, context: RouteContext = 'route') {
+        this.middlewares.push({
+            middleware,
+            context,
+        })
 
         return this
     }
@@ -51,13 +62,11 @@ export default class Router {
             method: payload.method,
             path: this.makePath(payload.path),
             handler: payload.handler,
-            middlewares:[
-                ...this.groupMiddlewares,
-                ...this.middlewares,
-            ],
+            middlewares: this.middlewares.map(m => m.middleware),
         })
 
-        this.middlewares = [] // Reset middlewares after use
+        this.middlewares = this.middlewares.filter(m => m.context !== 'route')
+
         this.prefixes = [] // Reset prefixes after use
 
         this.routes.push(route)
@@ -67,30 +76,33 @@ export default class Router {
         this.add({
             path,
             method: 'GET',
-            handler, 
+            handler,
         })
     }
-    
+
     public post(path: string, handler: Handler<any>) {
         this.add({
             path,
             method: 'POST',
-            handler, 
+            handler,
         })
     }
 
-    public group() {        
+    public group() {
         const group = new Router()
 
-        group.filename = this.filename // Inherit filename from parent
-        group.groupMiddlewares = this.middlewares // Inherit middlewares from parent
+        group.filename = this.filename
         group.groupPrefixes = this.prefixes // Inherit prefixes from parent
+        group.middlewares = this.middlewares.map(r => ({
+            middleware: r.middleware,
+            context: 'group' 
+        }))
 
         this.groups.push(group)
 
-        this.middlewares = [] // Reset middlewares for the new group
+        this.middlewares = this.middlewares.filter(m => m.context !== 'route')
         this.prefixes = [] // Reset prefixes after use
-        
+
         return group
     }
 
@@ -120,7 +132,7 @@ export default class Router {
 
         for await (const middleware of route.middlewares) {
             const result = await middleware.handle(ctx)
-            
+
             Object.assign(ctx, result)
         }
 
@@ -129,7 +141,7 @@ export default class Router {
 
     public extractParams(routePath: string, requestPath: string): Record<string, string> {
         const params: Record<string, string> = {}
-        
+
         const routeSegments = routePath.split('/').filter(Boolean)
         const requestSegments = requestPath.split('/').filter(Boolean)
 
@@ -149,16 +161,16 @@ export default class Router {
     public extractQuery(requestPath: string): Record<string, string> {
         const query: Record<string, string> = {}
         const queryString = requestPath.split('?')[1]
-    
+
         if (!queryString) {
             return query
         }
 
         const pairs = queryString.split('&')
-    
+
         for (const pair of pairs) {
             const [key, value] = pair.split('=')
-        
+
             if (key) {
                 query[decodeURIComponent(key)] = value ? decodeURIComponent(value) : ''
             }
@@ -242,7 +254,7 @@ export default class Router {
         }
     }
 
-    public clear(){
+    public clear() {
         this.routes = []
         logger.debug('cleared all routes')
     }
