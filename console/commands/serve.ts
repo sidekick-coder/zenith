@@ -1,8 +1,8 @@
 import cp from 'child_process'
 import fs from 'fs'
 import { program } from 'commander'
-import { basePath } from '../utils/paths.ts'
-import logger from '../logger.ts'
+import { basePath } from '#server/utils/paths.ts'
+import logger from '#server/facades/logger.facade.ts'
 
 program.command('serve').option('-w, --watch', 'Watch for changes and restart server').action((options) => {
     const bin = 'node'

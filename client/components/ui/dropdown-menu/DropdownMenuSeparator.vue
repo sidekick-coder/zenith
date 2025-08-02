@@ -5,7 +5,7 @@ import {
   DropdownMenuSeparator,
   type DropdownMenuSeparatorProps,
 } from 'reka-ui'
-import { cn } from '#app/lib/utils'
+import { cn } from '#client/lib/utils'
 
 const props = defineProps<DropdownMenuSeparatorProps & {
   class?: HTMLAttributes['class']

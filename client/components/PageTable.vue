@@ -1,8 +1,8 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
-import { $fetch } from '#app/utils/fetcher.ts'
+import { $fetch } from '#client/utils/fetcher.ts'
 
-import Dashboard from '#app/layouts/Dashboard.vue'
+import Dashboard from '#client/layouts/Dashboard.vue'
 
 const props = defineProps({
     url: {

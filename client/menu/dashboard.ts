@@ -1,5 +1,5 @@
-import type { LayoutMenuItem } from '#app/layouts/Dashboard.vue'
-import { $t } from '#common/lang.ts'
+import type { LayoutMenuItem } from '#client/layouts/Dashboard.vue'
+import { $t } from '#shared/lang.ts'
 
 const menu: LayoutMenuItem [] = [
     {

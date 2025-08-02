@@ -1,6 +1,6 @@
 import { toast } from 'vue-sonner'
 import di from './di'
-import { $t } from '../../common/lang'
+import { $t } from '../../shared/lang'
 import type Router from '#router/router'
 
 interface Options extends RequestInit {

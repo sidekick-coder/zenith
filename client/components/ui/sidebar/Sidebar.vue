@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import type { SidebarProps } from '.'
-import { cn } from '#app/lib/utils'
-import { Sheet, SheetContent } from '#app/components/ui/sheet'
-import SheetDescription from '#app/components/ui/sheet/SheetDescription.vue'
-import SheetHeader from '#app/components/ui/sheet/SheetHeader.vue'
-import SheetTitle from '#app/components/ui/sheet/SheetTitle.vue'
+import { cn } from '#client/lib/utils'
+import { Sheet, SheetContent } from '#client/components/ui/sheet'
+import SheetDescription from '#client/components/ui/sheet/SheetDescription.vue'
+import SheetHeader from '#client/components/ui/sheet/SheetHeader.vue'
+import SheetTitle from '#client/components/ui/sheet/SheetTitle.vue'
 import { SIDEBAR_WIDTH_MOBILE, useSidebar } from './utils'
 
 defineOptions({

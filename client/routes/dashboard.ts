@@ -1,6 +1,6 @@
-import authGuard from '#app/guards/auth.guard.ts'
-import guestGuard from '#app/guards/guest.guard.ts'
-import { autoRoutes } from '#app/utils/autoPages'
+import authGuard from '#client/guards/auth.guard.ts'
+import guestGuard from '#client/guards/guest.guard.ts'
+import { autoRoutes } from '#client/utils/autoPages'
 
 const pages = autoRoutes({
     basePath: 'admin',

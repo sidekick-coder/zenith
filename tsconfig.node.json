@@ -20,36 +20,18 @@
     "noUncheckedSideEffectImports": true,
     "baseUrl": ".",
     "paths": {
-      "#app/*": [
+      "#client/*": [
         "client/*"
       ],
       "#modules/*": [
         "modules/*"
       ],
-      "#database/*": [
-        "server/database/*"
-      ],
-      "#router/*": [
-        "server/router/*"
-      ],
-      "#facades*": [
+      "#server/facades*": [
         "server/facades/*"
       ],
-      "#services/*": [
-        "server/services/*"
-      ],
-      "#repositories*": [
-        "repositories*"
-      ],
-      "#common/*": [
-        "common/*"
-      ],
-      "#utils/*": [
-        "server/utils/*"
-      ],
-      "#exceptions/*": [
-        "server/exceptions/*"
-      ],
+      "#shared/*": [
+        "shared/*"
+      ]
     }
   },
   "include": [

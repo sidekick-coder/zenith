@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import LogoIcon from '#app/components/LogoIcon.vue'
+import LogoIcon from '#client/components/LogoIcon.vue'
 
 // import CLogoIcon from '@/components/CLogoIcon.vue'
 // import { Link, usePage } from '@inertiajs/vue3'

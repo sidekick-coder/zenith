@@ -5,11 +5,11 @@ import { toTypedSchema } from '@vee-validate/valibot'
 import * as v from 'valibot'
 import { ref } from 'vue'
 import { toast } from 'vue-sonner'
-import { $fetch } from '#app/utils/fetcher'
-import { tryCatch } from '#common/tryCatch'
-import { Button } from '#app/components/ui/button'
-import FormTextField from '#app/components/FormTextField.vue'
-import AuthLayout from '#app/layouts/Auth.vue'
+import { $fetch } from '#client/utils/fetcher'
+import { tryCatch } from '#shared/tryCatch.ts'
+import { Button } from '#client/components/ui/button'
+import FormTextField from '#client/components/FormTextField.vue'
+import AuthLayout from '#client/layouts/Auth.vue'
 
 const isLoading = ref(false)
 

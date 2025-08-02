@@ -1,8 +1,8 @@
 import { program } from 'commander'
 import Table from 'cli-table3'
-import router from '#facades/router.ts'
-import modules from '#services/modules.service.ts'
-import { basePath } from '#utils/paths.ts'
+import router from '#server/facades/router.facade.ts'
+import modules from '#server/services/modules.service.ts'
+import { basePath } from '#server/utils/paths.ts'
 
 program.command('route:list')
     .action(async () => {

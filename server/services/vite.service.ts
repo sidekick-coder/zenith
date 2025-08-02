@@ -4,10 +4,10 @@ import { createServer as createViteServer  } from 'vite'
 import type { ViteDevServer } from 'vite'
 import express from 'express'
 import type { Request, Response } from 'express'
-import logger from '../facades/logger.facade.ts'
-import { basePath } from '../utils/paths.ts'
 import env from '../../env.ts'
 import config from './config.service.ts'
+import logger from '#server/facades/logger.facade.ts'
+import { basePath } from '#server/utils/paths.ts'
 import router from '#server/facades/router.facade.ts'
 import auth from '#server/facades/auth.facade.ts'
 
@@ -19,12 +19,12 @@ export class ViteServer {
     public async render(url: string,_request: Request, response: Response) {
         try {
             const template = isProduction 
-                ? fs.readFileSync(basePath('app', 'dist', 'client', 'index.html'), 'utf-8')
+                ? fs.readFileSync(basePath('client', 'dist', 'client', 'index.html'), 'utf-8')
                 : await this.vite!.transformIndexHtml(url, fs.readFileSync(basePath('index.html'), 'utf-8'))
 
             const render = isProduction
-                ? (await import(basePath('app', 'dist', 'server', 'entry-server.js'))).render
-                : (await this.vite!.ssrLoadModule('/app/entry-server.ts')).render
+                ? (await import(basePath('client', 'dist', 'server', 'entry-server.js'))).render
+                : (await this.vite!.ssrLoadModule('/client/entry-server.ts')).render
 
                 
             const state: Record<string, any> = {
@@ -49,7 +49,7 @@ export class ViteServer {
 
             // only inject styles in development mode
             if (!isProduction) {
-                head += '<link rel="stylesheet" href="/app/style.css">'
+                head += '<link rel="stylesheet" href="/client/style.css">'
             }
 
             // state
@@ -83,7 +83,7 @@ export class ViteServer {
         }
 
         if (isProduction) {
-            app.use(express.static(basePath('app', 'dist', 'client')))
+            app.use(express.static(basePath('client', 'dist', 'client')))
         }
     }
 }

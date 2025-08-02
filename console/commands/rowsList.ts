@@ -1,8 +1,8 @@
 import { program } from 'commander'
 import { sql } from 'kysely'
 import qs from 'qs'
-import db from '#facades/db.ts'
-import cli from '../services/cli.service.ts'
+import db from '#server/facades/db.facade.ts'
+import cli from '#server/services/cli.service.ts'
 
 interface TableListOptions {
     limit?: number

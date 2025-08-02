@@ -4,8 +4,8 @@ import MComponent from './Component.vue'
 import Icon from './Icon.vue'
 import {
     Tooltip, TooltipContent, TooltipTrigger 
-} from '#app/components/ui/tooltip'
-import Button from '#app/components/ui/button/Button.vue'
+} from '#client/components/ui/tooltip'
+import Button from '#client/components/ui/button/Button.vue'
 
 export interface MButtonProps {
     label?: string | null;

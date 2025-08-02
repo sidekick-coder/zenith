@@ -1,4 +1,4 @@
-import type { UserTable } from '../database/types.ts'
+import type { UserTable } from '#server/database/types.ts'
 import db from '#server/facades/db.facade.ts'
 import hasher from '#server/facades/hasher.facade.ts'
 

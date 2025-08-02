@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import Button from '#app/components/Button.vue'
-import Logo from '#app/components/Logo.vue'
-import LogoIcon from '#app/components/LogoIcon.vue'
-import Card from '#app/components/ui/card/Card.vue'
-import CardDescription from '#app/components/ui/card/CardDescription.vue'
-import CardFooter from '#app/components/ui/card/CardFooter.vue'
-import CardHeader from '#app/components/ui/card/CardHeader.vue'
-import CardTitle from '#app/components/ui/card/CardTitle.vue'
+import Button from '#client/components/Button.vue'
+import Logo from '#client/components/Logo.vue'
+import LogoIcon from '#client/components/LogoIcon.vue'
+import Card from '#client/components/ui/card/Card.vue'
+import CardDescription from '#client/components/ui/card/CardDescription.vue'
+import CardFooter from '#client/components/ui/card/CardFooter.vue'
+import CardHeader from '#client/components/ui/card/CardHeader.vue'
+import CardTitle from '#client/components/ui/card/CardTitle.vue'
 
 </script>
 

@@ -1,5 +1,5 @@
 import { program } from 'commander';
-import modules from '../services/modules.service.ts';
+import modules from '#server/services/modules.service.ts';
 
 program.command('module:disable')
     .helpGroup('module')

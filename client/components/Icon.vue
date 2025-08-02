@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import * as icons from 'lucide-vue-next'
 import { computed } from 'vue'
-import { cn } from '#app/lib/utils'
+import { cn } from '#client/lib/utils'
 
 interface Props {
     name: string;

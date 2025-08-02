@@ -6,8 +6,8 @@ import { $fetch } from '../utils/fetcher'
 import DataTable from './DataTable.vue'
 import Button from './Button.vue'
 import { CardHeader, CardTitle } from './ui/card'
-import { tryCatch } from '#common/tryCatch.ts'
-import { $t } from '#common/lang.ts'
+import { tryCatch } from '#shared/tryCatch.ts'
+import { $t } from '#shared/lang.ts'
 
 const props = defineProps<{ id: string }>()
 

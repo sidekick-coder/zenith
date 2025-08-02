@@ -4,17 +4,17 @@ import {
     watch
 } from 'vue'
 import { useRoute } from 'vue-router'
-import Dashboard from '#app/layouts/Dashboard.vue'
-import Icon from '#app/components/Icon.vue'
-import Button from '#app/components/Button.vue'
-import Card from '#app/components/ui/card/Card.vue'
-import CardDescription from '#app/components/ui/card/CardDescription.vue'
-import CardHeader from '#app/components/ui/card/CardHeader.vue'
-import CardTitle from '#app/components/ui/card/CardTitle.vue'
+import Dashboard from '#client/layouts/Dashboard.vue'
+import Icon from '#client/components/Icon.vue'
+import Button from '#client/components/Button.vue'
+import Card from '#client/components/ui/card/Card.vue'
+import CardDescription from '#client/components/ui/card/CardDescription.vue'
+import CardHeader from '#client/components/ui/card/CardHeader.vue'
+import CardTitle from '#client/components/ui/card/CardTitle.vue'
 
-import { $t } from '#common/lang.ts'
-import { $fetch } from '#app/utils/fetcher.ts'
-import { tryCatch } from '#common/tryCatch.ts'
+import { $t } from '#shared/lang.ts'
+import { $fetch } from '#client/utils/fetcher.ts'
+import { tryCatch } from '#shared/tryCatch.ts'
 
 const route = useRoute()
 const id = computed(() => route.params.id as string)
@@ -45,7 +45,7 @@ const tabs = [
     {
         name: 'migrations',
         label: $t('Migrations'),
-        component: defineAsyncComponent(() => import('#app/components/ModuleMigrations.vue')),
+        component: defineAsyncComponent(() => import('#client/components/ModuleMigrations.vue')),
     },
 ]
 

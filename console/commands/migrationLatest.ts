@@ -1,6 +1,6 @@
 import { program } from 'commander';
-import migrator from '../database/migrator.ts';
-import cli from '../services/cli.service.ts';
+import migrator from '#server/database/migrator.ts';
+import cli from '#server/services/cli.service.ts';
 
 program.command('migration:latest')
     .helpGroup('migration')

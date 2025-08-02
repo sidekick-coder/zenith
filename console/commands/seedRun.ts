@@ -1,7 +1,7 @@
 import { program } from 'commander';
 import fs from 'fs';
-import { basePath } from '../utils/paths.ts';
-import db from '#facades/db.ts';
+import { basePath } from '#server/utils/paths.ts';
+import db from '#server/facades/db.facade.ts';
 
 async function runSeed(seedPath: string, seedName: string, moduleName?: string): Promise<void> {
     const moduleInfo = moduleName ? ` (module: ${moduleName})` : '';

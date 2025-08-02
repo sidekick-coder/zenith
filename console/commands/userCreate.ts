@@ -1,5 +1,5 @@
 import { program } from 'commander'
-import { UserRepository } from '../repositories/user.repository.ts'
+import userRepository from '#server/repositories/user.repository.ts'
 
 program.command('user:create')
     .helpGroup('user')
@@ -9,7 +9,6 @@ program.command('user:create')
     .requiredOption('-p, --password <password>', 'User password')
     .action(async (options) => {
         const { name, email, password } = options
-        const userRepository = new UserRepository()
 
         // Check if user already exists
         const existingUser = await userRepository.exists(email)
@@ -19,6 +18,7 @@ program.command('user:create')
         }
 
         const userData = {
+            name: name,
             username: name,
             email,
             password // Raw password - repository will hash it

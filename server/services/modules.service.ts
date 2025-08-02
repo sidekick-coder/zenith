@@ -1,6 +1,6 @@
 import fs from 'fs'
 import { logger } from '../facades/logger.facade.ts'
-import { basePath } from '../utils/paths.ts'
+import { basePath } from '#server/utils/paths.ts'
 import env from '../../env.ts'
 import config from './config.service.ts'
 import build from './build.service.ts'

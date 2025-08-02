@@ -6,9 +6,9 @@ import {
     FormItem,
     FormLabel,
     FormMessage,
-} from '#app/components/ui/form'
+} from '#client/components/ui/form'
 
-import { Input } from '#app/components/ui/input'
+import { Input } from '#client/components/ui/input'
 
 defineProps({
     name: {

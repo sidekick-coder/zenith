@@ -2,14 +2,14 @@
 import { useBreakpoints } from '@vueuse/core'
 import {
     DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem 
-} from '#app/components/ui/dropdown-menu'
+} from '#client/components/ui/dropdown-menu'
 import {
     SidebarGroup, SidebarGroupLabel, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarMenuSubItem, SidebarMenuSub 
-} from '#app/components/ui/sidebar'
+} from '#client/components/ui/sidebar'
 import {
     Collapsible, CollapsibleTrigger, CollapsibleContent 
-} from '#app/components/ui/collapsible'
-import Icon from '#app/components/Icon.vue'
+} from '#client/components/ui/collapsible'
+import Icon from '#client/components/Icon.vue'
 
 interface MenuBase {
     label: string;

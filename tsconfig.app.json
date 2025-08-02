@@ -12,21 +12,15 @@
         "noUncheckedSideEffectImports": true,
         "baseUrl": ".",
         "paths": {
-            "#app/*": [
+            "#client/*": [
                 "client/*"
             ],
             "#modules/*": [
                 "modules/*"
             ],
-            "#services/*": [
-                "server/services/*"
-            ],         
-            "#common/*": [
-                "common/*"
-            ],
-            "#utils/*": [
-                "server/utils/*"
-            ],
+            "#shared/*": [
+                "shared/*"
+            ]
         }
     },
     "include": [
@@ -34,5 +28,5 @@
         "client/**/**/*.vue",
         "modules/**/app/**/*.ts",
         "modules/**/app/**/*.vue"
-, "common/lang.ts"    ]
+, "shared/lang.ts"    ]
 }

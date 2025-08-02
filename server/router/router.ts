@@ -4,7 +4,7 @@ import { join } from 'path'
 import logger from '../facades/logger.facade.ts'
 import Route from './route.ts'
 import type { Handler, Middleware } from './types.ts'
-import { tryCatch } from '#common/tryCatch.ts'
+import { tryCatch } from '#shared/tryCatch.ts'
 
 
 type RouteContext = 'global' | 'group' | 'route'

@@ -1,7 +1,7 @@
 import { program } from 'commander';
-import migrator from '../database/migrator.ts';
+import migrator from '#server/database/migrator.ts';
 import chalk from 'chalk';
-import cli from '../services/cli.service.ts';
+import cli from '#server/services/cli.service.ts';
 
 program.command('migration:status')
     .helpGroup('migration')

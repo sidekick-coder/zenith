@@ -1,8 +1,8 @@
 import fs from 'fs'
 import path from 'path'
-import { basePath } from '../utils/paths.ts'
-import modules from '../services/modules.service.ts'
-import { tryCatch } from '../../common/tryCatch.ts'
+import { basePath } from '#server/utils/paths.ts'
+import modules from '#server/services/modules.service.ts'
+import { tryCatch } from '../../shared/tryCatch.ts'
 import db from '#server/facades/db.facade.ts'
 
 interface Migration {

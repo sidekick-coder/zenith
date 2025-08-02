@@ -3,7 +3,7 @@ import { toast } from 'vue-sonner'
 import { ref } from 'vue'
 import DashboardSidebarGroup from './DashboardSidebarGroup.vue'
 import type { MenuItem } from './DashboardSidebarGroup.vue'
-import Logo from '#app/components/Logo.vue'
+import Logo from '#client/components/Logo.vue'
 import {
     Breadcrumb,
     BreadcrumbItem,
@@ -11,7 +11,7 @@ import {
     BreadcrumbList,
     BreadcrumbPage,
     BreadcrumbSeparator
-} from '#app/components/ui/breadcrumb'
+} from '#client/components/ui/breadcrumb'
 import {
     Sidebar,
     SidebarInset,
@@ -22,10 +22,10 @@ import {
     SidebarFooter,
     SidebarMenu,
     SidebarMenuItem,SidebarMenuButton
-} from '#app/components/ui/sidebar'
-import { $fetch } from '#app/utils/fetcher.ts'
-import { tryCatch } from '#common/tryCatch.ts'
-import { $t } from '#common/lang.ts'
+} from '#client/components/ui/sidebar'
+import { $fetch } from '#client/utils/fetcher.ts'
+import { tryCatch } from '#shared/tryCatch.ts'
+import { $t } from '#shared/lang.ts'
 
 export interface BreadcrumbItem {
     label: string;

@@ -10,7 +10,7 @@ import {
   DialogPortal,
   useForwardPropsEmits,
 } from 'reka-ui'
-import { cn } from '#app/lib/utils'
+import { cn } from '#client/lib/utils'
 import DialogOverlay from './DialogOverlay.vue'
 
 const props = defineProps<DialogContentProps & { class?: HTMLAttributes['class'], hideClose?: boolean }>()

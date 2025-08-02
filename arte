@@ -7,7 +7,7 @@ const bin = 'node';
 const args = [
     '--no-warnings',
     '--experimental-strip-types',
-    path.join(import.meta.dirname, 'bin', 'cli.js'),
+    path.join(import.meta.dirname, 'console', 'index.js'),
     ...process.argv.slice(2),
 ];
 

@@ -10,7 +10,7 @@ import {
     TableHead,
     TableHeader,
     TableRow,
-} from '#app/components/ui/table'
+} from '#client/components/ui/table'
 
 
 </script>

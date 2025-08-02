@@ -1,5 +1,5 @@
 import type { NavigationGuard } from 'vue-router'
-import di from '#app/utils/di.ts'
+import di from '#client/utils/di.ts'
 
 const setupGuard: NavigationGuard = (to) => {
     const setup = di.get<any>('setup')

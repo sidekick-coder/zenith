@@ -19,11 +19,11 @@ export default defineConfig({
     publicDir: 'app/public',
     resolve: {
         alias: {
-            '#app': '/app',
+            '#client': '/client',
             '#modules': '/modules',
             '#router': '/router',
-            '#facades': '/facades',
-            '#services': '/services',
+            '#server/facades': '/facades',
+            '#server/services': '/services',
         },
     },
     server: {

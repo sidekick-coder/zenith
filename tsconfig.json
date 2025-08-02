@@ -11,20 +11,14 @@
     "compilerOptions": {
         "baseUrl": ".",
         "paths": {
-            "#app/*": [
+            "#client/*": [
                 "client/*"
             ],
             "#modules/*": [
                 "modules/*"
             ],
-            "#services/*": [
-                "server/services/*"
-            ],
-            "#common/*": [
-                "common/*"
-            ],
-            "#utils/*": [
-                "server/utils/*"
+            "#shared/*": [
+                "shared/*"
             ],
         }
     }

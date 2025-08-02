@@ -4,23 +4,11 @@
     "version": "0.0.0",
     "type": "module",
     "imports": {
-        "#app/*": "./app/*",
-        "#server/*": "./server/*",
         "#client/*": "./client/*",
+        "#server/*": "./server/*",
         "#shared/*": "./shared/*",
         "#config/*": "./config/*",
-        "#modules/*": "./modules/*",
-        
-        "#common/*": "./common/*",
-        "#router/*": "./router/*",
-        "#services/*": "./services/*",
-        "#repositories/*": "./repositories/*",
-        "#utils/*": "./utils/*",
-        "#facades/*": "./facades/*",
-        "#exceptions/*": "./exceptions/*",
-        "#database/*": "./database/*",
-        "#database/schema": "./database.d.ts",
-        "#server/router": "./services/router.service.ts"
+        "#modules/*": "./modules/*"
     },
     "scripts": {
         "dev": "node arte serve -w",
