@@ -1,4 +1,4 @@
-import { logger } from "../logger.ts";
+import { logger } from "../../logger.ts";
 import { build as viteBuild } from 'vite'
 
 export class BuildService {

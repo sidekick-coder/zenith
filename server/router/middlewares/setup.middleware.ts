@@ -2,8 +2,8 @@ import type {
     HttpContext,
     Middleware, 
     MiddlewareHandleResult 
-} from '#router/types.ts'
-import config from '#services/config.service.ts'
+} from '#server/router/types.ts'
+import config from '#server/services/config.service.ts'
 
 export type SetupMiddlewareContext = MiddlewareHandleResult<[SetupMiddleware]>
 

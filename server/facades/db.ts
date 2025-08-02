@@ -1,5 +1,5 @@
 import di from './di.ts'
-import DatabaseManager from '#database/manager.ts'
+import DatabaseManager from '#server/database/manager.ts'
 
 di.set(DatabaseManager.DI_KEY, new DatabaseManager())
 

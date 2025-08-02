@@ -1,9 +1,9 @@
 import path from 'path'
-import migrator from '#database/migrator.ts'
-import root from '#facades/router.ts'
-import authMiddleware from '#router/middlewares/auth.middleware.ts'
-import modules from '#services/modules.service.ts'
-import { basePath } from '#utils/paths.ts'
+import migrator from '#server/database/migrator.ts'
+import root from '#server/facades/router.ts'
+import authMiddleware from '#server/router/middlewares/auth.middleware.ts'
+import modules from '#server/services/modules.service.ts'
+import { basePath } from '#server/utils/paths.ts'
 
 const router = root.use(authMiddleware)
     .prefix('/api/modules')

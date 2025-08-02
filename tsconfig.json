@@ -18,13 +18,13 @@
                 "modules/*"
             ],
             "#services/*": [
-                "services/*"
+                "server/services/*"
             ],
             "#common/*": [
                 "common/*"
             ],
             "#utils/*": [
-                "utils/*"
+                "server/utils/*"
             ],
         }
     }

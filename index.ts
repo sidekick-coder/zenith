@@ -3,17 +3,17 @@ import cookieParser from 'cookie-parser'
 import type {
     CookieOptions, Request, Response 
 } from 'express'
-import vite from './services/vite.service.ts'
+import vite from './server/services/vite.service.ts'
 
 import logger from './logger.ts'
-import type Route from '#router/route.ts'
-import router from '#facades/router.ts'
-import db from '#facades/db.ts'
+import type Route from '#server/router/route.ts'
+import router from '#server/facades/router.ts'
+import db from '#server/facades/db.ts'
 import { tryCatch } from '#common/tryCatch.ts'
-import type { HttpContext } from '#router/types.ts'
-import BaseException from '#exceptions/base.ts'
-import { basePath } from '#utils/paths.ts'
-import modules from '#services/modules.service.ts'
+import type { HttpContext } from '#server/router/types.ts'
+import BaseException from '#server/exceptions/base.ts'
+import { basePath } from '#server/utils/paths.ts'
+import modules from '#server/services/modules.service.ts'
 
 function handleError(error: Error, response: Response) {
     logger.error('Error occurred while processing request', {

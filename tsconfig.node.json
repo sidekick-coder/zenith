@@ -27,16 +27,16 @@
         "modules/*"
       ],
       "#database/*": [
-        "database/*"
+        "server/database/*"
       ],
       "#router/*": [
-        "router/*"
+        "server/router/*"
       ],
       "#facades*": [
-        "facades/*"
+        "server/facades/*"
       ],
       "#services/*": [
-        "services/*"
+        "server/services/*"
       ],
       "#repositories*": [
         "repositories*"
@@ -45,10 +45,10 @@
         "common/*"
       ],
       "#utils/*": [
-        "utils/*"
+        "server/utils/*"
       ],
       "#exceptions/*": [
-        "exceptions/*"
+        "server/exceptions/*"
       ],
     }
   },
@@ -56,14 +56,14 @@
     "vite.config.ts",
     "index.ts",
     "database.d.ts",
-    "database/**/*.ts",
-    "router/**/*.ts",
-    "services/**/*.ts",
-    "repositories/**/*.ts",
-    "facades/**/*.ts",
+    "server/database/**/*.ts",
+    "server/router/**/*.ts",
+    "server/services/**/*.ts",
+    "server/repositories/**/*.ts",
+    "server/facades/**/*.ts",
     "routes/**/*.ts",
     "server/**/*.ts",
-    "exceptions/*.ts",
+    "server/exceptions/*.ts",
     "modules/**/server/**/**/*.ts",
     "modules/**/server/**/**/*.d.ts",
     "artisan"

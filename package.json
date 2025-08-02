@@ -5,7 +5,12 @@
     "type": "module",
     "imports": {
         "#app/*": "./app/*",
+        "#server/*": "./server/*",
+        "#client/*": "./client/*",
+        "#shared/*": "./shared/*",
+        "#config/*": "./config/*",
         "#modules/*": "./modules/*",
+        
         "#common/*": "./common/*",
         "#router/*": "./router/*",
         "#services/*": "./services/*",

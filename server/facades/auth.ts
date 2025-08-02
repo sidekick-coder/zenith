@@ -1,5 +1,5 @@
 import di from './di.ts'
-import AuthService from '#services/auth.service.ts'
+import AuthService from '#server/services/auth.service.ts'
 
 di.set(AuthService.DI_KEY, new AuthService())
 

@@ -2,10 +2,10 @@ import {   SqliteDialect } from 'kysely'
 import type { Dialect } from 'kysely'
 import { Kysely } from 'kysely'
 import SQLite from 'better-sqlite3'
-import logger from '../logger.ts'
-import type { Database } from './types'
-import config from '#services/config.service.ts'
-import di from '#facades/di.ts'
+import logger from '../../logger.ts'
+import type { Database } from './types.ts'
+import config from '#server/services/config.service.ts'
+import di from '#server/facades/di.ts'
 
 // In-memory SQLite dialect for initialization
 // This is used to create the Kysely instance before loading the actual database connection

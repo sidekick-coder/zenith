@@ -80,10 +80,10 @@ export const logger = winston.createLogger({
     format: winston.format.json(),
     transports: [
         new winston.transports.File({
-            filename: 'logs/error.log', 
+            filename: 'storage/logs/error.log', 
             level: 'error' 
         }),
-        new winston.transports.File({ filename: 'logs/app.log' }),
+        new winston.transports.File({ filename: 'storage/logs/app.log' }),
         new winston.transports.Console({
             format: format.combine(
                 format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss', }),

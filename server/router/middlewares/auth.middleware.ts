@@ -1,9 +1,9 @@
-import BaseException from '#exceptions/base.ts'
-import auth from '#facades/auth.ts'
+import BaseException from '#server/exceptions/base.ts'
+import auth from '#server/facades/auth.ts'
 import type {
     HttpContext, Middleware, 
     MiddlewareHandleResult 
-} from '#router/types.ts'
+} from '#server/router/types.ts'
 
 export type AuthMiddlewareContext = MiddlewareHandleResult<[AuthMiddleware]>
 

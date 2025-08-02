@@ -1,6 +1,6 @@
-import rootRouter from '#facades/router.ts'
-import authMiddleware from '#router/middlewares/auth.middleware.ts'
-import userRepository from '#repositories/user.repository.ts'
+import rootRouter from '#server/facades/router.ts'
+import authMiddleware from '#server/router/middlewares/auth.middleware.ts'
+import userRepository from '#server/repositories/user.repository.ts'
 
 const router = rootRouter.use(authMiddleware)
     .prefix('/api/users')

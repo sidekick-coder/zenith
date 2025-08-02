@@ -1,5 +1,5 @@
 import { randomBytes } from 'crypto'
-import db from '#facades/db.ts'
+import db from '#server/facades/db.ts'
 
 export interface Token {
     id: number

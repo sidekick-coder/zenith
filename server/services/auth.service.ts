@@ -1,6 +1,6 @@
-import hasher from '#facades/hasher.ts'
-import db from '#facades/db.ts'
-import TokenService from '#services/token.service.ts'
+import hasher from '#server/facades/hasher.ts'
+import db from '#server/facades/db.ts'
+import TokenService from '#server/services/token.service.ts'
 
 export interface LoginCredentials {
     email: string

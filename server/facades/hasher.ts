@@ -1,5 +1,5 @@
 import di from './di.ts'
-import HashService from '#services/hash.service.ts'
+import HashService from '#server/services/hash.service.ts'
 
 di.set(HashService.DI_KEY, new HashService())
 
