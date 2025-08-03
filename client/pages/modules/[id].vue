@@ -4,7 +4,7 @@ import {
     watch
 } from 'vue'
 import { useRoute } from 'vue-router'
-import Dashboard from '#client/layouts/Dashboard.vue'
+import Dashboard from '#client/layouts/AppLayout.vue'
 import Icon from '#client/components/Icon.vue'
 import Button from '#client/components/Button.vue'
 import Card from '#client/components/ui/card/Card.vue'

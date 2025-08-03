@@ -12,6 +12,12 @@ import {
     TableRow,
 } from '#client/components/ui/table'
 
+export function defineColumns<TData, TValue>(
+    columns: ColumnDef<TData, TValue>[],
+): ColumnDef<TData, TValue>[] {
+    return columns
+}
+
 
 </script>
 <script setup lang="ts" generic="TData, TValue">

@@ -2,7 +2,7 @@
 import { ref } from 'vue'
 import { $fetch } from '#client/utils/fetcher.ts'
 
-import Dashboard from '#client/layouts/Dashboard.vue'
+import Dashboard from '#client/layouts/AppLayout.vue'
 
 const props = defineProps({
     url: {

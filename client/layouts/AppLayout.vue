@@ -1,8 +1,8 @@
 <script lang="ts">
 import { toast } from 'vue-sonner'
 import { ref } from 'vue'
-import DashboardSidebarGroup from './DashboardSidebarGroup.vue'
-import type { MenuItem } from './DashboardSidebarGroup.vue'
+import DashboardSidebarGroup from './AppLayoutSidebarGroup.vue'
+import type { MenuItem } from './AppLayoutSidebarGroup.vue'
 import Logo from '#client/components/Logo.vue'
 import {
     Breadcrumb,

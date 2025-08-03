@@ -1,10 +1,18 @@
 <script lang="ts">
-import { useBreakpoints } from '@vueuse/core'
 import {
-    DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem 
+    DropdownMenu,
+    DropdownMenuTrigger,
+    DropdownMenuContent,
+    DropdownMenuItem 
 } from '#client/components/ui/dropdown-menu'
 import {
-    SidebarGroup, SidebarGroupLabel, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarMenuSubItem, SidebarMenuSub 
+    SidebarGroup,
+    SidebarGroupLabel,
+    SidebarMenu,
+    SidebarMenuItem,
+    SidebarMenuButton,
+    SidebarMenuSubItem,
+    SidebarMenuSub 
 } from '#client/components/ui/sidebar'
 import {
     Collapsible, CollapsibleTrigger, CollapsibleContent 
@@ -30,9 +38,6 @@ interface MenuWithChildren extends MenuBase {
 export type MenuItem = MenuSingle | MenuWithChildren 
 </script>
 <script setup lang="ts">
-const breakpoints = useBreakpoints({ lg: 1024 })
-const isLg = breakpoints.greater('lg')
-
 defineProps({
     open: {
         type: Boolean,

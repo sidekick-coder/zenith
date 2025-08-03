@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import Button from '#client/components/Button.vue'
-import Dashboard from '#client/layouts/Dashboard.vue'
+import Dashboard from '#client/layouts/AppLayout.vue'
 
 import Card from '#client/components/ui/card/Card.vue'
 import CardDescription from '#client/components/ui/card/CardDescription.vue'

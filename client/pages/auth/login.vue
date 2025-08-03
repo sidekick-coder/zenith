@@ -9,7 +9,7 @@ import { $fetch } from '#client/utils/fetcher'
 import { tryCatch } from '#shared/tryCatch.ts'
 import { Button } from '#client/components/ui/button'
 import FormTextField from '#client/components/FormTextField.vue'
-import AuthLayout from '#client/layouts/Auth.vue'
+import AuthLayout from '#client/layouts/AuthLayout.vue'
 
 const isLoading = ref(false)
 
