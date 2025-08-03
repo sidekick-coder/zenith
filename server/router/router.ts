@@ -88,6 +88,31 @@ export default class Router {
         })
     }
 
+    public put(path: string, handler: Handler<any>) {
+        this.add({
+            path,
+            method: 'PUT',
+            handler,
+        })
+    }
+
+    public patch(path: string, handler: Handler<any>) {
+        this.add({
+            path,
+            method: 'PATCH',
+            handler,
+        })
+    }
+
+    public delete(path: string, handler: Handler<any>) {
+        this.add({
+            path,
+            method: 'DELETE',
+            handler,
+        })
+    }
+    
+
     public group() {
         const group = new Router()
 

@@ -22,7 +22,7 @@ export interface UserFindOptions {
 export class UserRepository {
     public query(filters: UserFilters = {}) {
         let query = db.selectFrom('users')
-            .selectAll()
+            .select(['id', 'email', 'username', 'name', 'created_at', 'updated_at', 'deleted_at'])
             .where('deleted_at', 'is', null)
 
         // Apply filters
