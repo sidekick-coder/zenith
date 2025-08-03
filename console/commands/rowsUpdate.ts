@@ -3,7 +3,6 @@ import { sql } from 'kysely'
 import qs from 'qs'
 import { confirm } from '@inquirer/prompts'
 import db from '#server/facades/db.facade.ts'
-import cli from '#server/services/cli.service.ts'
 
 program.command('rows:update')
     .arguments('<table>')
@@ -55,13 +54,13 @@ program.command('rows:update')
         const setParts: string[] = []
         Object.entries(updateValues).forEach((e) => {
             const key = e[0].trim()
-            let value = e[1].trim()
+            let value = (e as [string, string]).at(1)?.trim() || ''
 
-            if (value === '$null') {
+            if (value === 'null') {
                 value = 'NULL'
             }
 
-            setParts.push(`${key} = '${String(value).replace(/'/g, '\'\'')}'`)
+            setParts.push(`${key} = ${value}`)
         })
         if (setParts.length === 0) {
             console.error('No valid update values provided')

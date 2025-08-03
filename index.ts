@@ -12,7 +12,7 @@ import db from '#server/facades/db.facade.ts'
 import { tryCatch } from '#shared/tryCatch.ts'
 import type { HttpContext } from '#server/router/types.ts'
 import BaseException from '#server/exceptions/base.ts'
-import { basePath, serverPath } from '#server/utils/paths.ts'
+import { serverPath } from '#server/utils/paths.ts'
 import modules from '#server/services/modules.service.ts'
 
 function handleError(error: Error, response: Response) {
@@ -28,9 +28,11 @@ function handleError(error: Error, response: Response) {
         })
     }
 
+    const data = BaseException.fromError(error)
+
     response.status(500).json({
-        error: 'Internal Server Error',
-        message: 'An unexpected error occurred',
+        error: error.name ||  'Internal Server Error',
+        message: data.message || 'An unexpected error occurred',
     })
 }
 

@@ -17,6 +17,7 @@
         "test": "vitest"
     },
     "dependencies": {
+        "@inquirer/prompts": "^7.8.0",
         "@tailwindcss/vite": "^4.1.11",
         "@tanstack/vue-table": "^8.21.3",
         "@types/bcrypt": "^6.0.0",

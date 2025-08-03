@@ -14,7 +14,7 @@ interface TableListOptions {
 program.command('rows:list')
     .arguments('<table>')
     .description('List rows from a database table')
-    .helpGroup('table')
+    .helpGroup('rows')
     .option('-l, --limit <limit>', 'Maximum number of rows to return', (value) => parseInt(value))
     .option('-o, --offset <offset>', 'Number of rows to skip', (value) => parseInt(value))
     .option('-s, --sort <sort>', 'Sort by column (use +column for ASC, -column for DESC)')

@@ -99,6 +99,9 @@ export class UserRepository {
     async create(payload: UserInsert) {
         const userData = {
             ...payload,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+            deleted_at: null,
             password: await hasher.hash(payload.password)
         }
 
@@ -116,16 +119,16 @@ export class UserRepository {
         }
 
         return db.updateTable('users')
-            .set(updateData)
             .where('id', '=', id)
+            .set(updateData)
             .returningAll()
             .executeTakeFirst()
     }
 
     async softDelete(id: number) {
         return db.updateTable('users')
-            .set({ deleted_at: new Date() as any })
             .where('id', '=', id)
+            .set('deleted_at', new Date().toISOString())
             .returningAll()
             .executeTakeFirst()
     }
