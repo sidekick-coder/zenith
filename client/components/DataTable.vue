@@ -3,6 +3,7 @@ import {
     FlexRender, getCoreRowModel, useVueTable  
 } from '@tanstack/vue-table'
 import type { ColumnDef } from '@tanstack/vue-table'
+import { computed } from 'vue'
 import {
     Table,
     TableBody,
@@ -20,14 +21,14 @@ export function defineColumns<TData, TValue>(
 
 
 </script>
-<script setup lang="ts" generic="TData, TValue">
+<script setup lang="ts" generic="T extends Record<string, any>, TValue">
 const props = defineProps({
-    items: {
-        type: Array as () => any[],
+    rows: {
+        type: Array as () => T[],
         default: () => [],
     },
     columns: {
-        type: Array as () => ColumnDef<TData, TValue>[],
+        type: Array as () => ColumnDef<T, TValue>[],
         required: true,
     },
     page: {
@@ -56,15 +57,31 @@ const props = defineProps({
     },
 })
 
+const slots = defineSlots<{
+     [key in `row-${string}`]: (props: { row: any }) => any
+}>()
+
+const tableColumns = computed(() => {
+    return props.columns.map((column) => {
+        if (slots[`row-${column.id}`]) {
+            column.cell = ({ row }) => {
+                return slots[`row-${column.id}`]({ row })
+            }
+        }
+
+        return column
+    })
+})
+
 const table = useVueTable({
-    get data() { return props.items },
-    get columns() { return props.columns },
+    get data() { return props.rows },
+    get columns() { return tableColumns.value },
     getCoreRowModel: getCoreRowModel(),
 })
 </script>
 
 <template>
-    <div class="border">
+    <div class="border rounded">
         <Table>
             <TableHeader>
                 <TableRow

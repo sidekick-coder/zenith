@@ -15,6 +15,9 @@
             "#client/*": [
                 "client/*"
             ],
+            "#server/*": [
+                "server/*"
+            ],
             "#modules/*": [
                 "modules/*"
             ],

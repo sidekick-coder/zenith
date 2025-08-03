@@ -1,10 +1,11 @@
 import { toast } from 'vue-sonner'
 import di from './di'
-import { $t } from '../../shared/lang'
-import type Router from '#router/router'
+import { $t } from '#shared/lang'
+import type Router from '#server/router/router'
 
 interface Options extends RequestInit {
-    query?: Record<string, string>
+    query?: Record<string, any>
+    data?: Record<string, any>
 }
     
 interface Fetcher {
@@ -38,6 +39,14 @@ export async function defaultFetcher<T>(url: string, options: Options = {}): Pro
         url += (url.includes('?') ? '&' : '?') + queryString
     }
 
+    if (options.data) {
+        fetchOptions.body = JSON.stringify(options.data)
+        fetchOptions.headers = {
+            ...fetchOptions.headers,
+            'Content-Type': 'application/json',
+        }
+    }
+
     const response = await fetch(url, fetchOptions)
 
     if (!response.ok) {
@@ -64,14 +73,14 @@ export function createServerFetcher(router: Router) {
 
         const route = router.resolve(method, url)
 
-        if (!route) {
+        if (!route || !route.handler) {
             throw new Error(`Route not found for ${method} ${url}`)
         }
 
         const result = await route.handler({
             params: router.extractParams(route.path, url),
             query: options.query || router.extractQuery(url),
-            body: options.body,
+            body: options.data || options.body,
         })
 
         return result as Promise<T>
