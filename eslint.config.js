@@ -58,7 +58,12 @@ export default defineConfigWithVueTs(
         },
     },
     {
-        files: ['**/client/**/*.ts', '**/client/**/*.vue'],
+        files: [
+            '**/client/**/*.ts', 
+            '**/client/**/*.vue',
+            '**/modules/**/client/**/*.ts', 
+            '**/modules/**/client/**/*.vue',
+        ],
         rules: { 'import/extensions': 'off', }
     }
 )

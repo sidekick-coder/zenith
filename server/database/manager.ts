@@ -2,7 +2,7 @@ import {   SqliteDialect } from 'kysely'
 import type { Dialect } from 'kysely'
 import { Kysely } from 'kysely'
 import SQLite from 'better-sqlite3'
-import logger from '../facades/logger.facade.ts'
+import rootLogger from '../facades/logger.facade.ts'
 import type { Database } from './types.ts'
 import config from '#server/services/config.service.ts'
 import di from '#server/facades/di.facade.ts'
@@ -10,6 +10,8 @@ import di from '#server/facades/di.facade.ts'
 // In-memory SQLite dialect for initialization
 // This is used to create the Kysely instance before loading the actual database connection
 const memory = new SqliteDialect({ database: new SQLite(':memory:') })
+
+const logger = rootLogger.child({ label: 'db' })
 
 export default class DatabaseManager extends Kysely<Database> {
     public static readonly DI_KEY = 'db'
@@ -56,6 +58,11 @@ export default class DatabaseManager extends Kysely<Database> {
         }
 
         di.set(DatabaseManager.DI_KEY, db)
-        logger.info(`connection "${name}" loaded.`, { label: 'db' })
+
+        logger.info('connected to database', {
+            connection: name,
+            database: connection.database,
+            driver: connection.driver,
+        })
     }
 }

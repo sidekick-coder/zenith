@@ -28,7 +28,7 @@ export function printObject(object: any, indent: number = 0): string {
         result += value + '\n'
     }
 
-    return result
+    return result.trim()
 }
 
 export function formatLog(data: any) {

@@ -1,10 +1,12 @@
 import fs from 'fs'
 import path from 'path'
 import { join } from 'path'
-import logger from '../facades/logger.facade.ts'
+import rootLogger from '../facades/logger.facade.ts'
 import Route from './route.ts'
 import type { Handler, Middleware } from './types.ts'
 import { tryCatch } from '#shared/tryCatch.ts'
+
+const logger = rootLogger.child({ label: 'router' })
 
 
 type RouteContext = 'global' | 'group' | 'route'
@@ -255,7 +257,7 @@ export default class Router {
 
         this.close()
 
-        logger.debug(`loaded routes from ${filename}`)
+        logger.debug('file loaded', { filename })
     }
 
     public async removeFile(filename: string) {

@@ -16,7 +16,7 @@ const isProduction = env.NODE_ENV === 'production'
 export class ViteServer {
     private vite: ViteDevServer | undefined
 
-    public async render(url: string,_request: Request, response: Response) {
+    public async render(url: string, _request: Request, response: Response) {
         try {
             const template = isProduction 
                 ? fs.readFileSync(clientPath('dist', 'index.html'), 'utf-8')
