@@ -65,7 +65,7 @@ const tableColumns = computed(() => {
     return props.columns.map((column) => {
         if (slots[`row-${column.id}`]) {
             column.cell = ({ row }) => {
-                return slots[`row-${column.id}`]({ row })
+                return slots[`row-${column.id}`]({ row: row.original })
             }
         }
 

@@ -44,28 +44,6 @@ export class UserRepository {
     async list(options: UserFindOptions = {}) {
         let query = this.query(options.filters)
 
-        // Apply sorting
-        if (options.sort) {
-            const sortColumns = options.sort.split(',')
-            
-            sortColumns.forEach(sortColumn => {
-                const trimmed = sortColumn.trim()
-                
-                if (trimmed.startsWith('-')) {
-                    const column = trimmed.slice(1)
-                    query = query.orderBy(column as keyof UserTable, 'desc')
-                }
-                if (trimmed.startsWith('+')) {
-                    const column = trimmed.slice(1)
-                    query = query.orderBy(column as keyof UserTable, 'asc')
-                }
-                if (!trimmed.startsWith('-') && !trimmed.startsWith('+')) {
-                    query = query.orderBy(trimmed as keyof UserTable, 'asc')
-                }
-            })
-        }
-
-        // Apply limit and offset
         if (options.limit && options.limit > 0) {
             query = query.limit(options.limit)
         }
@@ -73,6 +51,8 @@ export class UserRepository {
         if (options.offset && options.offset > 0) {
             query = query.offset(options.offset)
         }
+
+        console.log('Executing query:', query.compile())
 
         return query.execute()
     }
@@ -118,11 +98,14 @@ export class UserRepository {
             updateData.password = await hasher.hash(updateData.password)
         }
 
-        return db.updateTable('users')
-            .where('id', '=', id)
+        const query = db.updateTable('users')
             .set(updateData)
+            .where('id', '=', id)
             .returningAll()
-            .executeTakeFirst()
+
+        console.log('Executing update query:', query.compile())
+
+        return query.executeTakeFirst()
     }
 
     async softDelete(id: number) {

@@ -3,17 +3,12 @@ import Table from 'cli-table3'
 import router from '#server/facades/router.facade.ts'
 import modules from '#server/services/modules.service.ts'
 import { basePath } from '#server/utils/paths.ts'
+import bootService from '#server/services/boot.service.ts'
 
 program.command('route:list')
     .action(async () => {
-        await router.loadDirectory(basePath('router', 'routes'))
-
-        // load module routes
-        const mods = await modules.list({ enabled: true })
-
-        for await (const mod of mods) {
-            await mod.loadRoutes()
-        }
+        await bootService.routes()
+        await bootService.setup()
 
         const routes = router.list()
 

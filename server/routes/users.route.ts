@@ -1,4 +1,3 @@
-import type { InferOutput } from 'valibot'
 import BaseException from '#server/exceptions/base.ts'
 import rootRouter from '#server/facades/router.facade.ts'
 import authMiddleware from '#server/middlewares/auth.middleware.ts'
@@ -53,16 +52,25 @@ router.get('/:id', async ({ params }) => {
 
 router.patch('/:id', async ({ params, body }) => {
     const payload = validator.validate(body, (v) => v.object({
-        email: v.optional(v.pipe(v.string(), v.email())),
-        username: v.optional(v.string()),
         name: v.optional(v.string()),
+        username: v.optional(v.string()),
+        email: v.optional(v.pipe(v.string(), v.email())),
     }))
 
-    const user = await userRepository.update(Number(params.id), payload)
+    const id = Number(params.id)
+
+    const user = await userRepository.find(id)
 
     if (!user) {
         throw new BaseException('User not found', 404)
     }
+
+    console.log('Updating user', {
+        id,
+        payload 
+    })
+
+    await userRepository.update(id, payload)
 
     return user
 })

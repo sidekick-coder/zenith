@@ -83,8 +83,11 @@ async function destroy(id: string) {
         return
     }
 
-    toast.success($t('User deleted successfully.'))
-    reset()
+    setTimeout(() => {
+        toast.success($t('User deleted successfully.'))
+        reset()
+    }, 1000)
+
 }
 
 watch(page, load, { immediate: true })

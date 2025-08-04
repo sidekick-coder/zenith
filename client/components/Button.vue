@@ -1,11 +1,12 @@
 <script lang="ts">
 import { RouterLink } from 'vue-router'
+import { computed } from 'vue'
 import MComponent from './Component.vue'
 import Icon from './Icon.vue'
 import {
     Tooltip, TooltipContent, TooltipTrigger 
 } from '#client/components/ui/tooltip'
-import Button from '#client/components/ui/button/Button.vue'
+import UiButton from '#client/components/ui/button/Button.vue'
 
 export interface MButtonProps {
     label?: string | null;
@@ -29,6 +30,8 @@ const props = withDefaults(
     }
 )
 
+defineOptions({ inheritAttrs: false, })
+
 const loading = defineModel<boolean>('loading', {
     type: Boolean,
     default: false,
@@ -46,15 +49,17 @@ function onClick() {
     emit('click')
 }
 
-let is = null
+const is = computed(() => {
+    if (props.href) {
+        return 'a'
+    }
 
-if (props.href) {
-    is = 'a'
-}
+    if (props.to) {
+        return RouterLink
+    }
 
-if (props.to) {
-    is = RouterLink
-}
+    return 'button'
+})
 </script>
 
 <template>
@@ -65,7 +70,7 @@ if (props.to) {
                 :href
                 :to
             >
-                <Button
+                <UiButton
                     v-bind="$attrs"
                     :loading="loading"
                     :disabled="disabled || loading"
@@ -86,7 +91,7 @@ if (props.to) {
                     </span>
 
                     <slot v-else />
-                </Button>
+                </UiButton>
             </MComponent>
         </TooltipTrigger>
         <TooltipContent :side="tooltipSide">
@@ -97,13 +102,11 @@ if (props.to) {
         :is
         v-else
         :href
-        :to
+        :to="to"
     >
-        <Button
+        <UiButton
             v-bind="$attrs"
-            :loading="loading"
             :disabled="disabled || loading"
-            class="cursor-pointer"
             @click="onClick"
         >
             <Icon
@@ -120,6 +123,6 @@ if (props.to) {
             </span>
 
             <slot v-else />
-        </Button>
+        </UiButton>
     </MComponent>
 </template>
