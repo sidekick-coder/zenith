@@ -12,7 +12,6 @@ export async function createApp() {
     const menu = useMenu()
     const router = createRouter()
 
-    app.use(router)
     app.config.globalProperties.$t = $t
 
     menu.clear()
@@ -57,6 +56,8 @@ export async function createApp() {
 
         console.debug('setup:', filename)
     }
+
+    app.use(router)
 
     return {
         app,
