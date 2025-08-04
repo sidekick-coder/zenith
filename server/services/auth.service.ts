@@ -3,7 +3,7 @@ import db from '#server/facades/db.facade.ts'
 import TokenService from '#server/services/token.service.ts'
 
 export interface LoginCredentials {
-    email: string
+    uuid: string
     password: string
 }
 
@@ -23,19 +23,14 @@ export default class AuthService {
     private tokenService = new TokenService()
 
     async login(credentials: LoginCredentials): Promise<AuthResult> {
-        const { email, password } = credentials
-
-        if (!email || !password) {
-            return {
-                user: null,
-                success: false,
-                message: 'Email and password are required'
-            }
-        }
+        const { uuid, password } = credentials
 
         const user = await db.selectFrom('users')
             .selectAll()
-            .where('email', '=', email)
+            .where((eb) => eb.or([
+                eb('email', '=', uuid),
+                eb('username', '=', uuid),
+            ]))
             .where('deleted_at', 'is', null)
             .executeTakeFirst()
 
@@ -48,6 +43,8 @@ export default class AuthService {
         }
 
         const passwordMatches = await hasher.compare(password, user.password)
+
+        console.log('Password matches:', passwordMatches)
 
         if (!passwordMatches) {
             return {

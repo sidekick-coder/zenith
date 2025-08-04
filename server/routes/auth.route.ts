@@ -1,6 +1,7 @@
 import router from '#server/facades/router.facade.ts'
 import auth from '#server/facades/auth.facade.ts'
 import BaseException from '#server/exceptions/base.ts'
+import validator from '#server/services/validator.service.ts'
 
 router.post('/auth/login', async ({ body, cookie }) => {
     const token = cookie.get('Authorization')
@@ -10,7 +11,10 @@ router.post('/auth/login', async ({ body, cookie }) => {
         throw new BaseException('Already logged in', 400)
     }
 
-    const credentials = body as { email: string; password: string }
+    const credentials = validator.validate(body, v => v.object({
+        uuid: v.string(),
+        password: v.string(),
+    }))
 
     const result = await auth.login(credentials)
 

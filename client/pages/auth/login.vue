@@ -16,7 +16,7 @@ const isLoading = ref(false)
 const { handleSubmit } = useForm({
     validationSchema: toTypedSchema(
         v.object({
-            email: v.pipe(v.string(), v.email()),
+            uuid: v.pipe(v.string()),
             password: v.pipe(v.string(), v.minLength(6)),
         })),
 })
@@ -39,7 +39,7 @@ const onSubmit = handleSubmit(async (formValues) => {
 
     toast.success('Logged in successfully!')
 
-    setTimeout(async () => {
+    setTimeout(() => {
         window.location.href = '/admin'
     }, 1000)
 })
@@ -56,10 +56,9 @@ const onSubmit = handleSubmit(async (formValues) => {
         >
             <div class="grid gap-6">
                 <FormTextField
-                    name="email"
-                    type="email"
-                    label="Email address"
-                    placeholder="email@example.com"
+                    name="uuid"
+                    :label="$t('Email/Username')"
+                    placeholder="admin"
                     autocomplete="email"
                 />
 
