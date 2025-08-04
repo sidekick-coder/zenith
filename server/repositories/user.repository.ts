@@ -52,8 +52,6 @@ export class UserRepository {
             query = query.offset(options.offset)
         }
 
-        console.log('Executing query:', query.compile())
-
         return query.execute()
     }
 
@@ -102,8 +100,6 @@ export class UserRepository {
             .set(updateData)
             .where('id', '=', id)
             .returningAll()
-
-        console.log('Executing update query:', query.compile())
 
         return query.executeTakeFirst()
     }
