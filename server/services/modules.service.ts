@@ -4,6 +4,7 @@ import rootLogger from '../facades/logger.facade.ts'
 import env from '../env.ts'
 import config from './config.service.ts'
 import build from './build.service.ts'
+import bootService from './boot.service.ts'
 import {
     basePath, clientPath, serverPath 
 } from '#server/utils/paths.ts'
@@ -158,6 +159,8 @@ export class ModulesService {
             await build.all()
         }
 
+        await bootService.boot()
+
         let enabled = config.get('modules.enabled', [])
 
         enabled.push(moduleName)
@@ -186,6 +189,8 @@ export class ModulesService {
         if (options?.build || env.isProduction) {
             await build.all()
         }
+
+        await bootService.boot()
 
         const enabled = config.get('modules.enabled', [])
 

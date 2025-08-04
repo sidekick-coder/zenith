@@ -13,19 +13,26 @@ program.command('serve').option('-w, --watch', 'Watch for changes and restart se
     ]
 
     const ignore = [
+        '.git',
         'client',
+        'server/.runtime',
         'config',
         'node_modules',
-        '.git',
         'storage'
     ]
 
-    const entries = fs.readdirSync(basePath()).filter(dir => !ignore.includes(dir))
+    const entries = [
+        'shared',
+    ]
+
+    fs.readdirSync(basePath('server'))
+        .map(e => `server/${e}`)
+        .filter(e => !ignore.includes(e))
+        .forEach(e => entries.push(e))
 
     const modules = fs.readdirSync(basePath('modules'), { withFileTypes: true })
         .filter(dirent => dirent.isDirectory())
         .map(dirent => dirent.name)
-        .filter(dir => !ignore.includes(dir))
 
     for (const module of modules) {
         const modulePaths = fs.readdirSync(basePath(`modules/${module}`)).filter(dir => !ignore.includes(dir))

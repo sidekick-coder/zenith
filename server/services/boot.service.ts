@@ -48,6 +48,8 @@ export class BootService {
     public async boot() {
         await db.load()
 
+        router.clear()
+
         await this.routes()
 
         await this.setup()
