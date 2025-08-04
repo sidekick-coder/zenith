@@ -1,17 +1,15 @@
 import fs from 'fs'
-import { logger } from '../facades/logger.facade.ts'
-import { basePath } from '#server/utils/paths.ts'
+import path from 'path'
+import rootLogger from '../facades/logger.facade.ts'
 import env from '../env.ts'
 import config from './config.service.ts'
 import build from './build.service.ts'
+import {
+    basePath, clientPath, serverPath 
+} from '#server/utils/paths.ts'
 import router from '#server/facades/router.facade.ts'
 
-interface ModuleFile {
-    source?: string;
-    filename: string;
-    content: string;
-}
-
+const logger = rootLogger.child({ label: 'modules.service' })
 interface Options {
     build?: boolean;
 }
@@ -46,36 +44,6 @@ interface ListOptions {
 }
 
 export class ModulesService {
-    public getFiles(moduleName: string) {
-        const files: ModuleFile[] = []
-
-        if (fs.existsSync(basePath(`modules/${moduleName}/app/routes.ts`))) {
-            files.push({
-                source: basePath(`modules/${moduleName}/app/routes.ts`),
-                filename: basePath(`app/routes/module.${moduleName}.ts`),
-                content: [
-                    `import original from '#modules/${moduleName}/app/routes.ts'`,
-                    '',
-                    'export default original;',
-                ].join('\n'),
-            })
-        }
-
-        if (fs.existsSync(basePath(`modules/${moduleName}/app/menu.ts`))) {
-            files.push({
-                source: basePath(`modules/${moduleName}/app/menu.ts`),
-                filename: basePath(`app/menu/module.${moduleName}.ts`),
-                content: [
-                    `import original from '#modules/${moduleName}/app/menu.ts'`,
-                    '',
-                    'export default original;',
-                ].join('\n'),
-            })
-        }
-
-        return files
-    }
-
     public async list(options: ListOptions = {}) {
         const modulesPath = basePath('modules')
         const moduleNames = fs.readdirSync(modulesPath, { withFileTypes: true })
@@ -119,6 +87,59 @@ export class ModulesService {
         return mod
     }
 
+    private async createModuleRuntimeFiles(mod: Module) {
+        if (fs.existsSync(mod.makePath('server', 'setup.server.ts'))) {
+            const filename = serverPath('.runtime', `${mod.id}.setup.ts`)
+
+            const content = [
+                `import setup from '#modules/${mod.id}/server/setup.server.ts'`,
+                '',
+                'export default setup;',
+            ].join('\n')
+
+            if (!fs.existsSync(path.dirname(filename))) {
+                fs.mkdirSync(path.dirname(filename), { recursive: true })
+            }
+
+            fs.writeFileSync(filename, content, 'utf-8')
+
+            logger.debug('created server runtime file', { filename, })
+        }
+
+        if (fs.existsSync(mod.makePath('client', 'setup.client.ts'))) {
+            const filename = clientPath('.runtime', `${mod.id}.setup.ts`)
+            
+            const content = [
+                `import setup from '#modules/${mod.id}/client/setup.client.ts'`,
+                '',
+                'export default setup;',
+            ].join('\n')
+
+            if (!fs.existsSync(path.dirname(filename))) {
+                fs.mkdirSync(path.dirname(filename), { recursive: true })
+            }
+
+            fs.writeFileSync(filename, content, 'utf-8')
+
+            logger.debug('created client runtime file', { filename, })
+        }
+    }
+
+    private async removeModuleRuntimeFiles(mod: Module) {
+        const serverFile = serverPath('.runtime', `${mod.id}.setup.ts`)
+        const clientFile = clientPath('.runtime', `${mod.id}.setup.ts`)
+
+        if (fs.existsSync(serverFile)) {
+            fs.unlinkSync(serverFile)
+            logger.debug('removed server runtime file', { filename: serverFile, })
+        }
+
+        if (fs.existsSync(clientFile)) {
+            fs.unlinkSync(clientFile)
+            logger.debug('removed client runtime file', { filename: clientFile, })
+        }
+    }
+
     public async enable(moduleName: string, options: Options = {}) {
         const mod = await this.find(moduleName)
 
@@ -131,13 +152,7 @@ export class ModulesService {
             return
         }
 
-        for await (const file of this.getFiles(moduleName)) {
-            fs.writeFileSync(file.filename, file.content, 'utf-8')
-
-            logger.debug(`module file: ${file.filename}`)
-        }
-
-        await router.loadFile(mod.makePath('server', 'routes.ts'))
+        await this.createModuleRuntimeFiles(mod)
 
         if (options?.build || env.isProduction) {
             await build.all()
@@ -166,16 +181,7 @@ export class ModulesService {
             return
         }
 
-
-        for (const file of this.getFiles(moduleName)) {
-            if (!fs.existsSync(file.filename)) continue
-
-            fs.unlinkSync(file.filename)
-
-            logger.debug(`removing module file: ${file.filename}`)
-        }
-
-        await router.removeFile(mod.makePath('server', 'routes.ts'))
+        await this.removeModuleRuntimeFiles(mod)
 
         if (options?.build || env.isProduction) {
             await build.all()

@@ -25,6 +25,8 @@ dist-ssr
 
 *:Zone.Identifier
 
+*.runtime
+
 database.sqlite
 config/*
 !config/.gitkeep

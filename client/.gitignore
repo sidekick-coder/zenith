@@ -1,4 +1,0 @@
-routes/*
-!routes/dashboard.ts
-menu/*
-!menu/dashboard.ts

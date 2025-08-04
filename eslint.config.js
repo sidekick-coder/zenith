@@ -6,7 +6,7 @@ import importPlugin from 'eslint-plugin-import'
 
 export default defineConfigWithVueTs(
     { files: ['**/*.{js,ts,d.ts,vue}'], },
-    { ignores: ['node_modules', 'app/dist', 'app/components/ui', 'templates'] },
+    { ignores: ['node_modules', 'client/dist', 'client/components/ui', 'console/templates', 'client/.runtime', 'server/.runtime'] },
     js.configs.recommended,
     ts.configs.recommended,
     vue.configs['flat/essential'],
