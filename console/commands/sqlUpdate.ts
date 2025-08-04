@@ -34,7 +34,11 @@ program.command('sql:update')
 
         console.log(`Executing query: ${query}`)
        
-        const [error, response] = await tryCatch(() => sql.raw(query).execute(db))
+        const [error, response] = await tryCatch(async () => {
+            await db.load()
+
+            return sql.raw(query).execute(db)
+        })
        
         if (error) {
             console.log(`Error executing update on table "${table}":`, error)

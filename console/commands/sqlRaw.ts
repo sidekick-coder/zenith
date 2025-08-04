@@ -9,7 +9,11 @@ program.command('sql:raw')
     .helpGroup('sql')
     .arguments('<query>')
     .action(async (query: string) => {
-        const [error, response] = await tryCatch(() => sql.raw(query).execute(db))
+        const [error, response] = await tryCatch(async () => {
+            await db.load()
+
+            return sql.raw(query).execute(db)
+        })
 
         if (error) {
             console.log('Error executing query:', error)

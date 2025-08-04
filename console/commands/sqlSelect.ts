@@ -45,7 +45,11 @@ program.command('sql:select')
 
         console.log(`Executing query: ${query}`)
 
-        const [error, response] = await tryCatch(() => sql.raw(query).execute(db))
+        const [error, response] = await tryCatch(async () => {
+            await db.load()
+
+            return sql.raw(query).execute(db)
+        })
 
         if (error) {
             console.log(`No rows found in table "${table}"`)
