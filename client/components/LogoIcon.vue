@@ -1,15 +1,13 @@
 <script setup lang="ts">
-import type { HTMLAttributes } from 'vue';
+import type { HTMLAttributes } from 'vue'
 
-defineOptions({
-    inheritAttrs: false,
-});
+defineOptions({ inheritAttrs: false, })
 
 interface Props {
     className?: HTMLAttributes['class'];
 }
 
-defineProps<Props>();
+defineProps<Props>()
 </script>
 
 <template>
@@ -20,14 +18,12 @@ defineProps<Props>();
         v-bind="$attrs"
     >
         <path
-            d="M32 8
-                                  L14 8
-                                  Q8 8 8 14
-                                  L8 28
-                                  Q8 34 14 34
-                                  L32 34"
+            d="M8 9
+                                  L31 9
+                                  L8 33
+                                  L31 33"
             stroke="currentColor"
-            stroke-width="5"
+            stroke-width="4"
             fill="none"
             stroke-linecap="round"
             stroke-linejoin="round"
