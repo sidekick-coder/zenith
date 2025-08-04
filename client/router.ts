@@ -12,6 +12,8 @@ interface RouteModule {
     default: Array<RouteRecordRaw>
 }
 
+export type Router = ReturnType<typeof createRouter>
+
 export function createRouter() {
     const ssr = import.meta.env.SSR
 
