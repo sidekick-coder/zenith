@@ -13,7 +13,7 @@ const args = [
 
 const child = cp.spawn(bin, args, {
     stdio: 'inherit',
-    shell: true,
+    // shell: true,
 });
 
 function killChild() {

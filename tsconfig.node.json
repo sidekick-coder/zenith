@@ -39,6 +39,7 @@
     "index.ts",
     "arte",
     "server/**/*.ts",
+    "console/**/*.ts",
     "modules/**/server/**/**/*.ts"
   ]
 }
