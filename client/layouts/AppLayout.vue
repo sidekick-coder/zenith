@@ -1,8 +1,7 @@
 <script lang="ts">
 import { toast } from 'vue-sonner'
-import { ref } from 'vue'
+import { ref, toValue } from 'vue'
 import DashboardSidebarGroup from './AppLayoutSidebarGroup.vue'
-import type { MenuItem } from './AppLayoutSidebarGroup.vue'
 import Logo from '#client/components/Logo.vue'
 import {
     Breadcrumb,
@@ -26,23 +25,13 @@ import {
 import { $fetch } from '#client/utils/fetcher.ts'
 import { tryCatch } from '#shared/tryCatch.ts'
 import { $t } from '#shared/lang.ts'
+import { useMenu } from '#client/composables/useMenu.ts'
+import type { MenuGroup, MenuItem } from '#client/composables/useMenu.ts'
 
 export interface BreadcrumbItem {
     label: string;
     to?: string;
     icon?: string;
-}
-
-interface MenuGroup {
-    label: string;
-    order?: number;
-    items: MenuItem[];
-}
-
-export type LayoutMenuItem = MenuItem | MenuGroup;
-
-export interface MenuModule {
-    default: MenuItem[];
 }
 </script>
 <script setup lang="ts">
@@ -66,9 +55,9 @@ const breadcrumbs = defineModel('breadcrumbs', {
 })
 
 if (!menu.value) {
-    const files = import.meta.glob<MenuModule>('../menu/*.ts', { eager: true })
+    const { items } = useMenu()
 
-    menu.value = Object.values(files).map(f => f.default).flat()
+    menu.value = toValue(items) || []
 }
 
 if (!breadcrumbs.value) {

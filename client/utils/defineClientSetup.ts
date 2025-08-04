@@ -1,7 +1,9 @@
+import type { UseMenu } from '#client/composables/useMenu.ts'
 import type { Router } from '#client/router.ts'
 
 interface SetupClientParams {
    router: Router
+   menu: UseMenu
 }
 
 interface ClientSetupFn {
