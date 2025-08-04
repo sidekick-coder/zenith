@@ -5,10 +5,10 @@ interface SetupServerParams {
 }
 
 interface ServerSetupFn {
-    (params: SetupServerParams): void;
+    (params: SetupServerParams): void | Promise<void>
 }
 
-interface ServerSetup {
+export interface ServerSetup {
     setup: ServerSetupFn;
 }
 

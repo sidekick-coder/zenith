@@ -3,7 +3,7 @@ interface Tryer {
 }
 
 interface TryerAsync {
-    (...args: any[]): Promise<any>
+    (...args: any[]): Promise<any> | any
 }
 
 type TryCatchResult<T extends Tryer> = [null, ReturnType<T>] | [Error, null]

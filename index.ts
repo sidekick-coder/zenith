@@ -11,30 +11,8 @@ import router from '#server/facades/router.facade.ts'
 import db from '#server/facades/db.facade.ts'
 import { tryCatch } from '#shared/tryCatch.ts'
 import type { HttpContext } from '#server/router/types.ts'
-import BaseException from '#server/exceptions/base.ts'
-import { serverPath } from '#server/utils/paths.ts'
-import modules from '#server/services/modules.service.ts'
-
-function handleError(error: Error, response: Response) {
-    logger.error('Error occurred while processing request', {
-        error: error.message,
-        stack: error.stack,
-    })
-
-    if (error instanceof BaseException) {
-        return response.status(error.statusCode).json({
-            error: error.name,
-            message: error.message,
-        })
-    }
-
-    const data = BaseException.fromError(error)
-
-    response.status(500).json({
-        error: error.name ||  'Internal Server Error',
-        message: data.message || 'An unexpected error occurred',
-    })
-}
+import errorService from '#server/services/error.service.ts'
+import bootService from '#server/services/boot.service.ts'
 
 async function execute(url: URL, request: Request, response: Response, route: Route) {        
     const ctx: HttpContext = {
@@ -62,7 +40,7 @@ async function execute(url: URL, request: Request, response: Response, route: Ro
     const [error, result] = await tryCatch(() => router.execute(route, ctx))
 
     if (error) {
-        handleError(error, response)
+        errorService.handle(error, response)
         return
     }
 
@@ -85,19 +63,6 @@ async function execute(url: URL, request: Request, response: Response, route: Ro
     response.send(result)
 }
 
-async function loadRoutes(){
-    router.clear()
-
-    await router.loadDirectory(serverPath('routes'))
-
-    // load module routes
-    const mods = await modules.list({ enabled: true })
-
-    for await (const mod of mods) {
-        await mod.loadRoutes()
-    }
-}
-
 async function main() {
     const app = express()
 
@@ -107,7 +72,7 @@ async function main() {
 
     await vite.init(app)
 
-    await loadRoutes()
+    await bootService.boot()
 
     await db.load()
 
@@ -133,7 +98,8 @@ async function main() {
     })
 
     app.listen(3000, () => {
-        logger.info('Server started at http://localhost:3000', {
+        logger.info('server started at http://localhost:3000', {
+            label: 'server',
             pid: process.pid,
             env: process.env.NODE_ENV,
         })

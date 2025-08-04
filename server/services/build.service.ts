@@ -1,5 +1,5 @@
-import { logger } from "../facades/logger.facade.ts";
 import { build as viteBuild } from 'vite'
+import { logger } from '../facades/logger.facade.ts'
 
 export class BuildService {
     public async server(){
@@ -8,30 +8,28 @@ export class BuildService {
                 ssr: 'app/entry-server.ts',
                 outDir: 'app/dist/server',
             }
-        });
+        })
 
-        logger.debug('Server build completed');
+        logger.debug('Server build completed')
     }
 
     public async client() {
         await viteBuild({
             build: {
                 outDir: 'app/dist/client',
-                rollupOptions: {
-                    input: 'index.html',
-                },
+                rollupOptions: { input: 'index.html', },
             },
-        });
+        })
 
-        logger.debug('Client build completed');
+        logger.debug('Client build completed')
     }
 
     public async all() {
-        await this.server();
-        await this.client();
+        await this.server()
+        await this.client()
     }
 }
 
-const build = new BuildService();
+const build = new BuildService()
 
-export default build;
+export default build

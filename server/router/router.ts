@@ -252,7 +252,7 @@ export default class Router {
         const [error] = await tryCatch(() => import(path))
 
         if (error) {
-            logger.error(`Failed to load routes from ${filename}`, error)
+            logger.error(`failed to load routes from ${filename}`, error)
         }
 
         this.close()
@@ -274,7 +274,7 @@ export default class Router {
 
     public async loadDirectory(directory: string) {
         if (!fs.existsSync(directory)) {
-            logger.warn(`Directory not found: ${directory}`)
+            logger.warn('directory not found', { directory })
             return
         }
 
@@ -286,8 +286,8 @@ export default class Router {
     }
 
     public clear() {
+        logger.debug('clear', { count: this.routes.length })
         this.routes = []
-        logger.debug('cleared all routes')
     }
 
     public list() {

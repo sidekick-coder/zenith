@@ -1,31 +1,46 @@
-import fs from 'fs'
 import path from 'path'
+import fs from 'fs'
+import fg from 'fast-glob'
 
 interface Options {
-    onBeforeImport?: (filename: string) => void | Promise<void>;
-    onAfterImport?: (filename: string, module: any) => void | Promise<void>;
+    onBeforeImport?: (ctx: { filename: string }) => void | Promise<void>;
+    onAfterImport?: (ctx: { filename: string, module: any }) => void | Promise<void>;
 }
+export async function importFiles(files: string[], options: Options = {}): Promise<Record<string, any>> {
+    const modules: Record<string, any> = {}
 
-export async function importAll(directory: string, options: Options = {}): Promise<Record<string, any>> {
-    const files = fs.readdirSync(directory, { withFileTypes: true })
-
-    const modules = {}
-
-    for await (const file of files) {
-        if (!file.isFile()) continue
-
-        const filename = path.join(directory, file.name)
+    for (const filename of files) {
+        const ctx = { filename }
 
         if (options.onBeforeImport) {
-            await options.onBeforeImport(filename)
+            await options.onBeforeImport(ctx)
         }
 
-        modules[file.name] = await import(filename)
+        modules[filename] = await import(ctx.filename)
 
         if (options.onAfterImport) {
-            await options.onAfterImport(filename, modules[file.name])
+            await options.onAfterImport({
+                ...ctx,
+                module: modules[filename]
+            })
         }
     }
 
     return modules
+}
+
+export async function importGlob(pattern: string, options: Options = {}): Promise<Record<string, any>> {
+    const files = await fg(pattern)
+
+    return importFiles(files, options)
+}
+
+export async function importAll(directory: string, options: Options = {}): Promise<Record<string, any>> {
+    const dirents = await fs.promises.readdir(directory, { withFileTypes: true })
+    
+    const files = dirents
+        .filter(dirent => dirent.isFile())
+        .map(dirent => path.join(directory, dirent.name))
+
+    return importFiles(files, options)
 }

@@ -93,7 +93,7 @@ export class ModulesService {
 
             const content = [
                 `import setup from '#modules/${mod.id}/server/setup.server.ts'`,
-                '',
+                `export const name = '${mod.id}.setup'`,
                 'export default setup;',
             ].join('\n')
 
@@ -111,7 +111,7 @@ export class ModulesService {
             
             const content = [
                 `import setup from '#modules/${mod.id}/client/setup.client.ts'`,
-                '',
+                `export const name = '${mod.id}.setup'`,
                 'export default setup;',
             ].join('\n')
 
