@@ -8,7 +8,7 @@ interface ClientSetupFn {
     (params: SetupClientParams): void;
 }
 
-interface ClientSetup {
+export interface ClientSetup {
     setup: ClientSetupFn;
 }
 

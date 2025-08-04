@@ -17,7 +17,7 @@ export async function render(context: RenderContext) {
     
     di.set('fetcher', createServerFetcher(serverRouter))
 
-    const { app, router } = createApp()
+    const { app, router } = await createApp()
 
     await router.push(url)
 
