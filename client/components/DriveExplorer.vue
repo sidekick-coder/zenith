@@ -64,6 +64,7 @@ const files = ref<FileItem[]>([])
 const treeNodes = ref<TreeNode[]>([])
 const expandedFolders = ref<Set<string>>(new Set())
 const selectedFile = ref<FileItem | null>(null)
+const selectedFolderContents = ref<FileItem[]>([])
 const isLoading = ref(false)
 
 async function loadDrive() {
@@ -220,33 +221,28 @@ function getFlatTreeNodes(nodes: TreeNode[] = treeNodes.value): TreeNode[] {
 function selectFile(file: FileItem | TreeNode) {
     selectedFile.value = file
     currentPath.value = file.path
-}
-
-function navigateToFolder(newPath: string) {
-    currentPath.value = newPath
     
-    // Find the folder in tree and expand it if not already expanded
-    const node = findNodeByPath(newPath)
-    if (node && node.type === 'directory') {
-        toggleFolder(node)
+    // If it's a directory, load its contents for preview
+    if (file.type === 'directory') {
+        loadFolderContents(file.path)
+    } else {
+        selectedFolderContents.value = []
     }
 }
 
-function findNodeByPath(path: string): TreeNode | null {
-    function search(nodes: TreeNode[]): TreeNode | null {
-        for (const node of nodes) {
-            if (node.path === path) {
-                return node
-            }
-            if (node.children) {
-                const found = search(node.children)
-                if (found) return found
-            }
-        }
-        return null
+async function loadFolderContents(folderPath: string) {
+    const [error, response] = await tryCatch(() => $fetch(`/api/drives/${props.driveId}/files`, {
+        method: 'GET',
+        query: { folder: folderPath }
+    }))
+    
+    if (error) {
+        console.error('Failed to load folder contents:', error)
+        selectedFolderContents.value = []
+        return
     }
     
-    return search(treeNodes.value)
+    selectedFolderContents.value = (response as FileItem[]) || []
 }
 
 function getFileIcon(file: FileItem | TreeNode) {
@@ -272,6 +268,8 @@ function navigateToBreadcrumb(index: number) {
     const breadcrumbs = getBreadcrumbs()
     const newPath = breadcrumbs.slice(0, index + 1).join('/')
     currentPath.value = newPath
+    selectedFile.value = null
+    selectedFolderContents.value = []
     loadFiles()
 }
 
@@ -342,7 +340,7 @@ onMounted(() => {
                                 
                                 <button
                                     class="flex items-center gap-2 flex-1 min-w-0"
-                                    @click="node.type === 'directory' ? navigateToFolder(node.path) : selectFile(node)"
+                                    @click="selectFile(node)"
                                 >
                                     <Icon
                                         :name="getFileIcon(node)"
@@ -376,7 +374,7 @@ onMounted(() => {
                                     <BreadcrumbLink
                                         as="button"
                                         class="flex items-center gap-x-2"
-                                        @click="currentPath = ''; loadFiles()"
+                                        @click="currentPath = ''; selectedFile = null; selectedFolderContents = []; loadFiles()"
                                     >
                                         <Icon
                                             name="folder"
@@ -453,9 +451,39 @@ onMounted(() => {
                                 <h5 class="font-medium mb-3">
                                     {{ $t('Directory Contents') }}
                                 </h5>
-                                <p class="text-sm text-muted-foreground">
-                                    {{ $t('Click to navigate into this directory') }}
-                                </p>
+                                <div
+                                    v-if="selectedFolderContents.length === 0"
+                                    class="text-sm text-muted-foreground text-center py-4"
+                                >
+                                    {{ $t('This directory is empty') }}
+                                </div>
+                                <div
+                                    v-else
+                                    class="space-y-2"
+                                >
+                                    <div
+                                        v-for="item in selectedFolderContents"
+                                        :key="item.path"
+                                        class="flex items-center gap-3 p-2 rounded hover:bg-muted/50 cursor-pointer transition-colors"
+                                        @click="selectFile(item)"
+                                    >
+                                        <Icon
+                                            :name="getFileIcon(item)"
+                                            class="w-4 h-4 flex-shrink-0"
+                                        />
+                                        <div class="flex-1 min-w-0">
+                                            <p class="text-sm font-medium truncate">
+                                                {{ item.name }}
+                                            </p>
+                                            <p class="text-xs text-muted-foreground">
+                                                {{ item.type === 'directory' ? $t('Directory') : item.metas.mimetype }}
+                                            </p>
+                                        </div>
+                                        <div class="text-xs text-muted-foreground">
+                                            {{ item.type === 'file' && item.metas.size ? `${Math.round(item.metas.size / 1024)} KB` : '' }}
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
 
                             <!-- File Preview Placeholder -->
