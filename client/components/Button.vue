@@ -1,7 +1,6 @@
 <script lang="ts">
 import { RouterLink } from 'vue-router'
 import { computed } from 'vue'
-import MComponent from './Component.vue'
 import Icon from './Icon.vue'
 import {
     Tooltip, TooltipContent, TooltipTrigger 
@@ -49,15 +48,9 @@ function onClick() {
     emit('click')
 }
 
-const is = computed(() => {
-    if (props.href) {
-        return 'a'
-    }
-
-    if (props.to) {
-        return RouterLink
-    }
-
+const as = computed(() => {
+    if (props.to) return RouterLink
+    if (props.href) return 'a'
     return 'button'
 })
 </script>
@@ -65,64 +58,56 @@ const is = computed(() => {
 <template>
     <Tooltip v-if="tooltip">
         <TooltipTrigger>
-            <MComponent
-                :is="is"
-                :href
+            <UiButton
+                v-bind="$attrs"
+                :disabled="disabled || loading"            
+                :as
+                :href="to ? to : href"
                 :to
+                @click="onClick"
             >
-                <UiButton
-                    v-bind="$attrs"
-                    :loading="loading"
-                    :disabled="disabled || loading"
-                    class="cursor-pointer"
-                    @click="onClick"
+                <Icon
+                    v-if="loading"
+                    name="Loader2"
+                    class="animate-spin"
+                />
+
+                <span
+                    v-else-if="label"
+                    class="text-sm"
                 >
-                    <Icon
-                        v-if="loading"
-                        name="Loader2"
-                        class="animate-spin"
-                    />
+                    {{ label }}
+                </span>
 
-                    <span
-                        v-else-if="label"
-                        class="text-sm"
-                    >
-                        {{ label }}
-                    </span>
-
-                    <slot v-else />
-                </UiButton>
-            </MComponent>
+                <slot v-else />
+            </UiButton>
         </TooltipTrigger>
         <TooltipContent :side="tooltipSide">
             {{ tooltip }}
         </TooltipContent>
     </Tooltip>
-    <MComponent
-        :is
+    <UiButton
         v-else
-        :href
-        :to="to"
+        v-bind="$attrs"
+        :disabled="disabled || loading"            
+        :as
+        :href="to ? to : href"
+        :to
+        @click="onClick"
     >
-        <UiButton
-            v-bind="$attrs"
-            :disabled="disabled || loading"
-            @click="onClick"
+        <Icon
+            v-if="loading"
+            name="Loader2"
+            class="animate-spin"
+        />
+
+        <span
+            v-else-if="label"
+            class="text-sm"
         >
-            <Icon
-                v-if="loading"
-                name="Loader2"
-                class="animate-spin"
-            />
+            {{ label }}
+        </span>
 
-            <span
-                v-else-if="label"
-                class="text-sm"
-            >
-                {{ label }}
-            </span>
-
-            <slot v-else />
-        </UiButton>
-    </MComponent>
+        <slot v-else />
+    </UiButton>
 </template>

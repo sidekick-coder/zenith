@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import {
+    onMounted,
     ref,
     watch
 } from 'vue'
@@ -61,9 +62,10 @@ async function load() {
 
 }
 
-watch(() => [props.driveId, props.path], load, { immediate: true })
+watch(() => [props.driveId, props.path], load)
+onMounted(load)
 
-defineExpose({ load, })
+defineExpose({ load })
 </script>
 
 <template>

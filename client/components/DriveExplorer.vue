@@ -1,9 +1,7 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref } from 'vue'
 import Card from './ui/card/Card.vue'
 import FileExplorerBreadcrumb from './FileExplorerBreadcrumb.vue'
-import CardHeader from './ui/card/CardHeader.vue'
-import CardFooter from './ui/card/CardFooter.vue'
 import DriveDirectory from '#client/components/DriveDirectory.vue'
 
 interface FileItem {
@@ -55,6 +53,7 @@ defineExpose({ load, })
                 @click:path="path = $event"
             />
         </div>
+        
         <DriveDirectory
             ref="directoryRef"
             :drive-id="driveId"
@@ -63,12 +62,11 @@ defineExpose({ load, })
             @dblclick:entry="onDblclick"
         />
 
-        <div
-            v-if="$slots.footer"
-            class="p-4 border-t"
-        >
-            <slot name="footer" />
-        </div>
+        <template v-if="$slots.footer">
+            <div class="p-4 border-t">
+                <slot name="footer" />
+            </div>
+        </template>
     </Card>
 </template>
 
