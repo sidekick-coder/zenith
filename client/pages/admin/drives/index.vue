@@ -21,12 +21,13 @@ import UserDialog from '#client/components/UserDialog.vue'
 import ClientOnly from '#client/components/ClientOnly.vue'
 import Button from '#client/components/Button.vue'
 import Icon from '#client/components/Icon.vue'
+import type { Drive } from '#client/types.ts'
 
-const items = ref([])
+const items = ref<Drive[]>([])
 const page = ref(1)
 const deletingItems = ref<string[]>([])
 
-const columns = defineColumns([
+const columns = defineColumns<Drive>([
     {
         id: 'id',
         header: 'ID',
@@ -36,23 +37,18 @@ const columns = defineColumns([
     {
         id: 'name',
         header: $t('Name'),
-        accessorKey: 'name',
+        accessorFn: row => row.metas?.name || row.id
     },
     {
-        id: 'username',
-        header: $t('Username'),
-        accessorKey: 'username',
-    },
-    {
-        id: 'email',
-        header: 'Email',
-        accessorKey: 'email',
+        id: 'description',
+        header: $t('Description'),
+        accessorKey: 'metas.description',
     },
     { id: 'actions' }
 ])
 
 async function load(){
-    const [error, response] = await tryCatch(() => $fetch('/api/users', {
+    const [error, response] = await tryCatch(() => $fetch('/api/drives', {
         method: 'GET',
         query: {
             page: page.value,
@@ -96,7 +92,7 @@ watch(page, load, { immediate: true })
     <AppLayout>
         <div class="flex">
             <h1 class="text-2xl font-bold mb-4 text-foreground flex-1">
-                {{ $t('Users') }}
+                {{ $t('Drives') }}
             </h1>
             <div>
                 <ClientOnly>
@@ -114,13 +110,13 @@ watch(page, load, { immediate: true })
                 <div class="flex items-center gap-2 justify-end">
                     <Button
                         variant="ghost"
-                        :to="`/admin/users/${row.id}`"
+                        :to="`/admin/drives/${row.id}`"
                         size="sm"
                     >
-                        <Icon name="edit" />
+                        <Icon name="eye" />
                     </Button>
 
-                    <AlertDialog>
+                    <AlertDialog v-if="row.metas.editable">
                         <AlertDialogTrigger>
                             <Button
                                 variant="ghost"

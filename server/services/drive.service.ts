@@ -7,7 +7,7 @@ export default class DriveService {
     private static drives: Map<string, DriveContract> = new Map()
     private selected: DriveContract
 
-    constructor(name: string = 'default') {
+    constructor(name: string = 'storage') {
         const drive = DriveService.drives.get(name)
         
         if (!drive) {
@@ -23,6 +23,13 @@ export default class DriveService {
         }
 
         this.drives.set(name, drive)
+    }
+
+    public listDrives(): (DriveContract & { id: string })[] {
+        return Array.from(DriveService.drives.entries()).map(([id, drive]) => ({
+            id,
+            ...drive 
+        }))
     }
 
     public use(name: string) {
@@ -51,4 +58,12 @@ export default class DriveService {
 
 }
 
-DriveService.register('default', new FsDrive(storagePath('drive')))
+const defaultDrive = new FsDrive(storagePath('drive'))
+
+defaultDrive.metas = {
+    name: 'Local Filesystem',
+    description: 'Default local filesystem drive',
+    editable: false,
+}
+
+DriveService.register('storage', defaultDrive)

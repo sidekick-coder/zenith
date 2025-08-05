@@ -40,16 +40,19 @@ export default defineClientSetup(({ menu, router }) => {
             ]
         },
         {
-            label: $t('Advanced'),
-            order: 900,
-            group: true,
-            items: [
+            label: $t('Storage'),
+            icon: 'DatabaseIcon',
+            children: [
                 {
-                    label: $t('Modules'),
-                    to: '/admin/modules',
-                    icon: 'PuzzleIcon',
+                    label: $t('Drives'),
+                    to: '/admin/drives',
                 },
             ]
-        }
+        },
+        {
+            label: $t('Modules'),
+            to: '/admin/modules',
+            icon: 'PuzzleIcon',
+        },
     )
 })

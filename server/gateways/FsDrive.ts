@@ -6,6 +6,7 @@ import FileEntity from '#server/entities/file.entity.ts'
 
 export default class FsDrive implements DriveContract {
     private basePath: string
+    public metas = {}
 
     constructor(basePath: string = './storage/files') {
         this.basePath = basePath
@@ -69,7 +70,7 @@ export default class FsDrive implements DriveContract {
 
     async delete(filename: string): Promise<void> {
         const filePath = join(this.basePath, filename)
-        
+
         await fs.unlink(filePath)
     }
 }

@@ -13,9 +13,9 @@ import {
     TableRow,
 } from '#client/components/ui/table'
 
-export function defineColumns<TData, TValue>(
-    columns: ColumnDef<TData, TValue>[],
-): ColumnDef<TData, TValue>[] {
+export function defineColumns<T extends Record<string, any> = any, V = any>(
+    columns: ColumnDef<T, V>[],
+): ColumnDef<T, V>[] {
     return columns
 }
 
