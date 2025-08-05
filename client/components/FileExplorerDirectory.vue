@@ -4,15 +4,6 @@ import Icon from '#client/components/Icon.vue'
 import DataTable from '#client/components/DataTable.vue'
 import { $t } from '#shared/lang.ts'
 
-interface FileItem {
-    name: string
-    path: string
-    type: 'file' | 'directory'
-    metas: {
-        mimetype?: string
-        size?: number
-    }
-}
 
 interface Props<T> {
     items: T[]
@@ -22,6 +13,7 @@ interface Props<T> {
 }
 
 const props = withDefaults(defineProps<Props<T>>(), {
+    iconKey: undefined,
     columns: () => [
         {
             id: 'label',
@@ -43,7 +35,7 @@ function getFileIcon(item: T): string {
     if (typeof props.iconKey === 'function') {
         return props.iconKey(item)
     }
-    
+
     if (props.iconKey && item[props.iconKey]) {
         return String(item[props.iconKey])
     }
@@ -61,7 +53,7 @@ function getItemLabel(item: T): string {
     <DataTable
         :rows="items"
         :columns="columns"
-        row-class="cursor-pointer hover:bg-muted/20 p-1 rounded transition-colors"
+        row-class="cursor-pointer hover:bg-muted/20 rounded transition-colors"
         @row-click="emit('click', $event)"
         @row-dblclick="emit('dblclick', $event)"
     >
@@ -69,7 +61,7 @@ function getItemLabel(item: T): string {
             <div class="flex items-center gap-2">
                 <Icon
                     :name="getFileIcon(row)"
-                    class="w-4 h-4 flex-shrink-0"
+                    class="size-4 flex-shrink-0"
                 />
                 <span class="truncate">
                     {{ getItemLabel(row) }}

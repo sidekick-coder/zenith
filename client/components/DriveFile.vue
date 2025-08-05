@@ -5,14 +5,7 @@ import {
     watch
 } from 'vue'
 import Icon from '#client/components/Icon.vue'
-import {
-    Breadcrumb,
-    BreadcrumbItem,
-    BreadcrumbLink,
-    BreadcrumbList,
-    BreadcrumbPage,
-    BreadcrumbSeparator
-} from '#client/components/ui/breadcrumb'
+import FileExplorerBreadcrumb from '#client/components/FileExplorerBreadcrumb.vue'
 import { $fetch } from '#client/utils/fetcher.ts'
 import { tryCatch } from '#shared/tryCatch.ts'
 import { $t } from '#shared/lang.ts'
@@ -53,19 +46,8 @@ function getFileIcon(file: FileItem) {
     return 'file'
 }
 
-function getBreadcrumbs() {
-    if (!props.path) return []
-    return props.path.split('/')
-}
-
-function navigateToBreadcrumb(index: number) {
-    const breadcrumbs = getBreadcrumbs()
-    const newPath = breadcrumbs.slice(0, index + 1).join('/')
-    emit('navigate', newPath)
-}
-
-function navigateToRoot() {
-    emit('navigate', '')
+function handleBreadcrumbClick(path: string) {
+    emit('navigate', path)
 }
 
 async function loadFileData() {
@@ -131,43 +113,13 @@ onMounted(() => {
 <template>
     <div class="flex flex-col bg-background h-full">
         <!-- Breadcrumb Navigation -->
-        <div class="p-4 border-b border-border">                        
-            <Breadcrumb>
-                <BreadcrumbList>
-                    <BreadcrumbItem>
-                        <BreadcrumbLink
-                            as="button"
-                            class="flex items-center gap-x-2"
-                            @click="navigateToRoot"
-                        >
-                            <Icon
-                                name="folder"
-                                class="size-4 mr-1"
-                            />
-                            <div>Root</div>
-                        </BreadcrumbLink>
-                    </BreadcrumbItem>
-                    
-                    <template
-                        v-for="(part, index) in getBreadcrumbs()"
-                        :key="index"
-                    >
-                        <BreadcrumbSeparator />
-                        <BreadcrumbItem>
-                            <BreadcrumbLink
-                                v-if="index < getBreadcrumbs().length - 1"
-                                as="button"
-                                @click="navigateToBreadcrumb(index)"
-                            >
-                                {{ part }}
-                            </BreadcrumbLink>
-                            <BreadcrumbPage v-else>
-                                {{ part }}
-                            </BreadcrumbPage>
-                        </BreadcrumbItem>
-                    </template>
-                </BreadcrumbList>
-            </Breadcrumb>
+        <div class="border-b border-border">
+            <FileExplorerBreadcrumb
+                :path="path"
+                root-label="Root"
+                root-icon="folder"
+                @navigate="handleBreadcrumbClick"
+            />
         </div>
 
         <!-- File Details -->

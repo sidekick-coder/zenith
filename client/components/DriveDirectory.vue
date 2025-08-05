@@ -3,19 +3,10 @@ import {
     ref,
     watch
 } from 'vue'
-import Icon from '#client/components/Icon.vue'
 import FileExplorerDirectory from '#client/components/FileExplorerDirectory.vue'
-import {
-    Breadcrumb,
-    BreadcrumbItem,
-    BreadcrumbLink,
-    BreadcrumbList,
-    BreadcrumbPage,
-    BreadcrumbSeparator
-} from '#client/components/ui/breadcrumb'
+import FileExplorerBreadcrumb from '#client/components/FileExplorerBreadcrumb.vue'
 import { $fetch } from '#client/utils/fetcher.ts'
 import { tryCatch } from '#shared/tryCatch.ts'
-import { $t } from '#shared/lang.ts'
 
 interface FileItem {
     name: string
@@ -39,31 +30,6 @@ const emit = defineEmits<{
 
 const entries = ref<FileItem[]>([])
 const isLoading = ref(false)
-
-function getBreadcrumbs() {
-    if (!props.path) return []
-    return props.path.split('/')
-}
-
-function navigateToBreadcrumb(index: number) {
-    const breadcrumbs = getBreadcrumbs()
-    const newPath = breadcrumbs.slice(0, index + 1).join('/')
-    emit('click', {
-        name: '',
-        path: newPath,
-        type: 'directory',
-        metas: {}
-    })
-}
-
-function navigateToRoot() {
-    emit('click', {
-        name: '',
-        path: '',
-        type: 'directory',
-        metas: {}
-    })
-}
 
 async function load() {
     if (!props.driveId) return
@@ -90,7 +56,10 @@ async function load() {
         return a.name.localeCompare(b.name)
     })
 
-    isLoading.value = false
+    setTimeout(() => {
+        isLoading.value = false
+    }, 800)
+
 }
 
 function handleClick(item: FileItem) {
@@ -101,64 +70,29 @@ function handleDoubleClick(item: FileItem) {
     emit('dblclick', item)
 }
 
+function handleBreadcrumbClick(path: string) {
+    emit('click', {
+        name: '',
+        path,
+        type: 'directory',
+        metas: {}
+    })
+}
+
 watch(() => [props.driveId, props.path], load, { immediate: true })
 </script>
 
 <template>
     <div class="flex flex-col bg-background h-full">
         <!-- Breadcrumb Navigation -->
-        <div class="p-4 border-b border-border">                        
-            <Breadcrumb>
-                <BreadcrumbList>
-                    <BreadcrumbItem>
-                        <BreadcrumbLink
-                            as="button"
-                            class="flex items-center gap-x-2"
-                            @click="navigateToRoot"
-                        >
-                            <Icon
-                                name="folder"
-                                class="size-4 mr-1"
-                            />
-                            <div>Root</div>
-                        </BreadcrumbLink>
-                    </BreadcrumbItem>
-                    
-                    <template
-                        v-for="(part, index) in getBreadcrumbs()"
-                        :key="index"
-                    >
-                        <BreadcrumbSeparator />
-                        <BreadcrumbItem>
-                            <BreadcrumbLink
-                                v-if="index < getBreadcrumbs().length - 1"
-                                as="button"
-                                @click="navigateToBreadcrumb(index)"
-                            >
-                                {{ part }}
-                            </BreadcrumbLink>
-                            <BreadcrumbPage v-else>
-                                {{ part }}
-                            </BreadcrumbPage>
-                        </BreadcrumbItem>
-                    </template>
-                </BreadcrumbList>
-            </Breadcrumb>
-        </div>
-
-        <!-- Directory Contents -->
-        <div
-            v-if="isLoading"
-            class="flex items-center justify-center py-8"
-        >
-            <div class="text-muted-foreground">
-                {{ $t('Loading...') }}
-            </div>
-        </div>
+        <FileExplorerBreadcrumb
+            :path="path"
+            @click-path="handleBreadcrumbClick"
+        />
 
         <FileExplorerDirectory
-            v-else
             :items="entries"
+            :loading="isLoading"
             :icon-key="item => item.type === 'directory' ? 'Folder' : 'FileText'"
             label-key="name"
             class="rounded-none shadow-none"
