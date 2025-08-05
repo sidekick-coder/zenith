@@ -51,8 +51,6 @@ group.post('/:id/upload', async (ctx) => {
         filename = join(ctx.query.directory, filename)
     }
 
-    console.log(file)
-
     const entity = await current.write(filename, file.buffer)
 
     return {
