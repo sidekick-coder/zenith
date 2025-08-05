@@ -12,6 +12,17 @@ group.get('/', async () => {
     return { data: drives }
 })
 
+group.get('/:id', async ({ params }) => {
+    const drives = drive.listDrives()
+    const driveData = drives.find(d => d.id === params.id)
+    
+    if (!driveData) {
+        throw new Error('Drive not found')
+    }
+    
+    return driveData
+})
+
 group.get('/:id/files', async ({ params }) => {
     const current = drive.use(params.id)
     
