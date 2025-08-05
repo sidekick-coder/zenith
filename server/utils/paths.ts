@@ -19,3 +19,7 @@ export function serverPath(...args: string[]): string {
 export function clientPath(...args: string[]): string {
     return basePath('client', ...args)
 }
+
+export function storagePath(...args: string[]): string {
+    return basePath('storage', ...args)
+}
