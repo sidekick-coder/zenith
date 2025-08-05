@@ -1,6 +1,11 @@
 <script lang="ts">
 import { toast } from 'vue-sonner'
-import { ref, toValue } from 'vue'
+import {
+    ref,
+    toValue,
+    computed
+} from 'vue'
+import { useRoute } from 'vue-router'
 import DashboardSidebarGroup from './AppLayoutSidebarGroup.vue'
 import Logo from '#client/components/Logo.vue'
 import {
@@ -36,6 +41,7 @@ export interface BreadcrumbItem {
 </script>
 <script setup lang="ts">
 const open = ref( true)
+const route = useRoute()
 
 defineProps({
     padding: {
@@ -54,14 +60,56 @@ const breadcrumbs = defineModel('breadcrumbs', {
     default: null,
 })
 
+const computedBreadcrumbs = computed(() => {
+    if (breadcrumbs.value) {
+        return breadcrumbs.value
+    }
+    
+    return generateBreadcrumbsFromRoute()
+})
+
+function generateBreadcrumbsFromRoute(): BreadcrumbItem[] {
+    const pathSegments = route.path.split('/').filter(segment => segment !== '')
+    const breadcrumbItems: BreadcrumbItem[] = []
+    
+    // Add home breadcrumb only if we're not on the home page
+    if (route.path !== '/') {
+        breadcrumbItems.push({
+            label: $t('Home'),
+            to: '/admin',
+        })
+    }
+    
+    // Generate breadcrumbs for each path segment
+    let currentPath = ''
+    for (let i = 0; i < pathSegments.length; i++) {
+        currentPath += `/${pathSegments[i]}`
+        const segment = pathSegments[i]
+        
+        // Skip dynamic segments (they start with :)
+        if (segment.startsWith(':') || segment === 'admin') {
+            continue
+        }
+        
+        // Capitalize first letter and replace hyphens with spaces
+        const label = segment
+            .split('-')
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(' ')
+        
+        breadcrumbItems.push({
+            label: $t(label),
+            to: i === pathSegments.length - 1 ? undefined : currentPath,
+        })
+    }
+    
+    return breadcrumbItems
+}
+
 if (!menu.value) {
     const { items } = useMenu()
 
     menu.value = toValue(items) || []
-}
-
-if (!breadcrumbs.value) {
-    breadcrumbs.value = []
 }
 
 menu.value.sort((a, b) => {
@@ -140,15 +188,15 @@ async function onLogout() {
             >
                 <div class="flex items-center gap-2">
                     <SidebarTrigger class="-ml-1" />
-                    <template v-if="breadcrumbs && breadcrumbs.length > 0">
+                    <template v-if="computedBreadcrumbs && computedBreadcrumbs.length > 0">
                         <Breadcrumb>
                             <BreadcrumbList>
                                 <template
-                                    v-for="(item, index) in breadcrumbs"
+                                    v-for="(item, index) in computedBreadcrumbs"
                                     :key="index"
                                 >
                                     <BreadcrumbItem>
-                                        <template v-if="index === breadcrumbs.length - 1">
+                                        <template v-if="index === computedBreadcrumbs.length - 1">
                                             <BreadcrumbPage>{{ item.label }}</BreadcrumbPage>
                                         </template>
                                         <template v-else>
@@ -159,7 +207,7 @@ async function onLogout() {
                                             </BreadcrumbLink>
                                         </template>
                                     </BreadcrumbItem>
-                                    <BreadcrumbSeparator v-if="index !== breadcrumbs.length - 1" />
+                                    <BreadcrumbSeparator v-if="index !== computedBreadcrumbs.length - 1" />
                                 </template>
                             </BreadcrumbList>
                         </Breadcrumb>
