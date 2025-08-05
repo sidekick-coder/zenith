@@ -159,7 +159,7 @@ watch(() => [props.driveId, props.path], load, { immediate: true })
         <FileExplorerDirectory
             v-else
             :items="entries"
-            id-key="path"
+            :icon-key="item => item.type === 'directory' ? 'Folder' : 'FileText'"
             label-key="name"
             class="rounded-none shadow-none"
             @click="handleClick"
