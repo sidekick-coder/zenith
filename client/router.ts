@@ -8,22 +8,19 @@ import type { RouteRecordRaw } from 'vue-router'
 import type { DefineComponent } from 'vue'
 import setupGuard from './guards/setup.guard'
 
-interface RouteModule {
-    default: Array<RouteRecordRaw>
-}
-
 export interface Router extends VueRouter {
     auto: typeof auto;
 }
 
 
 interface AutoOptions {
-    guards?: NavigationGuard[];
+    guards?: NavigationGuard[] | ((record: RouteRecordRaw) => NavigationGuard[]);
     strip?: (string | RegExp)[];
+    refine?: (records: RouteRecordRaw[]) => RouteRecordRaw[];
 }
 
 export function auto(imports: Record<string, DefineComponent | (() => Promise<DefineComponent>)>, options: AutoOptions = {}): RouteRecordRaw[] {
-    const routes: RouteRecordRaw[] = []
+    let routes: RouteRecordRaw[] = []
     const basePath = '/'
 
     for (const [filename, component] of Object.entries(imports)) {
@@ -54,11 +51,7 @@ export function auto(imports: Record<string, DefineComponent | (() => Promise<De
 
         let path = parts.join('/').replace(/index$/, '')
 
-        const guards = [] as NavigationGuard[]
         
-        if (options.guards) {
-            guards.push(...options.guards)
-        }       
 
         path = basePath + path
 
@@ -74,10 +67,24 @@ export function auto(imports: Record<string, DefineComponent | (() => Promise<De
             path: path,
             name: parts.join('-').replace(/:/g, ''),
             component: component as DefineComponent,
-            beforeEnter: guards
+            beforeEnter: [] as NavigationGuard[],
+        }
+
+        const guards = [] as NavigationGuard[]
+        
+        if (options.guards && Array.isArray(options.guards)) {
+            guards.push(...options.guards)
+        }
+
+        if (options.guards && typeof options.guards === 'function') {
+            record.beforeEnter = options.guards(record)
         }
 
         routes.push(record)
+    }
+
+    if (options.refine) {
+        routes = options.refine(routes)
     }
 
     return routes
@@ -86,18 +93,9 @@ export function auto(imports: Record<string, DefineComponent | (() => Promise<De
 export function createRouter() {
     const ssr = import.meta.env.SSR
 
-    const files = import.meta.glob<RouteModule>('./routes/**/*.ts', { eager: true })
-
-    const routes = Object.values(files).map(f => f.default || f).flat()
-
-    routes.push({
-        path: '/:pathMatch(.*)*',
-        component: () => import('./pages/Errors/404.vue'),
-    })
-
     const router = createVueRouter({
         history: ssr ? createMemoryHistory() : createWebHistory(),
-        routes,
+        routes: [],
     }) as any as Router
 
     router.beforeEach(setupGuard)

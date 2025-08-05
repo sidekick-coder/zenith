@@ -5,6 +5,7 @@ import App from './App.vue'
 import { createRouter } from './router'
 import type { ClientSetup } from './utils/defineClientSetup'
 import { useMenu } from './composables/useMenu'
+import setup from './setup'
 import { tryCatch } from '#shared/tryCatch.ts'
 
 export async function createApp() {
@@ -16,30 +17,10 @@ export async function createApp() {
 
     menu.clear()
 
-    menu.add(
-        {
-            label: $t('Users'),
-            icon: 'UsersIcon',
-            children: [
-                {
-                    label: $t('List'),
-                    to: '/admin/users',
-                }
-            ]
-        },
-        {
-            label: $t('Advanced'),
-            order: 900,
-            group: true,
-            items: [
-                {
-                    label: $t('Modules'),
-                    to: '/admin/modules',
-                    icon: 'PuzzleIcon',
-                },
-            ]
-        }
-    )
+    setup.setup({
+        router,
+        menu 
+    })    
 
     const files = import.meta.glob<{ default: ClientSetup }>('./.runtime/**/*.setup.ts', { eager: true })
 
@@ -55,7 +36,13 @@ export async function createApp() {
         }
 
         console.debug('setup:', filename)
-    }
+    }   
+
+    // add error 404
+    router.addRoute({
+        path: '/:pathMatch(.*)*',
+        component: () => import('./pages/errors/404.vue'),
+    })
 
     app.use(router)
 

@@ -25,6 +25,10 @@ export default class DriveService {
         this.drives.set(name, drive)
     }
 
+    public use(name: string) {
+        return new DriveService(name)
+    }
+
     public list(folder?: string): Promise<FileEntity[]> {
         return this.selected.list(folder)
     }
