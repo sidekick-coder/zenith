@@ -1,8 +1,8 @@
-import { promises as fs } from 'fs'
-import { join } from 'path'
+import fs from 'fs'
+import path, { join, relative } from 'path'
 import mime from 'mime'
 import type DriveContract from '#server/contracts/drive.contract.ts'
-import FileEntity from '#server/entities/file.entity.ts'
+import DriveEntity from '#server/entities/drive-entry.entity.ts'
 
 export default class FsDrive implements DriveContract {
     private basePath: string
@@ -10,67 +10,81 @@ export default class FsDrive implements DriveContract {
 
     constructor(basePath: string = './storage/files') {
         this.basePath = basePath
+
+        if (!fs.existsSync(this.basePath)) {
+            fs.mkdirSync(this.basePath)
+        }
     }
 
-    async list(folder?: string): Promise<FileEntity[]> {
+    public async exists(filename: string): Promise<boolean> {
+        return fs.promises.access(join(this.basePath, filename))
+            .then(() => true)
+            .catch(() => false)
+    }
+
+    async list(folder?: string): Promise<DriveEntity[]> {
         const filepath = folder ? join(this.basePath, folder) : this.basePath
 
-        const files = await fs.readdir(filepath)
+        const files = await fs.promises.readdir(filepath)
 
-        const entities: FileEntity[] = []
+        const entries: DriveEntity[] = []
 
         for (const filename of files) {
             const filePath = join(filepath, filename)
 
-            const stats = await fs.stat(filePath)
-            
-            if (stats.isFile()) {                
-                const file = new FileEntity({
-                    filename,
-                    mimetype: mime.getType(filename) || 'application/octet-stream'
-                })
+            const stats = await fs.promises.stat(filePath)
 
-                entities.push(file)
+            const metas: any = {}
+
+            if (stats.isFile()) {
+                metas.size = stats.size
+                metas.mimetype = mime.getType(filename) || 'application/octet-stream'
             }
+            
+            const entry = new DriveEntity({
+                name: filename,
+                path: relative(this.basePath, filePath),
+                type: stats.isDirectory() ? 'directory' : 'file',
+                metas
+            })
+
+            entries.push(entry)
         }
 
-        return entities
+        return entries
     }
 
-    async find(filename: string): Promise<FileEntity> {
-        const filePath = join(this.basePath, filename)
-        
-        const stats = await fs.stat(filePath)
+    async find(filename: string): Promise<DriveEntity> {
+        const entries = await this.list(path.dirname(filename))
 
-        if (!stats.isFile()) {
-            throw new Error(`File not found: ${filename}`)
+        const entry = entries.find(e => e.path === filename)
+
+        if (!entry) {
+            throw new Error(`File "${filename}" not found`)
         }
 
-        return new FileEntity({
-            filename,
-            mimetype: mime.getType(filename) || 'application/octet-stream'
-        })
+        return entry
     }
 
     async read(filename: string): Promise<Uint8Array> {
         const filePath = join(this.basePath, filename)
         
-        const buffer = await fs.readFile(filePath)
+        const buffer = await fs.promises.readFile(filePath)
         
         return new Uint8Array(buffer)
     }
 
     async write(filename: string, data: Uint8Array): Promise<void> {
-        await fs.mkdir(this.basePath, { recursive: true })
+        await fs.promises.mkdir(this.basePath, { recursive: true })
         
         const filePath = join(this.basePath, filename)
 
-        await fs.writeFile(filePath, data)
+        await fs.promises.writeFile(filePath, data)
     }
 
     async delete(filename: string): Promise<void> {
         const filePath = join(this.basePath, filename)
 
-        await fs.unlink(filePath)
+        await fs.promises.unlink(filePath)
     }
 }

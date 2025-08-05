@@ -1,5 +1,5 @@
 import type DriveContract from '#server/contracts/drive.contract.ts'
-import type FileEntity from '#server/entities/file.entity.ts'
+import type DriveEntry from '#server/entities/drive-entry.entity.ts'
 import FsDrive from '#server/gateways/FsDrive.ts'
 import { storagePath } from '#server/utils/paths.ts'
 
@@ -36,11 +36,11 @@ export default class DriveService {
         return new DriveService(name)
     }
 
-    public list(folder?: string): Promise<FileEntity[]> {
+    public list(folder?: string): Promise<DriveEntry[]> {
         return this.selected.list(folder)
     }
 
-    public find(filename: string): Promise<FileEntity> {
+    public find(filename: string): Promise<DriveEntry> {
         return this.selected.find(filename)
     }
 

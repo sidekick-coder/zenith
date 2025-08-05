@@ -23,8 +23,8 @@ group.get('/:id', async ({ params }) => {
     return driveData
 })
 
-group.get('/:id/files', async ({ params }) => {
+group.get('/:id/files', async ({ params, query }) => {
     const current = drive.use(params.id)
-    
-    return current.list()
+
+    return current.list(query.folder as string)
 })
