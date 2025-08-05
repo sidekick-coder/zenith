@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import {
     ref,
-    onMounted,
     watch
 } from 'vue'
 import Icon from '#client/components/Icon.vue'
+import FileExplorerDirectory from '#client/components/FileExplorerDirectory.vue'
 import {
     Breadcrumb,
     BreadcrumbItem,
@@ -39,20 +39,6 @@ const emit = defineEmits<{
 
 const entries = ref<FileItem[]>([])
 const isLoading = ref(false)
-
-function getFileIcon(file: FileItem) {
-    if (file.type === 'directory') return 'folder'
-
-    const mimetype = file.metas.mimetype || ''
-
-    if (mimetype.startsWith('image/')) return 'Image'
-    if (mimetype.startsWith('video/')) return 'Video'
-    if (mimetype.startsWith('audio/')) return 'Music'
-    if (mimetype.includes('pdf')) return 'FileText'
-    if (mimetype.includes('text')) return 'FileText'
-    
-    return 'file'
-}
 
 function getBreadcrumbs() {
     if (!props.path) return []
@@ -161,51 +147,23 @@ watch(() => [props.driveId, props.path], load, { immediate: true })
         </div>
 
         <!-- Directory Contents -->
-        <div class="flex-1 p-4 overflow-auto">
-            <div
-                v-if="isLoading"
-                class="flex items-center justify-center py-8"
-            >
-                <div class="text-muted-foreground">
-                    {{ $t('Loading...') }}
-                </div>
-            </div>
-
-            <div
-                v-else-if="entries.length === 0"
-                class="text-sm text-muted-foreground text-center py-8"
-            >
-                {{ $t('This directory is empty') }}
-            </div>
-
-            <div
-                v-else
-                class="space-y-2"
-            >
-                <div
-                    v-for="item in entries"
-                    :key="item.path"
-                    class="flex items-center gap-3 p-3 rounded-lg border border-border hover:bg-muted/50 cursor-pointer transition-colors"
-                    @click="handleClick(item)"
-                    @dblclick="handleDoubleClick(item)"
-                >
-                    <Icon
-                        :name="getFileIcon(item)"
-                        class="w-5 h-5 flex-shrink-0"
-                    />
-                    <div class="flex-1 min-w-0">
-                        <p class="text-sm font-medium truncate">
-                            {{ item.name }}
-                        </p>
-                        <p class="text-xs text-muted-foreground">
-                            {{ item.type === 'directory' ? $t('Directory') : item.metas.mimetype }}
-                        </p>
-                    </div>
-                    <div class="text-xs text-muted-foreground">
-                        {{ item.type === 'file' && item.metas.size ? `${Math.round(item.metas.size / 1024)} KB` : '' }}
-                    </div>
-                </div>
+        <div
+            v-if="isLoading"
+            class="flex items-center justify-center py-8"
+        >
+            <div class="text-muted-foreground">
+                {{ $t('Loading...') }}
             </div>
         </div>
+
+        <FileExplorerDirectory
+            v-else
+            :items="entries"
+            id-key="path"
+            label-key="name"
+            class="rounded-none shadow-none"
+            @click="handleClick"
+            @dblclick="handleDoubleClick"
+        />
     </div>
 </template>

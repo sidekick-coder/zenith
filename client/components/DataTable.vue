@@ -12,6 +12,7 @@ import {
     TableHeader,
     TableRow,
 } from '#client/components/ui/table'
+import { cn } from '#client/lib/utils.ts'
 
 export function defineColumns<T extends Record<string, any> = any, V = any>(
     columns: ColumnDef<T, V>[],
@@ -55,7 +56,19 @@ const props = defineProps({
         type: Boolean,
         default: false,
     },
+    class: {
+        type: String,
+        default: '',
+    },
+    rowClass: {
+        type: String,
+        default: '',
+    },
 })
+
+const emit = defineEmits<{
+    (e: 'row-click', row: T): void
+}>()
 
 const slots = defineSlots<{
      [key in `row-${string}`]: (props: { row: any }) => any
@@ -78,10 +91,11 @@ const table = useVueTable({
     get columns() { return tableColumns.value },
     getCoreRowModel: getCoreRowModel(),
 })
+
 </script>
 
 <template>
-    <div class="border rounded">
+    <div :class="cn('border rounded', props.class)">
         <Table>
             <TableHeader>
                 <TableRow
@@ -109,6 +123,8 @@ const table = useVueTable({
                         v-for="row in table.getRowModel().rows"
                         :key="row.id"
                         :data-state="row.getIsSelected() ? 'selected' : undefined"
+                        :class="cn('hover:bg-muted/20 ', props.rowClass)"
+                        @click="emit('row-click', row.original)"
                     >
                         <TableCell
                             v-for="cell in row.getVisibleCells()"
