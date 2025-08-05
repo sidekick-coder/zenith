@@ -2,13 +2,14 @@
 import { computed, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { toast } from 'vue-sonner'
+import { useRouteQuery } from '@vueuse/router'
 import DriveExplorer from '#client/components/DriveExplorer.vue'
 import AppLayout from '#client/layouts/AppLayout.vue'
 import Button from '#client/components/Button.vue'
 import { $file } from '#client/utils/file.ts'
 
 const route = useRoute()
-const path = ref('')
+const path = useRouteQuery('path', '')
 const explorerRef = ref<InstanceType<typeof DriveExplorer>>()
 const driveId = computed(() => {
     return route.params.id as string

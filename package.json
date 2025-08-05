@@ -27,6 +27,7 @@
         "@vee-validate/zod": "^4.15.1",
         "@vue/server-renderer": "^3.5.17",
         "@vueuse/core": "^13.6.0",
+        "@vueuse/router": "^13.6.0",
         "bcrypt": "^6.0.0",
         "better-sqlite3": "^12.2.0",
         "chalk": "^5.4.1",

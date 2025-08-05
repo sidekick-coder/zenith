@@ -110,11 +110,19 @@ watch(page, load, { immediate: true })
                 <div class="flex items-center gap-2 justify-end">
                     <Button
                         variant="ghost"
+                        :to="`/admin/drives/${row.id}/explorer`"
+                        size="sm"
+                    >
+                        <Icon name="folder" />
+                    </Button>
+                    <Button
+                        variant="ghost"
                         :to="`/admin/drives/${row.id}`"
                         size="sm"
                     >
-                        <Icon name="eye" />
+                        <Icon name="pen" />
                     </Button>
+                    
 
                     <AlertDialog v-if="row.metas.editable">
                         <AlertDialogTrigger>
