@@ -32,6 +32,19 @@ interface FileItem {
     }
 }
 
+interface TreeNode {
+    name: string
+    path: string
+    type: 'file' | 'directory'
+    metas: {
+        mimetype?: string
+        size?: number
+    }
+    children?: TreeNode[]
+    expanded?: boolean
+    level?: number
+}
+
 interface DriveData {
     id: string
     metas: {
@@ -48,6 +61,8 @@ const props = defineProps<{
 const currentPath = ref(props.pwd || '')
 const driveData = ref<DriveData | null>(null)
 const files = ref<FileItem[]>([])
+const treeNodes = ref<TreeNode[]>([])
+const expandedFolders = ref<Set<string>>(new Set())
 const selectedFile = ref<FileItem | null>(null)
 const isLoading = ref(false)
 
@@ -71,51 +86,179 @@ async function loadFiles() {
     if (!props.driveId) return
     
     isLoading.value = true
-    const [error, response] = await tryCatch(() => $fetch(`/api/drives/${props.driveId}/files`, {
-        method: 'GET',
-        query: { folder: currentPath.value }
-    }))
     
-    if (error) {
-        console.error('Failed to load files:', error)
-        isLoading.value = false
-        return
-    }
+    // Load files from root directory first
+    await loadDirectory('')
     
-    files.value = (response as FileItem[]) || []
     isLoading.value = false
 }
 
-function selectFile(file: FileItem) {
+async function loadDirectory(folderPath: string) {
+    const [error, response] = await tryCatch(() => $fetch(`/api/drives/${props.driveId}/files`, {
+        method: 'GET',
+        query: { folder: folderPath }
+    }))
+    
+    if (error) {
+        console.error('Failed to load directory:', error)
+        return []
+    }
+    
+    const directoryFiles = (response as FileItem[]) || []
+    
+    // Add files to the main files array if they're not already there
+    directoryFiles.forEach(file => {
+        if (!files.value.find(f => f.path === file.path)) {
+            files.value.push(file)
+        }
+    })
+    
+    buildTree()
+    return directoryFiles
+}
+
+async function loadDirectoryChildren(folderPath: string) {
+    return await loadDirectory(folderPath)
+}
+
+function buildTree() {
+    const nodeMap = new Map<string, TreeNode>()
+    const rootNodes: TreeNode[] = []
+    
+    // Create nodes for all files
+    files.value.forEach(file => {
+        const node: TreeNode = {
+            ...file,
+            children: file.type === 'directory' ? [] : undefined,
+            expanded: expandedFolders.value.has(file.path),
+            level: 0
+        }
+        nodeMap.set(file.path, node)
+    })
+    
+    // Build hierarchy by checking parent-child relationships
+    files.value.forEach(file => {
+        const node = nodeMap.get(file.path)!
+        const pathParts = file.path.split('/')
+        
+        if (pathParts.length === 1) {
+            // Root level file/folder
+            rootNodes.push(node)
+            node.level = 0
+        } else {
+            // Find the direct parent
+            const parentPath = pathParts.slice(0, -1).join('/')
+            const parent = nodeMap.get(parentPath)
+            
+            if (parent && parent.children) {
+                parent.children.push(node)
+                node.level = (parent.level || 0) + 1
+            } else {
+                // Parent not loaded yet, put in root for now
+                rootNodes.push(node)
+                node.level = 0
+            }
+        }
+    })
+    
+    // Sort children by type (directories first) and then by name
+    const sortNodes = (nodes: TreeNode[]) => {
+        nodes.sort((a, b) => {
+            if (a.type !== b.type) {
+                return a.type === 'directory' ? -1 : 1
+            }
+            return a.name.localeCompare(b.name)
+        })
+        nodes.forEach(node => {
+            if (node.children) {
+                sortNodes(node.children)
+            }
+        })
+    }
+    
+    sortNodes(rootNodes)
+    treeNodes.value = rootNodes
+}
+
+async function toggleFolder(node: TreeNode) {
+    if (node.type !== 'directory') return
+    
+    const wasExpanded = expandedFolders.value.has(node.path)
+    
+    if (wasExpanded) {
+        expandedFolders.value.delete(node.path)
+        node.expanded = false
+    } else {
+        expandedFolders.value.add(node.path)
+        node.expanded = true
+        
+        // Load directory contents if not already loaded
+        if (node.children && node.children.length === 0) {
+            await loadDirectoryChildren(node.path)
+        }
+    }
+    
+    buildTree()
+}
+
+function getFlatTreeNodes(nodes: TreeNode[] = treeNodes.value): TreeNode[] {
+    const result: TreeNode[] = []
+    
+    function traverse(nodeList: TreeNode[]) {
+        nodeList.forEach(node => {
+            result.push(node)
+            if (node.expanded && node.children) {
+                traverse(node.children)
+            }
+        })
+    }
+    
+    traverse(nodes)
+    return result
+}
+
+function selectFile(file: FileItem | TreeNode) {
     selectedFile.value = file
+    currentPath.value = file.path
 }
 
 function navigateToFolder(newPath: string) {
     currentPath.value = newPath
-    loadFiles()
-}
-
-function goBack() {
-    if (!currentPath.value) return
     
-    const parts = currentPath.value.split('/')
-    parts.pop()
-    currentPath.value = parts.join('/')
-    loadFiles()
+    // Find the folder in tree and expand it if not already expanded
+    const node = findNodeByPath(newPath)
+    if (node && node.type === 'directory') {
+        toggleFolder(node)
+    }
 }
 
-function getFileIcon(file: FileItem) {
+function findNodeByPath(path: string): TreeNode | null {
+    function search(nodes: TreeNode[]): TreeNode | null {
+        for (const node of nodes) {
+            if (node.path === path) {
+                return node
+            }
+            if (node.children) {
+                const found = search(node.children)
+                if (found) return found
+            }
+        }
+        return null
+    }
+    
+    return search(treeNodes.value)
+}
+
+function getFileIcon(file: FileItem | TreeNode) {
     if (file.type === 'directory') return 'folder'
 
     const mimetype = file.metas.mimetype || ''
 
-    if (mimetype.startsWith('image/')) return 'image'
-    
-    if (mimetype.startsWith('image/')) return 'image'
-    if (mimetype.startsWith('video/')) return 'video'
-    if (mimetype.startsWith('audio/')) return 'music'
-    if (mimetype.includes('pdf')) return 'file-text'
-    if (mimetype.includes('text')) return 'file-text'
+    if (mimetype.startsWith('image/')) return 'Image'
+    if (mimetype.startsWith('video/')) return 'Video'
+    if (mimetype.startsWith('audio/')) return 'Music'
+    if (mimetype.includes('pdf')) return 'FileText'
+    if (mimetype.includes('text')) return 'FileText'
     
     return 'file'
 }
@@ -144,7 +287,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <div class="h-full border-2 rounded overflow-hidden border-muted bg-background">
+    <div class="h-full border-2 rounded overflow-hidden border-border bg-background">
         <ResizablePanelGroup
             direction="horizontal"
             class="h-full"
@@ -171,28 +314,43 @@ onMounted(() => {
                             v-else
                             class="space-y-1"
                         >
-                            <button
-                                v-for="file in files"
-                                :key="file.path"
+                            <div
+                                v-for="node in getFlatTreeNodes()"
+                                :key="node.path"
                                 :class="[
                                     'w-full flex items-center gap-2 p-2 rounded text-left transition-colors',
-                                    selectedFile?.path === file.path 
+                                    selectedFile?.path === node.path 
                                         ? 'bg-sidebar-accent text-sidebar-accent-foreground' 
                                         : 'hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground text-sidebar-foreground'
                                 ]"
-                                @click="file.type === 'directory' ? navigateToFolder(file.path) : selectFile(file)"
+                                :style="{ paddingLeft: `${8 + (node.level || 0) * 16}px` }"
                             >
-                                <Icon
-                                    :name="getFileIcon(file)"
+                                <button
+                                    v-if="node.type === 'directory'"
+                                    class="flex items-center justify-center w-4 h-4 flex-shrink-0"
+                                    @click="toggleFolder(node)"
+                                >
+                                    <Icon
+                                        :name="node.expanded ? 'ChevronDown' : 'ChevronRight'"
+                                        class="w-3 h-3"
+                                    />
+                                </button>
+                                <div
+                                    v-else
                                     class="w-4 h-4 flex-shrink-0"
                                 />
-                                <span class="truncate text-sm">{{ file.path }}</span>
-                                <Icon
-                                    v-if="file.type === 'directory'"
-                                    name="chevron-right"
-                                    class="w-3 h-3 flex-shrink-0 ml-auto"
-                                />
-                            </button>
+                                
+                                <button
+                                    class="flex items-center gap-2 flex-1 min-w-0"
+                                    @click="node.type === 'directory' ? navigateToFolder(node.path) : selectFile(node)"
+                                >
+                                    <Icon
+                                        :name="getFileIcon(node)"
+                                        class="w-4 h-4 flex-shrink-0"
+                                    />
+                                    <span class="truncate text-sm">{{ node.name }}</span>
+                                </button>
+                            </div>
                         </div>
 
                         <div
@@ -222,9 +380,9 @@ onMounted(() => {
                                     >
                                         <Icon
                                             name="folder"
-                                            class="w-4 h-4 mr-1"
+                                            class="size-4 mr-1"
                                         />
-                                        /
+                                        <div>Root</div>
                                     </BreadcrumbLink>
                                 </BreadcrumbItem>
                                 
