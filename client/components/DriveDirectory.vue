@@ -62,6 +62,8 @@ async function load() {
 }
 
 watch(() => [props.driveId, props.path], load, { immediate: true })
+
+defineExpose({ load, })
 </script>
 
 <template>
@@ -70,7 +72,7 @@ watch(() => [props.driveId, props.path], load, { immediate: true })
         :loading="isLoading"
         :icon-key="item => item.type === 'directory' ? 'Folder' : 'FileText'"
         label-key="name"
-        class="rounded-none shadow-none border-x-0"
+        class="rounded-none shadow-none border-0"
         @click="emit('click:entry', $event)"
         @dblclick="emit('dblclick:entry', $event)"
     />

@@ -2,6 +2,8 @@
 import { ref, watch } from 'vue'
 import Card from './ui/card/Card.vue'
 import FileExplorerBreadcrumb from './FileExplorerBreadcrumb.vue'
+import CardHeader from './ui/card/CardHeader.vue'
+import CardFooter from './ui/card/CardFooter.vue'
 import DriveDirectory from '#client/components/DriveDirectory.vue'
 
 interface FileItem {
@@ -14,42 +16,59 @@ interface FileItem {
     }
 }
 
-const props = defineProps<{
-    driveId: string
-    pwd?: string
-}>()
+defineProps({
+    driveId: {
+        type: String,
+        required: true
+    },
+})
 
 const emit = defineEmits<{
     'click:entry': [item: FileItem]
 }>()
 
-const currentPath = ref(props.pwd || '')
+const path = defineModel('path', {
+    type: String,
+    default: ''
+})
 
 function onDblclick(item: FileItem) {
-    console.log('Double clicked:', item)
     if (item.type === 'directory') {
-        currentPath.value = item.path
+        path.value = item.path
     }
 }
 
-watch(() => props.pwd, (newPwd) => {
-    currentPath.value = newPwd || ''
-})
+const directoryRef = ref<InstanceType<typeof DriveDirectory>>()
+
+function load() {
+    directoryRef.value?.load()
+}
+
+defineExpose({ load, })
 </script>
 
 <template>
-    <FileExplorerBreadcrumb
-        :path="currentPath"
-        class="mb-4"
-        @click:path="currentPath = $event"
-    />
     <Card class="py-0 overflow-hidden rounded-md gap-0">
+        <div class="border-b py-4 px-4">
+            <FileExplorerBreadcrumb
+                :path="path"
+                @click:path="path = $event"
+            />
+        </div>
         <DriveDirectory
+            ref="directoryRef"
             :drive-id="driveId"
-            :path="currentPath"
+            :path="path"
             @click:entry="emit('click:entry', $event)"
             @dblclick:entry="onDblclick"
         />
+
+        <div
+            v-if="$slots.footer"
+            class="p-4 border-t"
+        >
+            <slot name="footer" />
+        </div>
     </Card>
 </template>
 

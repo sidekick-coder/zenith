@@ -10,6 +10,8 @@ export interface HttpContextBase {
         get(name: string): string | undefined
         set(name: string, value: string, options?: CookieOptions): void
     }
+    file(name: string): Promise<Express.Multer.File | undefined>
+    files(name: string): Promise<Express.Multer.File[] | undefined>
     [key: string]: any; // Allow additional properties
 }
 
