@@ -5,19 +5,13 @@ import {
     watch
 } from 'vue'
 import Icon from '#client/components/Icon.vue'
+import DriveDirectory from '#client/components/DriveDirectory.vue'
+import DriveFile from '#client/components/DriveFile.vue'
 import {
     ResizablePanelGroup,
     ResizablePanel,
     ResizableHandle
 } from '#client/components/ui/resizable'
-import {
-    Breadcrumb,
-    BreadcrumbItem,
-    BreadcrumbLink,
-    BreadcrumbList,
-    BreadcrumbPage,
-    BreadcrumbSeparator
-} from '#client/components/ui/breadcrumb'
 import { $fetch } from '#client/utils/fetcher.ts'
 import { tryCatch } from '#shared/tryCatch.ts'
 import { $t } from '#shared/lang.ts'
@@ -64,7 +58,6 @@ const files = ref<FileItem[]>([])
 const treeNodes = ref<TreeNode[]>([])
 const expandedFolders = ref<Set<string>>(new Set())
 const selectedFile = ref<FileItem | null>(null)
-const selectedFolderContents = ref<FileItem[]>([])
 const isLoading = ref(false)
 
 async function loadDrive() {
@@ -221,28 +214,6 @@ function getFlatTreeNodes(nodes: TreeNode[] = treeNodes.value): TreeNode[] {
 function selectFile(file: FileItem | TreeNode) {
     selectedFile.value = file
     currentPath.value = file.path
-    
-    // If it's a directory, load its contents for preview
-    if (file.type === 'directory') {
-        loadFolderContents(file.path)
-    } else {
-        selectedFolderContents.value = []
-    }
-}
-
-async function loadFolderContents(folderPath: string) {
-    const [error, response] = await tryCatch(() => $fetch(`/api/drives/${props.driveId}/files`, {
-        method: 'GET',
-        query: { folder: folderPath }
-    }))
-    
-    if (error) {
-        console.error('Failed to load folder contents:', error)
-        selectedFolderContents.value = []
-        return
-    }
-    
-    selectedFolderContents.value = (response as FileItem[]) || []
 }
 
 function getFileIcon(file: FileItem | TreeNode) {
@@ -259,17 +230,30 @@ function getFileIcon(file: FileItem | TreeNode) {
     return 'file'
 }
 
-function getBreadcrumbs() {
-    if (!currentPath.value) return []
-    return currentPath.value.split('/')
+// Handle events from DriveDirectory component
+function handleDirectoryClick(item: FileItem) {
+    if (item.path === '') {
+        // Navigate to root
+        currentPath.value = ''
+        selectedFile.value = null
+        loadFiles()
+        return
+    }
+    
+    selectFile(item)
 }
 
-function navigateToBreadcrumb(index: number) {
-    const breadcrumbs = getBreadcrumbs()
-    const newPath = breadcrumbs.slice(0, index + 1).join('/')
-    currentPath.value = newPath
+function handleDirectoryDoubleClick(item: FileItem) {
+    if (item.type === 'directory') {
+        currentPath.value = item.path
+        selectedFile.value = null
+    }
+}
+
+// Handle events from DriveFile component
+function handleFileNavigate(path: string) {
+    currentPath.value = path
     selectedFile.value = null
-    selectedFolderContents.value = []
     loadFiles()
 }
 
@@ -365,149 +349,35 @@ onMounted(() => {
 
             <!-- Right Panel - Preview -->
             <ResizablePanel :default-size="75">
-                <div class="flex flex-col bg-background h-full">
-                    <!-- Breadcrumb Navigation -->
-                    <div class="p-4 border-b border-border">                        
-                        <Breadcrumb>
-                            <BreadcrumbList>
-                                <BreadcrumbItem>
-                                    <BreadcrumbLink
-                                        as="button"
-                                        class="flex items-center gap-x-2"
-                                        @click="currentPath = ''; selectedFile = null; selectedFolderContents = []; loadFiles()"
-                                    >
-                                        <Icon
-                                            name="folder"
-                                            class="size-4 mr-1"
-                                        />
-                                        <div>Root</div>
-                                    </BreadcrumbLink>
-                                </BreadcrumbItem>
-                                
-                                <template
-                                    v-for="(part, index) in getBreadcrumbs()"
-                                    :key="index"
-                                >
-                                    <BreadcrumbSeparator />
-                                    <BreadcrumbItem>
-                                        <BreadcrumbLink
-                                            v-if="index < getBreadcrumbs().length - 1"
-                                            as="button"
-                                            @click="navigateToBreadcrumb(index)"
-                                        >
-                                            {{ part }}
-                                        </BreadcrumbLink>
-                                        <BreadcrumbPage v-else>
-                                            {{ part }}
-                                        </BreadcrumbPage>
-                                    </BreadcrumbItem>
-                                </template>
-                            </BreadcrumbList>
-                        </Breadcrumb>
-                    </div>
-
-                    <!-- Preview Content -->
-                    <div class="flex-1 p-4 overflow-auto">
-                        <div
-                            v-if="!selectedFile"
-                            class="flex items-center justify-center h-full text-muted-foreground"
-                        >
-                            <div class="text-center">
-                                <Icon
-                                    name="file"
-                                    class="w-12 h-12 mx-auto mb-4 opacity-50"
-                                />
-                                <p>{{ $t('Select a file or folder to see its preview') }}</p>
-                            </div>
-                        </div>
-
-                        <div
-                            v-else
-                            class="space-y-4"
-                        >
-                            <!-- File Info -->
-                            <div class="bg-card border border-border rounded-lg p-4">
-                                <div class="flex items-center gap-3 mb-3">
-                                    <Icon
-                                        :name="getFileIcon(selectedFile)"
-                                        class="w-6 h-6"
-                                    />
-                                    <div>
-                                        <h4 class="font-medium">
-                                            {{ selectedFile.path }}
-                                        </h4>
-                                        <p class="text-sm text-muted-foreground">
-                                            {{ selectedFile.metas.mimetype }}
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Directory Contents Preview -->
-                            <div
-                                v-if="selectedFile.type === 'directory'"
-                                class="bg-card border border-border rounded-lg p-4"
-                            >
-                                <h5 class="font-medium mb-3">
-                                    {{ $t('Directory Contents') }}
-                                </h5>
-                                <div
-                                    v-if="selectedFolderContents.length === 0"
-                                    class="text-sm text-muted-foreground text-center py-4"
-                                >
-                                    {{ $t('This directory is empty') }}
-                                </div>
-                                <div
-                                    v-else
-                                    class="space-y-2"
-                                >
-                                    <div
-                                        v-for="item in selectedFolderContents"
-                                        :key="item.path"
-                                        class="flex items-center gap-3 p-2 rounded hover:bg-muted/50 cursor-pointer transition-colors"
-                                        @click="selectFile(item)"
-                                    >
-                                        <Icon
-                                            :name="getFileIcon(item)"
-                                            class="w-4 h-4 flex-shrink-0"
-                                        />
-                                        <div class="flex-1 min-w-0">
-                                            <p class="text-sm font-medium truncate">
-                                                {{ item.name }}
-                                            </p>
-                                            <p class="text-xs text-muted-foreground">
-                                                {{ item.type === 'directory' ? $t('Directory') : item.metas.mimetype }}
-                                            </p>
-                                        </div>
-                                        <div class="text-xs text-muted-foreground">
-                                            {{ item.type === 'file' && item.metas.size ? `${Math.round(item.metas.size / 1024)} KB` : '' }}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- File Preview Placeholder -->
-                            <div
-                                v-else
-                                class="bg-card border border-border rounded-lg p-4"
-                            >
-                                <h5 class="font-medium mb-3">
-                                    {{ $t('File Details') }}
-                                </h5>
-                                <div class="space-y-2 text-sm">
-                                    <div class="flex justify-between">
-                                        <span class="text-muted-foreground">{{ $t('Type:') }}</span>
-                                        <span>{{ selectedFile.metas.mimetype }}</span>
-                                    </div>
-                                    <div class="flex justify-between">
-                                        <span class="text-muted-foreground">{{ $t('Name:') }}</span>
-                                        <span>{{ selectedFile.path }}</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                <div
+                    v-if="!selectedFile"
+                    class="flex items-center justify-center h-full text-muted-foreground bg-background"
+                >
+                    <div class="text-center">
+                        <Icon
+                            name="file"
+                            class="w-12 h-12 mx-auto mb-4 opacity-50"
+                        />
+                        <p>{{ $t('Select a file or folder to see its preview') }}</p>
                     </div>
                 </div>
+
+                <!-- Directory View -->
+                <DriveDirectory
+                    v-else-if="selectedFile.type === 'directory'"
+                    :drive-id="driveId"
+                    :path="selectedFile.path"
+                    @click="handleDirectoryClick"
+                    @dblclick="handleDirectoryDoubleClick"
+                />
+
+                <!-- File View -->
+                <DriveFile
+                    v-else
+                    :drive-id="driveId"
+                    :path="selectedFile.path"
+                    @navigate="handleFileNavigate"
+                />
             </ResizablePanel>
         </ResizablePanelGroup>
     </div>
