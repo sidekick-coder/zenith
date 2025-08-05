@@ -47,15 +47,23 @@ function getItemLabel(item: T): string {
     return String(item[props.labelKey])
 }
 
+function onRowClick(item: T) {
+    emit('click', item)
+}
+
+function onRowDblClick(item: T) {
+    emit('dblclick', item)
+}
+
 </script>
 
 <template>
     <DataTable
         :rows="items"
         :columns="columns"
-        row-class="cursor-pointer hover:bg-muted/20 rounded transition-colors"
-        @row-click="emit('click', $event)"
-        @row-dblclick="emit('dblclick', $event)"
+        row-class="cursor-pointer hover:bg-muted/20 rounded transition-colors h-12"
+        @click:row="onRowClick"
+        @dblclick:row="onRowDblClick"
     >
         <template #row-label="{ row }">
             <div class="flex items-center gap-2">

@@ -23,7 +23,7 @@ const props = withDefaults(defineProps<{
 })
 
 const emit = defineEmits<{
-    clickPath: [path: string]
+    'click:path': [path: string]
 }>()
 
 function getBreadcrumbs(): string[] {
@@ -34,16 +34,16 @@ function getBreadcrumbs(): string[] {
 function navigateToBreadcrumb(index: number) {
     const breadcrumbs = getBreadcrumbs()
     const newPath = breadcrumbs.slice(0, index + 1).join(props.separator)
-    emit('clickPath', newPath)
+    emit('click:path', newPath)
 }
 
 function navigateToRoot() {
-    emit('clickPath', '')
+    emit('click:path', '')
 }
 </script>
 
 <template>
-    <Breadcrumb class="p-4">
+    <Breadcrumb>
         <BreadcrumbList>
             <BreadcrumbItem v-if="showRoot">
                 <BreadcrumbLink

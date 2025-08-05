@@ -4,7 +4,6 @@ import {
     watch
 } from 'vue'
 import FileExplorerDirectory from '#client/components/FileExplorerDirectory.vue'
-import FileExplorerBreadcrumb from '#client/components/FileExplorerBreadcrumb.vue'
 import { $fetch } from '#client/utils/fetcher.ts'
 import { tryCatch } from '#shared/tryCatch.ts'
 
@@ -24,8 +23,8 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-    click: [item: FileItem]
-    dblclick: [item: FileItem]
+    'click:entry': [item: FileItem]
+    'dblclick:entry': [item: FileItem]
 }>()
 
 const entries = ref<FileItem[]>([])
@@ -62,42 +61,17 @@ async function load() {
 
 }
 
-function handleClick(item: FileItem) {
-    emit('click', item)
-}
-
-function handleDoubleClick(item: FileItem) {
-    emit('dblclick', item)
-}
-
-function handleBreadcrumbClick(path: string) {
-    emit('click', {
-        name: '',
-        path,
-        type: 'directory',
-        metas: {}
-    })
-}
-
 watch(() => [props.driveId, props.path], load, { immediate: true })
 </script>
 
 <template>
-    <div class="flex flex-col bg-background h-full">
-        <!-- Breadcrumb Navigation -->
-        <FileExplorerBreadcrumb
-            :path="path"
-            @click-path="handleBreadcrumbClick"
-        />
-
-        <FileExplorerDirectory
-            :items="entries"
-            :loading="isLoading"
-            :icon-key="item => item.type === 'directory' ? 'Folder' : 'FileText'"
-            label-key="name"
-            class="rounded-none shadow-none"
-            @click="handleClick"
-            @dblclick="handleDoubleClick"
-        />
-    </div>
+    <FileExplorerDirectory
+        :items="entries"
+        :loading="isLoading"
+        :icon-key="item => item.type === 'directory' ? 'Folder' : 'FileText'"
+        label-key="name"
+        class="rounded-none shadow-none border-x-0"
+        @click="emit('click:entry', $event)"
+        @dblclick="emit('dblclick:entry', $event)"
+    />
 </template>

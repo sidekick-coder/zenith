@@ -67,7 +67,8 @@ const props = defineProps({
 })
 
 const emit = defineEmits<{
-    (e: 'row-click', row: T): void
+    'click:row': [item: T]
+    'dblclick:row': [item: T]
 }>()
 
 const slots = defineSlots<{
@@ -124,7 +125,8 @@ const table = useVueTable({
                         :key="row.id"
                         :data-state="row.getIsSelected() ? 'selected' : undefined"
                         :class="cn('hover:bg-muted/20 ', props.rowClass)"
-                        @click="emit('row-click', row.original)"
+                        @click="emit('click:row', row.original)"
+                        @dblclick="emit('dblclick:row', row.original)"
                     >
                         <TableCell
                             v-for="cell in row.getVisibleCells()"
