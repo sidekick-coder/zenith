@@ -26,7 +26,7 @@ export class BootService {
         for await (const entry of Object.entries(files)) {
             const filename = entry[0]
             const mod = (entry[1]?.default || entry[1]) as ServerSetup
-            const name = entry[1]?.name || entry[1]?.name || path.basename(filename, '.setup.ts')
+            const name = entry[1]?.name || path.basename(filename, '.setup.ts')
 
             logger.debug('loading setup', {
                 name,
@@ -52,10 +52,13 @@ export class BootService {
 
     public async boot() {
 
-        // clean
-        router.clear()
-        await scheduler.clear()
-        scheduler.clear()
+        if (router.list().length > 0) {
+            router.clear()
+        }
+
+        if (scheduler.list().length > 0) {
+            await scheduler.clear()
+        }
 
         await db.load()
 

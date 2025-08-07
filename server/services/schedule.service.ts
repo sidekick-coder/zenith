@@ -79,10 +79,10 @@ export default class ScheduleService {
                     return
                 }
 
-                logger.debug('routine executed', { routine })
+                logger.info('routine executed', { routine })
             })
 
-            logger.debug('routine start', { routine })
+            logger.info('routine start', { routine })
         }
     }
 

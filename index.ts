@@ -135,9 +135,7 @@ async function main() {
 
     await vite.init(app)
 
-    await bootService.boot()
-
-    await db.load()
+   
 
     app.use('*all', (req, res) => {
         const url = new URL(req.originalUrl, `http://${req.headers.host}`)
@@ -166,6 +164,8 @@ async function main() {
             pid: process.pid,
             env: process.env.NODE_ENV,
         })
+
+        bootService.boot()
     })
 }
 
