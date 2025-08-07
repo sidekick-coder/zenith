@@ -27,6 +27,8 @@ dist-ssr
 
 *.runtime
 
+.env 
+
 database.sqlite
 config/*
 !config/.gitkeep

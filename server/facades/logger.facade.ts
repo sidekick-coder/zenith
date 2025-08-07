@@ -1,5 +1,6 @@
 import winston from 'winston'
 import chalk from 'chalk'
+import env from '#server/env.ts'
 
 const { format } = winston
 
@@ -75,8 +76,23 @@ export function formatLog(data: any) {
     return result
 }
 
+function filter(labels: string[] = []) {
+    return format(info => {
+        if (labels.length === 0) {
+            return info
+        }
+
+        if (info.label && labels.includes(info.label)) {
+            return info
+        }
+
+        return false
+        
+    })
+}
+
 export const logger = winston.createLogger({
-    level: 'debug',
+    level: env.LOG_LEVEL,
     format: winston.format.json(),
     transports: [
         new winston.transports.File({
@@ -86,6 +102,7 @@ export const logger = winston.createLogger({
         new winston.transports.File({ filename: 'storage/logs/app.log' }),
         new winston.transports.Console({
             format: format.combine(
+                filter(env.LOG_LABEL_FILTER)(),
                 format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss', }),
                 format.printf(formatLog)
             ),
