@@ -6,12 +6,14 @@ import express from 'express'
 import type { Request, Response } from 'express'
 import env from '../env.ts'
 import config from './config.service.ts'
-import logger from '#server/facades/logger.facade.ts'
+import rootLogger from '#server/facades/logger.facade.ts'
 import { basePath, clientPath } from '#server/utils/paths.ts'
 import router from '#server/facades/router.facade.ts'
 import auth from '#server/facades/auth.facade.ts'
 
 const isProduction = env.NODE_ENV === 'production'
+
+const logger = rootLogger.child({ label: 'vite.service' })
 
 export class ViteServer {
     private vite: ViteDevServer | undefined
@@ -39,7 +41,8 @@ export class ViteServer {
             const rendered = await render({
                 url,
                 router,
-                state
+                state,
+                logger
             })
 
             let head = rendered.head ?? ''

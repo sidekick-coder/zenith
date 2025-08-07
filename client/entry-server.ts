@@ -2,11 +2,13 @@ import { renderToString } from 'vue/server-renderer'
 import { createApp } from './main'
 import di from './utils/di'
 import { createServerFetcher } from './utils/fetcher'
+import type { Logger } from './utils/logger'
 
 interface RenderContext {
     url: string;
     router: any;
     state: Record<string, any>;
+    logger: Logger
 }
 
 export async function render(context: RenderContext) {
@@ -16,6 +18,7 @@ export async function render(context: RenderContext) {
     di.load(context.state)
     
     di.set('fetcher', createServerFetcher(serverRouter))
+    di.set('logger', context.logger)    
 
     const { app, router } = await createApp()
 

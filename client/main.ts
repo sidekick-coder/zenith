@@ -6,6 +6,7 @@ import { createRouter } from './router'
 import type { ClientSetup } from './utils/defineClientSetup'
 import { useMenu } from './composables/useMenu'
 import setup from './setup'
+import { logger } from './utils/logger'
 import { tryCatch } from '#shared/tryCatch.ts'
 
 export async function createApp() {
@@ -31,11 +32,11 @@ export async function createApp() {
         }))
 
         if (error) {
-            console.error(`setup file error ${filename}:`, error)
+            logger.error(`setup file error ${filename}:`)
             continue
         }
 
-        console.debug('setup:', filename)
+        logger.debug(`setup file loaded: ${filename}`)
     }   
 
     // add error 404

@@ -13,7 +13,12 @@ export default class Container {
         return this.entries.has(key)
     }
 
-    public get<T>(key: EntryKey): T {
+    public get<T>(key: EntryKey, defaultValue?: T): T {
+
+        if (!this.has(key) && defaultValue !== undefined) {
+            return defaultValue
+        }
+
         if (!this.has(key)) {
             throw new Error(`entry not found: ${String(key)}`)
         }

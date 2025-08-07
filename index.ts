@@ -1,14 +1,15 @@
 import express from 'express'
 import cookieParser from 'cookie-parser'
 import type {
-    CookieOptions, Request, Response 
+    CookieOptions, 
+    Request, 
+    Response 
 } from 'express'
 import multer from 'multer'
 import vite from './server/services/vite.service.ts'
 import logger from './server/facades/logger.facade.ts'
 import type Route from '#server/router/route.ts'
 import router from '#server/facades/router.facade.ts'
-import db from '#server/facades/db.facade.ts'
 import { tryCatch } from '#shared/tryCatch.ts'
 import type { HttpContext } from '#server/router/types.ts'
 import errorService from '#server/services/error.service.ts'
