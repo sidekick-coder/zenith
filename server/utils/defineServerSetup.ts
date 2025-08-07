@@ -1,7 +1,9 @@
 import type Router from '#server/router/router.ts'
+import type ScheduleService from '#server/services/schedule.service.ts'
 
 interface SetupServerParams {
    router: Router
+   scheduler: ScheduleService
 }
 
 interface ServerSetupFn {

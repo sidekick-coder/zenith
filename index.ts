@@ -1,4 +1,3 @@
-import fs from 'fs'
 import express from 'express'
 import cookieParser from 'cookie-parser'
 import type {
@@ -14,7 +13,6 @@ import { tryCatch } from '#shared/tryCatch.ts'
 import type { HttpContext } from '#server/router/types.ts'
 import errorService from '#server/services/error.service.ts'
 import bootService from '#server/services/boot.service.ts'
-import { storagePath } from '#server/utils/paths.ts'
 
 const upload = multer({ storage: multer.memoryStorage(), })
 
