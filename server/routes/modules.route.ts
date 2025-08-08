@@ -4,6 +4,7 @@ import root from '#server/facades/router.facade.ts'
 import authMiddleware from '#server/middlewares/auth.middleware.ts'
 import modules from '#server/services/modules.service.ts'
 import { basePath } from '#server/utils/paths.ts'
+import env from '#server/env.ts'
 
 const router = root.use(authMiddleware)
     .prefix('/api/modules')
@@ -17,8 +18,11 @@ router.get('/:id', ({ params }) => {
     return modules.find(params.id)
 })
 
-router.post('/:id/toggle', async ({ params, query }) => {
-    return modules.toggle(params.id, query)
+router.post('/:id/toggle', async ({ params }) => {
+    return modules.toggle(params.id, {
+        build: env.isProduction,
+        boot: true
+    })
 })
 
 router.post('/:id/migrate', async ({ params }) => {

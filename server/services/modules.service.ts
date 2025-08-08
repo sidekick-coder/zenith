@@ -13,6 +13,7 @@ import router from '#server/facades/router.facade.ts'
 const logger = rootLogger.child({ label: 'modules.service' })
 interface Options {
     build?: boolean;
+    boot?: boolean;
 }
 
 class Module {
@@ -155,11 +156,13 @@ export class ModulesService {
 
         await this.createModuleRuntimeFiles(mod)
 
-        if (options?.build || env.isProduction) {
+        if (options?.build) {
             await build.all()
         }
 
-        await bootService.boot()
+        if (options?.boot) {
+            await bootService.boot()
+        }
 
         let enabled = config.get('modules.enabled', [])
 
@@ -186,11 +189,13 @@ export class ModulesService {
 
         await this.removeModuleRuntimeFiles(mod)
 
-        if (options?.build || env.isProduction) {
+        if (options?.build) {
             await build.all()
         }
 
-        await bootService.boot()
+        if (options?.boot) {
+            await bootService.boot()
+        }
 
         const enabled = config.get('modules.enabled', [])
 

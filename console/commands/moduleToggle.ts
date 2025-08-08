@@ -1,10 +1,10 @@
-import { program } from 'commander';
-import modules from '#server/services/modules.service.ts';
+import { program } from 'commander'
+import modules from '#server/services/modules.service.ts'
+import env from '#server/env.ts'
 
 program.command('module:toggle')
     .helpGroup('module')
     .argument('<module>', 'Module to toggle')
-    .option('-b, --build', 'Build after toggling the module')
-    .action(async (name, options) => {
-        await modules.toggle(name, options);
-    });
+    .action(async (name) => {
+        await modules.toggle(name, { build: env.isProduction })
+    })
