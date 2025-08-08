@@ -36,6 +36,14 @@ const props = defineProps({
         type: String,
         default: null,
     },
+    disabled: {
+        type: Boolean,
+        default: false,
+    },
+    readonly: {
+        type: Boolean,
+        default: false,
+    },
     options: {
         type: Array,
         default: () => [],
@@ -62,11 +70,17 @@ function findValue(option: any) {
     <FormField
         v-slot="{ componentField }"
         :name
+        :disabled
+        :readonly
     >
         <FormItem>
             <FormLabel>{{ label }}</FormLabel>
             <FormControl>
-                <Select v-bind="componentField">
+                <Select
+                    v-bind="componentField"
+                    :disabled
+                    :readonly
+                >
                     <select-trigger class="w-full">
                         <select-value :placeholder="placeholder" />
                     </select-trigger>
