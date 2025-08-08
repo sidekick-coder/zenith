@@ -27,10 +27,6 @@ const columns = [
         header: 'Name',
     },
     {
-        accessorKey: 'filename',
-        header: 'Filename',
-    },
-    {
         accessorKey: 'status',
         header: 'Status',
     },
@@ -115,8 +111,9 @@ async function rollback() {
     </CardHeader>
 
     <DataTable
-        :items="migrations"
+        :rows="migrations"
         :columns="columns"
         :loading="loading"
+        class="border-x-0 rounded-0"
     />
 </template>

@@ -13,14 +13,6 @@ export async function up(db: Kysely<any>): Promise<void> {
         .addUniqueConstraint('users_username_deleted_at_unique', ['username', 'deleted_at'])
         .addUniqueConstraint('users_email_deleted_at_unique', ['email', 'deleted_at'])
         .execute()
-
-    // Add a partial unique index so usernames are unique only if deleted_at IS NULL
-    await db.schema
-        .createIndex('users_username_unique_active')
-        .unique()
-        .on('users')
-        .columns(['username', 'deleted_at'])
-        .execute()
 }
 
 export async function down(db: Kysely<any>): Promise<void> {

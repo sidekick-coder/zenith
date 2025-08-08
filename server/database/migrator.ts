@@ -2,7 +2,7 @@ import fs from 'fs'
 import path from 'path'
 import { basePath } from '#server/utils/paths.ts'
 import modules from '#server/services/modules.service.ts'
-import { tryCatch } from '../../shared/tryCatch.ts'
+import { tryCatch } from '#shared/tryCatch.ts'
 import db from '#server/facades/db.facade.ts'
 
 interface Migration {
@@ -38,7 +38,7 @@ export class Migrator {
         const allMigrations: Migration[] = []
 
         // Load root migrations
-        const rootFolder = basePath('database', 'migrations')
+        const rootFolder = basePath('server', 'database', 'migrations')
         if (fs.existsSync(rootFolder)) {
             const entries = await fs.promises.readdir(rootFolder)
             
