@@ -1,4 +1,5 @@
-import { Kysely, sql } from 'kysely'
+import { Kysely } from 'kysely'
+import { withSoftDelete, withTimestamps } from '#server/database/common.ts'
 
 export async function up(db: Kysely<any>): Promise<void> {
     await db.schema.createTable('users')
@@ -7,9 +8,8 @@ export async function up(db: Kysely<any>): Promise<void> {
         .addColumn('username', 'text', col => col.notNull())
         .addColumn('email', 'text', col => col.notNull())
         .addColumn('password', 'text', col => col.notNull())
-        .addColumn('created_at', 'timestamp', (col) =>  col.defaultTo(sql`CURRENT_TIMESTAMP`).notNull())
-        .addColumn('updated_at', 'timestamp', (col) =>  col.defaultTo(sql`CURRENT_TIMESTAMP`).notNull())
-        .addColumn('deleted_at', 'timestamp')
+        .$call(withTimestamps)
+        .$call(withSoftDelete)
         .addUniqueConstraint('users_username_deleted_at_unique', ['username', 'deleted_at'])
         .addUniqueConstraint('users_email_deleted_at_unique', ['email', 'deleted_at'])
         .execute()
