@@ -65,7 +65,6 @@ export function auto(imports: Record<string, DefineComponent | (() => Promise<De
 
         const record = {
             path: path,
-            name: parts.join('-').replace(/:/g, ''),
             component: component as DefineComponent,
             beforeEnter: [] as NavigationGuard[],
         }

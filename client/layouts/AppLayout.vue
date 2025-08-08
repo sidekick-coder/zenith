@@ -74,10 +74,10 @@ function generateBreadcrumbsFromRoute(): BreadcrumbItem[] {
     
     // Add home breadcrumb only if we're not on the home page
     if (route.path !== '/') {
-        breadcrumbItems.push({
-            label: $t('Home'),
-            to: '/admin',
-        })
+        // breadcrumbItems.push({
+        //     label: $t('Home'),
+        //     to: '/admin',
+        // })
     }
     
     // Generate breadcrumbs for each path segment
