@@ -16,12 +16,12 @@ export interface Router extends VueRouter {
 interface AutoOptions {
     guards?: NavigationGuard[] | ((record: RouteRecordRaw) => NavigationGuard[]);
     strip?: (string | RegExp)[];
+    prefix?: string;
     refine?: (records: RouteRecordRaw[]) => RouteRecordRaw[];
 }
 
 export function auto(imports: Record<string, DefineComponent | (() => Promise<DefineComponent>)>, options: AutoOptions = {}): RouteRecordRaw[] {
     let routes: RouteRecordRaw[] = []
-    const basePath = '/'
 
     for (const [filename, component] of Object.entries(imports)) {
         let parts = filename
@@ -51,9 +51,9 @@ export function auto(imports: Record<string, DefineComponent | (() => Promise<De
 
         let path = parts.join('/').replace(/index$/, '')
 
-        
-
-        path = basePath + path
+        if (options.prefix) {
+            path = options.prefix + '/' + path
+        }
 
         if (!path.startsWith('/')) {
             path = '/' + path
