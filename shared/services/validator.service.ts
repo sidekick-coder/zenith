@@ -1,11 +1,9 @@
 import * as v from 'valibot'
-import type { V } from 'vitest/dist/chunks/environment.d.cL3nLXbE.js'
 
 export type Valibot = typeof v
 
 export type ValibotSchema = v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>>
 export type ValibotSchemaAsync = v.BaseSchemaAsync<unknown, unknown, v.BaseIssue<unknown>>
-
 
 export interface ValidatorCallback<T extends ValibotSchema> {
     (_v: typeof v): T

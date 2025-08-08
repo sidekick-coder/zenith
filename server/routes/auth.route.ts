@@ -1,7 +1,7 @@
 import router from '#server/facades/router.facade.ts'
 import auth from '#server/facades/auth.facade.ts'
 import BaseException from '#server/exceptions/base.ts'
-import validator from '#server/services/validator.service.ts'
+import validator from '#shared/services/validator.service.ts'
 
 router.post('/auth/login', async ({ body, cookie }) => {
     const token = cookie.get('Authorization')
