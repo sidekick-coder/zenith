@@ -7,8 +7,9 @@ import {
 } from '#client/components/ui/tooltip'
 import UiButton from '#client/components/ui/button/Button.vue'
 
-export interface MButtonProps {
+export interface Props {
     label?: string | null;
+    type?: 'button' | 'submit' | 'reset';
     disabled?: boolean;
     href?: string | null;
     to?: string | null;
@@ -18,9 +19,10 @@ export interface MButtonProps {
 </script>
 <script setup lang="ts">
 const props = withDefaults(
-    defineProps<MButtonProps>(),
+    defineProps<Props>(),
     {
         label: null,
+        type: 'button',
         disabled: false,
         href: undefined,
         to: null,
@@ -64,6 +66,7 @@ const as = computed(() => {
                 :as
                 :href="to ? to : href"
                 :to
+                :type
                 @click="onClick"
             >
                 <Icon
@@ -93,6 +96,7 @@ const as = computed(() => {
         :as
         :href="to ? to : href"
         :to
+        :type
         @click="onClick"
     >
         <Icon
