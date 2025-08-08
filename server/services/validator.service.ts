@@ -1,4 +1,5 @@
 import * as v from 'valibot'
+import type { V } from 'vitest/dist/chunks/environment.d.cL3nLXbE.js'
 
 export type Valibot = typeof v
 
@@ -24,6 +25,10 @@ export type ValidateResult<T extends ValidatePayload> =
     unknown
 
 export class ValidatorService {
+    public create<T extends ValibotSchema>(cb: ValidatorCallback<T>) {
+        return cb(v)
+    }
+
     public validate<T extends ValibotSchema>(payload: any, cb: ValidatePayload<T>) {
         const schema: T = typeof cb === 'function' ? cb(v) : cb
         
