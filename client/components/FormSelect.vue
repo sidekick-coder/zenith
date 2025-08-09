@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { watch } from 'vue'
+import { get } from 'lodash-es'
 import { FormField } from './ui/form'
 import FormControl from './ui/form/FormControl.vue'
 import FormDescription from './ui/form/FormDescription.vue'
@@ -14,6 +16,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from './ui/select'
+import { $fetch } from '#client/utils/fetcher.ts'
 
 const props = defineProps({
     name: {
@@ -44,10 +47,6 @@ const props = defineProps({
         type: Boolean,
         default: false,
     },
-    options: {
-        type: Array,
-        default: () => [],
-    },
     labelKey: {
         type: String,
         default: 'label',
@@ -56,6 +55,19 @@ const props = defineProps({
         type: String,
         default: 'value',
     },
+    fetch: {
+        type: String,
+        default: null,
+    },
+    fetchKey: {
+        type: String,
+        default: null,
+    },
+})
+
+const options = defineModel('options', {
+    type: Array,
+    default: () => [],
 })
 
 function findLabel(option: any) {
@@ -65,6 +77,20 @@ function findLabel(option: any) {
 function findValue(option: any) {
     return option[props.valueKey] || option
 }
+
+function findFetchOptions(response: any){
+    return get(response, props.fetchKey)
+}
+
+async function fetchOptions() {
+    if (!props.fetch) return
+
+    const response = await $fetch(props.fetch)
+
+    options.value = findFetchOptions(response)
+}
+
+watch(() => props.fetch, fetchOptions, { immediate: true })
 </script>
 <template>
     <FormField
