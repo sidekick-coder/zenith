@@ -66,6 +66,14 @@ export default class FsDrive implements DriveContract {
         return entry
     }
 
+    async mkdir(filename: string): Promise<void> {
+        const dirPath = join(this.basePath, filename)
+
+        console.log(dirPath)
+
+        await fs.promises.mkdir(dirPath, { recursive: true })
+    }
+
     async read(filename: string): Promise<Uint8Array> {
         const filePath = join(this.basePath, filename)
         
@@ -75,9 +83,10 @@ export default class FsDrive implements DriveContract {
     }
 
     async write(filename: string, data: Uint8Array): Promise<void> {
-        await fs.promises.mkdir(this.basePath, { recursive: true })
-        
         const filePath = join(this.basePath, filename)
+        const folder = path.dirname(filePath)
+
+        await fs.promises.mkdir(folder, { recursive: true })
 
         await fs.promises.writeFile(filePath, data)
     }

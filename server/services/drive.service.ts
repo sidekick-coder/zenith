@@ -1,3 +1,4 @@
+import fs from 'fs'
 import type DriveContract from '#server/contracts/drive.contract.ts'
 import type DriveEntry from '#server/entities/drive-entry.entity.ts'
 import FsDrive from '#server/gateways/FsDrive.ts'
@@ -44,12 +45,24 @@ export default class DriveService {
         return this.selected.find(filename)
     }
 
+    public exists(filename: string): Promise<boolean> {
+        return this.selected.exists(filename)
+    }
+
     public read(filename: string): Promise<Uint8Array> {
         return this.selected.read(filename)
     }
 
     public write(filename: string, data: Uint8Array): Promise<void> {
         return this.selected.write(filename, data)
+    }
+
+    public async writeFromLocalFile(source: string, destination: string): Promise<void> {
+        const buffer = await fs.promises.readFile(source)
+
+        const uint8 = new Uint8Array(buffer)
+
+        return this.write(destination, uint8)
     }
 
     public delete(filename: string): Promise<void> {
