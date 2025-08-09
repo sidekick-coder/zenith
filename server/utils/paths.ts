@@ -23,3 +23,7 @@ export function clientPath(...args: string[]): string {
 export function storagePath(...args: string[]): string {
     return basePath('storage', ...args)
 }
+
+export function tmpPath(...args: string[]): string {
+    return storagePath('tmp', ...args)
+}

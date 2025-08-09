@@ -27,8 +27,11 @@
       "#modules/*": [
         "modules/*"
       ],
-      "#server/facades*": [
-        "server/facades/*"
+      "@server/*": [
+        "server/*"
+      ],
+      "#server/*": [
+        "server/*"
       ],
       "#shared/*": [
         "shared/*"
