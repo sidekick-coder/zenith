@@ -5,6 +5,7 @@ import authMiddleware from '#server/middlewares/auth.middleware.ts'
 import modules from '#server/services/modules.service.ts'
 import { basePath } from '#server/utils/paths.ts'
 import env from '#server/env.ts'
+import BaseException from '#server/exceptions/base.ts'
 
 const router = root.use(authMiddleware)
     .prefix('/api/modules')
@@ -26,11 +27,27 @@ router.post('/:id/toggle', async ({ params }) => {
 })
 
 router.post('/:id/migrate', async ({ params }) => {
-    return await migrator.migrateByModule(params.id)
+    const items = await migrator.migrateByModule(params.id)
+
+    const itemWithError = items.find(i => i.error)
+
+    if (itemWithError?.error) {
+        throw new BaseException(itemWithError.error)
+    }
+
+    return { success: true, }
 })
 
 router.post('/:id/rollback', async ({ params }) => {
-    return await migrator.rollbackByModule(params.id)
+    const items = await migrator.rollbackByModule(params.id)
+
+    const itemWithError = items.find(i => i.error)
+
+    if (itemWithError?.error) {
+        throw new BaseException(itemWithError.error)
+    }
+
+    return { success: true, }
 })
 
 router.get('/:id/migrations', async ({ params }) => {
