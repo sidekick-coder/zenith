@@ -27,9 +27,6 @@
       "#modules/*": [
         "modules/*"
       ],
-      "@server/*": [
-        "server/*"
-      ],
       "#server/*": [
         "server/*"
       ],
