@@ -3,7 +3,10 @@ import {
     FlexRender, getCoreRowModel, useVueTable  
 } from '@tanstack/vue-table'
 import type { ColumnDef } from '@tanstack/vue-table'
-import { computed } from 'vue'
+import { computed, h } from 'vue'
+import { ref } from 'vue'
+import Checkbox from './ui/checkbox/Checkbox.vue'
+import { valueUpdater } from './ui/table/utils'
 import {
     Table,
     TableBody,
@@ -24,6 +27,10 @@ export function defineColumns<T extends Record<string, any> = any, V = any>(
 </script>
 <script setup lang="ts" generic="T extends Record<string, any>, TValue">
 const props = defineProps({
+    selection: {
+        type: String as () => 'single' | 'multiple',
+        default: null
+    },
     rows: {
         type: Array as () => T[],
         default: () => [],
@@ -75,8 +82,11 @@ const slots = defineSlots<{
      [key in `row-${string}`]: (props: { row: any }) => any
 }>()
 
+const rowSelection = ref<any>({})
+const columnSizing = ref<any>({})
+
 const tableColumns = computed(() => {
-    return props.columns.map((column) => {
+    const items = props.columns.map((column) => {
         if (slots[`row-${column.id}`]) {
             column.cell = ({ row }) => {
                 return slots[`row-${column.id}`]({ row: row.original })
@@ -85,19 +95,62 @@ const tableColumns = computed(() => {
 
         return column
     })
+
+    if (props.selection) {
+        items.unshift({
+            id: 'select',
+            header: ({ table }) => h(Checkbox, {
+                'modelValue': table.getIsAllPageRowsSelected(),
+                'onUpdate:modelValue': (value: boolean) => table.toggleAllPageRowsSelected(!!value),
+                'ariaLabel': 'Select all',
+            } as any),
+            cell: ({ row }) => h(Checkbox, {
+                'modelValue': row.getIsSelected(),
+                'onUpdate:modelValue': (value: boolean) => row.toggleSelected(!!value),
+                'ariaLabel': 'Select row',
+            } as any),
+            size: 5,
+            minSize: 5,
+            maxSize: 5,
+            enableSorting: false,
+            enableHiding: false,
+        })
+    }
+
+    return items
 })
 
 const table = useVueTable({
     get data() { return props.rows },
     get columns() { return tableColumns.value },
     getCoreRowModel: getCoreRowModel(),
+    onRowSelectionChange: updaterOrValue => valueUpdater(updaterOrValue, rowSelection),
+    state: { 
+        get rowSelection() { return rowSelection.value }, 
+        get columnSizing() { return columnSizing.value }
+    },
 })
+
+function onClick(item: any){
+    emit('click:row', item.original)
+
+    if (props.selection === 'single') {
+        table.setRowSelection({ [item.id]: true })
+    }
+
+    if (props.selection === 'multiple') {
+        table.setRowSelection({
+            ...rowSelection.value,
+            [item.id]: !rowSelection.value[item.id]
+        })
+    }
+}
 
 </script>
 
 <template>
     <div :class="cn('border rounded', props.class)">
-        <Table>
+        <Table class="table-fixed">
             <TableHeader>
                 <TableRow
                     v-for="headerGroup in table.getHeaderGroups()"
@@ -108,6 +161,7 @@ const table = useVueTable({
                         :key="header.id"
                         :style="{
                             width: header.getSize() + 'px',
+                            minWidth: header.column.columnDef.minSize + 'px',
                         }"
                     >
                         <FlexRender
@@ -125,7 +179,7 @@ const table = useVueTable({
                         :key="row.id"
                         :data-state="row.getIsSelected() ? 'selected' : undefined"
                         :class="cn('hover:bg-muted/20 ', props.rowClass)"
-                        @click="emit('click:row', row.original)"
+                        @click="onClick(row)"
                         @dblclick="emit('dblclick:row', row.original)"
                     >
                         <TableCell
@@ -133,6 +187,7 @@ const table = useVueTable({
                             :key="cell.id"
                             :style="{
                                 width: cell.column.getSize() + 'px',
+                                minWidth: cell.column.columnDef.minSize + 'px',
                             }"
                         >
                             <FlexRender
@@ -145,7 +200,7 @@ const table = useVueTable({
                 <template v-else>
                     <TableRow>
                         <TableCell
-                            :colspan="columns.length"
+                            :colspan="tableColumns.length"
                             class="h-24 text-center"
                         >
                             No data available
