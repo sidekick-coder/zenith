@@ -11,14 +11,24 @@ import DialogTrigger from '#client/components/ui/dialog/DialogTrigger.vue'
 import DriveExplorer from '#client/components/DriveExplorer.vue'
 import { $t } from '#shared/lang.ts'
 
-interface Props {
-    driveId: string
-    multiple?: boolean
-}
-
-withDefaults(defineProps<Props>(), { multiple: false })
-
 defineOptions({ inheritAttrs: false })
+
+const props = defineProps({
+    driveId: {
+        type: String,
+        required: true
+    },
+    multiple: {
+        type: Boolean,
+        default: false
+    },
+    onlyDirectories: {
+        type: Boolean,
+        default: false
+    }
+})
+
+
 
 const open = ref(false)
 const explorerRef = ref<InstanceType<typeof DriveExplorer>>()

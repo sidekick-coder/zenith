@@ -64,6 +64,7 @@
         "@types/cookie-parser": "^1.4.9",
         "@types/express": "^5.0.3",
         "@types/lodash": "^4.17.20",
+        "@types/lodash-es": "^4.17.12",
         "@types/multer": "^2.0.0",
         "@types/node": "^24.0.12",
         "@types/node-schedule": "^2.1.7",

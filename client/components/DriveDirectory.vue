@@ -4,6 +4,7 @@ import {
     ref,
     watch
 } from 'vue'
+import { orderBy } from 'lodash-es'
 import FileExplorerDirectory from '#client/components/FileExplorerDirectory.vue'
 import { $fetch } from '#client/utils/fetcher.ts'
 import { tryCatch } from '#shared/tryCatch.ts'
@@ -45,7 +46,7 @@ async function load() {
     
     isLoading.value = true
     
-    const [error, response] = await tryCatch(() => $fetch(`/api/drives/${props.driveId}/files`, {
+    const [error, response] = await tryCatch(() => $fetch<FileItem[]>(`/api/drives/${props.driveId}/files`, {
         method: 'GET',
         query: { folder: props.path }
     }))
@@ -56,14 +57,8 @@ async function load() {
         isLoading.value = false
         return
     }
-    
-    items.value = (response as FileItem[]) || []
 
-    items.value.sort((a, b) => {
-        if (a.type === 'directory' && b.type === 'file') return -1
-        if (a.type === 'file' && b.type === 'directory') return 1
-        return a.name.localeCompare(b.name)
-    })
+    items.value = orderBy(response, ['type', 'name'])
 
     setTimeout(() => {
         isLoading.value = false

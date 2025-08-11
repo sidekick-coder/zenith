@@ -1,5 +1,6 @@
 <script setup lang="ts" generic="T extends Record<string, any>">
 import type { ColumnDef } from '@tanstack/vue-table'
+import { computed } from 'vue'
 import Icon from '#client/components/Icon.vue'
 import DataTable from '#client/components/DataTable.vue'
 import { $t } from '#shared/lang.ts'
@@ -11,11 +12,13 @@ interface Props<T> {
     selection?: 'single' | 'multiple'
     iconKey?: keyof T | ((row: T) => string)
     columns?: ColumnDef<T, any>[]
+    filter?: (item: T) => boolean
 }
 
 const props = withDefaults(defineProps<Props<T>>(), {
     iconKey: undefined,
     selection: undefined,
+    filter: undefined,
     columns: () => [
         {
             id: 'label',
@@ -62,12 +65,18 @@ function onRowDblClick(item: T) {
     emit('dblclick', item)
 }
 
+const filteredItems = computed(() => {
+    if (!props.filter) return props.items
+
+    return props.items.filter(props.filter)
+})
+
 </script>
 
 <template>
     <DataTable
         v-model:selected="selected"
-        :rows="items"
+        :rows="filteredItems"
         :columns="columns"
         :selection
         row-class="cursor-pointer hover:bg-muted/20 rounded transition-colors h-12"

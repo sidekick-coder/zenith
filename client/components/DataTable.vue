@@ -102,11 +102,15 @@ const tableColumns = computed(() => {
     if (props.selection) {
         items.unshift({
             id: 'select',
-            header: ({ table }) => h(Checkbox, {
-                'modelValue': table.getIsAllPageRowsSelected(),
-                'onUpdate:modelValue': (value: boolean) => table.toggleAllPageRowsSelected(!!value),
-                'ariaLabel': 'Select all',
-            } as any),
+            header: ({ table }) => {
+                if (props.selection === 'multiple') {
+                    return h(Checkbox, {
+                        'modelValue': table.getIsAllPageRowsSelected(),
+                        'onUpdate:modelValue': (value: boolean) => table.toggleAllPageRowsSelected(!!value),
+                        'ariaLabel': 'Select all',
+                    } as any)
+                }
+            } ,
             cell: ({ row }) => h(Checkbox, {
                 'modelValue': row.getIsSelected(),
                 'onUpdate:modelValue': (value: boolean) => row.toggleSelected(!!value),
