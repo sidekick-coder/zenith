@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import DialogFooter from './ui/dialog/DialogFooter.vue'
 import DialogDescription from './ui/dialog/DialogDescription.vue'
 import Button from '#client/components/ui/button/Button.vue'
@@ -18,6 +18,10 @@ const props = defineProps({
         type: String,
         required: true
     },
+    initialPath: {
+        type: String,
+        default: '/'
+    },
     multiple: {
         type: Boolean,
         default: false
@@ -31,6 +35,7 @@ const props = defineProps({
 
 
 const open = ref(false)
+const path = ref('/')
 const explorerRef = ref<InstanceType<typeof DriveExplorer>>()
 const items = ref([])
 const selected = ref({})
@@ -56,6 +61,12 @@ function onCancel() {
     open.value = false
 }
 
+watch(open, (value) => {
+    if (value) {
+        path.value = props.initialPath
+    }
+})
+
 </script>
 
 <template>
@@ -77,6 +88,7 @@ function onCancel() {
             <div class="flex-1 overflow-hidden">
                 <DriveExplorer
                     ref="explorerRef"
+                    v-model:path="path"
                     v-model:selected="selected"
                     v-model:items="items"
                     :selection="multiple ? 'multiple' : 'single'"
