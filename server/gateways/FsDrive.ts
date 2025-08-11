@@ -43,7 +43,7 @@ export default class FsDrive implements DriveContract {
             
             const entry = new DriveEntity({
                 name: filename,
-                path: relative(this.basePath, filePath),
+                path: '/' + relative(this.basePath, filePath),
                 type: stats.isDirectory() ? 'directory' : 'file',
                 metas
             })

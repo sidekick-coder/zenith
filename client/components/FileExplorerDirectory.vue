@@ -8,18 +8,25 @@ import { $t } from '#shared/lang.ts'
 interface Props<T> {
     items: T[]
     labelKey: keyof T
+    selection?: 'single' | 'multiple'
     iconKey?: keyof T | ((row: T) => string)
     columns?: ColumnDef<T, any>[]
 }
 
 const props = withDefaults(defineProps<Props<T>>(), {
     iconKey: undefined,
+    selection: undefined,
     columns: () => [
         {
             id: 'label',
             header: $t('Name'),
         }
     ]
+})
+
+const selected = defineModel('selected', {
+    type: Object,
+    default: () => ({})
 })
 
 const emit = defineEmits<{
@@ -59,8 +66,10 @@ function onRowDblClick(item: T) {
 
 <template>
     <DataTable
+        v-model:selected="selected"
         :rows="items"
         :columns="columns"
+        :selection
         row-class="cursor-pointer hover:bg-muted/20 rounded transition-colors h-12"
         @click:row="onRowClick"
         @dblclick:row="onRowDblClick"

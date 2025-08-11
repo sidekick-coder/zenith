@@ -19,11 +19,25 @@ defineProps({
         type: String,
         required: true
     },
+    selection: {
+        type: String as () => 'single' | 'multiple',
+        default: 'single'
+    }
 })
 
 const emit = defineEmits<{
     'click:entry': [item: FileItem]
 }>()
+
+const selected = defineModel('selected', {
+    type: Object,
+    default: () => ({})
+})
+
+const items = defineModel('items', {
+    type: Array as () => FileItem[],
+    default: () => []
+})
 
 const path = defineModel('path', {
     type: String,
@@ -56,8 +70,11 @@ defineExpose({ load, })
         
         <DriveDirectory
             ref="directoryRef"
-            :drive-id="driveId"
-            :path="path"
+            v-model:selected="selected"
+            v-model:items="items"
+            :drive-id
+            :path
+            :selection
             @click:entry="emit('click:entry', $event)"
             @dblclick:entry="onDblclick"
         />

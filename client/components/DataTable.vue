@@ -82,7 +82,10 @@ const slots = defineSlots<{
      [key in `row-${string}`]: (props: { row: any }) => any
 }>()
 
-const rowSelection = ref<any>({})
+const selected = defineModel('selected', {
+    type: Object,
+    default: () => ({}),
+})
 const columnSizing = ref<any>({})
 
 const tableColumns = computed(() => {
@@ -109,9 +112,8 @@ const tableColumns = computed(() => {
                 'onUpdate:modelValue': (value: boolean) => row.toggleSelected(!!value),
                 'ariaLabel': 'Select row',
             } as any),
-            size: 5,
+            size: 10,
             minSize: 5,
-            maxSize: 5,
             enableSorting: false,
             enableHiding: false,
         })
@@ -124,9 +126,9 @@ const table = useVueTable({
     get data() { return props.rows },
     get columns() { return tableColumns.value },
     getCoreRowModel: getCoreRowModel(),
-    onRowSelectionChange: updaterOrValue => valueUpdater(updaterOrValue, rowSelection),
+    onRowSelectionChange: updaterOrValue => valueUpdater(updaterOrValue, selected),
     state: { 
-        get rowSelection() { return rowSelection.value }, 
+        get rowSelection() { return selected.value }, 
         get columnSizing() { return columnSizing.value }
     },
 })
@@ -140,8 +142,8 @@ function onClick(item: any){
 
     if (props.selection === 'multiple') {
         table.setRowSelection({
-            ...rowSelection.value,
-            [item.id]: !rowSelection.value[item.id]
+            ...selected.value,
+            [item.id]: !selected.value[item.id]
         })
     }
 }

@@ -28,8 +28,17 @@ const emit = defineEmits<{
     'dblclick:entry': [item: FileItem]
 }>()
 
-const entries = ref<FileItem[]>([])
 const isLoading = ref(false)
+
+const items = defineModel('items', {
+    type: Array as () => FileItem[],
+    default: () => []
+})
+
+const selected = defineModel('selected', {
+    type: Object,
+    default: () => ({})
+})
 
 async function load() {
     if (!props.driveId) return
@@ -43,14 +52,14 @@ async function load() {
     
     if (error) {
         console.error('Failed to load directory contents:', error)
-        entries.value = []
+        items.value = []
         isLoading.value = false
         return
     }
     
-    entries.value = (response as FileItem[]) || []
+    items.value = (response as FileItem[]) || []
 
-    entries.value.sort((a, b) => {
+    items.value.sort((a, b) => {
         if (a.type === 'directory' && b.type === 'file') return -1
         if (a.type === 'file' && b.type === 'directory') return 1
         return a.name.localeCompare(b.name)
@@ -70,7 +79,8 @@ defineExpose({ load })
 
 <template>
     <FileExplorerDirectory
-        :items="entries"
+        v-model:selected="selected"
+        :items="items"
         :loading="isLoading"
         :icon-key="item => item.type === 'directory' ? 'Folder' : 'FileText'"
         label-key="name"
