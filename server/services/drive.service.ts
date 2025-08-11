@@ -71,12 +71,20 @@ export default class DriveService {
 
 }
 
-const defaultDrive = new FsDrive(storagePath('drive'))
+const rootDrive = new FsDrive('/')
+const storageDrive = new FsDrive(storagePath('drive'))
 
-defaultDrive.metas = {
+rootDrive.metas = {
+    name: 'Root',
+    description: 'Root filesystem drive',
+    editable: false,
+}
+
+storageDrive.metas = {
     name: 'Local Filesystem',
     description: 'Default local filesystem drive',
     editable: false,
 }
 
-DriveService.register('storage', defaultDrive)
+DriveService.register('root', rootDrive)
+DriveService.register('storage', storageDrive)
