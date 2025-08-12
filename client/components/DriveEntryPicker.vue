@@ -75,7 +75,7 @@ watch(open, (value) => {
         <DialogTrigger as-child>
             <Button 
                 v-bind="$attrs"
-                :disabled="!!driveId"
+                :disabled="!driveId"
             >
                 {{ $t('Browse') }}
             </Button>
@@ -96,7 +96,7 @@ watch(open, (value) => {
                     v-model:items="items"
                     :selection="multiple ? 'multiple' : 'single'"
                     :drive-id="driveId"
-                    class="h-[60vh] overflow-y-auto"
+                    class="max-h-[60vh] overflow-y-auto"
                 />
             </div>
 
