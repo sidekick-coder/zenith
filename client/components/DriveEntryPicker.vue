@@ -9,6 +9,7 @@ import DialogHeader from '#client/components/ui/dialog/DialogHeader.vue'
 import DialogTitle from '#client/components/ui/dialog/DialogTitle.vue'
 import DialogTrigger from '#client/components/ui/dialog/DialogTrigger.vue'
 import DriveExplorer from '#client/components/DriveExplorer.vue'
+import DriveEntry from '#shared/entities/driveEntry.entity.ts'
 import { $t } from '#shared/lang.ts'
 
 defineOptions({ inheritAttrs: false })
@@ -16,7 +17,7 @@ defineOptions({ inheritAttrs: false })
 const props = defineProps({
     driveId: {
         type: String,
-        required: true
+        default: null
     },
     initialPath: {
         type: String,
@@ -41,7 +42,7 @@ const items = ref([])
 const selected = ref({})
 
 const model = defineModel({
-    type: Array,
+    type: Array as () => DriveEntry[],
     default: () => [],
 })
 
@@ -74,6 +75,7 @@ watch(open, (value) => {
         <DialogTrigger as-child>
             <Button 
                 v-bind="$attrs"
+                :disabled="!!driveId"
             >
                 {{ $t('Browse') }}
             </Button>
@@ -87,6 +89,7 @@ watch(open, (value) => {
             
             <div class="flex-1 overflow-hidden">
                 <DriveExplorer
+                    v-if="driveId"
                     ref="explorerRef"
                     v-model:path="path"
                     v-model:selected="selected"

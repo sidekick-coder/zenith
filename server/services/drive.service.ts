@@ -1,6 +1,6 @@
 import fs from 'fs'
 import type DriveContract from '#server/contracts/drive.contract.ts'
-import type DriveEntry from '#server/entities/drive-entry.entity.ts'
+import type DriveEntry from '#shared/entities/driveEntry.entity.ts'
 import FsDrive from '#server/gateways/FsDrive.ts'
 import { storagePath } from '#server/utils/paths.ts'
 

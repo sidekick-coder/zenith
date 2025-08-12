@@ -2,7 +2,7 @@ import fs from 'fs'
 import path, { join, relative } from 'path'
 import mime from 'mime'
 import type DriveContract from '#server/contracts/drive.contract.ts'
-import DriveEntity from '#server/entities/drive-entry.entity.ts'
+import DriveEntity from '#shared/entities/driveEntry.entity.ts'
 
 export default class FsDrive implements DriveContract {
     private basePath: string

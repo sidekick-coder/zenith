@@ -1,4 +1,4 @@
-import type FileEntity from '#server/entities/drive-entry.entity.ts'
+import type FileEntity from '#shared/entities/driveEntry.entity.ts'
 
 export default interface DriveContract {
     metas: Record<string, any>;
