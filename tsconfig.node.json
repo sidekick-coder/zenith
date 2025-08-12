@@ -41,6 +41,7 @@
     "arte",
     "server/**/*.ts",
     "console/**/*.ts",
-    "modules/**/server/**/**/*.ts"
+    "modules/**/server/**/**/*.ts",
+    "modules/**/shared/**/**/*.ts"
   ]
 }
