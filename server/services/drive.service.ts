@@ -57,12 +57,30 @@ export default class DriveService {
         return this.selected.write(filename, data)
     }
 
-    public async writeFromLocalFile(source: string, destination: string): Promise<void> {
+    /**
+     * Upload a file from the local filesystem to the drive.
+     * @param source filename in local filesystem
+     * @param destination 
+     * @returns 
+     */
+    public async upload(source: string, destination: string): Promise<void> {
         const buffer = await fs.promises.readFile(source)
 
         const uint8 = new Uint8Array(buffer)
 
         return this.write(destination, uint8)
+    }
+
+    /**
+     * Download a file from the drive to the local filesystem.
+     * @param filename filename in the drive
+     * @param destination 
+     * @returns 
+     */
+    public async download(filename: string, destination: string): Promise<void> {
+        const data = await this.read(filename)
+        
+        await fs.promises.writeFile(destination, data)
     }
 
     public delete(filename: string): Promise<void> {
