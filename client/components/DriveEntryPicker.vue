@@ -1,7 +1,10 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import {
+    computed, ref, watch 
+} from 'vue'
 import DialogFooter from './ui/dialog/DialogFooter.vue'
 import DialogDescription from './ui/dialog/DialogDescription.vue'
+import Input from './ui/input/Input.vue'
 import Button from '#client/components/ui/button/Button.vue'
 import Dialog from '#client/components/ui/dialog/Dialog.vue'
 import DialogContent from '#client/components/ui/dialog/DialogContent.vue'
@@ -40,10 +43,19 @@ const path = ref('/')
 const explorerRef = ref<InstanceType<typeof DriveExplorer>>()
 const items = ref([])
 const selected = ref({})
+const search = ref('')
 
 const model = defineModel({
     type: Array as () => DriveEntry[],
     default: () => [],
+})
+
+const filter = computed(() => {
+    if (!search.value) {
+        return () => true
+    }
+
+    return (i: any) => i.name.toLowerCase().includes(search.value.trim().toLowerCase())
 })
 
 
@@ -51,7 +63,7 @@ function onSelectEntry() {
     const selectedItems = [] as any[]
 
     Object.keys(selected.value).forEach(index => {
-        selectedItems.push(items.value[Number(index)])
+        selectedItems.push(items.value.filter(filter.value)[Number(index)])
     })
 
     model.value = selectedItems
@@ -66,6 +78,10 @@ watch(open, (value) => {
     if (value) {
         path.value = props.initialPath
     }
+})
+
+watch(path, () => {
+    search.value = ''
 })
 
 </script>
@@ -86,6 +102,14 @@ watch(open, (value) => {
                 <DialogTitle>{{ $t('Select Entry') }}</DialogTitle>
                 <DialogDescription>{{ $t('Please select an entry') }}</DialogDescription>
             </DialogHeader>
+
+            <div class="flex gap-4">
+                <Input
+                    v-model="search"
+                    :placeholder="$t('Search')"
+                    class="h-10"
+                />
+            </div>
             
             <div class="flex-1 overflow-hidden">
                 <DriveExplorer
@@ -94,9 +118,10 @@ watch(open, (value) => {
                     v-model:path="path"
                     v-model:selected="selected"
                     v-model:items="items"
+                    :filter
                     :selection="multiple ? 'multiple' : 'single'"
                     :drive-id="driveId"
-                    class="max-h-[60vh] overflow-y-auto"
+                    class="max-h-[40vh] overflow-y-auto"
                 />
             </div>
 

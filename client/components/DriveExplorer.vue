@@ -3,48 +3,26 @@ import { ref } from 'vue'
 import Card from './ui/card/Card.vue'
 import FileExplorerBreadcrumb from './FileExplorerBreadcrumb.vue'
 import DriveDirectory from '#client/components/DriveDirectory.vue'
-
-interface FileItem {
-    name: string
-    path: string
-    type: 'file' | 'directory'
-    metas: {
-        mimetype?: string
-        size?: number
-    }
-}
+import type DriveEntry from '#shared/entities/driveEntry.entity.ts'
 
 defineProps({
     driveId: {
         type: String,
         required: true
     },
-    selection: {
-        type: String as () => 'single' | 'multiple',
-        default: 'single'
-    }
 })
 
 const emit = defineEmits<{
-    'click:entry': [item: FileItem]
+    'click:entry': [item: DriveEntry]
 }>()
 
-const selected = defineModel('selected', {
-    type: Object,
-    default: () => ({})
-})
-
-const items = defineModel('items', {
-    type: Array as () => FileItem[],
-    default: () => []
-})
 
 const path = defineModel('path', {
     type: String,
     default: ''
 })
 
-function onDblclick(item: FileItem) {
+function onDblclick(item: DriveEntry) {
     if (item.type === 'directory') {
         path.value = item.path
     }
@@ -70,11 +48,9 @@ defineExpose({ load, })
         
         <DriveDirectory
             ref="directoryRef"
-            v-model:selected="selected"
-            v-model:items="items"
             :drive-id
             :path
-            :selection
+            v-bind="$attrs"
             @click:entry="emit('click:entry', $event)"
             @dblclick:entry="onDblclick"
         />
