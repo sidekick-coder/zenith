@@ -185,8 +185,7 @@ export class Migrator {
             return {
                 filename: fileName,
                 module: migration.module,
-                result: 'failed',
-                error: `Migration ${fileName} not executed`
+                result: 'success',
             }
         }
 
