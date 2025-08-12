@@ -116,8 +116,9 @@ const tableColumns = computed(() => {
                 'onUpdate:modelValue': (value: boolean) => row.toggleSelected(!!value),
                 'ariaLabel': 'Select row',
             } as any),
-            size: 10,
-            minSize: 5,
+            size: 50,
+            minSize: 50,
+            maxSize: 50,
             enableSorting: false,
             enableHiding: false,
         })
@@ -135,6 +136,11 @@ const table = useVueTable({
         get rowSelection() { return selected.value }, 
         get columnSizing() { return columnSizing.value }
     },
+    defaultColumn: {
+        size: 0,
+        minSize: 0,
+        maxSize: 0
+    }
 })
 
 function onClick(item: any){
@@ -155,65 +161,61 @@ function onClick(item: any){
 </script>
 
 <template>
-    <div :class="cn('border rounded', props.class)">
-        <Table class="table-fixed">
-            <TableHeader>
-                <TableRow
-                    v-for="headerGroup in table.getHeaderGroups()"
-                    :key="headerGroup.id"
+    <Table :class="cn('border rounded', props.class)">
+        <TableHeader>
+            <TableRow
+                v-for="headerGroup in table.getHeaderGroups()"
+                :key="headerGroup.id"
+            >
+                <TableHead
+                    v-for="header in headerGroup.headers"
+                    :key="header.id"
+                    :style="{
+                        width: header.column.getSize() !== 0 ? header.column.getSize() + 'px' : 'auto',
+                    }"
                 >
-                    <TableHead
-                        v-for="header in headerGroup.headers"
-                        :key="header.id"
+                    <FlexRender
+                        v-if="!header.isPlaceholder"
+                        :render="header.column.columnDef.header"
+                        :props="header.getContext()"
+                    />
+                </TableHead>
+            </TableRow>
+        </TableHeader>
+        <TableBody>
+            <template v-if="table.getRowModel().rows?.length">
+                <TableRow
+                    v-for="row in table.getRowModel().rows"
+                    :key="row.id"
+                    :data-state="row.getIsSelected() ? 'selected' : undefined"
+                    :class="cn('hover:bg-muted/20 ', props.rowClass)"
+                    @click="onClick(row)"
+                    @dblclick="emit('dblclick:row', row.original)"
+                >
+                    <TableCell
+                        v-for="cell in row.getVisibleCells()"
+                        :key="cell.id"
                         :style="{
-                            width: header.getSize() + 'px',
-                            minWidth: header.column.columnDef.minSize + 'px',
+                            width: cell.column.getSize() !== 0 ? cell.column.getSize() + 'px' : 'auto',
                         }"
                     >
                         <FlexRender
-                            v-if="!header.isPlaceholder"
-                            :render="header.column.columnDef.header"
-                            :props="header.getContext()"
+                            :render="cell.column.columnDef.cell"
+                            :props="cell.getContext()"
                         />
-                    </TableHead>
+                    </TableCell>
                 </TableRow>
-            </TableHeader>
-            <TableBody>
-                <template v-if="table.getRowModel().rows?.length">
-                    <TableRow
-                        v-for="row in table.getRowModel().rows"
-                        :key="row.id"
-                        :data-state="row.getIsSelected() ? 'selected' : undefined"
-                        :class="cn('hover:bg-muted/20 ', props.rowClass)"
-                        @click="onClick(row)"
-                        @dblclick="emit('dblclick:row', row.original)"
+            </template>
+            <template v-else>
+                <TableRow>
+                    <TableCell
+                        :colspan="tableColumns.length"
+                        class="h-24 text-center"
                     >
-                        <TableCell
-                            v-for="cell in row.getVisibleCells()"
-                            :key="cell.id"
-                            :style="{
-                                width: cell.column.getSize() + 'px',
-                                minWidth: cell.column.columnDef.minSize + 'px',
-                            }"
-                        >
-                            <FlexRender
-                                :render="cell.column.columnDef.cell"
-                                :props="cell.getContext()"
-                            />
-                        </TableCell>
-                    </TableRow>
-                </template>
-                <template v-else>
-                    <TableRow>
-                        <TableCell
-                            :colspan="tableColumns.length"
-                            class="h-24 text-center"
-                        >
-                            No data available
-                        </TableCell>
-                    </TableRow>
-                </template>
-            </TableBody>
-        </Table>
-    </div>
+                        No data available
+                    </TableCell>
+                </TableRow>
+            </template>
+        </TableBody>
+    </Table>
 </template>
