@@ -66,7 +66,7 @@ export class BootService {
         await this.root()
         await this.setup()
 
-        scheduler.start()
+        scheduler.startAll()
     }
 }
 

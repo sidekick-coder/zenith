@@ -4,6 +4,7 @@ import nodeSchedule from 'node-schedule'
 import rootLogger from '../facades/logger.facade.ts'
 import { tryCatch } from '#shared/tryCatch.ts'
 import Routine from '#server/entities/routine.entity.ts'
+import BaseException from '#server/exceptions/base.ts'
 
 const logger = rootLogger.child({ label: 'scheduler.service' })
 
@@ -13,6 +14,12 @@ export default class ScheduleService {
 
     public add(id: string, cron: string, handler: Function) {
         const data = { filename: this.filename, }
+
+        logger.debug('adding routine', {
+            id,
+            cron,
+            data 
+        })
 
         this.routines.push(new Routine({
             id,
@@ -66,33 +73,59 @@ export default class ScheduleService {
         }
     }
 
-    public start() {
+    public start(id: Routine['id']): void {
+        const routine = this.routines.find(r => r.id === id)
+
+        if (!routine) {
+            throw new Error(`Routine not found: ${id}`)
+        }
+
+        const child = logger.child({ routine })
+
+        nodeSchedule.scheduleJob(routine.cron, async () => {
+            const [error] = await tryCatch(() => routine.handler())
+
+            if (error) {
+                child.error(error)
+                return
+            }
+
+            child.info('routine executed')
+        })
+
+        child.info(`routine ${routine.id} started`)
+    }
+
+    public startAll() {
         for (const routine of this.routines) {     
-            nodeSchedule.scheduleJob(routine.cron, async () => {
-                const [error] = await tryCatch(() => routine.handler())
-
-                if (error) {
-                    logger.error('error in routine', {
-                        routine,
-                        error
-                    })
-                    return
-                }
-
-                logger.info('routine executed', { routine })
-            })
-
-            logger.info('routine start', { routine })
+            this.start(routine.id)
         }
     }
 
-    public async  stop() {
-        await nodeSchedule.gracefulShutdown()
-        logger.debug('Scheduler stopped')
+    public async  stop(id: Routine['id']) {
+        const routine = this.routines.find(r => r.id === id)
+
+        if (!routine) {
+            throw new BaseException('Routine not found', 404)
+        }
+
+        if (!routine.job) {
+            throw new BaseException('Routine is not running', 400)
+        }
+
+        routine.job.cancel()
+
+        logger.info(`routine ${routine.id} stopped`)
+    }
+
+    public async stopAll() {
+        for (const routine of this.routines) {
+            await this.stop(routine.id)
+        }
     }
 
     public async clear() {
-        await this.stop()
+        await this.stopAll()
 
         logger.debug('clear', { count: this.routines.length })
 
