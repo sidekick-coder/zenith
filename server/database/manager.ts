@@ -1,11 +1,12 @@
-import {   SqliteDialect } from 'kysely'
-import type { Dialect } from 'kysely'
+import { SqliteDialect } from 'kysely'
+import type { Dialect, KyselyConfig, } from 'kysely'
 import { Kysely } from 'kysely'
 import SQLite from 'better-sqlite3'
 import rootLogger from '../facades/logger.facade.ts'
 import type { Database } from './types.ts'
 import config from '#server/services/config.service.ts'
 import di from '#server/facades/di.facade.ts'
+import { SqliteBooleanPlugin } from '#server/database/plugins/sqliteBoolean.plugin.ts'
 
 // In-memory SQLite dialect for initialization
 // This is used to create the Kysely instance before loading the actual database connection
@@ -19,7 +20,7 @@ export default class DatabaseManager extends Kysely<Database> {
     public configConnection = ''
 
 
-    constructor(kyselyConfig?: { dialect: Dialect }) {
+    constructor(kyselyConfig?: KyselyConfig & { dialect: Dialect }) {
         const config = kyselyConfig || { dialect: memory }
         
         super(config)
@@ -48,7 +49,10 @@ export default class DatabaseManager extends Kysely<Database> {
             throw new Error(`Unsupported database driver: ${connection.driver}`)
         }
 
-        const db = new DatabaseManager({ dialect: dialect })
+        const db = new DatabaseManager({
+            dialect: dialect,
+            plugins: [new SqliteBooleanPlugin()]
+        })
 
         db.configConnectionName = name
         db.configConnection = connection.database
