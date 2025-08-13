@@ -4,8 +4,8 @@ import { ref, onMounted } from 'vue'
 import { toast } from 'vue-sonner'
 import { $fetch } from '../utils/fetcher'
 import DataTable from './DataTable.vue'
-import Button from './Button.vue'
 import { CardHeader, CardTitle } from './ui/card'
+import AlertButton from './AlertButton.vue'
 import { tryCatch } from '#shared/tryCatch.ts'
 import { $t } from '#shared/lang.ts'
 
@@ -94,20 +94,22 @@ async function rollback() {
             {{ $t('Migrations') }}
         </CardTitle>
 
-        <Button
+        <AlertButton
             :loading="executing"
+            :description="$t('This can potentially lead to data loss')"
             variant="destructive"
-            @click="rollback"
+            @confirm="rollback"
         >
             Rollback
-        </Button>
+        </AlertButton>
         
-        <Button
+        <AlertButton
             :loading="executing"
-            @click="migrate"
+            :description="$t('This will make changes in your database')"
+            @confirm="migrate"
         >
             Migrate
-        </Button>
+        </AlertButton>
     </CardHeader>
 
     <DataTable
