@@ -73,16 +73,27 @@ export default class ScheduleService {
         }
     }
 
+    public has(id: Routine['id']): boolean {
+        return this.routines.some(routine => routine.id === id)
+    }
+
     public start(id: Routine['id']): void {
         const routine = this.routines.find(r => r.id === id)
 
         if (!routine) {
-            throw new Error(`Routine not found: ${id}`)
+            throw new BaseException(`Routine not found: ${id}`)
         }
 
-        const child = logger.child({ routine })
+        if (routine.job) {
+            routine.job.cancel()
+        }
 
-        nodeSchedule.scheduleJob(routine.cron, async () => {
+        const child = logger.child({ 
+            routineId: routine.id,
+            routineCron: routine.cron
+        })
+
+        routine.job = nodeSchedule.scheduleJob(routine.cron, async () => {
             const [error] = await tryCatch(() => routine.handler())
 
             if (error) {
@@ -102,7 +113,7 @@ export default class ScheduleService {
         }
     }
 
-    public async  stop(id: Routine['id']) {
+    public async stop(id: Routine['id']) {
         const routine = this.routines.find(r => r.id === id)
 
         if (!routine) {
@@ -110,7 +121,7 @@ export default class ScheduleService {
         }
 
         if (!routine.job) {
-            throw new BaseException('Routine is not running', 400)
+            return
         }
 
         routine.job.cancel()
