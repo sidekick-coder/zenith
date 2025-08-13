@@ -3,6 +3,7 @@ import type DriveContract from '#server/contracts/drive.contract.ts'
 import type DriveEntry from '#shared/entities/driveEntry.entity.ts'
 import FsDrive from '#server/gateways/FsDrive.ts'
 import { storagePath } from '#server/utils/paths.ts'
+import BaseException from '#server/exceptions/base.ts'
 
 export default class DriveService {
     private static drives: Map<string, DriveContract> = new Map()
@@ -85,6 +86,16 @@ export default class DriveService {
 
     public delete(filename: string): Promise<void> {
         return this.selected.delete(filename)
+    }
+
+    public getDrive<T extends DriveContract>(id: string): T{
+        const drive = DriveService.drives.get(id)
+        
+        if (!drive) {
+            throw new BaseException('Drive not found')
+        }
+
+        return drive as T
     }
 
 }

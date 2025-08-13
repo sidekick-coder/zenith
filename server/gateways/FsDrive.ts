@@ -16,6 +16,10 @@ export default class FsDrive implements DriveContract {
         }
     }
 
+    public absolutePath(...args: string[]) {
+        return join(this.basePath, ...args)
+    }
+
     public async exists(filename: string): Promise<boolean> {
         return fs.promises.access(join(this.basePath, filename))
             .then(() => true)
