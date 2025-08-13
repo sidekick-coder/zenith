@@ -44,8 +44,6 @@ export default class AuthService {
 
         const passwordMatches = await hasher.compare(password, user.password)
 
-        console.log('Password matches:', passwordMatches)
-
         if (!passwordMatches) {
             return {
                 user: null,
