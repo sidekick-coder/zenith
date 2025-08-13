@@ -43,6 +43,7 @@ export default defineConfigWithVueTs(
             'object-curly-spacing': ['error', 'always'],
             'array-element-newline': ['error', { 'ArrayExpression': 'consistent' }],
             'brace-style': ['error', '1tbs', { 'allowSingleLine': true }],
+            'newline-per-chained-call': ['error', { 'ignoreChainWithDepth': 2 }],
             '@typescript-eslint/no-explicit-any': 'off',
             '@typescript-eslint/no-unsafe-function-type': 'off',
             '@typescript-eslint/no-unused-vars': ['error', {
