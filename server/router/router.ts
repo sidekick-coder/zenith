@@ -256,8 +256,6 @@ export default class Router {
         }
 
         this.close()
-
-        logger.debug('file loaded', { filename })
     }
 
     public async removeFile(filename: string) {
@@ -283,6 +281,8 @@ export default class Router {
         for (const file of files) {
             await this.loadFile(path.join(directory, file))
         }
+
+        logger.debug('loaded directory', { files })
     }
 
     public clear() {

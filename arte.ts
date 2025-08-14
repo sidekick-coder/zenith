@@ -9,8 +9,8 @@ process.on('unhandledRejection', (reason) => {
     console.error('Unhandled Rejection:', reason)
 })
 
-await db.load()
 await config.load()
+await db.load(undefined, true)
 
 await importAll(basePath('server/commands'))
 

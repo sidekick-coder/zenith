@@ -1,6 +1,6 @@
 import cp from 'child_process'
-import fs from 'fs'
 import { program } from 'commander'
+import chokidar from 'chokidar'
 import { basePath } from '#server/utils/paths.ts'
 import logger from '#server/facades/logger.facade.ts'
 
@@ -13,51 +13,80 @@ program.command('serve').option('-w, --watch', 'Watch for changes and restart se
             '--experimental-strip-types',
             '--env-file',
             basePath('.env'),
+            'index.ts'
         ]
 
-        const ignore = [
-            '.git',
-            'client',
-            'server/.runtime',
-            'config',
-            'root',
-            'node_modules',
-            'storage'
-        ]
+        let serverProcess: cp.ChildProcess = cp.spawn(bin, args, { stdio: 'inherit', })
 
-        const entries = [
-            'shared',
-        ]
+        const reload = () => {
+            if (serverProcess) {
+                serverProcess.kill()
+                logger.debug('stopped server...')
+            }
 
-        fs.readdirSync(basePath('server'))
-            .map(e => `server/${e}`)
-            .filter(e => !ignore.includes(e))
-            .forEach(e => entries.push(e))
+            logger.debug('reload server...')
 
-        const modules = fs.readdirSync(basePath('modules'), { withFileTypes: true })
-            .filter(dirent => dirent.isDirectory())
-            .map(dirent => dirent.name)
-
-        for (const mod of modules) {
-            const modulePaths = fs.readdirSync(basePath(`modules/${mod}`)).filter(dir => !ignore.includes(dir))
-
-            entries.push(...modulePaths.map(path => `modules/${mod}/${path}`))
+            serverProcess = cp.spawn(bin, args, { stdio: 'inherit', })
         }
 
         if (options.watch) {
-            args.push('--watch', '--watch-preserve-output')
+            const entries = [
+                'shared',
+                'server'
+            ]
 
-            entries.forEach(dir => {
-                args.push(`--watch-path=./${dir}`)
-            })
+            const ignore = ['.git','node_modules', 'client', 'storage']
 
             logger.debug('Watching directories', entries)
+            
+            const watcher = chokidar.watch(entries.map(entry => basePath(entry)), {
+                persistent: true,
+                ignoreInitial: true,
+                ignored: (path) => {
+                    if (ignore.includes(path)) {
+                        return true
+                    }
+
+                    return false
+                }
+            })
+
+            watcher.on('change', (path) => {
+                logger.debug(`File changed: ${path}`)
+                reload()
+            })
+
+            watcher.on('add', (path) => {
+                logger.debug(`File added: ${path}`)
+                reload()
+            })
+
+            watcher.on('unlink', (path) => {
+                logger.debug(`File removed: ${path}`)
+                reload()
+            })
+
+            watcher.on('error', (error) => {
+                logger.error('Watcher error:', error)
+            })
+
+            watcher.on('ready', () => {
+                logger.debug('Watcher is ready')
+                reload()
+            })
+
+            process.on('SIGINT', () => {
+                logger.info('Shutting down...')
+
+                watcher.close()
+                
+                if (serverProcess) {
+                    serverProcess.kill()
+                }
+
+                process.exit(0)
+            })
+        } else {
+            reload()
         }
-
-        args.push('index.ts')
-
-        cp.spawn(bin, args, {
-            stdio: 'inherit',
-            shell: true,
-        })
     })

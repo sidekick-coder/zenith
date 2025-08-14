@@ -26,7 +26,7 @@ export default class DatabaseManager extends Kysely<Database> {
         super(config)
     }
 
-    public async load(connectionName?: string) {
+    public async load(connectionName?: string, quiet = false) {
         const defaultConnection = config.get('database.default')
         const connections = config.get('database.connections', {})
 
@@ -63,10 +63,14 @@ export default class DatabaseManager extends Kysely<Database> {
 
         di.set(DatabaseManager.DI_KEY, db)
 
-        logger.info('connected to database', {
-            connection: name,
-            database: connection.database,
-            driver: connection.driver,
-        })
+        if (!quiet) {
+            logger.info('connected to database', {
+                connection: name,
+                database: connection.database,
+                driver: connection.driver,
+            })
+
+        }
+
     }
 }

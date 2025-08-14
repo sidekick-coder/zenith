@@ -3,7 +3,7 @@ import rootRouter from '#server/facades/router.facade.ts'
 import authMiddleware from '#server/middlewares/auth.middleware.ts'
 import userRepository from '#server/repositories/user.repository.ts'
 import validator from '#shared/services/validator.service.ts'
-import { $t } from '#shared/lang.ts'
+import { $t } from '#shared/lang.ts' 
 
 const router = rootRouter.use(authMiddleware)
     .prefix('/api/users')
