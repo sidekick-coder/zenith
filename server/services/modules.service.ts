@@ -53,6 +53,12 @@ interface InstallOptions {
     boot?: boolean
 }
 
+interface UninstallOptions {
+    rollbackMigrations?: boolean
+    build?: boolean
+    boot?: boolean
+}
+
 class Module {
     public id: string
     public name: string
@@ -359,6 +365,47 @@ export class ModulesService {
         }
 
         logger.info(`Module '${moduleName}' installed successfully`)
+    }
+
+    public async uninstall(moduleName: string, options: UninstallOptions = {}) {
+        const mod = await this.findOrFail(moduleName)
+        const moduleDir = mod.makePath()
+
+        logger.info(`Uninstalling module '${moduleName}'`)
+
+        // Rollback migrations if requested
+        if (options.rollbackMigrations) {
+            const result = await migrator.rollbackByModule(moduleName)
+            logger.info(`Migrations for module '${moduleName}' rolled back successfully`, result)
+        }
+
+        // Disable the module
+        if (mod.enabled) {
+            await this.disable(moduleName)
+        }
+
+        // Remove module folder        
+        const [removeError] = await tryCatch(() => fs.rmSync(moduleDir, { 
+            recursive: true, 
+            force: true 
+        }))
+            
+        if (removeError) {
+            logger.error(`Failed to remove module directory: ${removeError.message}`)
+            throw new Error(`Failed to remove module directory: ${removeError.message}`)
+        }
+
+        logger.info(`Module directory '${moduleDir}' removed successfully`)        
+
+        if (options.build) {
+            await build.all()
+        }
+
+        if (options.boot) {
+            await bootService.boot()
+        }
+
+        logger.info(`Module '${moduleName}' uninstalled successfully`)
     }
 }
 
