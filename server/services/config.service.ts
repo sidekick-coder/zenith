@@ -58,10 +58,11 @@ export default class ConfigService {
             const nestedEntries: Record<string, any> = {}
             for (const [key, val] of this.entries.entries()) {
                 if (key.startsWith(fullKey + '.') || key === fullKey) {
-                    nestedEntries[key] = val
+                    nestedEntries[key.replace(fullKey + '.', '')] = val
                 }
             }
-            return unflatten(nestedEntries)[fullKey] || defaultValue
+            
+            return unflatten(nestedEntries) || defaultValue
         }
         
         if (value === undefined) {

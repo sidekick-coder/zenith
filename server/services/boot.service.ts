@@ -1,5 +1,6 @@
 import path from 'path'
 import db from '#server/facades/db.facade.ts'
+import config from '#server/facades/config.facade.ts'
 import router from '#server/facades/router.facade.ts'
 import scheduler from '#server/facades/scheduler.facade.ts'
 import rootLogger from '#server/facades/logger.facade.ts'
@@ -51,6 +52,8 @@ export class BootService {
     }
 
     public async boot() {
+
+        await config.load()
 
         if (router.list().length > 0) {
             router.clear()

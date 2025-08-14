@@ -30,6 +30,8 @@ export default class DatabaseManager extends Kysely<Database> {
         const defaultConnection = config.get('database.default')
         const connections = config.get('database.connections', {})
 
+        console.log(defaultConnection, connections)
+
         const name = connectionName || defaultConnection
 
         const connection = connections[name]
