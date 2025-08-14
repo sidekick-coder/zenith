@@ -5,10 +5,17 @@ import set from 'lodash/set.js'
 import { configPath } from '#server/utils/paths.ts'
 import { importGlob } from '#server/utils/importAll.ts'
 import { flatten, unflatten } from '#server/utils/flatten.ts'
+import env from '#server/env.ts'
+
+interface Entry {
+    key: string
+    value: any 
+    source: string
+}
 
 export default class ConfigService {
     private configDir: string
-    private entries: Map<string, any> = new Map()
+    private entries: Map<string, Entry> = new Map()
     private cache: Record<string, any> = {}
 
     constructor(configDir?: string) {
@@ -16,10 +23,7 @@ export default class ConfigService {
     }
 
     public list(){
-        return Array.from(this.entries.entries()).map(([key,value]) => ({
-            key,
-            value
-        }))
+        return Array.from(this.entries.values())
     }
 
     public async load() {
@@ -32,7 +36,19 @@ export default class ConfigService {
         }
 
         for (const [key, value] of Object.entries(flatten(configs))) {
-            this.entries.set(key, value)
+            this.entries.set(key, {
+                key,
+                value,
+                source: 'file'
+            })
+        }
+
+        for (const [key, value] of Object.entries(env.CONFIG || {})) {
+            this.entries.set(key, {
+                key,
+                value,
+                source: 'env'
+            })
         }
     }
 
@@ -46,7 +62,7 @@ export default class ConfigService {
     }
 
     public get(fullKey: string, defaultValue: any = null): any {
-        const value = this.entries.get(fullKey)
+       
         
         // Check if there are nested keys (keys that start with fullKey + '.')
         const hasNestedKeys = Array.from(this.entries.keys()).some(key => 
@@ -56,24 +72,32 @@ export default class ConfigService {
         if (hasNestedKeys) {
             // Collect all entries that start with this key
             const nestedEntries: Record<string, any> = {}
-            for (const [key, val] of this.entries.entries()) {
+            for (const entry of this.entries.values()) {
+                const { key, value } = entry
+
                 if (key.startsWith(fullKey + '.') || key === fullKey) {
-                    nestedEntries[key.replace(fullKey + '.', '')] = val
+                    nestedEntries[key.replace(fullKey + '.', '')] = value
                 }
             }
             
             return unflatten(nestedEntries) || defaultValue
         }
+
+        const entry = this.entries.get(fullKey)
         
-        if (value === undefined) {
+        if (!entry) {
             return defaultValue
         }
 
-        return value
+        return entry.value
     }
 
     public set(fullKey: string, value: any, save?: boolean): void {
-        this.entries.set(fullKey, value)
+        this.entries.set(fullKey, {
+            key: fullKey,
+            value,
+            source: 'runtime'
+        })
 
         if (!save) return
 
