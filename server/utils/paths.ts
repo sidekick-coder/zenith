@@ -8,10 +8,6 @@ export function basePath(...args: string[]): string {
     return path.join(root, ...args)
 }
 
-export function configPath(...args: string[]): string {
-    return basePath('config', ...args)
-}
-
 export function serverPath(...args: string[]): string {
     return basePath('server', ...args)
 }
@@ -22,6 +18,10 @@ export function clientPath(...args: string[]): string {
 
 export function storagePath(...args: string[]): string {
     return basePath('storage', ...args)
+}
+
+export function configPath(...args: string[]): string {
+    return storagePath('config', ...args)
 }
 
 export function tmpPath(...args: string[]): string {
