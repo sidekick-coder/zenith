@@ -1,16 +1,39 @@
 
-import * as fs from 'fs'
-import * as path from 'path'
-import get from 'lodash/get.js'
+import fs from 'fs'
+import path from 'path'
 import set from 'lodash/set.js'
 import { configPath } from '#server/utils/paths.ts'
+import { importGlob } from '#server/utils/importAll.ts'
+import { flatten, unflatten } from '#server/utils/flatten.ts'
 
-export class ConfigService {
+export default class ConfigService {
     private configDir: string
+    private entries: Map<string, any> = new Map()
     private cache: Record<string, any> = {}
 
     constructor(configDir?: string) {
         this.configDir = configDir ?? configPath()
+    }
+
+    public list(){
+        return Array.from(this.entries.entries()).map(([key,value]) => ({
+            key,
+            value
+        }))
+    }
+
+    public async load() {
+        const files = await importGlob(configPath('*.json'))
+
+        const configs: Record<string, any> = {}
+
+        for (const [filename, config] of Object.entries(files)) {
+            configs[path.basename(filename, '.json')] = config
+        }
+
+        for (const [key, value] of Object.entries(flatten(configs))) {
+            this.entries.set(key, value)
+        }
     }
 
     private parseKey(fullKey: string): { filename: string; key: string } {
@@ -22,36 +45,40 @@ export class ConfigService {
         }
     }
 
-    private loadConfig(filename: string): any {
-        if (!this.cache[filename]) {
-            const filePath = path.join(this.configDir, `${filename}.json`)
-
-            if (fs.existsSync(filePath)) {
-                this.cache[filename] = JSON.parse(fs.readFileSync(filePath, 'utf8'))
-            } else {
-                this.cache[filename] = {}
-            }
-        }
-
-        return this.cache[filename]
-    }
-
     public get(fullKey: string, defaultValue: any = null): any {
-        const { filename, key } = this.parseKey(fullKey)
-
-        const values = this.loadConfig(filename)
-
-        if (!key) {
-            return values || defaultValue
+        const value = this.entries.get(fullKey)
+        
+        // Check if there are nested keys (keys that start with fullKey + '.')
+        const hasNestedKeys = Array.from(this.entries.keys()).some(key => 
+            key.startsWith(fullKey + '.')
+        )
+        
+        if (hasNestedKeys) {
+            // Collect all entries that start with this key
+            const nestedEntries: Record<string, any> = {}
+            for (const [key, val] of this.entries.entries()) {
+                if (key.startsWith(fullKey + '.') || key === fullKey) {
+                    nestedEntries[key] = val
+                }
+            }
+            return unflatten(nestedEntries)[fullKey] || defaultValue
+        }
+        
+        if (value === undefined) {
+            return defaultValue
         }
 
-        return get(values, key, defaultValue)
+        return value
     }
 
-    public set(fullKey: string, value: any): void {
+    public set(fullKey: string, value: any, save?: boolean): void {
+        this.entries.set(fullKey, value)
+
+        if (!save) return
+
         const { filename, key } = this.parseKey(fullKey)
-        let values = this.loadConfig(filename)
-        const filePath = path.join(this.configDir, `${filename}.json`)
+        
+        let values = this.get(filename)
 
         if (!key) {
             values = value
@@ -60,13 +87,9 @@ export class ConfigService {
         if (key && values) {
             set(values, key, value)
         }
+        
+        const filePath = path.join(this.configDir, `${filename}.json`)
 
         fs.writeFileSync(filePath, JSON.stringify(values, null, 2))
-
-        this.cache[filename] = values
     }
 }
-
-const config = new ConfigService()
-
-export default config

@@ -4,7 +4,7 @@ import { Kysely } from 'kysely'
 import SQLite from 'better-sqlite3'
 import rootLogger from '../facades/logger.facade.ts'
 import type { Database } from './types.ts'
-import config from '#server/services/config.service.ts'
+import config from '#server/facades/config.facade.ts'
 import di from '#server/facades/di.facade.ts'
 import { SqliteBooleanPlugin } from '#server/database/plugins/sqliteBoolean.plugin.ts'
 

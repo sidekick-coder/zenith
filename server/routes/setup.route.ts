@@ -1,6 +1,6 @@
 import BaseException from '#server/exceptions/base.ts'
 import router from '#server/facades/router.facade.ts'
-import config from '#server/services/config.service.ts'
+import config from '#server/facades/config.facade.ts'
 import { $t } from '#shared/lang.ts'
 import { basePath } from '#server/utils/paths.ts'
 import migrator from '#server/database/migrator.ts'

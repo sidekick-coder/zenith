@@ -46,10 +46,11 @@ export class UI {
                 if (value === undefined || value === null) {
                     value = ''
                 }
-                if (typeof value === 'object') {
+
+                if (typeof value === 'object' || Array.isArray(value)) {
                     value = JSON.stringify(value)
                 }
-
+                
                 row.push(value)
             })
 
@@ -100,13 +101,13 @@ export class UI {
 }
 
 export class CLIService {
-    public ui: UI;
+    public ui: UI
 
     constructor() {
-        this.ui = new UI();
+        this.ui = new UI()
     }
 }
 
-const cli = new CLIService();
+const cli = new CLIService()
 
-export default cli;
+export default cli

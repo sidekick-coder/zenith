@@ -3,7 +3,7 @@ import type {
     Middleware, 
     MiddlewareHandleResult 
 } from '#server/router/types.ts'
-import config from '#server/services/config.service.ts'
+import config from '#server/facades/config.facade.ts'
 
 export type SetupMiddlewareContext = MiddlewareHandleResult<[SetupMiddleware]>
 
