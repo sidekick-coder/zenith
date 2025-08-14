@@ -52,9 +52,6 @@ export class BootService {
     }
 
     public async boot() {
-
-        await config.load()
-
         if (router.list().length > 0) {
             router.clear()
         }

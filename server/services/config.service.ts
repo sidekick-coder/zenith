@@ -2,6 +2,7 @@
 import fs from 'fs'
 import path from 'path'
 import set from 'lodash/set.js'
+import chokidar from 'chokidar'
 import { configPath } from '#server/utils/paths.ts'
 import { importGlob } from '#server/utils/importAll.ts'
 import { flatten, unflatten } from '#server/utils/flatten.ts'
@@ -113,5 +114,28 @@ export default class ConfigService {
         const filePath = path.join(this.configDir, `${filename}.json`)
 
         fs.writeFileSync(filePath, JSON.stringify(values, null, 2))
+    }
+
+    public watch() {
+        const watcher = chokidar.watch(this.configDir, {
+            persistent: true,
+            ignoreInitial: true
+        })
+        
+        const reloadConfig = () => {
+            console.log('reload')
+            this.load()
+        }
+        
+        watcher.on('change', reloadConfig)
+        watcher.on('add', reloadConfig)
+        watcher.on('unlink', reloadConfig)
+        
+        return watcher
+    }
+
+    public async loadAndWatch(){
+        await this.load()
+        this.watch()
     }
 }

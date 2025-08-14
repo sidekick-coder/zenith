@@ -14,6 +14,7 @@ import { tryCatch } from '#shared/tryCatch.ts'
 import type { HttpContext } from '#server/router/types.ts'
 import errorService from '#server/services/error.service.ts'
 import bootService from '#server/services/boot.service.ts'
+import config from '#server/facades/config.facade.ts'
 
 const upload = multer({ storage: multer.memoryStorage(), })
 
@@ -135,6 +136,7 @@ async function main() {
     app.use(parser)
 
     await vite.init(app)
+    await config.loadAndWatch()
 
     app.use('*all', (req, res) => {
         const url = new URL(req.originalUrl, `http://${req.headers.host}`)
