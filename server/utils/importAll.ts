@@ -16,11 +16,13 @@ export async function importFiles(files: string[], options: Options = {}): Promi
             await options.onBeforeImport(ctx)
         }
 
-        if (/\.(j|t)s$/.test(ctx.filename)) {
+        const cleanFilename = ctx.filename.split('?')[0]
+
+        if (/\.(js|ts)$/.test(cleanFilename)) {
             modules[filename] = await import(ctx.filename)
         }
         
-        if (/\.json$/.test(ctx.filename)) {
+        if (/\.json$/.test(cleanFilename)) {
             const text = await fs.promises.readFile(ctx.filename, 'utf8')
             modules[filename] = JSON.parse(text)
         }

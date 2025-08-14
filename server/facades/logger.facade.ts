@@ -29,7 +29,7 @@ export function printObject(object: any, indent: number = 0): string {
         result += value + '\n'
     }
 
-    return result.trim()
+    return result
 }
 
 export function formatLog(data: any) {
@@ -73,7 +73,7 @@ export function formatLog(data: any) {
         result += '\n' + chalk.gray(printObject(rest))
     }
 
-    return result
+    return result.trim()
 }
 
 function filter(labels: string[] = []) {

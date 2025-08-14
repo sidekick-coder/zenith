@@ -18,7 +18,7 @@ export class BootService {
     }
 
     public async setup() {
-        const files = await importGlob(serverPath('.runtime', '**/*.setup.ts'), {
+        const files = await importGlob(serverPath('.runtime', '*.setup.ts'), {
             onBeforeImport(ctx) {
                 ctx.filename += `?t=${Date.now()}` // prevent caching
             },

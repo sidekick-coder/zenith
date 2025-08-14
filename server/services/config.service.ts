@@ -16,7 +16,6 @@ interface Entry {
 export default class ConfigService {
     private configDir: string
     private entries: Map<string, Entry> = new Map()
-    private cache: Record<string, any> = {}
 
     constructor(configDir?: string) {
         this.configDir = configDir ?? configPath()
@@ -62,8 +61,6 @@ export default class ConfigService {
     }
 
     public get(fullKey: string, defaultValue: any = null): any {
-       
-        
         // Check if there are nested keys (keys that start with fullKey + '.')
         const hasNestedKeys = Array.from(this.entries.keys()).some(key => 
             key.startsWith(fullKey + '.')

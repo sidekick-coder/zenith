@@ -1,19 +1,56 @@
 import fs from 'fs'
 import path from 'path'
+import { spawn } from 'child_process'
 import rootLogger from '../facades/logger.facade.ts'
-import env from '../env.ts'
-import config from './config.service.ts'
 import build from './build.service.ts'
 import bootService from './boot.service.ts'
+import config from '#server/facades/config.facade.ts'
 import {
     basePath, clientPath, serverPath 
 } from '#server/utils/paths.ts'
 import router from '#server/facades/router.facade.ts'
+import { tryCatch } from '#shared/tryCatch.ts'
+import migrator from '#server/database/migrator.ts'
 
 const logger = rootLogger.child({ label: 'modules.service' })
+
+/**
+ * Execute a shell command and return a promise
+ */
+function executeCommand(command: string, args: string[], options: { cwd?: string } = {}): Promise<void> {
+    return new Promise((resolve, reject) => {
+        const child = spawn(command, args, {
+            cwd: options.cwd || process.cwd(),
+            stdio: 'inherit',
+            shell: true,
+        })
+
+        child.on('close', (code) => {
+            if (code === 0) {
+                resolve()
+            } else {
+                reject(new Error(`Command failed with exit code ${code}`))
+            }
+        })
+
+        child.on('error', (error) => {
+            reject(error)
+        })
+    })
+}
+
 interface Options {
     build?: boolean;
     boot?: boolean;
+}
+
+interface InstallOptions {
+    enable?: boolean
+    migrations?: boolean
+    seeds?: boolean
+    npm?: boolean
+    build?: boolean
+    boot?: boolean
 }
 
 class Module {
@@ -170,20 +207,16 @@ export class ModulesService {
 
         enabled = [...new Set(enabled)] // Ensure unique entries
 
-        config.set('modules.enabled', enabled)
+        config.set('modules.enabled', enabled, true)
 
         logger.info(`module ${moduleName} enabled`)
     }
 
     public async disable(moduleName: string, options: Options = {}) {
-        const mod = await this.find(moduleName)
-
-        if (!mod) {
-            throw new Error(`Module ${moduleName} not found`)
-        }
+        const mod = await this.findOrFail(moduleName)
 
         if (!mod.enabled) {
-            logger.debug(`Module ${moduleName} is already disabled`)
+            logger.info(`Module ${moduleName} is already disabled`)
             return
         }
 
@@ -205,7 +238,7 @@ export class ModulesService {
             enabled.splice(index, 1)
         }
 
-        config.set('modules.enabled', enabled)
+        config.set('modules.enabled', enabled, true)
 
         logger.info(`module ${moduleName} disabled`)
     }
@@ -218,6 +251,114 @@ export class ModulesService {
         }
 
         return await this.enable(moduleName, options)
+    }
+
+    public async prepare(moduleName: string) {
+        const mod = await this.findOrFail(moduleName)
+        const rootDir = mod.makePath('root')
+
+        // Check if root directory exists
+        if (!fs.existsSync(rootDir)) {
+            fs.mkdirSync(rootDir, { recursive: true })
+        }
+
+        logger.info(`Preparing symlinks for module '${moduleName}'`)
+
+        const symlinks = [
+            { 
+                source: basePath('server'), 
+                target: path.join(rootDir, 'server') 
+            },
+            { 
+                source: basePath('shared'), 
+                target: path.join(rootDir, 'shared') 
+            },
+            { 
+                source: basePath('client'), 
+                target: path.join(rootDir, 'client') 
+            },
+        ]
+
+        for (const { source, target } of symlinks) {
+            if (fs.existsSync(target)) {
+                logger.debug(`Target directory '${target}' exist, skipping symlink`)
+                continue
+            }
+
+            // Create symlink
+            const [symlinkError] = await tryCatch(() => fs.symlinkSync(source, target, 'dir'))
+            
+            if (symlinkError) {
+                logger.error(`Failed to create symlink ${source} -> ${target}: ${symlinkError.message}`)
+                throw new Error(`Failed to create symlink: ${symlinkError.message}`)
+            }
+
+            logger.debug(`Created symlink: ${path.basename(source)} -> ${target}`)
+        }
+
+        logger.info(`Symlinks prepared for module '${moduleName}'`)
+    }
+
+    public async install(githubRepo: string, options: InstallOptions = {}) {
+        // Extract module name from owner/repo format
+        const parts = githubRepo.split('/')
+        
+        if (parts.length !== 2) {
+            throw new Error('Invalid GitHub repository format. Use "owner/repo" format.')
+        }
+
+        const [_owner, moduleName] = parts
+        const modulesDir = basePath('modules')
+        const moduleDir = path.join(modulesDir, moduleName)
+
+        // Check if module already exists
+        if (fs.existsSync(moduleDir)) {
+            throw new Error(`Module '${moduleName}' already exists`)
+        }
+
+        // Ensure modules directory exists
+        if (!fs.existsSync(modulesDir)) {
+            fs.mkdirSync(modulesDir, { recursive: true })
+        }
+
+        logger.info(`Installing module from GitHub repository: ${githubRepo}`)
+
+        const gitUrl = `https://github.com/${githubRepo}.git`
+
+        // Clone the repository
+        const [cloneError] = await tryCatch(() => executeCommand('git', ['clone', gitUrl, moduleDir]))
+        
+        if (cloneError) {
+            logger.error(`Failed to clone repository: ${cloneError.message}`)
+
+            throw new Error(`Failed to clone repository: ${cloneError.message}`)
+        }
+
+        logger.info(`Module '${moduleName}' cloned successfully`)
+
+        // Install dependencies if package.json exists and npm option is enabled
+        if (options.npm && fs.existsSync(path.join(moduleDir, 'package.json'))) {
+            
+            logger.info('npm install')
+
+            await executeCommand('npm', ['install'], { cwd: moduleDir })
+        }
+
+        // Prepare symlinks for the module
+        await this.prepare(moduleName)
+
+        // Enable the module by default after installation if enable option is not false
+        if (options.enable) {
+            await this.enable(moduleName)
+        }
+
+        if (options.migrations) {
+            const result = await migrator.migrateByModule(moduleName)
+
+            logger.info(`Migrations for module '${moduleName}' completed successfully`, result)
+        }
+
+        logger.info(`Module '${moduleName}' installed successfully`)
     }
 }
 

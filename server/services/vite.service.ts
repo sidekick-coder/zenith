@@ -5,7 +5,7 @@ import type { ViteDevServer } from 'vite'
 import express from 'express'
 import type { Request, Response } from 'express'
 import env from '../env.ts'
-import config from './config.service.ts'
+import config from '#server/facades/config.facade.ts'
 import rootLogger from '#server/facades/logger.facade.ts'
 import { basePath, clientPath } from '#server/utils/paths.ts'
 import router from '#server/facades/router.facade.ts'
@@ -60,7 +60,8 @@ export class ViteServer {
                 .replace('<!--app-head-->', head)
                 .replace('<!--app-html-->', body)
 
-            response.status(200).set({ 'Content-Type': 'text/html' }).end(html)
+            response.status(200).set({ 'Content-Type': 'text/html' })
+                .end(html)
         } catch (e) {
             logger.error('Error during Vite SSR render', {
                 error: e,
