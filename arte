@@ -7,8 +7,6 @@ const bin = 'node';
 const args = [
     '--no-warnings',
     '--experimental-strip-types',
-    '--env-file',
-    path.join(import.meta.dirname, '.env'),
     path.join(import.meta.dirname, 'arte.ts'),
     ...process.argv.slice(2),
 ];

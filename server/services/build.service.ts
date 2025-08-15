@@ -5,8 +5,8 @@ export class BuildService {
     public async server(){
         await viteBuild({
             build: {
-                ssr: 'app/entry-server.ts',
-                outDir: 'app/dist/server',
+                ssr: 'client/entry-server.ts',
+                outDir: 'client/dist-server',
             }
         })
 
@@ -16,8 +16,8 @@ export class BuildService {
     public async client() {
         await viteBuild({
             build: {
-                outDir: 'app/dist/client',
-                rollupOptions: { input: 'index.html', },
+                outDir: 'client/dist-client',
+                // rollupOptions: { input: 'client/index.html', },
             },
         })
 

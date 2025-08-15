@@ -11,8 +11,6 @@ program.command('serve').option('-w, --watch', 'Watch for changes and restart se
         const args = [
             '--no-warnings',
             '--experimental-strip-types',
-            '--env-file',
-            basePath('.env'),
             'index.ts'
         ]
 

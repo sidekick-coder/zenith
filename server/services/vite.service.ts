@@ -21,11 +21,11 @@ export class ViteServer {
     public async render(url: string, _request: Request, response: Response) {
         try {
             const template = isProduction 
-                ? fs.readFileSync(clientPath('dist', 'index.html'), 'utf-8')
+                ? fs.readFileSync(clientPath('dist-client', 'client', 'index.html'), 'utf-8')
                 : await this.vite!.transformIndexHtml(url, fs.readFileSync(clientPath('index.html'), 'utf-8'))
 
             const render = isProduction
-                ? (await import(clientPath('dist', 'server', 'entry-server.js'))).render
+                ? (await import(clientPath('dist-server', 'entry-server.js'))).render
                 : (await this.vite!.ssrLoadModule('/client/entry-server.ts')).render
 
                 
@@ -85,7 +85,7 @@ export class ViteServer {
         }
 
         if (isProduction) {
-            app.use(express.static(basePath('client', 'dist', 'client')))
+            app.use(express.static(basePath('client', 'dist-client')))
         }
     }
 }
