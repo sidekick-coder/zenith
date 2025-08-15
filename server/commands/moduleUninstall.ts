@@ -1,7 +1,7 @@
 import { program } from 'commander'
 import modules from '#server/services/modules.service.ts'
-import db from '#server/facades/db.facade.ts'
-import config from '#server/facades/config.facade.ts'
+import env from '#server/env.ts'
+import build from '#server/services/build.service.ts'
 
 program.command('module:uninstall')
     .helpGroup('module')
@@ -9,10 +9,11 @@ program.command('module:uninstall')
     .description('Uninstall a module')
     .option('--rollback', 'Rollback module migrations before uninstalling')
     .option('--build', 'Run build after uninstalling')
-    .option('--boot', 'Run boot after uninstalling')
-    .action(async (name, options) => {
-        await config.load()
-        await db.load()
-        
+    .action(async (name, options) => {        
         await modules.uninstall(name, { rollback: options.rollback, })
+
+        if (env.isProduction || options.build) {
+            // Rebuild the application if in production or if --build is specified
+            await build.all()
+        }
     })

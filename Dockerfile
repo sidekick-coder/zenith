@@ -2,6 +2,8 @@ FROM node:23 AS builder
 
 WORKDIR /app
 
+RUN apt update -y && apt upgrade -y
+
 COPY package.json package-lock.json* ./
 
 RUN npm install

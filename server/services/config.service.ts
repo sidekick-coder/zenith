@@ -114,6 +114,10 @@ export default class ConfigService {
         
         const filePath = path.join(this.configDir, `${filename}.json`)
 
+        if (!fs.existsSync(path.dirname(filePath))) {
+            fs.mkdirSync(path.dirname(filePath), { recursive: true })
+        }
+
         fs.writeFileSync(filePath, JSON.stringify(values, null, 2))
     }
 
