@@ -26,8 +26,11 @@ dist-ssr
 *:Zone.Identifier
 
 *.runtime
+client/dist-client
+client/dist-server
 
 .env 
+
 
 database.sqlite
 config/*

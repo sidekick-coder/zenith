@@ -15,6 +15,7 @@ import type { HttpContext } from '#server/router/types.ts'
 import errorService from '#server/services/error.service.ts'
 import bootService from '#server/services/boot.service.ts'
 import config from '#server/facades/config.facade.ts'
+import env from '#server/env.ts'
 
 const upload = multer({ storage: multer.memoryStorage(), })
 
@@ -163,7 +164,7 @@ async function main() {
         logger.info('server started at http://localhost:3000', {
             label: 'server',
             pid: process.pid,
-            env: process.env.NODE_ENV,
+            env: env.NODE_ENV,
         })
 
         bootService.boot()
