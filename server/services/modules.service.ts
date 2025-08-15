@@ -46,17 +46,13 @@ interface Options {
 
 interface InstallOptions {
     enable?: boolean
-    migrations?: boolean
+    migrate?: boolean
     seeds?: boolean
     npm?: boolean
-    build?: boolean
-    boot?: boolean
 }
 
 interface UninstallOptions {
-    rollbackMigrations?: boolean
-    build?: boolean
-    boot?: boolean
+    rollback?: boolean
 }
 
 class Module {
@@ -358,7 +354,7 @@ export class ModulesService {
             await this.enable(moduleName)
         }
 
-        if (options.migrations) {
+        if (options.migrate) {
             const result = await migrator.migrateByModule(moduleName)
 
             logger.info(`Migrations for module '${moduleName}' completed successfully`, result)
@@ -374,7 +370,7 @@ export class ModulesService {
         logger.info(`Uninstalling module '${moduleName}'`)
 
         // Rollback migrations if requested
-        if (options.rollbackMigrations) {
+        if (options.rollback) {
             const result = await migrator.rollbackByModule(moduleName)
             logger.info(`Migrations for module '${moduleName}' rolled back successfully`, result)
         }
@@ -395,15 +391,7 @@ export class ModulesService {
             throw new Error(`Failed to remove module directory: ${removeError.message}`)
         }
 
-        logger.info(`Module directory '${moduleDir}' removed successfully`)        
-
-        if (options.build) {
-            await build.all()
-        }
-
-        if (options.boot) {
-            await bootService.boot()
-        }
+        logger.info(`Module directory '${moduleDir}' removed successfully`)
 
         logger.info(`Module '${moduleName}' uninstalled successfully`)
     }

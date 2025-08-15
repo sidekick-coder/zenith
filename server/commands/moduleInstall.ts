@@ -9,7 +9,7 @@ program.command('module:install')
     .description('Install a module from a GitHub repository')
     .option('--enable', 'Enable the module after installation')
     .option('--npm', 'Run npm install')
-    .option('--migrations', 'Run migrations after installation', false)
+    .option('--migrate', 'Run migrations after installation', false)
     .option('--seeds', 'Run seeds after installation', false)
     .action(async (repo, options) => {
         await config.load()
@@ -18,9 +18,7 @@ program.command('module:install')
         await modules.install(repo, {
             enable: options.enable,
             npm: options.npm,
-            build: options.build,
-            boot: options.boot,
-            migrations: options.migrations,
+            migrate: options.migrate,
             seeds: options.seeds
         })
     })

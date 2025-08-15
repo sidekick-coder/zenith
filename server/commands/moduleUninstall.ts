@@ -7,16 +7,12 @@ program.command('module:uninstall')
     .helpGroup('module')
     .argument('<name>', 'Module name to uninstall')
     .description('Uninstall a module')
-    .option('--rollback-migrations', 'Rollback module migrations before uninstalling')
+    .option('--rollback', 'Rollback module migrations before uninstalling')
     .option('--build', 'Run build after uninstalling')
     .option('--boot', 'Run boot after uninstalling')
     .action(async (name, options) => {
         await config.load()
         await db.load()
         
-        await modules.uninstall(name, {
-            rollbackMigrations: options.rollbackMigrations,
-            build: options.build,
-            boot: options.boot
-        })
+        await modules.uninstall(name, { rollback: options.rollback, })
     })
