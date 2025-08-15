@@ -16,6 +16,7 @@ applyTo: '**/*.vue'
 - use vee-validate for form validation
 - use FormTextField from #client/components/FormTextField.vue for text inputs
 - use FormSelect from #client/components/FormSelect.vue for select inputs
+- use FormTextarea from #client/components/FormTextarea.vue for textarea inputs
 - use valibot for validation schemas
 - import valibot this way `import * as v from 'valibot'`
 - use toTypedSchema from '@vee-validate/valibot' to convert valibot schemas to vee-validate schemas
