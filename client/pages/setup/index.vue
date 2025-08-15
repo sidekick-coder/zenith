@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import Button from '#client/components/Button.vue'
-import Logo from '#client/components/Logo.vue'
 import LogoIcon from '#client/components/LogoIcon.vue'
 import Card from '#client/components/ui/card/Card.vue'
 import CardDescription from '#client/components/ui/card/CardDescription.vue'
@@ -26,7 +25,7 @@ import CardTitle from '#client/components/ui/card/CardTitle.vue'
             </CardHeader>
             <CardFooter class="flex justify-center">
                 <Button
-                    to="/admin/setup/database"
+                    to="/setup/database"
                 >
                     {{ $t('Start Setup') }}
                 </Button>

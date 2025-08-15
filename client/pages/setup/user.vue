@@ -4,7 +4,6 @@ import { useForm } from 'vee-validate'
 import * as v from 'valibot'
 import { ref } from 'vue'
 import { toast } from 'vue-sonner'
-import { useRouter } from 'vue-router'
 import Button from '#client/components/Button.vue'
 import Card from '#client/components/ui/card/Card.vue'
 import CardDescription from '#client/components/ui/card/CardDescription.vue'
@@ -16,39 +15,36 @@ import { $fetch } from '#client/utils/fetcher.ts'
 import FormTextField from '#client/components/FormTextField.vue'
 import CardContent from '#client/components/ui/card/CardContent.vue'
 import { $t } from '#shared/lang.ts'
-import FormSelect from '#client/components/FormSelect.vue'
 
 const isLoading = ref(false)
-const router = useRouter()
 
-const types = [
-    {
-        value: 'sqlite',
-        label: $t('SQLite') 
-    },
-    {
-        value: 'mysql',
-        label: $t('MySQL') 
-    },
-    {
-        value: 'postgres',
-        label: $t('PostgreSQL') 
-    },
-]
-
-const { handleSubmit, values } = useForm({
+const { handleSubmit } = useForm({
     validationSchema: toTypedSchema(
-        v.object({
-            type: v.picklist(types.map(t => t.value), $t('Database Type')),
-            options: v.any()
-        })),
+        v.pipe(
+            v.object({
+                name: v.string(),
+                username: v.string(),
+                email: v.pipe(v.string(), v.email($t('Email'))),
+                password: v.pipe(v.string(), v.minLength(6, $t('Password must be at least 6 characters'))),
+                confirmPassword: v.pipe(v.string(), v.minLength(6, $t('Confirm Password must be at least 6 characters'))),
+            }),
+            v.forward(
+                v.partialCheck(
+                    [['password'], ['confirmPassword']],
+                    (input) => input.password === input.confirmPassword,
+                    'The two passwords do not match.'
+                ),
+                ['confirmPassword']
+            )
+        ),
+    )
 })
 
 const onSubmit = handleSubmit(async (payload) => {
     isLoading.value = true
 
     const [error] = await tryCatch(() => {
-        return $fetch('/setup/database', {
+        return $fetch('/setup/user', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', },
             body: JSON.stringify(payload),
@@ -60,11 +56,11 @@ const onSubmit = handleSubmit(async (payload) => {
         return
     }
 
-    
+    toast.success('User setup completed successfully!')
+
     setTimeout(async () => {
         isLoading.value = false
-        toast.success('Database setup completed successfully!')
-        await router.push('/admin/setup/user')
+        window.location.href = '/auth/login' // Redirect to the next step
     }, 1000)
 })
 </script>
@@ -79,31 +75,50 @@ const onSubmit = handleSubmit(async (payload) => {
         >
             <CardHeader>
                 <CardTitle>
-                    {{ $t('Database') }}
+                    {{ $t('Admin') }}
                 </CardTitle>
                 <CardDescription>
-                    {{ $t('Configure your database settings below.') }}
+                    {{ $t('Create your admin account') }}
                 </CardDescription>
             </CardHeader>
             <CardContent class="flex flex-col gap-6">
-                <FormSelect
-                    name="type"
-                    :label="$t('Database Type')"
-                    :options="types"
-                    label-key="label"
-                    value-key="value"
+                <FormTextField
+                    name="name"
+                    type="text"
+                    :label="$t('Name')"
+                    placeholder="John Doe"
+                    :tabindex="1"
+                />
+                
+                <FormTextField
+                    name="username"
+                    type="text"
+                    :label="$t('Username')"
+                    placeholder="johndoe"
+                    :tabindex="1"
                 />
 
-                <template v-if="values.type === 'sqlite'">
-                    <FormTextField
-                        name="options.database"
-                        type="text"
-                        :label="$t('SQLite Database Path')"
-                        placeholder="/path/to/database.sqlite"
-                        autocomplete="off"
-                        value="storage/database.sqlite"
-                    />
-                </template>
+                <FormTextField
+                    name="email"
+                    type="email"
+                    :label="$t('Email')"
+                    placeholder="john.doe@example.com"
+                />  
+
+                <FormTextField
+                    name="password"
+                    type="password"
+                    :label="$t('Password')"
+                    placeholder="********"
+                    :tabindex="2"
+                />
+                <FormTextField
+                    name="confirmPassword"
+                    type="password"
+                    :label="$t('Confirm Password')"
+                    placeholder="********"
+                    :tabindex="3"
+                />
             </CardContent>
             <CardFooter class="flex justify-center">
                 <Button

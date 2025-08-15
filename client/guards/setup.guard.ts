@@ -3,32 +3,34 @@ import di from '#client/utils/di.ts'
 
 const setupGuard: NavigationGuard = (to) => {
     const setup = di.get<any>('setup')
-
+    
     const completed = setup?.database && setup?.user
-
-    if (completed && to.path.startsWith('/admin/setup')) {
+    
+    if (completed && to.path.startsWith('/setup')) {
         return '/'
     }
-
+    
     if (completed) {
         return true
     }
-
-    if (!to.path.startsWith('/admin/setup')) {
-        return '/admin/setup'
-    }
-
-    if (to.path === '/admin/setup') {
-        return true
-    }
-
-    if (!setup?.database && to.path !== '/admin/setup/database') {
-        return '/admin/setup/database'
+    
+    if (!to.path.startsWith('/setup')) {
+        return '/setup'
     }
     
-    if (!setup?.user && to.path !== '/admin/setup/user') {
-        return '/admin/setup/user'
+    if (to.path === '/setup') {
+        return true
+    }    
+
+    if (!setup?.database) {
+        return to.path !== '/setup/database' ? '/setup/database' : true
     }
+
+    if (!setup?.user) {
+        return to.path !== '/setup/user' ? '/setup/user' : true
+    }
+
+    return true
 }
 
 export default setupGuard
