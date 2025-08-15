@@ -32,7 +32,8 @@ program.command('serve').option('-w, --watch', 'Watch for changes and restart se
         if (options.watch) {
             const entries = [
                 'shared',
-                'server'
+                'server',
+                'modules'
             ]
 
             const ignore = ['.git','node_modules', 'client', 'storage']
@@ -43,7 +44,7 @@ program.command('serve').option('-w, --watch', 'Watch for changes and restart se
                 persistent: true,
                 ignoreInitial: true,
                 ignored: (path) => {
-                    if (ignore.includes(path)) {
+                    if (ignore.some(i => path.includes(i))) {
                         return true
                     }
 
