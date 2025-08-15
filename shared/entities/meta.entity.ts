@@ -6,7 +6,7 @@ export default class Meta {
         Object.assign(this, data)
     }
 
-    public static metasToObjects(args: Meta[]){
+    public static metasToObjects(args: { name: string, value: any }[]){
         const result = {} as Record<string, any>
 
         args.forEach(m => {
