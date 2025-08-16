@@ -6,6 +6,7 @@ import modules from '#server/services/modules.service.ts'
 import { basePath } from '#server/utils/paths.ts'
 import env from '#server/env.ts'
 import BaseException from '#server/exceptions/base.ts'
+import build from '#server/services/build.service.ts'
 
 const router = root.use(authMiddleware)
     .prefix('/api/modules')
@@ -20,10 +21,9 @@ router.get('/:id', ({ params }) => {
 })
 
 router.post('/:id/toggle', async ({ params }) => {
-    return modules.toggle(params.id, {
-        build: env.isProduction,
-        boot: true
-    })
+    await modules.toggle(params.id, { build: env.isProduction })
+
+    await build.all()
 })
 
 router.post('/:id/migrate', async ({ params }) => {

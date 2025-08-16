@@ -50,14 +50,7 @@ async function toggle(item: any) {
         })
     }
 
-    const [error] = await tryCatch(() => $fetch(`/api/modules/${item.id}/toggle`, { method: 'POST', }))
-
-    if (error) {
-        console.error('Failed to toggle module:', item.name)
-        console.error(error)
-        toggling.value = false
-        return
-    }
+    await tryCatch(() => $fetch(`/api/modules/${item.id}/toggle`, { method: 'POST', }))
 
     setTimeout(() => {
         toggling.value = false

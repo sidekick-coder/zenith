@@ -4,7 +4,8 @@ import { logger } from '../facades/logger.facade.ts'
 import { basePath } from '#server/utils/paths.ts'
 
 export class BuildService {
-    public async server(){
+    private building = true
+    private async server(){
         await viteBuild({
             build: {
                 ssr: 'client/entry-server.ts',
@@ -15,7 +16,7 @@ export class BuildService {
         logger.debug('Server build completed')
     }
 
-    public async client() {
+    private async client() {
         await viteBuild({
             build: {
                 outDir: 'client/dist-client',
@@ -26,9 +27,17 @@ export class BuildService {
         logger.debug('Client build completed')
     }
 
+    public reloadServer(){
+        process.send?.('server-restart')
+    }
+
     public async all() {
+        this.building = true
+
         await this.server()
         await this.client()
+
+        this.building = false
 
         process.send?.('server-restart')
     }
@@ -47,25 +56,17 @@ export class BuildService {
             ignored: /(^|[/\\])\../, // ignore dotfiles
         })
 
-        watcher.on('change', (path) => {
-            logger.debug(`Dist file changed: ${path}`)
-            process.send?.('server-restart')
-        })
+        const onChange = () => {
+            if (this.building) return 
 
-        watcher.on('add', (path) => {
-            logger.debug(`Dist file added: ${path}`)
-            process.send?.('server-restart')
-        })
+            this.reloadServer()
+        }
 
-        watcher.on('unlink', (path) => {
-            logger.debug(`Dist file removed: ${path}`)
-            process.send?.('server-restart')
-        })
-
-        watcher.on('error', (error) => {
-            logger.error('Dist watcher error:', error)
-        })
-
+        watcher
+            .on('change', onChange)
+            .on('add', onChange)
+            .on('unlink', onChange)
+        
         watcher.on('ready', () => {
             logger.debug('Dist directories watcher is ready')
         })
