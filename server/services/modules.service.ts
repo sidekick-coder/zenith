@@ -98,7 +98,7 @@ export class ModulesService {
         for (const name of moduleNames) {
             const mod = new Module(name)
 
-            mod.enabled = enabled.includes(name)
+            mod.enabled = enabled?.includes(name)
 
             items.push(mod)
         }

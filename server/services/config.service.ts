@@ -92,11 +92,25 @@ export default class ConfigService {
     }
 
     public set(fullKey: string, value: any, save?: boolean): void {
-        this.entries.set(fullKey, {
-            key: fullKey,
-            value,
-            source: 'runtime'
-        })
+
+        if (typeof value === 'object') {
+            for (const [key, val] of Object.entries(flatten(value))) {
+                this.entries.set(`${fullKey}.${key}`, {
+                    key: `${fullKey}.${key}`,
+                    value: val,
+                    source: 'runtime'
+                })
+            }
+        } 
+        
+        if (typeof value !== 'object') {
+            this.entries.set(fullKey, {
+                key: fullKey,
+                value,
+                source: 'runtime'
+            })
+        }
+
 
         if (!save) return
 
@@ -128,7 +142,6 @@ export default class ConfigService {
         })
         
         const reloadConfig = () => {
-            console.log('reload')
             this.load()
         }
         

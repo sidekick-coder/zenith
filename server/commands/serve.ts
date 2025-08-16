@@ -31,10 +31,11 @@ program.command('serve').option('-w, --watch', 'Watch for changes and restart se
             const entries = [
                 'shared',
                 'server',
-                'modules'
+                'modules',
+                
             ]
 
-            const ignore = ['.git','node_modules', 'client', 'storage']
+            const ignore = ['.git','node_modules', 'client', 'storage', '.runtime']
 
             logger.debug('Watching directories', entries)
             

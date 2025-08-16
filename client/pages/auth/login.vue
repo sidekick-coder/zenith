@@ -60,6 +60,7 @@ const onSubmit = handleSubmit(async (formValues) => {
                     :label="$t('Email/Username')"
                     placeholder="admin"
                     autocomplete="email"
+                    autofocus
                 />
 
                 <FormTextField

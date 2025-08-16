@@ -27,12 +27,14 @@ router.post('/setup/database', async ({ body }) => {
         connection.database = database
     }
 
-    config.set('database', {
+    const database = {
         default: 'default',
         connections: { default: connection }
-    })
+    }
 
-    
+    config.set('database', database, true)
+
+    console.log(config.list())
 
     const [error] = await tryCatch(async () => {
         await db.load('default')
@@ -40,11 +42,11 @@ router.post('/setup/database', async ({ body }) => {
     })
 
     if (error) {
-        config.set('database', null)
+        config.set('database', {}, true)
         throw new BaseException($t('Failed to run migrations'), 500)
     }
 
-    config.set('setup.database', true)
+    config.set('setup.database', true, true)
 
     return { status: 200, }
 })
@@ -73,7 +75,7 @@ router.post('/setup/user', async ({ body }) => {
         throw BaseException.fromError(error)
     }
 
-    config.set('setup.user', true)
+    config.set('setup.user', true, true)
 
     return { status: 200, }
 })

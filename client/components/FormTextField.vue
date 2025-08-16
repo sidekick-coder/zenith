@@ -43,6 +43,10 @@ defineProps({
         type: String,
         default: 'off',
     },
+    autofocus: {
+        type: Boolean,
+        default: false,
+    }
 })
 </script>
 <template>
@@ -61,6 +65,7 @@ defineProps({
                         :disabled
                         :autocomplete
                         :readonly
+                        :autofocus
                         class="h-10"
                         v-bind="componentField"
                     />
