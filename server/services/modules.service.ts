@@ -91,14 +91,12 @@ export class ModulesService {
             .filter(dirent => dirent.isDirectory())
             .map(dirent => dirent.name)
 
-        const enabled = config.get('modules.enabled', [])
-
         let items = [] as Module[]
 
         for (const name of moduleNames) {
             const mod = new Module(name)
 
-            mod.enabled = enabled?.includes(name)
+            mod.enabled = config.get(`modules.enabled.${name}`, false)
 
             items.push(mod)
         }
@@ -203,13 +201,7 @@ export class ModulesService {
             await bootService.boot()
         }
 
-        let enabled = config.get('modules.enabled', [])
-
-        enabled.push(moduleName)
-
-        enabled = [...new Set(enabled)] // Ensure unique entries
-
-        config.set('modules.enabled', enabled, true)
+        config.set(`modules.enabled.${moduleName}`, true)
 
         logger.info(`module ${moduleName} enabled`)
     }
@@ -232,23 +224,13 @@ export class ModulesService {
             await bootService.boot()
         }
 
-        const enabled = config.get('modules.enabled', [])
-
-        const index = enabled.indexOf(moduleName)
-
-        if (index > -1) {
-            enabled.splice(index, 1)
-        }
-
-        config.set('modules.enabled', enabled, true)
+        config.set(`modules.enabled.${moduleName}`, false)
 
         logger.info(`module ${moduleName} disabled`)
     }
 
     public async toggle(moduleName: string, options: Options = {}) {
-        const enabled = config.get('modules.enabled', [])
-
-        if (enabled.includes(moduleName)) {
+        if (config.get(`modules.enabled.${moduleName}`)) {
             return this.disable(moduleName, options)
         }
 

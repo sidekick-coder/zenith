@@ -91,28 +91,12 @@ export default class ConfigService {
         return entry.value
     }
 
-    public set(fullKey: string, value: any, save?: boolean): void {
-
-        if (typeof value === 'object') {
-            for (const [key, val] of Object.entries(flatten(value))) {
-                this.entries.set(`${fullKey}.${key}`, {
-                    key: `${fullKey}.${key}`,
-                    value: val,
-                    source: 'runtime'
-                })
-            }
-        } 
-        
-        if (typeof value !== 'object') {
-            this.entries.set(fullKey, {
-                key: fullKey,
-                value,
-                source: 'runtime'
-            })
-        }
-
-
-        if (!save) return
+    public set(fullKey: string, value: any): void {
+        this.entries.set(fullKey, {
+            key: fullKey,
+            source: 'runtime',
+            value
+        })
 
         const { filename, key } = this.parseKey(fullKey)
         
