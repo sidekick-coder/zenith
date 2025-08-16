@@ -6,15 +6,13 @@ import logger from '#server/facades/logger.facade.ts'
 
 program.command('serve').option('-w, --watch', 'Watch for changes and restart server')
     .action((options) => {
-        const bin = 'node'
-
-        const args = [
+        const modulePath = basePath('index.ts')
+        const execArgv = [
             '--no-warnings',
-            '--experimental-strip-types',
-            'index.ts'
+            '--experimental-strip-types'
         ]
 
-        let serverProcess: cp.ChildProcess = cp.spawn(bin, args, { stdio: 'inherit', })
+        let serverProcess: cp.ChildProcess | null = null
 
         const reload = () => {
             if (serverProcess) {
@@ -24,7 +22,31 @@ program.command('serve').option('-w, --watch', 'Watch for changes and restart se
 
             logger.debug('reload server...')
 
-            serverProcess = cp.spawn(bin, args, { stdio: 'inherit', })
+            serverProcess = cp.fork(modulePath, [], { 
+                execArgv,
+                silent: false 
+            })
+
+            // Listen for server-restart events from the child process
+            serverProcess.on('message', (message) => {
+                if (message === 'server-restart') {
+                    logger.debug('Received server-restart event from child process')
+                    reload()
+                }
+            })
+
+            serverProcess.on('error', (error) => {
+                logger.error('Server process error:', error)
+            })
+
+            serverProcess.on('exit', (code, signal) => {
+                if (code !== null && code !== 0) {
+                    logger.error(`Server process exited with code ${code}`)
+                }
+                if (signal) {
+                    logger.debug(`Server process killed with signal ${signal}`)
+                }
+            })
         }
 
         if (options.watch) {
@@ -81,7 +103,7 @@ program.command('serve').option('-w, --watch', 'Watch for changes and restart se
                 watcher.close()
                 
                 if (serverProcess) {
-                    serverProcess.kill()
+                    serverProcess.kill('SIGTERM')
                 }
 
                 process.exit(0)

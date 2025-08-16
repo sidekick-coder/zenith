@@ -16,6 +16,7 @@ import errorService from '#server/services/error.service.ts'
 import bootService from '#server/services/boot.service.ts'
 import config from '#server/facades/config.facade.ts'
 import env from '#server/env.ts'
+import build from '#server/services/build.service.ts'
 
 const upload = multer({ storage: multer.memoryStorage(), })
 
@@ -138,6 +139,10 @@ async function main() {
 
     await vite.init(app)
     await config.loadAndWatch()
+
+    if (env.isProduction) {
+        build.watchDistDirectories()
+    }
 
     app.use('*all', (req, res) => {
         const url = new URL(req.originalUrl, `http://${req.headers.host}`)

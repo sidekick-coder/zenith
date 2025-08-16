@@ -9,12 +9,12 @@ program.command('module:install')
     .helpGroup('module')
     .argument('<repo>', 'GitHub repository (owner/repo)')
     .description('Install a module from a GitHub repository')
-    .option('--enable', 'Enable the module after installation')
-    .option('--npm', 'Run npm install')
-    .option('--migrate', 'Run migrations after installation', false)
-    .option('--seeds', 'Run seeds after installation', false)
-    .option('--build', 'Run build after installation')
-    .action(async (repo, options) => {        
+    .option('-e, --enable', 'Enable the module after installation')
+    .option('-n, --npm', 'Run npm install')
+    .option('-m, --migrate', 'Run migrations after installation', false)
+    .option('-s, --seed', 'Run seeds after installation', false)
+    .option('-b, --build', 'Run build after installation')
+    .action(async (repo, options) => {
         await modules.install(repo, {
             enable: options.enable,
             npm: options.npm,
