@@ -140,10 +140,6 @@ async function main() {
     await vite.init(app)
     await config.loadAndWatch()
 
-    if (env.isProduction) {
-        build.watchDistDirectories()
-    }
-
     app.use('*all', (req, res) => {
         const url = new URL(req.originalUrl, `http://${req.headers.host}`)
         const method = req.method.toLowerCase()

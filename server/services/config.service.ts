@@ -5,7 +5,7 @@ import set from 'lodash/set.js'
 import chokidar from 'chokidar'
 import { configPath } from '#server/utils/paths.ts'
 import { importGlob } from '#server/utils/importAll.ts'
-import { flatten, unflatten } from '#server/utils/flatten.ts'
+import { flatten } from '#server/utils/flatten.ts'
 import env from '#server/env.ts'
 
 interface Entry {
