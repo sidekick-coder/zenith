@@ -23,7 +23,7 @@ export async function createApp() {
         menu 
     })    
 
-    const files = import.meta.glob<{ default: ClientSetup }>('./.runtime/**/*.setup.ts', { eager: true })
+    const files = import.meta.glob<{ default: ClientSetup }>('../storage/runtime/client/*.setup.ts', { eager: true })
 
     for await (const [filename, mod] of Object.entries(files)) {
         const [error] = await tryCatch(() => mod.default.setup({

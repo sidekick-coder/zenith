@@ -14,6 +14,8 @@ RUN npm run build
 
 RUN chmod +x docker/entrypoint.sh
 
+ENV NODE_ENV=production
+
 ENTRYPOINT ["docker/entrypoint.sh"]
 
 CMD ["node", "arte", "serve"]

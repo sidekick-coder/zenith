@@ -7,7 +7,7 @@ import type { Request, Response } from 'express'
 import env from '../env.ts'
 import config from '#server/facades/config.facade.ts'
 import rootLogger from '#server/facades/logger.facade.ts'
-import { basePath, clientPath } from '#server/utils/paths.ts'
+import { clientPath, storagePath } from '#server/utils/paths.ts'
 import router from '#server/facades/router.facade.ts'
 import auth from '#server/facades/auth.facade.ts'
 
@@ -21,11 +21,11 @@ export class ViteServer {
     public async render(url: string, _request: Request, response: Response) {
         try {
             const template = isProduction 
-                ? fs.readFileSync(clientPath('dist-client', 'client', 'index.html'), 'utf-8')
+                ? fs.readFileSync(storagePath('dist', 'client', 'client', 'index.html'), 'utf-8')
                 : await this.vite!.transformIndexHtml(url, fs.readFileSync(clientPath('index.html'), 'utf-8'))
 
             const render = isProduction
-                ? (await import(clientPath('dist-server', 'entry-server.js'))).render
+                ? (await import(storagePath('dist', 'server', 'entry-server.js'))).render
                 : (await this.vite!.ssrLoadModule('/client/entry-server.ts')).render
 
                 
@@ -85,7 +85,7 @@ export class ViteServer {
         }
 
         if (isProduction) {
-            app.use(express.static(basePath('client', 'dist-client')))
+            app.use(express.static(storagePath('dist', 'client')))
         }
     }
 }

@@ -1,10 +1,9 @@
 import path from 'path'
 import db from '#server/facades/db.facade.ts'
-import config from '#server/facades/config.facade.ts'
 import router from '#server/facades/router.facade.ts'
 import scheduler from '#server/facades/scheduler.facade.ts'
 import rootLogger from '#server/facades/logger.facade.ts'
-import { serverPath } from '#server/utils/paths.ts'
+import { serverPath, storagePath } from '#server/utils/paths.ts'
 import { importGlob } from '#server/utils/importAll.ts'
 import type { ServerSetup } from '#server/utils/defineServerSetup.ts'
 import { tryCatch } from '#shared/tryCatch.ts'
@@ -18,7 +17,7 @@ export class BootService {
     }
 
     public async setup() {
-        const files = await importGlob(serverPath('.runtime', '*.setup.ts'), {
+        const files = await importGlob(storagePath('runtime', 'server', '*.setup.ts'), {
             onBeforeImport(ctx) {
                 ctx.filename += `?t=${Date.now()}` // prevent caching
             },

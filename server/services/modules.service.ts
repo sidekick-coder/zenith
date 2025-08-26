@@ -6,7 +6,8 @@ import build from './build.service.ts'
 import bootService from './boot.service.ts'
 import config from '#server/facades/config.facade.ts'
 import {
-    basePath, clientPath, serverPath 
+    basePath,
+    storagePath
 } from '#server/utils/paths.ts'
 import router from '#server/facades/router.facade.ts'
 import { tryCatch } from '#shared/tryCatch.ts'
@@ -128,7 +129,7 @@ export class ModulesService {
 
     private async createModuleRuntimeFiles(mod: Module) {
         if (fs.existsSync(mod.makePath('server', 'setup.server.ts'))) {
-            const filename = serverPath('.runtime', `${mod.id}.setup.ts`)
+            const filename = storagePath('runtime', 'server', `${mod.id}.setup.ts`)
 
             const content = [
                 `import setup from '#modules/${mod.id}/server/setup.server.ts'`,
@@ -146,7 +147,7 @@ export class ModulesService {
         }
 
         if (fs.existsSync(mod.makePath('client', 'setup.client.ts'))) {
-            const filename = clientPath('.runtime', `${mod.id}.setup.ts`)
+            const filename = storagePath('runtime', 'client', `${mod.id}.setup.ts`)
             
             const content = [
                 `import setup from '#modules/${mod.id}/client/setup.client.ts'`,
@@ -165,8 +166,8 @@ export class ModulesService {
     }
 
     private async removeModuleRuntimeFiles(mod: Module) {
-        const serverFile = serverPath('.runtime', `${mod.id}.setup.ts`)
-        const clientFile = clientPath('.runtime', `${mod.id}.setup.ts`)
+        const serverFile = storagePath('runtime', 'server', `${mod.id}.setup.ts`)
+        const clientFile = storagePath('runtime', 'client', `${mod.id}.setup.ts`)
 
         if (fs.existsSync(serverFile)) {
             fs.unlinkSync(serverFile)
