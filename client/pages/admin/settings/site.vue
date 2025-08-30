@@ -37,7 +37,7 @@ const { handleSubmit, setValues, setFieldValue } = useForm({ validationSchema: t
 
 const availableRoutes = computed(() => {
     return router.getRoutes()
-        .filter(route => route.path && !route.path.includes('*'))
+        .filter(route => route.path && !route.path.includes('*') && route.path !== '/' )
         .map(route => ({
             path: route.path,
             name: route.name || route.path
