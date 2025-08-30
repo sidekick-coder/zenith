@@ -30,6 +30,6 @@ program.command('migration:make')
 
         fs.writeFileSync(filename, contents)
 
-        console.log(`Migration created: ${filename}`)
+        console.log(`Migration created: ${ path.relative(basePath(), filename) }`)
 
     })
