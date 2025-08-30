@@ -32,6 +32,7 @@ import { tryCatch } from '#shared/tryCatch.ts'
 import { $t } from '#shared/lang.ts'
 import { useMenu } from '#client/composables/useMenu.ts'
 import type { MenuGroup, MenuItem } from '#client/composables/useMenu.ts'
+import Icon from '#client/components/Icon.vue'
 
 export interface BreadcrumbItem {
     label: string;
@@ -186,12 +187,6 @@ async function onLogout() {
             </SidebarHeader>
 
             <SidebarContent>
-                <!-- <DashboardSidebarGroup
-                    :open
-                    :items="ungrouped"
-                    :label="$t('General')"
-                    class="py-0"
-                /> -->
                 <AppLayoutSidebarGroup
                     v-for="group in groups"
                     :id="group.id"
@@ -205,10 +200,16 @@ async function onLogout() {
 
             <SidebarFooter>
                 <button
-                    class="w-full py-2 px-4 text-left hover:bg-gray-100 transition rounded"
+                    class="w-full py-2 px-4 text-left hover:bg-gray-100 transition rounded flex items-center space-x-4"
                     @click="onLogout"
                 >
-                    Logout
+                    <Icon
+                        name="LogOut"
+                        class="rotate-180"
+                    />
+                    <div>
+                        {{ $t('Logout') }}
+                    </div>
                 </button>
             </SidebarFooter>
         </Sidebar>
