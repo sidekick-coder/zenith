@@ -22,7 +22,7 @@ program.command('migration:make')
             filename = mod.makePath('server', 'database', 'migrations', migrationName)
         }
 
-        const contents = await template.fromFile(basePath('console', 'templates', 'migration.ts'))
+        const contents = await template.fromFile(basePath('server', 'templates', 'migration.ts'))
 
         if (!fs.existsSync(path.dirname(filename))) {
             await fs.promises.mkdir(path.dirname(filename), { recursive: true })
