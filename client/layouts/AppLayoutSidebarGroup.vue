@@ -20,7 +20,7 @@ import {
 import Icon from '#client/components/Icon.vue'
 import type { MenuItem } from '#client/composables/useMenu.ts'
 
-defineProps({
+const props = defineProps({
     id: {
         type: String,
         required: true,
@@ -38,6 +38,10 @@ defineProps({
         default: null
     },
 })
+
+function hasChilden(item: MenuItem) {
+    return props.items.some(i => i.parent === item.id)
+}
 </script>
 
 <template>
@@ -51,7 +55,7 @@ defineProps({
                 :key="index"
             >
                 <Collapsible
-                    v-if="!item.parent && open"
+                    v-if="hasChilden(item) && open"
                     default-open
                     class="group/collapsible"
                 >
