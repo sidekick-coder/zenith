@@ -71,6 +71,10 @@ const props = defineProps({
         type: String,
         default: '',
     },
+    loading: {
+        type: Boolean,
+        default: false,
+    },
 })
 
 const emit = defineEmits<{
@@ -161,7 +165,7 @@ function onClick(item: any){
 </script>
 
 <template>
-    <Table :class="cn('border rounded', props.class)">
+    <Table :class="cn('border rounded', props.class, loading ? 'opacity-50 pointer-events-none' : '')">
         <TableHeader>
             <TableRow
                 v-for="headerGroup in table.getHeaderGroups()"
@@ -180,6 +184,14 @@ function onClick(item: any){
                         :props="header.getContext()"
                     />
                 </TableHead>
+            </TableRow>
+            <TableRow v-if="loading">
+                <TableCell
+                    :colspan="tableColumns.length"
+                    class="p-0"
+                >
+                    <div class="h-1 bg-primary w-full animate-pulse" />
+                </TableCell>
             </TableRow>
         </TableHeader>
         <TableBody>

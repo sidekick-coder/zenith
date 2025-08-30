@@ -2,6 +2,10 @@
 applyTo: '**/*.vue'
 ---
 
+## Code style
+- use 4 spaces for indentation
+
+## General
 - use vue setup syntax
 - use tailwindcss for styling 
 - use shadcn/ui for components

@@ -5,7 +5,7 @@ import { cn } from '#client/lib/utils'
 
 interface Props {
     name: string;
-    class?: string;
+    class?: any;
     size?: number | string;
     color?: string;
     strokeWidth?: number | string;
