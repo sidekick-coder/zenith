@@ -64,6 +64,20 @@ export default defineClientSetup(({ menu, router }) => {
     })
 
     menu.add({
+        id: 'settings',
+        label: $t('Settings'),
+        group: $t('General'),
+        icon: 'SettingsIcon'
+    })
+    
+    menu.add({
+        id: 'settings-site',
+        label: $t('Site'),
+        parent: 'settings',
+        to: '/admin/settings/site'
+    })
+
+    menu.add({
         id: 'modules-list',
         label: $t('List'),
         to: '/admin/modules',
