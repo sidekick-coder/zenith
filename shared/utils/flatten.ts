@@ -1,4 +1,4 @@
-export function flatten(obj, prefix = '', res = {}): Record<string, any> {
+export function flatten(obj: any, prefix = '', res: any = {}): Record<string, any> {
     for (const [key, value] of Object.entries(obj)) {
         const newKey = prefix ? `${prefix}.${key}` : key
         if (value && typeof value === 'object' && !Array.isArray(value)) {
@@ -10,11 +10,11 @@ export function flatten(obj, prefix = '', res = {}): Record<string, any> {
     return res
 }
 
-export function unflatten(obj): Record<string, any> {
+export function unflatten(obj: any): Record<string, any> {
     const result = {}
     for (const [key, value] of Object.entries(obj)) {
         const parts = key.split('.')
-        let current = result
+        let current: any = result
         parts.forEach((part, i) => {
             if (i === parts.length - 1) {
                 current[part] = value

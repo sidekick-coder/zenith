@@ -3,6 +3,8 @@ import { createApp } from './main'
 import di from './utils/di'
 import { createServerFetcher } from './utils/fetcher'
 import type { Logger } from './utils/logger'
+import config from './facades/config.facade'
+import { flatten } from '#shared/utils/flatten.ts'
 
 interface RenderContext {
     url: string;
@@ -18,7 +20,15 @@ export async function render(context: RenderContext) {
     di.load(context.state)
     
     di.set('fetcher', createServerFetcher(serverRouter))
-    di.set('logger', context.logger)    
+    di.set('logger', context.logger)
+
+    for (const [key, value] of Object.entries(flatten(context.state.config || {}))) {
+        config.entries.set(key, {
+            key,
+            value,
+            source: 'state'
+        })
+    }
 
     const { app, router } = await createApp()
 

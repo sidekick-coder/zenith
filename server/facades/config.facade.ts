@@ -1,4 +1,4 @@
-import ConfigService from '#server/services/config.service.ts'
+import ConfigService from '#server/services/serverConfig.service.ts'
 
 const config = new ConfigService()
 

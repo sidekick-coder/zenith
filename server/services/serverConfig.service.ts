@@ -3,27 +3,18 @@ import fs from 'fs'
 import path from 'path'
 import set from 'lodash/set.js'
 import chokidar from 'chokidar'
+import ConfigService from '#shared/services/config.service.ts'
 import { configPath } from '#server/utils/paths.ts'
 import { importGlob } from '#server/utils/importAll.ts'
-import { flatten } from '#server/utils/flatten.ts'
+import { flatten } from '#shared/utils/flatten.ts'
 import env from '#server/env.ts'
 
-interface Entry {
-    key: string
-    value: any 
-    source: string
-}
-
-export default class ConfigService {
+export default class ServiceConfigService extends ConfigService {
     private configDir: string
-    private entries: Map<string, Entry> = new Map()
 
     constructor(configDir?: string) {
+        super()
         this.configDir = configDir ?? configPath()
-    }
-
-    public list(){
-        return Array.from(this.entries.values())
     }
 
     public async load() {

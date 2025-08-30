@@ -32,6 +32,7 @@ export class ViteServer {
             const state: Record<string, any> = {
                 'auth:user': null,
                 'setup': config.get('setup') || {},
+                'config': env.CLIENT_CONFIG || {},
             }
 
             if (state.setup.user) {
