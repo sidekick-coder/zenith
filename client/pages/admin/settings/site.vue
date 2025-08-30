@@ -1,12 +1,19 @@
 <script lang="ts" setup>
 import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/valibot'
-import { onMounted, ref } from 'vue'
+import { 
+    computed, 
+    onMounted, 
+    ref 
+} from 'vue'
 import { toast } from 'vue-sonner'
+import { useRouter } from 'vue-router'
+import { ChevronDown } from 'lucide-vue-next'
 import { $t } from '#shared/lang.ts'
 import FormTextField from '#client/components/FormTextField.vue'
 import { $fetch } from '#client/utils/fetcher.ts'
 import Button from '#client/components/Button.vue'
+import UiButton from '#client/components/ui/button/Button.vue'
 import { tryCatch } from '#shared/tryCatch.ts'
 import Card from '#client/components/ui/card/Card.vue'
 import CardFooter from '#client/components/ui/card/CardFooter.vue'
@@ -16,10 +23,31 @@ import AppLayout from '#client/layouts/AppLayout.vue'
 import CardTitle from '#client/components/ui/card/CardTitle.vue'
 import CardDescription from '#client/components/ui/card/CardDescription.vue'
 import CardHeader from '#client/components/ui/card/CardHeader.vue'
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger
+} from '#client/components/ui/dropdown-menu'
 
 const loading = ref(false)
 const saving = ref(false)
-const { handleSubmit, setValues } = useForm({ validationSchema: toTypedSchema(settingSiteValidator.create), })
+const router = useRouter()
+const { handleSubmit, setValues, setFieldValue } = useForm({ validationSchema: toTypedSchema(settingSiteValidator.create), })
+
+const availableRoutes = computed(() => {
+    return router.getRoutes()
+        .filter(route => route.path && !route.path.includes('*'))
+        .map(route => ({
+            path: route.path,
+            name: route.name || route.path
+        }))
+        .sort((a, b) => a.path.localeCompare(b.path))
+})
+
+function selectRoute(routePath: string) {
+    setFieldValue('home_route_path', routePath)
+}
 
 const onSubmit = handleSubmit(async (form) => {
     saving.value = true
@@ -75,7 +103,35 @@ onMounted(load)
                     <FormTextField
                         name="home_route_path"
                         :label="$t('Home route path')"
-                    />
+                    >
+                        <template #append>
+                            <DropdownMenu>
+                                <DropdownMenuTrigger as-child>
+                                    <UiButton
+                                        type="button"
+                                        variant="outline"
+                                        size="sm"
+                                        class="h-10 px-3"
+                                    >
+                                        <ChevronDown class="h-4 w-4" />
+                                    </UiButton>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent 
+                                    align="end" 
+                                    class="w-64"
+                                >
+                                    <DropdownMenuItem
+                                        v-for="route in availableRoutes"
+                                        :key="route.path"
+                                        class="cursor-pointer"
+                                        @click="selectRoute(route.path)"
+                                    >
+                                        {{ route.path }}
+                                    </DropdownMenuItem>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                        </template>
+                    </FormTextField>
                 </CardContent>
      
                 <CardFooter class="justify-end">
