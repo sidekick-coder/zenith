@@ -35,6 +35,8 @@ export class ViteServer {
                 'config': env.CLIENT_CONFIG || {},
             }
 
+            state.config.site = config.get('site', {})
+
             if (state.setup.user) {
                 state['auth:user'] = await auth.authenticate(_request.cookies['Authorization'] || '')
             }

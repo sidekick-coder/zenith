@@ -73,8 +73,8 @@ onMounted(load)
                 </CardHeader>
                 <CardContent class="space-y-6">
                     <FormTextField
-                        name="path"
-                        :label="$t('Path')"
+                        name="home_route_path"
+                        :label="$t('Home route path')"
                     />
                 </CardContent>
      

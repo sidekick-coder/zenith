@@ -52,7 +52,7 @@ const columns = defineColumns([
 ])
 
 async function load(){
-    const [error, response] = await tryCatch(() => $fetch('/api/users', {
+    const [error, response] = await tryCatch(() => $fetch<any>('/api/users', {
         method: 'GET',
         query: {
             page: page.value,

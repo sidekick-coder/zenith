@@ -24,10 +24,7 @@ export async function createApp() {
         menu 
     })
 
-    const hide = config.get<string>('menu.hide', '').split(',')
-        .map((s: string) => s.trim())
-
-    hide.forEach(id => menu.remove(id))
+    
 
     const files = import.meta.glob<{ default: ClientSetup }>('../storage/runtime/client/*.setup.ts', { eager: true })
 
@@ -44,6 +41,25 @@ export async function createApp() {
 
         logger.debug(`setup file loaded: ${filename}`)
     }   
+
+    const hide = config.get<string>('menu.hide', '').split(',')
+        .map((s: string) => s.trim())
+
+    hide.forEach(id => menu.remove(id))
+
+    if (config.has('site.home_route_path')) {
+        const homeRoute = config.get('site.home_route_path')
+        const route = router.resolve(homeRoute)
+        const record = route.matched[route.matched.length - 1]
+
+        if (record) {
+            router.addRoute({
+                ...record,
+                path: '/',
+                name: 'home',
+            })
+        }
+    }
 
     // add error 404
     router.addRoute({
