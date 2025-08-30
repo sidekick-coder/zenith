@@ -28,31 +28,45 @@ export default defineClientSetup(({ menu, router }) => {
         redirect: '/admin/users',
     })
 
-    menu.add(
-        {
-            label: $t('Users'),
-            icon: 'UsersIcon',
-            children: [
-                {
-                    label: $t('List'),
-                    to: '/admin/users',
-                }
-            ]
-        },
-        {
-            label: $t('Storage'),
-            icon: 'DatabaseIcon',
-            children: [
-                {
-                    label: $t('Drives'),
-                    to: '/admin/drives',
-                },
-            ]
-        },
-        {
-            label: $t('Modules'),
-            to: '/admin/modules',
-            icon: 'PuzzleIcon',
-        },
-    )
+    menu.add({
+        id: 'users',
+        label: $t('Users'),
+        icon: 'UsersIcon',
+        group: $t('General')
+    })
+
+    menu.add({
+        id: 'users-list',
+        label: $t('List'),
+        to: '/admin/users',
+        parent: 'users'
+    })
+
+    menu.add({
+        id: 'storage',
+        label: $t('Storage'),
+        icon: 'DatabaseIcon',
+        group: $t('General')
+    })
+
+    menu.add({
+        id: 'storage-drives',
+        label: $t('Drives'),
+        to: '/admin/drives',
+        parent: 'storage'
+    })
+
+    menu.add({
+        id: 'modules',
+        label: $t('Modules'),
+        icon: 'PuzzleIcon',
+        group: $t('General')
+    })
+
+    menu.add({
+        id: 'modules-list',
+        label: $t('List'),
+        to: '/admin/modules',
+        parent: 'modules'
+    })
 })

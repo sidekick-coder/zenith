@@ -7,6 +7,7 @@ import type { ClientSetup } from './utils/defineClientSetup'
 import { useMenu } from './composables/useMenu'
 import setup from './setup'
 import { logger } from './utils/logger'
+import config from './facades/config.facade'
 import { tryCatch } from '#shared/tryCatch.ts'
 
 export async function createApp() {
@@ -21,7 +22,12 @@ export async function createApp() {
     setup.setup({
         router,
         menu 
-    })    
+    })
+
+    const hide = config.get<string>('menu.hide', '').split(',')
+        .map((s: string) => s.trim())
+
+    hide.forEach(id => menu.remove(id))
 
     const files = import.meta.glob<{ default: ClientSetup }>('../storage/runtime/client/*.setup.ts', { eager: true })
 

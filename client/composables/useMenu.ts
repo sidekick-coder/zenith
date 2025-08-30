@@ -1,8 +1,7 @@
-import {
-    reactive, readonly, ref 
-} from 'vue'
+import { ref } from 'vue'
 
 export interface MenuBase {
+    id: string
     label: string;
     order?: number;
 }
@@ -18,14 +17,21 @@ export interface MenuWithChildren extends MenuBase {
     children: Omit<MenuSingle, 'icon'>[];
 }
 
-export interface MenuGroup {
-    label: string;
+export interface MenuGroup extends MenuBase {
     group: boolean;
-    order?: number;
     items: MenuItem[];
 }
 
-export type MenuItem = MenuSingle | MenuWithChildren | MenuGroup;
+export interface MenuItem {
+    id: string
+    label: string;
+    to?: string;
+    target?: '_blank' | '_self' | '_parent' | '_top';
+    group?: string
+    order?: number;
+    icon?: string
+    parent?: string
+}
 
 export type UseMenu = ReturnType<typeof useMenu>
 
@@ -36,8 +42,16 @@ export function useMenu() {
         items.value.push(...item)
     }
 
-    function remove(item: MenuItem) {
-        const index = items.value.indexOf(item)
+    function remove(item: MenuItem | MenuItem['id']) {
+        let index = -1
+
+        if (typeof item === 'string') {
+            index = items.value.findIndex(i => i.id === item)
+        }
+
+        if (index === -1) {
+            index = items.value.indexOf(item as MenuItem)
+        }
 
         if (index !== -1) {
             items.value.splice(index, 1)

@@ -6,7 +6,7 @@ import {
     computed
 } from 'vue'
 import { useRoute } from 'vue-router'
-import DashboardSidebarGroup from './AppLayoutSidebarGroup.vue'
+import AppLayoutSidebarGroup from './AppLayoutSidebarGroup.vue'
 import Logo from '#client/components/Logo.vue'
 import {
     Breadcrumb,
@@ -118,8 +118,38 @@ menu.value.sort((a, b) => {
     return orderA - orderB
 })
 
-const ungrouped = menu.value.filter(item => 'to' in item || 'children' in item)
-const grouped = menu.value.filter(item => 'items' in item) as MenuGroup[]
+// const ungrouped = menu.value.filter(item => 'to' in item || 'children' in item)
+// const grouped = menu.value.filter(item => 'items' in item) as MenuGroup[]
+interface GroupedMenu {
+    id: string;
+    label: string;
+    items: MenuItem[];
+}
+
+const groups = computed(() => {
+    const result = [] as GroupedMenu[]
+    
+    // mount groups
+    for (const item of menu.value) {
+        const group = item.group || $t('General')
+
+        let current = result.find(g => g.id === group)
+
+        if (!current) {
+            current = {
+                id: group,
+                label: group,
+                items: []
+            }
+
+            result.push(current)
+        }
+
+        current.items.push(item)
+    }
+
+    return result
+})
 
 async function onLogout() {
     const [error] = await tryCatch(() =>  $fetch('/auth/logout', { method: 'POST', }))
@@ -156,17 +186,18 @@ async function onLogout() {
             </SidebarHeader>
 
             <SidebarContent>
-                <DashboardSidebarGroup
+                <!-- <DashboardSidebarGroup
                     :open
                     :items="ungrouped"
                     :label="$t('General')"
                     class="py-0"
-                />
-                <DashboardSidebarGroup
-                    v-for="group in grouped"
+                /> -->
+                <AppLayoutSidebarGroup
+                    v-for="group in groups"
+                    :id="group.id"
                     :key="group.label"
                     :open
-                    :items="group.items"
+                    :items="menu"
                     class="py-0"
                     :label="group.label"
                 />

@@ -1,4 +1,4 @@
-<script lang="ts">
+<script setup lang="ts">
 import {
     DropdownMenu,
     DropdownMenuTrigger,
@@ -18,27 +18,13 @@ import {
     Collapsible, CollapsibleTrigger, CollapsibleContent 
 } from '#client/components/ui/collapsible'
 import Icon from '#client/components/Icon.vue'
+import type { MenuItem } from '#client/composables/useMenu.ts'
 
-interface MenuBase {
-    label: string;
-    order?: number;
-}
-
-interface MenuSingle  extends MenuBase {
-    icon: string;
-    to: string;
-    target?: '_blank' | '_self' | '_parent' | '_top';
-}
-
-interface MenuWithChildren extends MenuBase {
-    icon: string;
-    children: Omit<MenuSingle, 'icon'>[];
-}
-
-export type MenuItem = MenuSingle | MenuWithChildren 
-</script>
-<script setup lang="ts">
 defineProps({
+    id: {
+        type: String,
+        required: true,
+    },
     open: {
         type: Boolean,
         default: true,
@@ -61,11 +47,11 @@ defineProps({
         </SidebarGroupLabel>
         <SidebarMenu>
             <template
-                v-for="(item, index) in items"
+                v-for="(item, index) in items.filter(i => i.group === id)"
                 :key="index"
             >
                 <Collapsible
-                    v-if="'children' in item && open"
+                    v-if="!item.parent && open"
                     default-open
                     class="group/collapsible"
                 >
@@ -74,7 +60,7 @@ defineProps({
                             <SidebarMenuButton
                                 :tooltip="item.label"
                             >
-                                <Icon :name="item.icon" />
+                                <Icon :name="item.icon || 'heroicons:cube'" />
                                 <span>{{ item.label }}</span>
                             </SidebarMenuButton>
                         </CollapsibleTrigger>
@@ -82,7 +68,7 @@ defineProps({
                             <SidebarMenuSub>
                                 <SidebarMenuSubItem>
                                     <SidebarMenuButton
-                                        v-for="child in item.children"
+                                        v-for="child in items.filter(i => i.parent === item.id)"
                                         :key="child.label"
                                         as-child
                                         :is-active="child.to === $route.path"
