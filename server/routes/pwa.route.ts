@@ -15,6 +15,10 @@ router.get('/pwa.json', async () => {
                 'src': '/pwa-screenshot-01.png',
                 'form_factor': 'wide',
                 'sizes': '2160x1356'
+            },
+            {
+                'src': '/pwa-screenshot-02.png',
+                'sizes': '750x1334'
             }
         ],
         'icons': [
