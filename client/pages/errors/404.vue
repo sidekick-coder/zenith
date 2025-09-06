@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import Button from '#client/components/Button.vue'
 import Icon from '#client/components/Icon.vue'
 
 </script>
@@ -11,6 +12,14 @@ import Icon from '#client/components/Icon.vue'
                 class="size-20"
             />
             <div>404 error</div>
+
+            <Button
+                variant="outline"
+                size="lg"
+                to="/"
+            >
+                {{ $t('Go to Home') }}
+            </Button>
         </div>
     </div>
 </template>
