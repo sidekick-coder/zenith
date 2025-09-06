@@ -3,6 +3,6 @@ export const metaValue = {
         return value
     },
     async toDb(value: string | null) {
-        return value
+        return value || ''
     }
 }
