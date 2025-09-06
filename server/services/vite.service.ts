@@ -59,6 +59,9 @@ export class ViteServer {
             // state
             head += `<script>window.__INITIAL_STATE__ = ${JSON.stringify(state)}</script>`
 
+            // inject manifest
+            head += '<link rel="manifest" href="/pwa.json">'
+
             const html = template
                 .replace('<!--app-head-->', head)
                 .replace('<!--app-html-->', body)

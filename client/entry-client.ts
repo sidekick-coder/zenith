@@ -25,3 +25,11 @@ async function main(){
 }
 
 main()
+
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+            .then(() => console.log('sw registered'))
+            .catch(err => console.error('sw failed:', err))
+    })
+}
