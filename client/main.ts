@@ -46,20 +46,20 @@ export async function createApp() {
         .map((s: string) => s.trim())
 
     hide.forEach(id => menu.remove(id))
+    
+    const homeRoute = config.get('site.home_route_path', '/auth/login')
+    
+    const route = router.resolve(homeRoute)
+    const record = route.matched[route.matched.length - 1]
 
-    if (config.has('site.home_route_path')) {
-        const homeRoute = config.get('site.home_route_path')
-        const route = router.resolve(homeRoute)
-        const record = route.matched[route.matched.length - 1]
-
-        if (record) {
-            router.addRoute({
-                ...record,
-                path: '/',
-                name: 'home',
-            })
-        }
+    if (record) {
+        router.addRoute({
+            ...record,
+            path: '/',
+            name: 'home',
+        })
     }
+    
 
     // add error 404
     router.addRoute({
