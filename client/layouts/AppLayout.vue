@@ -161,7 +161,7 @@ async function onLogout() {
 
     toast.error($t('You have been logged out.'))
 
-    window.location.href = '/admin/auth/login'
+    window.location.href = '/'
 }
 </script>
 
