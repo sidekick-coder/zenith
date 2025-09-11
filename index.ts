@@ -139,6 +139,8 @@ async function main() {
 
     await vite.init(app)
     await config.loadAndWatch()
+    
+    build.watch()
 
     app.use('*all', (req, res) => {
         const url = new URL(req.originalUrl, `http://${req.headers.host}`)

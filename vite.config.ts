@@ -31,7 +31,7 @@ export default defineConfig({
         watch: {
             ignored: [
                 '**/server',
-                '**/console',
+                '**/storage',
                 '**/modules/**/server',
             ]
         }
