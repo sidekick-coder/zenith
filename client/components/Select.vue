@@ -13,6 +13,7 @@ import {
 import { $fetch } from '#client/utils/fetcher.ts'
 
 interface Props {
+    label?: string
     placeholder?: string
     disabled?: boolean
     readonly?: boolean
@@ -69,26 +70,35 @@ watch(() => props.fetch, fetchOptions, { immediate: true })
 </script>
 
 <template>
-    <Select
-        v-model="modelValue"
-        :disabled="disabled"
-    >
-        <SelectTrigger class="w-full">
-            <SelectValue :placeholder="placeholder" />
-        </SelectTrigger>
-        <SelectContent>
-            <SelectGroup>
-                <SelectLabel v-if="!options.length">
-                    {{ $t('no_results') }}
-                </SelectLabel>
-                <SelectItem
-                    v-for="option in options"
-                    :key="findValue(option)"
-                    :value="findValue(option)"
-                >
-                    {{ findLabel(option) }}
-                </SelectItem>
-            </SelectGroup>
-        </SelectContent>
-    </Select>
+    <div>
+        <label
+            v-if="label"
+            class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 block mb-4"
+        >
+            {{ label }}
+        </label>
+
+        <Select
+            v-model="modelValue"
+            :disabled="disabled"
+        >
+            <SelectTrigger class="w-full">
+                <SelectValue :placeholder="placeholder" />
+            </SelectTrigger>
+            <SelectContent>
+                <SelectGroup>
+                    <SelectLabel v-if="!options.length">
+                        {{ $t('no_results') }}
+                    </SelectLabel>
+                    <SelectItem
+                        v-for="option in options"
+                        :key="findValue(option)"
+                        :value="findValue(option)"
+                    >
+                        {{ findLabel(option) }}
+                    </SelectItem>
+                </SelectGroup>
+            </SelectContent>
+        </Select>
+    </div>
 </template>

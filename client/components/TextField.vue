@@ -44,7 +44,7 @@ defineEmits(['update:modelValue'])
 </script>
 <template>
     <div>
-        <label class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+        <label class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 block mb-4">
             {{ label }}
         </label>
         <div class="flex gap-4">
