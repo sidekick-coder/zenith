@@ -17,7 +17,7 @@ defineProps({
     },
     label: {
         type: String,
-        required: true,
+        default: null,
     },
     hint: {
         type: String,
@@ -57,7 +57,7 @@ defineEmits(['update:modelValue'])
         </Label>
         <div class="flex">
             <Label
-                v-if="variant === 'horizontal'"
+                v-if="label && variant === 'horizontal'"
                 class="h-10 flex items-center border px-2 rounded-l bg-secondary text-xs"
             >
                 {{ label }}
@@ -70,7 +70,7 @@ defineEmits(['update:modelValue'])
                 :autocomplete
                 :readonly
                 :autofocus
-                :class="variant === 'horizontal' ? 'rounded-l-none flex-1' : ''"
+                :class="label && variant === 'horizontal' ? 'rounded-l-none flex-1' : ''"
                 class="h-10"
                 @update:model-value="$emit('update:modelValue', $event)"
             />
