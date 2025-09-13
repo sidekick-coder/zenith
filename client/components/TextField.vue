@@ -1,7 +1,12 @@
 <script setup lang="ts">
+import Label from './ui/label/Label.vue'
 import { Input } from '#client/components/ui/input'
 
 defineProps({
+    variant: {
+        type: String,
+        default: 'default',
+    },
     modelValue: {
         type: String,
         default: '',
@@ -44,10 +49,19 @@ defineEmits(['update:modelValue'])
 </script>
 <template>
     <div>
-        <label class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 block mb-4">
+        <Label
+            v-if="label && variant !== 'horizontal'"
+            class="mb-4"
+        >
             {{ label }}
-        </label>
-        <div class="flex gap-4">
+        </Label>
+        <div class="flex">
+            <Label
+                v-if="variant === 'horizontal'"
+                class="h-10 flex items-center border px-2 rounded-l bg-secondary text-xs"
+            >
+                {{ label }}
+            </Label>
             <Input
                 :model-value="modelValue"
                 :type
@@ -56,6 +70,7 @@ defineEmits(['update:modelValue'])
                 :autocomplete
                 :readonly
                 :autofocus
+                :class="variant === 'horizontal' ? 'rounded-l-none flex-1' : ''"
                 class="h-10"
                 @update:model-value="$emit('update:modelValue', $event)"
             />
