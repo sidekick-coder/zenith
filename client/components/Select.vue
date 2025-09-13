@@ -10,9 +10,11 @@ import {
     SelectTrigger,
     SelectValue,
 } from './ui/select'
+import Label from './ui/label/Label.vue'
 import { $fetch } from '#client/utils/fetcher.ts'
 
 interface Props {
+    variant?: string
     label?: string
     placeholder?: string
     disabled?: boolean
@@ -24,6 +26,8 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
+    variant: 'default',
+    label: undefined,
     placeholder: undefined,
     disabled: false,
     readonly: false,
@@ -71,34 +75,46 @@ watch(() => props.fetch, fetchOptions, { immediate: true })
 
 <template>
     <div>
-        <label
-            v-if="label"
+        <Label
+            v-if="label && variant !== 'horizontal'"
             class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 block mb-4"
         >
             {{ label }}
-        </label>
+        </Label>
 
-        <Select
-            v-model="modelValue"
-            :disabled="disabled"
-        >
-            <SelectTrigger class="w-full">
-                <SelectValue :placeholder="placeholder" />
-            </SelectTrigger>
-            <SelectContent>
-                <SelectGroup>
-                    <SelectLabel v-if="!options.length">
-                        {{ $t('no_results') }}
-                    </SelectLabel>
-                    <SelectItem
-                        v-for="option in options"
-                        :key="findValue(option)"
-                        :value="findValue(option)"
-                    >
-                        {{ findLabel(option) }}
-                    </SelectItem>
-                </SelectGroup>
-            </SelectContent>
-        </Select>
+        <div class="flex">
+            <Label
+                v-if="variant === 'horizontal'"
+                class="h-10 flex items-center border px-2 rounded-l bg-secondary text-xs"
+            >
+                {{ label }}
+            </Label>
+            <Select
+                v-model="modelValue"
+                :disabled="disabled"
+                class="h-10"
+            >
+                <SelectTrigger
+                    :class="variant === 'horizontal' ? 'rounded-l-none flex-1' : 'w-full'"
+                    class="!h-10"
+                >
+                    <SelectValue :placeholder="placeholder" />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectGroup>
+                        <SelectLabel v-if="!options.length">
+                            {{ $t('no_results') }}
+                        </SelectLabel>
+                        <SelectItem
+                            v-for="option in options"
+                            :key="findValue(option)"
+                            :value="findValue(option)"
+                        >
+                            {{ findLabel(option) }}
+                        </SelectItem>
+                    </SelectGroup>
+                </SelectContent>
+            </Select>
+        </div>
     </div>
 </template>
