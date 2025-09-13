@@ -42,7 +42,11 @@ defineProps({
     autofocus: {
         type: Boolean,
         default: false,
-    }
+    },
+    labelClass: {
+        type: String,
+        default: '',
+    },
 })
 
 defineEmits(['update:modelValue'])
@@ -52,6 +56,7 @@ defineEmits(['update:modelValue'])
         <Label
             v-if="label && variant !== 'horizontal'"
             class="mb-4"
+            :class="labelClass"
         >
             {{ label }}
         </Label>
@@ -59,6 +64,7 @@ defineEmits(['update:modelValue'])
             <Label
                 v-if="label && variant === 'horizontal'"
                 class="h-10 flex items-center border px-2 rounded-l bg-secondary text-xs"
+                :class="labelClass"
             >
                 {{ label }}
             </Label>

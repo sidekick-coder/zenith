@@ -23,6 +23,7 @@ interface Props {
     valueKey?: string
     fetch?: string
     fetchKey?: string
+    labelClass?: string
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -33,6 +34,7 @@ const props = withDefaults(defineProps<Props>(), {
     readonly: false,
     labelKey: 'label',
     valueKey: 'value',
+    labelClass: '',
     fetch: undefined,
     fetchKey: undefined,
 })
@@ -78,6 +80,7 @@ watch(() => props.fetch, fetchOptions, { immediate: true })
         <Label
             v-if="label && variant !== 'horizontal'"
             class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 block mb-4"
+            :class="labelClass"
         >
             {{ label }}
         </Label>
@@ -86,6 +89,7 @@ watch(() => props.fetch, fetchOptions, { immediate: true })
             <Label
                 v-if="variant === 'horizontal'"
                 class="h-10 flex items-center border px-2 rounded-l bg-secondary text-xs"
+                :class="labelClass"
             >
                 {{ label }}
             </Label>
