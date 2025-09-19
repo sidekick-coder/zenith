@@ -11,6 +11,11 @@
         "noFallthroughCasesInSwitch": true,
         "noUncheckedSideEffectImports": true,
         "baseUrl": ".",
+        "lib": [
+            "es2023",
+            "dom",
+            "dom.iterable"
+        ],
         "paths": {
             "#client/*": [
                 "client/*"
