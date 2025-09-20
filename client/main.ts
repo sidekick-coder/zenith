@@ -19,12 +19,10 @@ export async function createApp() {
 
     menu.clear()
 
-    setup.setup({
+    await setup.setup({
         router,
         menu 
     })
-
-    
 
     const files = import.meta.glob<{ default: ClientSetup }>('../storage/runtime/client/*.setup.ts', { eager: true })
 

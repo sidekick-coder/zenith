@@ -7,7 +7,7 @@ interface SetupClientParams {
 }
 
 interface ClientSetupFn {
-    (params: SetupClientParams): void;
+    (params: SetupClientParams): void | Promise<void>;
 }
 
 export interface ClientSetup {
