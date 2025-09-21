@@ -45,7 +45,7 @@ defineProps({
     },
     labelClass: {
         type: String,
-        default: '',
+        default: 'min-w-[132px]',
     },
     inputClass: {
         type: String,

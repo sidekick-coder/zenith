@@ -34,7 +34,7 @@ const props = withDefaults(defineProps<Props>(), {
     readonly: false,
     labelKey: 'label',
     valueKey: 'value',
-    labelClass: '',
+    labelClass: 'min-w-[132px]',
     fetch: undefined,
     fetchKey: undefined,
 })
