@@ -47,6 +47,10 @@ defineProps({
         type: String,
         default: '',
     },
+    inputClass: {
+        type: String,
+        default: '',
+    },
 })
 
 defineEmits(['update:modelValue'])
@@ -76,7 +80,7 @@ defineEmits(['update:modelValue'])
                 :autocomplete
                 :readonly
                 :autofocus
-                :class="label && variant === 'horizontal' ? 'rounded-l-none flex-1' : ''"
+                :class="[label && variant === 'horizontal' ? 'rounded-l-none flex-1' : '', inputClass]"
                 class="h-10"
                 @update:model-value="$emit('update:modelValue', $event)"
             />
