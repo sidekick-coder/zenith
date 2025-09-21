@@ -42,12 +42,12 @@ const emit = defineEmits<{
     (e: 'click'): void;
 }>()
 
-function onClick() {
+function onClick(e: Event) {
     if (props.href) {
         return
     }
 
-    emit('click')
+    emit('click', e)
 }
 
 const as = computed(() => {
