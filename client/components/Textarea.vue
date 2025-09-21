@@ -18,6 +18,10 @@ defineProps({
         type: Number,
         default: 3,
     },
+    textareaClass: {
+        type: String,
+        default: '',
+    }
 })
 
 defineEmits(['update:modelValue'])
@@ -31,6 +35,7 @@ defineEmits(['update:modelValue'])
             :model-value="modelValue"
             class="min-h-20"
             :rows="rows"
+            :class="textareaClass"
             @update:model-value="$emit('update:modelValue', $event)"
         />
         <p
