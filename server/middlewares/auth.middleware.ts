@@ -3,7 +3,7 @@ import auth from '#server/facades/auth.facade.ts'
 import type {
     HttpContext, Middleware, 
     MiddlewareHandleResult 
-} from '#server/router/types.ts'
+} from '#server/contracts/router.contract.ts'
 
 export type AuthMiddlewareContext = MiddlewareHandleResult<[AuthMiddleware]>
 

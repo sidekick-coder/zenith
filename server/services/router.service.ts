@@ -2,8 +2,8 @@ import fs from 'fs'
 import path from 'path'
 import { join } from 'path'
 import rootLogger from '../facades/logger.facade.ts'
-import Route from './route.ts'
-import type { Handler, Middleware } from './types.ts'
+import Route from '../entities/route.entity.ts'
+import type { Handler, Middleware } from '../contracts/router.contract.ts'
 import { tryCatch } from '#shared/tryCatch.ts'
 
 const logger = rootLogger.child({ label: 'router' })

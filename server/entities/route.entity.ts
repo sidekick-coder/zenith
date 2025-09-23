@@ -1,4 +1,4 @@
-import type { Handler,  Middleware } from './types.ts'
+import type { Handler,  Middleware } from '../contracts/router.contract.ts'
 
 export default class Route {
     public path: string = ''
