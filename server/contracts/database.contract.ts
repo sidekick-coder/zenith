@@ -24,11 +24,43 @@ export interface TokenTable extends WithTimestamp {
   expires_at: string | null
 }
 
+export interface RoleTable {
+  id: Generated<number>
+  name: string
+}
+
+export interface UserRoleTable {
+  user_id: number
+  role_id: number
+}
+
+export interface PermissionTable {
+  id: Generated<number>
+  subject: string
+  action: string
+  conditions: string
+}
+
+export interface RolePermissionTable {
+  role_id: number
+  permission_id: number
+}
+
+export interface UserPermissionTable {
+  user_id: number
+  permission_id: number
+}
+
 // Base interface that modules can extend
 export interface Tables {
   users: UserTable
   tokens: TokenTable
   migrations: MigrationsTable
+  roles: RoleTable
+  user_roles: UserRoleTable
+  permissions: PermissionTable
+  role_permissions: RolePermissionTable
+  user_permissions: UserPermissionTable
 }
 
 
@@ -36,6 +68,11 @@ export interface Database  {
   users: UserTable
   tokens: TokenTable
   migrations: MigrationsTable
+  roles: RoleTable
+  user_roles: UserRoleTable
+  permissions: PermissionTable
+  role_permissions: RolePermissionTable
+  user_permissions: UserPermissionTable
 }
 
 export {}
