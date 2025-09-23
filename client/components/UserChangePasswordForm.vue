@@ -12,9 +12,14 @@ import Button from '#client/components/Button.vue'
 import { $t } from '#shared/lang.ts'
 import { $fetch } from '#client/utils/fetcher.ts'
 import { tryCatch } from '#shared/tryCatch.ts'
+import type User from '#shared/entities/user.entity.ts'
 
-const props = defineProps<{ userId: string }>()
 const saving = ref(false)
+
+const model = defineModel<User>({
+    type: Object,
+    required: true,
+})
 
 const schema = v.pipe(
     v.object({
@@ -44,7 +49,7 @@ const { handleSubmit } = useForm({
 const onSubmit = handleSubmit(async (values) => {
     saving.value = true
 
-    const [error] = await tryCatch(() =>$fetch(`/api/users/${props.userId}/password`, {
+    const [error] = await tryCatch(() =>$fetch(`/api/users/${model.value.id}/password`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(values),

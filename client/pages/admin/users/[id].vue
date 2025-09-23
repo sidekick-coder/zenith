@@ -1,18 +1,96 @@
 <script setup lang="ts">
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
+import {
+    defineAsyncComponent, onMounted, ref 
+} from 'vue'
+import { useRouteQuery } from '@vueuse/router'
+import { toast } from 'vue-sonner'
 import AppLayout from '#client/layouts/AppLayout.vue'
-import UserDetailsForm from '#client/components/UserDetailsForm.vue'
-import UserChangePasswordForm from '#client/components/UserChangePasswordForm.vue'
+import { $t } from '#shared/lang.ts'
+import Tabs from '#client/components/ui/tabs/Tabs.vue'
+import TabsList from '#client/components/ui/tabs/TabsList.vue'
+import TabsTrigger from '#client/components/ui/tabs/TabsTrigger.vue'
+import TabsContent from '#client/components/ui/tabs/TabsContent.vue'
+import { tryCatch } from '#shared/tryCatch.ts'
+import { $fetch } from '#client/utils/fetcher.ts'
+import type User from '#shared/entities/user.entity.ts'
 
 const route = useRoute()
+const router = useRouter()
 const userId = route.params.id as string
-</script>
 
+const tab = useRouteQuery('tab', 'details')
+const loading = ref(false)
+const user = ref<User>()
+
+const tabs = [
+    {
+        id: 'details',
+        label: $t('Details'),
+        component: defineAsyncComponent(() => import('#client/components/UserDetailsForm.vue')),
+    },
+    {
+        id: 'change-password',
+        label: $t('Change Password'),
+        component: defineAsyncComponent(() => import('#client/components/UserChangePasswordForm.vue')),
+    },
+]
+
+async function load(){
+    loading.value = true
+    
+    const [error, response] = await tryCatch(() => $fetch<User>(`/api/users/${route.params.id}`))
+
+    if (error) {
+        loading.value = false
+        toast.error($t('Failed to load user details.'))
+        router.push('/users')
+        return
+    }
+
+    user.value = response
+
+    setTimeout(() => {
+        loading.value = false
+    }, 800)
+}
+
+onMounted(load)
+</script>
 <template>
-    <AppLayout>
-        <div class="space-y-8">
-            <UserDetailsForm :user-id="userId" />
-            <UserChangePasswordForm :user-id="userId" />
-        </div>
+    <AppLayout
+        :breadcrumbs="[
+            { label: $t('Users'), to: '/admin/users' },
+            { label: user?.name || $t('Loading...') }
+        ]"
+    >
+        <Tabs
+            v-model="tab"
+            default-value="details" 
+        >
+            <TabsList>
+                <TabsTrigger
+                    v-for="t in tabs"
+                    :key="t.id"
+                    :value="t.id"
+                    class="min-w-60"
+                >
+                    {{ t.label }}
+                </TabsTrigger>
+            </TabsList>
+                                
+            <TabsContent
+                v-for="t in tabs"
+                :key="t.id"
+                :value="t.id"
+            >
+                <component
+                    :is="t.component"
+                    v-if="t.component && user"
+                    v-model="user"
+                    :user-id="userId"
+                />
+            </TabsContent>
+        </Tabs>
     </AppLayout>
 </template>

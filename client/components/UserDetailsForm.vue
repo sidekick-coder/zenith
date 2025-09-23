@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
-import { useRouter } from 'vue-router'
 import { useForm } from 'vee-validate'
 import * as v from 'valibot'
 import { toTypedSchema } from '@vee-validate/valibot'
@@ -13,11 +12,15 @@ import {
 } from '#client/components/ui/card'
 import FormTextField from '#client/components/FormTextField.vue'
 import Button from '#client/components/Button.vue'
+import type User from '#shared/entities/user.entity.ts'
 
-const props = defineProps<{ userId: string }>()
-const router = useRouter()
 const loading = ref(false)
 const saving = ref(false)
+
+const model = defineModel<User>({
+    type: Object,
+    required: true,
+})
 
 const schema = v.object({
     name: v.pipe(v.string(), v.minLength(2, $t('Name is required'))),
@@ -32,16 +35,8 @@ const { handleSubmit, setValues } = useForm({
 
 async function load(){
     loading.value = true
-    const [error, response] = await tryCatch(() => $fetch(`/api/users/${props.userId}`))
 
-    if (error) {
-        loading.value = false
-        toast.error($t('Failed to load user details.'))
-        router.push('/users')
-        return
-    }
-
-    setValues(response)
+    setValues(model.value)
 
     setTimeout(() => {
         loading.value = false
@@ -52,21 +47,26 @@ async function load(){
 const onSubmit = handleSubmit(async (form) => {
     saving.value = true
 
-    const [error] = await tryCatch(() => $fetch(`/api/users/${props.userId}`, {
+    const [error] = await tryCatch(() => $fetch(`/api/users/${model.value.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form),
     }))
 
     if (error) {
-        toast.error($t('Failed to update user details.'))
+        toast.error($t('Failed to update.'))
         saving.value = false
         return
     }
 
+    model.value = {
+        ...model.value,
+        ...form 
+    }
+
     setTimeout(() => {
         saving.value = false
-        toast.success($t('User details updated successfully.'))
+        toast.success($t('Updated successfully.'))
     }, 800)
 })
 
