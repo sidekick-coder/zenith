@@ -38,6 +38,6 @@ export type MiddlewareHandleResult<T extends Middleware[] = Middleware[]> =
         : { [key: string]: any;};
 
 
-export interface Handler<T extends HttpContext> {
-    (ctx: T): Promise<any> | any;
+export interface Handler<T = Record<string, any>> {
+    (ctx: T & HttpContextBase): Promise<any> | any;
 }

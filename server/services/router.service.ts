@@ -3,7 +3,9 @@ import path from 'path'
 import { join } from 'path'
 import rootLogger from '../facades/logger.facade.ts'
 import Route from '../entities/route.entity.ts'
-import type { Handler, Middleware } from '../contracts/router.contract.ts'
+import type {
+    Handler, Middleware, MiddlewareHandleResult 
+} from '../contracts/router.contract.ts'
 import { tryCatch } from '#shared/tryCatch.ts'
 
 const logger = rootLogger.child({ label: 'router' })
@@ -17,7 +19,7 @@ interface MiddlewareRegister {
 }
 
 
-export default class Router {
+export default class Router<C = Record<string, any>> {
     private routes: Route[] = []
     private filename = null as string | null
 
@@ -26,7 +28,7 @@ export default class Router {
 
     private groupPrefixes: string[] = []
 
-    private groups: Router[] = []
+    private groups: Router<any>[] = []
 
     public open(filename: string) {
         this.filename = filename
@@ -46,7 +48,7 @@ export default class Router {
             context,
         })
 
-        return this
+        return this as Router<C & MiddlewareHandleResult<[typeof middleware]>>
     }
 
     public prefix(prefix: string) {
@@ -74,7 +76,7 @@ export default class Router {
         this.routes.push(route)
     }
 
-    public get(path: string, handler: Handler<any>) {
+    public get(path: string, handler: Handler<C>) {
         this.add({
             path,
             method: 'GET',
@@ -82,7 +84,7 @@ export default class Router {
         })
     }
 
-    public post(path: string, handler: Handler<any>) {
+    public post(path: string, handler: Handler<C>) {
         this.add({
             path,
             method: 'POST',
@@ -90,7 +92,7 @@ export default class Router {
         })
     }
 
-    public put(path: string, handler: Handler<any>) {
+    public put(path: string, handler: Handler<C>) {
         this.add({
             path,
             method: 'PUT',
@@ -98,7 +100,7 @@ export default class Router {
         })
     }
 
-    public patch(path: string, handler: Handler<any>) {
+    public patch(path: string, handler: Handler<C>) {
         this.add({
             path,
             method: 'PATCH',
@@ -106,7 +108,7 @@ export default class Router {
         })
     }
 
-    public delete(path: string, handler: Handler<any>) {
+    public delete(path: string, handler: Handler<C>) {
         this.add({
             path,
             method: 'DELETE',
@@ -116,7 +118,7 @@ export default class Router {
     
 
     public group() {
-        const group = new Router()
+        const group = new Router<C>()
 
         group.filename = this.filename
         group.groupPrefixes = this.prefixes // Inherit prefixes from parent

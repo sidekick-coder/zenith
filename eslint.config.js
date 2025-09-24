@@ -46,7 +46,7 @@ export default defineConfigWithVueTs(
             'newline-per-chained-call': ['error', { 'ignoreChainWithDepth': 2 }],
             '@typescript-eslint/no-explicit-any': 'off',
             '@typescript-eslint/no-unsafe-function-type': 'off',
-            '@typescript-eslint/no-unused-vars': ['error', {
+            '@typescript-eslint/no-unused-vars': ['warn', {
                 'argsIgnorePattern': '^_',
                 'varsIgnorePattern': '^_'
             }],

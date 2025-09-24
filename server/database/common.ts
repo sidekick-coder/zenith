@@ -1,6 +1,5 @@
 import { CreateTableBuilder, sql  } from 'kysely'
-import type { ColumnType, UpdateQueryBuilder } from 'kysely'
-import type { Database } from '#server/contracts/database.contract.ts'
+import type { ColumnType } from 'kysely'
 
 export interface WithTimestamp {
   created_at: ColumnType<Date, string | undefined, never>
