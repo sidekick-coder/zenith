@@ -1,11 +1,15 @@
 import { Kysely } from 'kysely'
+import { addTimestampColumns, addSoftDeleteColumn } from '#server/queries/index.ts'
 
 export async function up(db: Kysely<any>): Promise<void> {
     await db.schema.createTable('permissions')
         .addColumn('id', 'integer', col => col.primaryKey())
+        .addColumn('name', 'varchar(255)', col => col.notNull())
         .addColumn('subject', 'varchar(255)', col => col.notNull())
         .addColumn('action', 'varchar(255)', col => col.notNull())
-        .addColumn('conditions', 'text', col => col.notNull())
+        .addColumn('conditions', 'text')
+        .$call(addTimestampColumns)
+        .$call(addSoftDeleteColumn)
         .execute()
 
     await db.schema.createTable('permissions_assignments')
