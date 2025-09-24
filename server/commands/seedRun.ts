@@ -25,7 +25,7 @@ function findSeedPath(seedName: string, moduleName?: string): string | null {
 
     if (moduleName) {
         for (const ext of extensions) {
-            const moduleSeedPath = basePath(`modules/${moduleName}/server/database/seeds/${seedName}${ext}`)
+            const moduleSeedPath = basePath(`modules/${moduleName}/server/seeds/${seedName}${ext}`)
             if (fs.existsSync(moduleSeedPath)) {
                 return moduleSeedPath
             }
@@ -35,7 +35,7 @@ function findSeedPath(seedName: string, moduleName?: string): string | null {
 
     // Check general seeds directory first
     for (const ext of extensions) {
-        const generalSeedPath = serverPath(`database/seeds/${seedName}${ext}`)
+        const generalSeedPath = serverPath(`seeds/${seedName}${ext}`)
 
         if (fs.existsSync(generalSeedPath)) {
             return generalSeedPath

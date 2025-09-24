@@ -9,7 +9,7 @@ import { findOrFail } from '#server/queries/findOrFail.ts'
 program.command('permission:attach')
     .helpGroup('permission')
     .description('Add a permission to a entity')
-    .requiredOption('-p, --permission-id <permissionId>', 'Permission ID')
+    .requiredOption('-p, --permissionId <permissionId>', 'Permission ID or name')
     .requiredOption('-t, --type <type>', 'Assignable type (user, role)')
     .requiredOption('-i, --id <id>', 'Assignable ID')
     .action(async (options) => {
@@ -17,7 +17,13 @@ program.command('permission:attach')
 
         const permission = await find('permissions', {
             serialize: Permission.from,
-            query: (qb) => qb.selectAll().where('id', '=', parseInt(permissionId, 10))
+            query: (qb) => {
+                if (!Number.isInteger(parseInt(permissionId, 10))) {
+                    return qb.selectAll().where('name', '=', permissionId)
+                }
+
+                return qb.selectAll().where('id', '=', parseInt(permissionId, 10))
+            }
         })
 
         if (!permission) {
@@ -41,7 +47,7 @@ program.command('permission:attach')
         const exists = await find('permissions_assignments', {
             query: (qb) => qb
                 .selectAll()
-                .where('permission_id', '=', parseInt(permissionId, 10))
+                .where('permission_id', '=', permission.id)
                 .where('assignable_type', '=', type)
                 .where('assignable_id', '=', id.toString()),
         })
@@ -54,7 +60,7 @@ program.command('permission:attach')
 
         const created = await create('permissions_assignments', {
             values: {
-                permission_id: parseInt(permissionId, 10),
+                permission_id: permission.id,
                 assignable_type: type,
                 assignable_id: id.toString(),
             }
