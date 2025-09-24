@@ -9,4 +9,8 @@ export default class User {
     constructor(data: User) {
         Object.assign(this, data)
     }
+
+    public static from(row: Partial<User>): User {
+        return new User(row as User)
+    }
 }
