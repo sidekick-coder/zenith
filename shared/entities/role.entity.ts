@@ -7,4 +7,8 @@ export default class Role {
     constructor(data: Partial<Role>) {
         Object.assign(this, data)
     }
+
+    public static from(payload: any): Role {
+        return new Role(payload)
+    }
 }

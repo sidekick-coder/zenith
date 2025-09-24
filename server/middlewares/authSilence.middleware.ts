@@ -1,6 +1,6 @@
 import auth from '#server/facades/auth.facade.ts'
 import type { HttpContext, Middleware, } from '#server/contracts/router.contract.ts'
-import type User from '#shared/entities/user.entity.ts'
+import type User from '#server/entities/user.entity.ts'
 
 export type AuthSilenceMiddlewareContext = {
     user: null | User

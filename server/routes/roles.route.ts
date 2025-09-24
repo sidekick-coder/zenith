@@ -12,7 +12,7 @@ const router = rootRouter.use(authMiddleware)
 
 router.get('/', async ({ acl }) => {
     
-    acl.authorize('read', 'roles')
+    acl.authorize('read', 'Role')
     
     const data = await list('roles', { serialize: r => new Role(r) })
 
@@ -36,7 +36,9 @@ router.get('/:id', async ({ params, acl }) => {
     return new Role(row)
 })
 
-router.post('/', async ({ body }) => {
+router.post('/', async ({ body, acl }) => {
+    acl.authorize('create', 'Role')
+
     const payload = validator.validate(body, (v) => v.object({
         name: v.pipe(v.string(), v.minLength(3)),
         description: v.optional(v.string()),

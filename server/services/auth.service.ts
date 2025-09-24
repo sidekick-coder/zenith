@@ -1,6 +1,7 @@
 import hasher from '#server/facades/hasher.facade.ts'
 import db from '#server/facades/db.facade.ts'
 import TokenService from '#server/services/token.service.ts'
+import User from '#server/entities/user.entity.ts'
 
 export interface LoginCredentials {
     uuid: string
@@ -102,7 +103,7 @@ export default class AuthService {
             return null
         }
 
-        return user
+        return new User(user)
     }
 
     async logout(tokenValue: string): Promise<boolean> {
