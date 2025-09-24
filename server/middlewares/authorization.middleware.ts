@@ -5,8 +5,11 @@ import type {
     MiddlewareHandleResult 
 } from '#server/contracts/router.contract.ts'
 import BaseException from '#server/exceptions/base.ts'
+import rootLogger from '#server/facades/logger.facade.ts'
 
 export type AuthorizationContext = MiddlewareHandleResult<[AuthorizationMiddleware]>
+
+const logger = rootLogger.child({ label: 'acl' })
 
 export class Acl {
     public ability: ReturnType<typeof defineAbility>
@@ -34,14 +37,17 @@ export class AuthorizationMiddleware implements Middleware {
     public async handle(ctx: AuthSilenceMiddlewareContext){
 
         if (ctx.user) {
-            await ctx.user.loadRoles()
+            await ctx.user.loadPermissions()
         }
 
+        const permissions = ctx.user?.permissions || []
+
         const ability = defineAbility((can) => {
-            if (ctx.user?.roles?.find(r => r.name === 'admin')) {
-                can('manage', 'all')
-                return
-            }
+            permissions.forEach((permission) => {
+                can(permission.action, permission.subject, permission.conditions)
+            })
+
+            logger.debug('user permissions', { permissions })
         })
 
         const acl = new Acl(ability)

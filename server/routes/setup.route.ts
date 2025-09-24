@@ -7,6 +7,7 @@ import migrator from '#server/database/migrator.ts'
 import { tryCatch } from '#shared/tryCatch.ts'
 import db from '#server/facades/db.facade.ts'
 import userRepository from '#server/repositories/user.repository.ts'
+import { create } from '#server/queries/index.ts'
 
 router.post('/setup/database', async ({ body }) => {
     const payload = body
@@ -32,7 +33,7 @@ router.post('/setup/database', async ({ body }) => {
         connections: { default: connection }
     }
 
-    config.set('database', database, true)
+    config.set('database', database)
 
     console.log(config.list())
 
@@ -42,11 +43,11 @@ router.post('/setup/database', async ({ body }) => {
     })
 
     if (error) {
-        config.set('database', {}, true)
+        config.set('database', {})
         throw new BaseException($t('Failed to run migrations'), 500)
     }
 
-    config.set('setup.database', true, true)
+    config.set('setup.database', true)
 
     return { status: 200, }
 })
@@ -62,20 +63,30 @@ router.post('/setup/user', async ({ body }) => {
         throw new BaseException($t('Username, Email and password are required'), 400)
     }
 
-    const [error] = await tryCatch(async () => {
-        return userRepository.create({
-            name: payload.name || '',
-            username: payload.username,
-            email: payload.email || '',
-            password: payload.password // Raw password - repository will hash it
-        })
+    const user = await userRepository.create({
+        name: payload.name || '',
+        username: payload.username,
+        email: payload.email || '',
+        password: payload.password // Raw password - repository will hash it
     })
 
-    if (error) {
-        throw BaseException.fromError(error)
-    }
+    const permission = await create('permissions', {
+        values: {
+            action: 'manage',
+            subject: 'all',
+            conditions: ''
+        }
+    })
 
-    config.set('setup.user', true, true)
+    await create('permissions_assignments', {
+        values: {
+            permission_id: permission.id,
+            assignable_type: 'user',
+            assignable_id: user!.id.toString()
+        }
+    })  
+
+    config.set('setup.user', true)
 
     return { status: 200, }
 })

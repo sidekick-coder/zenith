@@ -1,4 +1,3 @@
-import { create } from '#server/queries/create.ts'
 import { list } from '#server/queries/list.ts'
 import Permission from '#shared/entities/permission.entity.ts'
 import Role from '#shared/entities/role.entity.ts'
@@ -21,22 +20,37 @@ export default class User extends BaseUser {
         })
     }
 
-    public async addPermission(payload: Omit<Permission, 'id'>){
-        const permission = create('permissions', {
+    public async loadPermissions(){
+
+        if (!this.roles) {
+            await this.loadRoles()
+        }
+
+        const userPermissions = await list('permissions', {
             serialize: Permission.from,
-            values: {
-                ...payload,
-                conditions: JSON.stringify(payload.conditions)
-            }
+            query: (qb) => qb
+                .selectAll()
+                .where('id', 'in', (eb) =>
+                    eb.selectFrom('permissions_assignments')
+                        .select('permission_id')
+                        .where('assignable_type', '=', 'user')
+                        .where('assignable_id', '=', this.id.toString())
+                )
         })
 
-        await create('permissions_assignments', {
-            values: {
-                permission_id: (await permission).id,
-                assignable_type: 'user',
-                assignable_id: this.id.toString(),
-            }
+        const rolesPermissions = await list('permissions', {
+            serialize: Permission.from,
+            query: (qb) => qb
+                .selectAll()
+                .where('id', 'in', (eb) =>
+                    eb.selectFrom('permissions_assignments')
+                        .select('permission_id')
+                        .where('assignable_type', '=', 'role')
+                        .where('assignable_id', 'in', this.roles?.map(r => r.id.toString()) || [])
+                )
         })
+
+        this.permissions = userPermissions.concat(rolesPermissions)
     }
 
 }

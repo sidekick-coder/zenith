@@ -48,20 +48,16 @@ export interface PermissionAssignmentTable {
   assignable_id: string
 }
 
-export interface UserPermissionTable {
-  user_id: number
-  permission_id: number
-}
-
 export interface Database  {
   users: UserTable
   tokens: TokenTable
   migrations: MigrationsTable
+  
   roles: RoleTable
   user_roles: UserRoleTable
+
   permissions: PermissionTable
   permissions_assignments: PermissionAssignmentTable
-  user_permissions: UserPermissionTable
 }
 
 export {}
