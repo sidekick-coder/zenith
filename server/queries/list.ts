@@ -1,8 +1,7 @@
 import type { Selectable } from 'kysely'
+import type { SelectFrom } from './common.ts'
 import type { Database } from '#server/contracts/database.contract.ts'
 import db from '#server/facades/db.facade.ts'
-
-type SelectFrom<T extends keyof Database> = ReturnType<typeof db.selectFrom<T>>
 
 export interface ListOptions<T extends keyof Database> {
     serialize?: (row: Selectable<Database[T]>) => any
