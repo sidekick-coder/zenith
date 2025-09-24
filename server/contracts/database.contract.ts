@@ -27,6 +27,7 @@ export interface TokenTable extends WithTimestamp {
 export interface RoleTable {
   id: Generated<number>
   name: string
+  editable: boolean
 }
 
 export interface UserRoleTable {

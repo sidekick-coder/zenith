@@ -3,9 +3,9 @@ import Router from '#server/services/router.service.ts'
 import setupMiddleware from '#server/middlewares/setup.middleware.ts'
 import authorizationMiddleware from '#server/middlewares/authorization.middleware.ts'
 import authSilenceMiddleware from '#server/middlewares/authSilence.middleware.ts'
-import { MiddlewareHandleResult } from '#server/contracts/router.contract.ts'
+import type { MiddlewareHandleResult } from '#server/contracts/router.contract.ts'
 
-type Context = MiddlewareHandleResult<[typeof setupMiddleware, typeof authSilenceMiddleware, typeof authorizationMiddleware]>
+type Context = MiddlewareHandleResult<[typeof authSilenceMiddleware, typeof authorizationMiddleware]>
 
 di.set('router', new Router<Context>())
 

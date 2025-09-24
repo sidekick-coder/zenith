@@ -4,14 +4,28 @@ export async function up(db: Kysely<any>): Promise<void> {
     await db.schema.createTable('roles')
         .addColumn('id', 'integer', col => col.primaryKey())
         .addColumn('name', 'varchar(255)', col => col.notNull().unique())
+        .addColumn('description', 'text', col => col)
+        .addColumn('editable', 'boolean', col => col.notNull().defaultTo(true))
         .execute()
 
     await db.schema.createTable('user_roles')
-        .addColumn('user_id', 'integer', col => col.notNull())
-        .addColumn('role_id', 'integer', col => col.notNull())
-        .addForeignKeyConstraint('user_roles_user_id_foreign', ['user_id'], 'users', ['id'])
-        .addForeignKeyConstraint('user_roles_role_id_foreign', ['role_id'], 'roles', ['id'])
-        .addPrimaryKeyConstraint('user_roles_pkey', ['user_id', 'role_id'])
+        .addColumn('id', 'integer', col => col.primaryKey().autoIncrement())
+        .addColumn(
+            'user_id',
+            'integer',
+            col => col.notNull()
+                .references('users.id')
+                .onDelete('cascade')
+        )
+        .addColumn(
+            'role_id',
+            'integer',
+            col => col
+                .notNull()
+                .references('roles.id')
+                .onDelete('cascade')
+        )
+        .addUniqueConstraint('user_role_unique', ['user_id', 'role_id'])
         .execute()
     
 }

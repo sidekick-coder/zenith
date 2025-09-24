@@ -8,8 +8,8 @@ program.command('sql:update')
     .arguments('<table>')
     .description('Update rows in a database table')
     .helpGroup('sql')
-    .option('-w, --where <where>', 'Where conditions as key=value pairs (e.g., "name=John&age=25")')
-    .option('-v, --values <values>', 'Update values as key=value pairs (e.g., "name=Jane&age=30")')
+    .option('-w, --where <where>', 'Where conditions as key=value pairs (e.g., "name=John age=25")')
+    .option('-v, --values <values>', 'Update values as key=value pairs (e.g., "name=Jane age=30")')
     .action(async (table: string, options: { where?: string; values?: string }) => {
         if (!table) {
             console.error('Table name is required')

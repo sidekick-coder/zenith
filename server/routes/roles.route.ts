@@ -10,13 +10,16 @@ const router = rootRouter.use(authMiddleware)
     .prefix('/api/roles')
     .group()
 
-router.get('/', async () => {
+router.get('/', async ({ acl }) => {
+    
+    acl.authorize('read', 'roles')
+    
     const data = await list('roles', { serialize: r => new Role(r) })
 
     return { data }
 })
 
-router.get('/:id', async ({ params }) => {
+router.get('/:id', async ({ params, acl }) => {
     const row = await db.selectFrom('roles')
         .selectAll()
         .where('id', '=', Number(params.id))
@@ -25,6 +28,10 @@ router.get('/:id', async ({ params }) => {
     if (!row) {
         throw new BaseException('Role not found', 404)
     }
+
+    const role = new Role(row)
+
+    acl.authorize('read', role)
 
     return new Role(row)
 })

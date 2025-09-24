@@ -19,7 +19,7 @@ interface MiddlewareRegister {
 }
 
 
-export default class Router<C = Record<string, any>> {
+export default class Router<C = {}> {
     private routes: Route[] = []
     private filename = null as string | null
 

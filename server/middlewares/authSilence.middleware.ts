@@ -1,11 +1,10 @@
-import BaseException from '#server/exceptions/base.ts'
 import auth from '#server/facades/auth.facade.ts'
-import type {
-    HttpContext, Middleware, 
-    MiddlewareHandleResult 
-} from '#server/contracts/router.contract.ts'
+import type { HttpContext, Middleware, } from '#server/contracts/router.contract.ts'
+import type User from '#shared/entities/user.entity.ts'
 
-export type AuthSilenceMiddlewareContext = MiddlewareHandleResult<[AuthSilenceMiddleware]>
+export type AuthSilenceMiddlewareContext = {
+    user: null | User
+}
 
 export class AuthSilenceMiddleware implements Middleware {
     public async handle(ctx: HttpContext){
