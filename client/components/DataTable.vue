@@ -3,7 +3,8 @@ import {
     FlexRender, getCoreRowModel, useVueTable  
 } from '@tanstack/vue-table'
 import type { ColumnDef } from '@tanstack/vue-table'
-import { computed, h } from 'vue'
+import { computed, h, watch  } from 'vue'
+import type { PropType } from 'vue'
 import { ref } from 'vue'
 import Checkbox from './ui/checkbox/Checkbox.vue'
 import { valueUpdater } from './ui/table/utils'
@@ -16,6 +17,18 @@ import {
     TableRow,
 } from '#client/components/ui/table'
 import { cn } from '#client/lib/utils.ts'
+import type Pagination from '#shared/entities/pagination.entity.ts'
+import { $fetch } from '#client/utils/fetcher.ts'
+
+
+export interface DataTableFetchParams {
+    page: number
+    limit: number
+}
+
+interface DataTableFetchCallback {
+    (params: DataTableFetchParams): Promise<Pagination>
+}
 
 export function defineColumns<T extends Record<string, any> = any, V = any>(
     columns: ColumnDef<T, V>[],
@@ -31,21 +44,9 @@ const props = defineProps({
         type: String as () => 'single' | 'multiple',
         default: null
     },
-    rows: {
-        type: Array as () => T[],
-        default: () => [],
-    },
     columns: {
         type: Array as () => ColumnDef<T, TValue>[],
         required: true,
-    },
-    page: {
-        type: Number,
-        default: 1,
-    },
-    limit: {
-        type: Number,
-        default: 20,
     },
     total: {
         type: Number,
@@ -71,10 +72,14 @@ const props = defineProps({
         type: String,
         default: '',
     },
-    loading: {
-        type: Boolean,
-        default: false,
+    fetch: {
+        type: [String, Function] as PropType<string | DataTableFetchCallback>,
+        required: true,
     },
+    serialize: {
+        type: Function as PropType<(row: any) => T>,
+        default: (row: any) => row as T,
+    }
 })
 
 const emit = defineEmits<{
@@ -93,6 +98,17 @@ const selected = defineModel('selected', {
     type: Object,
     default: () => ({}),
 })
+
+const rows = defineModel('rows', {
+    type: Array as () => T[],
+    default: () => [],
+})
+
+const loading = defineModel('loading', {
+    type: Boolean,
+    default: false,
+})
+
 const columnSizing = ref<any>({})
 
 const tableColumns = computed(() => {
@@ -135,7 +151,7 @@ const tableColumns = computed(() => {
 })
 
 const table = useVueTable({
-    get data() { return props.rows },
+    get data() { return rows.value },
     get columns() { return tableColumns.value },
     getCoreRowModel: getCoreRowModel(),
     onRowSelectionChange: updaterOrValue => valueUpdater(updaterOrValue, selected),
@@ -164,6 +180,62 @@ function onClick(item: any){
         })
     }
 }
+
+// fetch
+const page = defineModel('page', {
+    type: Number,
+    default: 1,
+})
+
+const limit = defineModel('limit', {
+    type: Number,
+    default: 20,
+})
+
+async function load(){
+    loading.value = true 
+
+    let response: Pagination | null = null
+
+    if (typeof props.fetch === 'function') {
+        response = await props.fetch({
+            page: page.value,
+            limit: limit.value,
+        })
+    }
+
+    if (typeof props.fetch === 'string') {
+        response = await $fetch<Pagination>(props.fetch, {
+            method: 'GET',
+            query: {
+                page: page.value,
+                limit: limit.value,
+            }
+        })
+    }
+
+    if (!response) {
+        response = {
+            items: [],
+            page: 1,
+            per_page: 20,
+            total: 0,
+            total_pages: 1,
+        }
+    }
+
+    response.items = response.items.map(i => props.serialize(i))
+
+    rows.value = response.items as T[]
+
+    setTimeout(() => {
+        loading.value = false
+    }, 800)
+}
+
+watch([page, limit], load, { immediate: true })
+
+defineExpose({ load })
 
 </script>
 
