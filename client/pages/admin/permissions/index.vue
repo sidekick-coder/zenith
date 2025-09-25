@@ -38,7 +38,12 @@ const columns = defineColumns<Permission>([
     {
         id: 'name',
         header: $t('Name'),
-        accessorKey: 'name'
+        accessorKey: 'name',
+    },
+    {
+        id: 'origin',
+        header: $t('Origin'),
+        accessorKey: 'origin'
     },
     {
         id: 'action',
@@ -107,6 +112,18 @@ async function destroy(id: number) {
             :serialize="Permission.from"
             fetch="/api/permissions"
         >
+            <template #row-name="{ row }">
+                <div class="font-medium">
+                    {{ row.name }}
+                </div>
+                <small
+                    v-if="row.description"
+                    class="text-xs text-muted-foreground"
+                >
+                    {{ row.description || '-' }}
+                </small>
+            </template>
+
             <template #row-conditions="{ row }">
                 <ObjectInspect
                     v-if="row.conditions"
@@ -129,7 +146,7 @@ async function destroy(id: number) {
 
             <template #row-actions="{ row }">
                 <div
-                    v-if="!row.isSystem"
+                    v-if="row.editable"
                     class="flex items-center gap-2 justify-end"
                 >
                     <PermissionDialog

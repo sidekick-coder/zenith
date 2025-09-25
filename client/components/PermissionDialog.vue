@@ -5,6 +5,7 @@ import { toTypedSchema } from '@vee-validate/valibot'
 import { ref, watch } from 'vue'
 import FormTextarea from './FormTextarea.vue'
 import ClientOnly from './ClientOnly.vue'
+import FormSelect from './FormSelect.vue'
 import { $t } from '#shared/lang.ts'
 import FormTextField from '#client/components/FormTextField.vue'
 import { $fetch } from '#client/utils/fetcher.ts'
@@ -126,10 +127,16 @@ watch(open, (value) => {
                         name="name"
                         :label="$t('Name')"
                     />
-    
+                    
                     <FormTextField
+                        name="description"
+                        :label="$t('Description')"
+                    />
+    
+                    <FormSelect
                         name="action"
                         :label="$t('Action')"
+                        :options="['manage', 'create', 'read', 'update', 'delete']"
                     />
     
                     <FormTextField

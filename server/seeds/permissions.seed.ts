@@ -5,8 +5,10 @@ export async function run(): Promise<void> {
     const permissions: Permission[] = [
         new Permission({
             name: 'Administrator',
+            description: 'Full access to all resources',
             action: 'manage',
             subject: 'all',
+            origin: 'system',
         }),
     ]
 
@@ -18,6 +20,9 @@ export async function run(): Promise<void> {
                 name: permission.name,
                 action: permission.action,
                 subject: permission.subject,
+                description: permission.description,
+                origin: permission.origin,
+                conditions: permission.conditions ? JSON.stringify(permission.conditions) : null,
             }
         })
         

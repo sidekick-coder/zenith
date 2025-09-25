@@ -1,18 +1,14 @@
-interface PermissionData {
-    id: number
-    name: string
-    subject: string
-    action: string
-    conditions: string | Record<string, any> | null
-}
+type Payload = Partial<Omit<Permission, 'editable' | 'conditions'>> & { conditions?: string | null | Record<string, any> }
 export default class Permission {
     public id: number
     public name: string
+    public description: string | null = null
+    public origin: string
     public subject: string
     public action: string
     public conditions: Record<string, any> | null = null
 
-    constructor(data: Partial<PermissionData>) {
+    constructor(data: Payload) {
         Object.assign(this, data)
 
         if (this.conditions) {
@@ -20,11 +16,11 @@ export default class Permission {
         }
     }
 
-    public static from(row: Partial<PermissionData>): Permission {
+    public static from(row: Payload) {
         return new Permission(row)
     }
 
-    public get isSystem() {
-        return ['Administrator'].includes(this.name)
+    public get editable() {
+        return this.origin === 'custom'
     }
 }

@@ -67,6 +67,7 @@ router.put('/:id', async ({ acl, params, body }) => {
         query: qb => qb.where(undeleted).where('id', '=', Number(params.id)),
         values: {
             name: data.name,
+            description: data.description,
             action: data.action,
             subject: data.subject,
             conditions: data.conditions ? JSON.stringify(data.conditions) : null,
