@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import { watch, ref } from 'vue'
+import { ref } from 'vue'
 import { toast } from 'vue-sonner'
-import { useRouter } from 'vue-router'
 import type { ComponentExposed } from 'vue-component-type-helpers'
 import { defineColumns } from '#client/components/DataTable.vue'
 import { $t } from '#shared/lang.ts'
@@ -13,17 +12,14 @@ import Icon from '#client/components/Icon.vue'
 import AlertButton from '#client/components/AlertButton.vue'
 import Permission from '#shared/entities/permission.entity.ts'
 import { createId } from '#client/utils/createId.ts'
-import DataTableServer from '#client/components/DataTableServer.vue'
+import DataTable from '#client/components/DataTable.vue'
 import PermissionDialog from '#client/components/PermissionDialog.vue'
 import ObjectInspect from '#client/components/ObjectInspect.vue'
 
-const TypedDataTable = DataTableServer as typeof DataTableServer<Permission>
-
-const router = useRouter()
+const TypedDataTable = DataTable as typeof DataTable<Permission, number>
 
 const loading = ref(false)
-const saving = ref(false)
-const tableRef = ref<ComponentExposed<typeof DataTableServer>>()
+const tableRef = ref<ComponentExposed<typeof DataTable>>()
 const deletingItems = ref<number[]>([])
 
 const columns = defineColumns<Permission>([

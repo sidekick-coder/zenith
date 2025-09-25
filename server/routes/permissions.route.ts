@@ -1,12 +1,10 @@
 import BaseException from '#server/exceptions/base.ts'
-import db from '#server/facades/db.facade.ts'
 import rootRouter from '#server/facades/router.facade.ts'
 import authMiddleware from '#server/middlewares/auth.middleware.ts'
-import { create, findOrFail, paginate, undeleted, softDelete } from '#server/queries/index.ts'
-import { update } from '#server/queries/update.ts'
+import { update, create, findOrFail, paginate, undeleted, softDelete } from '#server/queries/index.ts'
 import Permission from '#shared/entities/permission.entity.ts'
 import validator from '#shared/services/validator.service.ts'
-import permissionValidator from '#shared/validators/permission.validator.ts'
+import schemas from '#shared/validators/index.ts'
 
 const router = rootRouter.use(authMiddleware)
     .prefix('/api/permissions')
@@ -42,7 +40,7 @@ router.get('/:id', async ({ acl, params }) => {
 router.post('/', async ({ acl, body }) => {
     acl.authorize('create', 'Permission')
 
-    const data = await validator.validate(body, permissionValidator.create)
+    const data = await validator.validate(body, schemas.permission.create)
 
     const permission = await create('permissions', {
         serialize: Permission.from,
@@ -60,7 +58,7 @@ router.post('/', async ({ acl, body }) => {
 router.put('/:id', async ({ acl, params, body }) => {
     acl.authorize('update', 'Permission')
 
-    const data = await validator.validate(body, permissionValidator.update)
+    const data = await validator.validate(body, schemas.permission.update)
 
     const permissions = await update('permissions', {
         serialize: Permission.from,

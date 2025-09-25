@@ -8,12 +8,6 @@ const schema = validator.create(v => v.object({
     conditions: v.nullish(v.record(v.string(), v.any())),
 }))
 
-const update = validator.create(v => v.partial(schema))
+export const update = validator.create(v => v.partial(schema))
 
-const permissionValidator = {
-    schema,
-    create: schema,
-    update,
-}
-
-export default permissionValidator
+export const create = schema

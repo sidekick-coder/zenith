@@ -224,9 +224,9 @@ async function load(){
         }
     }
 
-    response.items = response.items.map(i => props.serialize(i))
+    const items = Array.isArray(response.items) ? response.items : []
 
-    rows.value = response.items as T[]
+    rows.value = items.map(i => props.serialize(i))
 
     setTimeout(() => {
         loading.value = false

@@ -1,4 +1,4 @@
-import { defineAbility } from '@casl/ability'
+import { defineAbility, subject as createSubject } from '@casl/ability'
 import type { AuthSilenceMiddlewareContext } from './authSilence.middleware.ts'
 import type {
     Middleware, 
@@ -24,6 +24,10 @@ export class Acl {
 
     public cannot(action: string, subject: any) {
         return this.ability.cannot(action, subject)
+    }
+
+    public subject(subject: string, object: Record<string, any>) {
+        return createSubject(subject, object)
     }
 
     public authorize(action: string, subject: any) {

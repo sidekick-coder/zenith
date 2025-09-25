@@ -28,11 +28,22 @@ const tabs = [
         id: 'details',
         label: $t('Details'),
         component: defineAsyncComponent(() => import('#client/components/UserDetailsForm.vue')),
+        props: { userId: userId }
     },
     {
         id: 'change-password',
         label: $t('Change Password'),
         component: defineAsyncComponent(() => import('#client/components/UserChangePasswordForm.vue')),
+        props: { userId: userId }
+    },
+    {
+        id: 'permissions',
+        label: $t('Permissions'),
+        component: defineAsyncComponent(() => import('#client/components/PermissionAssignments.vue')),
+        props: { 
+            assignType: 'user',
+            assignId: userId 
+        },
     },
 ]
 
@@ -88,7 +99,7 @@ onMounted(load)
                     :is="t.component"
                     v-if="t.component && user"
                     v-model="user"
-                    :user-id="userId"
+                    v-bind="t.props"
                 />
             </TabsContent>
         </Tabs>

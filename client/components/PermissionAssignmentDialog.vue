@@ -6,6 +6,8 @@ import { ref, watch } from 'vue'
 import FormTextarea from './FormTextarea.vue'
 import ClientOnly from './ClientOnly.vue'
 import FormSelect from './FormSelect.vue'
+import FormAutocomple from './FormAutocomplete.vue'
+import FormAutocomplete from './FormAutocomplete.vue'
 import { $t } from '#shared/lang.ts'
 import FormTextField from '#client/components/FormTextField.vue'
 import { $fetch } from '#client/utils/fetcher.ts'
@@ -21,53 +23,41 @@ import {
 } from '#client/components/ui/dialog'
 import { tryCatch } from '#shared/tryCatch.ts'
 import schemas from '#shared/validators/index.ts'
-import type Permission from '#shared/entities/permission.entity.ts'
+import Permission from '#shared/entities/permission.entity.ts'
 import validator from '#shared/services/validator.service.ts'
+
+const props = defineProps({ 
+    assignType: {
+        type: String,
+        required: true,
+    },
+    assignId: {
+        type: [String, Number],
+        required: true,
+    },
+})
 
 const emit = defineEmits(['submit'])
 
 const loading = ref(false)
 const open = ref(false)
 
-const props = defineProps({
-    permission: {
-        type: Object as () => Permission,
-        default: null,
-    },  
-})
-
-const schema = validator.create(v => v.intersect([
-    v.omit(schemas.permission.update, ['conditions']),
-    v.object({
-        conditions: v.nullish(v.string()),
-    })
-]))
-
 const { handleSubmit, resetForm } = useForm({
-    validationSchema: toTypedSchema(schema),
+    validationSchema: toTypedSchema(schemas.permissionAssignment.create),
+    initialValues: {
+        assign_id: String(props.assignId),
+        assign_type: props.assignType,
+    },
 })
 
-const onSubmit = handleSubmit(async (form) => {
+const onSubmit = handleSubmit(async (data) => {
     loading.value = true
 
-    const data = {
-        ...form,
-        conditions: form.conditions ? JSON.parse(form.conditions) : null,
-    }
-
-    const [error, response] = await tryCatch(() => {
-        if (props.permission?.id) {
-            return $fetch<Permission>(`/api/permissions/${props.permission.id}`, {
-                method: 'PUT',
-                data,
-            })
-        }
-
-        return $fetch<Permission>('/api/permissions', {
-            method: 'POST',
-            data,
-        })
+    const [error, response] = await tryCatch(() => $fetch<Permission>('/api/permission-assignments', {
+        method: 'POST',
+        data,
     })
+    )
 
     if (error) {
         loading.value = false
@@ -80,18 +70,7 @@ const onSubmit = handleSubmit(async (form) => {
         loading.value = false
         resetForm()
         emit('submit', response)
-    }, 500)
-})
-
-watch(open, (value) => {
-    if (value) {
-        resetForm({
-            values: {
-                ...props.permission,
-                conditions: props.permission?.conditions ? JSON.stringify(props.permission.conditions, null, 2) : '',
-            }
-        })
-    }
+    }, 1000)
 })
 </script>
 <template>
@@ -108,46 +87,40 @@ watch(open, (value) => {
             <DialogTrigger>
                 <slot>
                     <Button>
-                        {{ $t('Add new') }}
+                        {{ $t('Attatch') }}
                     </Button>
                 </slot>
             </DialogTrigger>
             <DialogContent>
                 <DialogHeader>
-                    <DialogTitle>{{ permission ? $t('Edit user') : $t('Add new user') }}</DialogTitle>
+                    <DialogTitle>{{ $t('Assign Permission') }}</DialogTitle>
                     <DialogDescription>
-                        {{ $t('Define details') }}
+                        {{ $t('Fill in the details below to assign a permission') }}
                     </DialogDescription>
                 </DialogHeader>
                 <form
                     class="space-y-4 py-2"
                     @submit.prevent="onSubmit"
                 >
-                    <FormTextField
-                        name="name"
-                        :label="$t('Name')"
-                    />
-                    
-                    <FormTextField
-                        name="description"
-                        :label="$t('Description')"
-                    />
-    
-                    <FormSelect
-                        name="action"
-                        :label="$t('Action')"
-                        :options="['manage', 'create', 'read', 'update', 'delete']"
-                    />
-    
-                    <FormTextField
-                        name="subject"
-                        :label="$t('Subject')"
-                    />
-    
-                    <FormTextarea
-                        name="conditions"
-                        :label="$t('Conditions')"
-                    />
+                    <FormAutocomplete
+                        name="permission_id"
+                        :label="$t('Permission')"
+                        :serialize="Permission.from"
+                        fetch="/api/permissions"
+                        label-key="name"
+                        value-key="id"
+                    >
+                        <template #label="{ option }">
+                            <div class="flex flex-col text-left">
+                                <div class="font-medium">
+                                    {{ option.name }}
+                                </div>
+                                <div class="text-sm text-muted-foreground">
+                                    {{ option.description }}
+                                </div>
+                            </div>
+                        </template>
+                    </FormAutocomplete>
                     
                     <DialogFooter>
                         <Button
@@ -155,7 +128,7 @@ watch(open, (value) => {
                             class="w-full"
                             :loading
                         >
-                            {{ permission ? $t('Update') : $t('Create') }}
+                            {{ $t('Save') }}
                         </Button>
                     </DialogFooter>
                 </form>
