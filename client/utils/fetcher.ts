@@ -2,6 +2,7 @@ import { toast } from 'vue-sonner'
 import di from './di'
 import { $t } from '#shared/lang'
 import type Router from '#server/router/router'
+import CookieService from '#shared/services/cookie.service'
 
 interface Options extends RequestInit {
     query?: Record<string, any>
@@ -61,7 +62,7 @@ export async function defaultFetcher<T>(url: string, options: Options = {}): Pro
     return response.text() as Promise<T>
 }
 
-export function createServerFetcher(router: Router) {
+export function createServerFetcher(router: Router, cookies: Record<string, string> = {}): Fetcher {
     async function fetcher<T>(url: string, options: Options = {}): Promise<T> {
         const isInternal = !url.startsWith('http://') && !url.startsWith('https://')
 
@@ -77,10 +78,15 @@ export function createServerFetcher(router: Router) {
             throw new Error(`Route not found for ${method} ${url}`)
         }
 
-        const result = await route.handler({
+        const result = await router.execute(route,{
             params: router.extractParams(route.path, url),
             query: options.query || router.extractQuery(url),
             body: options.data || options.body,
+            url: url,
+            method: method.toLowerCase(),
+            // file,
+            // files,
+            cookie: new CookieService(cookies)
         })
 
         return result as Promise<T>

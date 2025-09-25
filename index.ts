@@ -17,6 +17,7 @@ import bootService from '#server/services/boot.service.ts'
 import config from '#server/facades/config.facade.ts'
 import env from '#server/env.ts'
 import build from '#server/services/build.service.ts'
+import CookieService from '#server/services/cookie.service.ts'
 
 const upload = multer({ storage: multer.memoryStorage(), })
 
@@ -63,21 +64,6 @@ async function execute(url: URL, request: Request, response: Response, route: Ro
         })
     }
 
-    const cookie: HttpContext['cookie'] = {
-        get(name: string) {
-            return request.cookies?.[name]
-        },
-        set(name: string, value: string, options?: CookieOptions) {
-            const opts: CookieOptions = {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === 'production',
-                ...options
-            }
-
-            response.cookie(name, value, opts)
-        }
-    }
-
     const ctx: HttpContext = {
         url: url.pathname,
         method: request.method.toLowerCase(),
@@ -86,7 +72,7 @@ async function execute(url: URL, request: Request, response: Response, route: Ro
         body: request.body,
         file,
         files,
-        cookie
+        cookie: new CookieService(request, response)
     }
 
     const [error, result] = await tryCatch(() => router.execute(route, ctx))

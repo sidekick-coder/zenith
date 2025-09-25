@@ -9,6 +9,7 @@ import { flatten } from '#shared/utils/flatten.ts'
 interface RenderContext {
     url: string;
     router: any;
+    cookies: Record<string, string>;
     state: Record<string, any>;
     logger: Logger
 }
@@ -19,7 +20,7 @@ export async function render(context: RenderContext) {
 
     di.load(context.state)
     
-    di.set('fetcher', createServerFetcher(serverRouter))
+    di.set('fetcher', createServerFetcher(serverRouter, context.cookies))
     di.set('logger', context.logger)
 
     for (const [key, value] of Object.entries(flatten(context.state.config || {}))) {

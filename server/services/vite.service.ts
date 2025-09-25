@@ -45,7 +45,8 @@ export class ViteServer {
                 url,
                 router,
                 state,
-                logger
+                logger,
+                cookies: _request.cookies || {},
             })
 
             let head = rendered.head ?? ''
