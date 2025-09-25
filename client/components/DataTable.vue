@@ -154,7 +154,6 @@ function select(row: any) {
 }
 
 function unselect(row: any) {
-    console.log('unselect', findKey(row), isSelected(row))
     const key = findKey(row) 
 
     if (key) {
@@ -209,22 +208,16 @@ function toggleAll(){
 
 
 function onClick(item: any){
-    emit('click:row', item.original)
-
-    if (props.selection === 'single') {
-        // selected.value = { [item.id]: !selected.value[item.id] }
-    }
-
-    if (props.selection === 'multiple') {
-        // table.setRowSelection({
-        //     ...selected.value,
-        //     [item.id]: !selected.value[item.id]
-        // })
-    }
+    emit('click:row', item)
 }
 
 // fetch
 const page = defineModel('page', {
+    type: Number,
+    default: 1,
+})
+
+const totalPages = defineModel('totalPages', {
     type: Number,
     default: 1,
 })
@@ -236,7 +229,7 @@ const total = defineModel('total', {
 
 const limit = defineModel('limit', {
     type: Number,
-    default: 20,
+    default: 10,
 })
 
 async function load(){
@@ -279,6 +272,7 @@ async function load(){
     total.value = response.total || 0
     limit.value = response.per_page || 20
     page.value = response.page || 1
+    totalPages.value = response.total_pages || 1
 
     setTimeout(() => {
         loading.value = false
@@ -296,7 +290,10 @@ defineExpose({ load })
     >
         <TableHeader>
             <TableRow>
-                <TableHead v-if="props.selection === 'multiple'">
+                <TableHead
+                    v-if="props.selection === 'multiple'"
+                    class="w-10 text-center p-0"
+                >
                     <Checkbox
                         class="translate-y-0.5"
                         :model-value="selected.length === rows.length && rows.length > 0"
@@ -346,7 +343,10 @@ defineExpose({ load })
                 @click="onClick(row)"
                 @dblclick="emit('dblclick:row', row.original)"
             >
-                <TableCell v-if="props.selection">
+                <TableCell
+                    v-if="props.selection"
+                    class="w-10 text-center p-0"
+                >
                     <Checkbox
                         class="translate-y-0.5"
                         :model-value="isSelected(row)"
@@ -373,8 +373,12 @@ defineExpose({ load })
         </TableBody>
     </Table>
 
-    <!-- <DataTablePagination
-        v-model:table="table"
+    <DataTablePagination
+        v-if="totalPages > 1"
+        v-model:page="page"
+        v-model:limit="limit"
+        v-model:total="total"
+        v-model:total-pages="totalPages"
         class="mt-4"
-    /> -->
+    />
 </template>

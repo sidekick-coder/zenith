@@ -10,10 +10,14 @@ const router = rootRouter.use(authMiddleware)
     .prefix('/api/permissions')
     .group()
 
-router.get('/', async ({ acl }) => {
+router.get('/', async ({ acl, query }) => {
     acl.authorize('read', 'Permission')
+
+    const payload = validator.validate(query, schemas.pagination)
     
     const pagination = await paginate('permissions', {
+        limit: payload.limit,
+        page: payload.page,
         serialize: Permission.from,
         query: qb => qb.selectAll().where(undeleted),
     })
