@@ -21,40 +21,39 @@ const TypedDataTable = DataTable as typeof DataTable<Permission, number>
 const loading = ref(false)
 const tableRef = ref<ComponentExposed<typeof DataTable>>()
 const deletingItems = ref<number[]>([])
+const selected = ref<Permission[]>([])
 
 const columns = defineColumns<Permission>([
     {
         id: 'id',
-        header: 'ID',
-        accessorKey: 'id',
-        size: 50,
-        minSize: 50,
-        maxSize: 100,
+        label: 'ID',
+        field: 'id',
+        width: 50,
     },
     {
         id: 'name',
-        header: $t('Name'),
-        accessorKey: 'name',
+        label: $t('Name'),
+        field: 'name',
     },
     {
         id: 'origin',
-        header: $t('Origin'),
-        accessorKey: 'origin'
+        label: $t('Origin'),
+        field: 'origin'
     },
     {
         id: 'action',
-        header: $t('Action'),
-        accessorKey: 'action'
+        label: $t('Action'),
+        field: 'action'
     },
     {
         id: 'subject',
-        header: $t('Subject'),
-        accessorKey: 'subject'
+        label: $t('Subject'),
+        field: 'subject'
     },
     {
         id: 'conditions',
-        header: $t('Conditions'),
-        accessorKey: 'conditions'
+        label: $t('Conditions'),
+        field: 'conditions'
     },
     { id: 'actions' }
 ])
@@ -104,9 +103,12 @@ async function destroy(id: number) {
         <TypedDataTable
             ref="tableRef"
             v-model:loading="loading"
+            v-model:selected="selected"
             :columns="columns"
             :serialize="Permission.from"
             fetch="/api/permissions"
+            selection="multiple"
+            row-key="id"
         >
             <template #row-name="{ row }">
                 <div class="font-medium">

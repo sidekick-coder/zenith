@@ -1,13 +1,10 @@
 <script lang="ts">
-import {
-    FlexRender, getCoreRowModel, useVueTable  
-} from '@tanstack/vue-table'
-import type { ColumnDef } from '@tanstack/vue-table'
 import { computed, h, watch  } from 'vue'
 import type { PropType } from 'vue'
 import { ref } from 'vue'
+import { get } from 'lodash-es'
 import Checkbox from './ui/checkbox/Checkbox.vue'
-import { valueUpdater } from './ui/table/utils'
+import DataTablePagination from './DataTablePagination.vue'
 import {
     Table,
     TableBody,
@@ -26,43 +23,31 @@ export interface DataTableFetchParams {
     limit: number
 }
 
+export interface DataTableColumn<T extends Record<string, any> = any> {
+    id?: string
+    label?: string
+    field?: string | ((row: T) => any)
+    width?: number
+}
+
 interface DataTableFetchCallback {
     (params: DataTableFetchParams): Promise<Pagination>
 }
 
-export function defineColumns<T extends Record<string, any> = any, V = any>(
-    columns: ColumnDef<T, V>[],
-): ColumnDef<T, V>[] {
+export function defineColumns<T extends Record<string, any> = any>(columns: DataTableColumn<T>[]){
     return columns
 }
 
-
 </script>
-<script setup lang="ts" generic="T extends Record<string, any>, TValue">
+<script setup lang="ts" generic="T extends Record<string, any>">
 const props = defineProps({
     selection: {
         type: String as () => 'single' | 'multiple',
         default: null
     },
     columns: {
-        type: Array as () => ColumnDef<T, TValue>[],
+        type: Array as () => DataTableColumn<T>[],
         required: true,
-    },
-    total: {
-        type: Number,
-        default: 0,
-    },
-    lastPage: {
-        type: Number,
-        default: 1,
-    },
-    sortBy: {
-        type: String,
-        default: '',
-    },
-    sortDesc: {
-        type: Boolean,
-        default: false,
     },
     class: {
         type: String,
@@ -72,9 +57,13 @@ const props = defineProps({
         type: String,
         default: '',
     },
+    rowKey: {
+        type: [String, Function] as PropType<string | ((row: T) => string | number)>,
+        default: null,
+    },
     fetch: {
         type: [String, Function] as PropType<string | DataTableFetchCallback>,
-        required: true,
+        default: null
     },
     serialize: {
         type: Function as PropType<(row: any) => T>,
@@ -89,14 +78,15 @@ const emit = defineEmits<{
 
 interface Slots {
     default(): any
-    [key: `row-${string}`]: (props: { row: T }) => any
+    [key: `header-${string}`]: (props: { column: DataTableColumn }) => any
+    [key: `row-${string}`]: (props: { column: DataTableColumn, row: T }) => any
 }
 
-const slots = defineSlots<Slots>()
+defineSlots<Slots>()
 
 const selected = defineModel('selected', {
-    type: Object,
-    default: () => ({}),
+    type: Array as () => T[],
+    default: () => ([]),
 })
 
 const rows = defineModel('rows', {
@@ -109,75 +99,127 @@ const loading = defineModel('loading', {
     default: false,
 })
 
-const columnSizing = ref<any>({})
-
-const tableColumns = computed(() => {
-    const items = props.columns.map((column) => {
-        if (slots[`row-${column.id}`]) {
-            column.cell = ({ row }) => {
-                return slots[`row-${column.id}`]({ row: row.original })
-            }
-        }
-
-        return column
-    })
-
-    if (props.selection) {
-        items.unshift({
-            id: 'select',
-            header: ({ table }) => {
-                if (props.selection === 'multiple') {
-                    return h(Checkbox, {
-                        'modelValue': table.getIsAllPageRowsSelected(),
-                        'onUpdate:modelValue': (value: boolean) => table.toggleAllPageRowsSelected(!!value),
-                        'ariaLabel': 'Select all',
-                    } as any)
-                }
-            } ,
-            cell: ({ row }) => h(Checkbox, {
-                'modelValue': row.getIsSelected(),
-                'onUpdate:modelValue': (value: boolean) => row.toggleSelected(!!value),
-                'ariaLabel': 'Select row',
-            } as any),
-            size: 50,
-            minSize: 50,
-            maxSize: 50,
-            enableSorting: false,
-            enableHiding: false,
-        })
+function findKey(row: any) {
+    if (typeof props.rowKey === 'function') {
+        return props.rowKey(row)
     }
 
-    return items
-})
-
-const table = useVueTable({
-    get data() { return rows.value },
-    get columns() { return tableColumns.value },
-    getCoreRowModel: getCoreRowModel(),
-    onRowSelectionChange: updaterOrValue => valueUpdater(updaterOrValue, selected),
-    state: { 
-        get rowSelection() { return selected.value }, 
-        get columnSizing() { return columnSizing.value }
-    },
-    defaultColumn: {
-        size: 0,
-        minSize: 0,
-        maxSize: 0
+    if (typeof props.rowKey === 'string') {
+        return get(row, props.rowKey, '')
     }
-})
+
+    return null
+}
+
+
+function findValue(row: any, column: DataTableColumn) {
+    if (typeof column.field === 'function') {
+        return column.field(row)
+    }
+
+    if (column.field) {
+        return get(row, column.field, '')
+    }
+
+    return ''
+}
+
+function isSelected(row: any) {
+    const key = findKey(row)
+
+    if (key) {
+        return selected.value.some(i => findKey(i) === key)
+    }
+
+    if (props.selection === 'single') {
+        return selected.value[0] === row
+    }
+
+    if (props.selection === 'multiple') {
+        return selected.value.includes(row)
+    }
+
+    return false
+}
+
+function select(row: any) {
+    if (props.selection === 'single') {
+        selected.value = [row]
+        return
+    }
+
+    if (props.selection === 'multiple' && !isSelected(row)) {
+        selected.value.push(row)
+    }
+}
+
+function unselect(row: any) {
+    console.log('unselect', findKey(row), isSelected(row))
+    const key = findKey(row) 
+
+    if (key) {
+        selected.value = selected.value.filter(i => findKey(i) !== key)
+        return
+    }
+    
+    if (props.selection === 'single') {
+        selected.value = []
+    }
+
+    if (props.selection === 'multiple' && isSelected(row)) {
+        selected.value = selected.value.filter(i => i !== row)
+    }
+}
+
+function toggle(row: any) {
+    if (isSelected(row)) {
+        return unselect(row)
+    }
+
+    select(row)
+}
+
+function selectAll(){
+    if (props.rowKey) {
+        const newSelected = rows.value.filter(r => !selected.value.some(s => findKey(r) === findKey(s)))
+        selected.value = [...selected.value, ...newSelected]
+        return
+    }
+
+    const newSelected = rows.value.filter(r => !selected.value.includes(r))
+    selected.value = [...selected.value, ...newSelected]
+}
+
+function unselectAll(){
+    if (props.rowKey) {
+        selected.value = selected.value.filter(s => !rows.value.some(r => findKey(r) === findKey(s)))
+        return
+    }
+
+    selected.value = selected.value.filter(s => !rows.value.includes(s))
+}
+
+function toggleAll(){
+    const allSelected = rows.value.every(isSelected)
+
+    if (allSelected) return unselectAll()
+
+    selectAll()
+}
+
 
 function onClick(item: any){
     emit('click:row', item.original)
 
     if (props.selection === 'single') {
-        table.setRowSelection({ [item.id]: true })
+        // selected.value = { [item.id]: !selected.value[item.id] }
     }
 
     if (props.selection === 'multiple') {
-        table.setRowSelection({
-            ...selected.value,
-            [item.id]: !selected.value[item.id]
-        })
+        // table.setRowSelection({
+        //     ...selected.value,
+        //     [item.id]: !selected.value[item.id]
+        // })
     }
 }
 
@@ -187,12 +229,19 @@ const page = defineModel('page', {
     default: 1,
 })
 
+const total = defineModel('total', {
+    type: Number,
+    default: 0,
+})
+
 const limit = defineModel('limit', {
     type: Number,
     default: 20,
 })
 
 async function load(){
+    if (loading.value) return
+
     loading.value = true 
 
     let response: Pagination | null = null
@@ -227,6 +276,9 @@ async function load(){
     const items = Array.isArray(response.items) ? response.items : []
 
     rows.value = items.map(i => props.serialize(i))
+    total.value = response.total || 0
+    limit.value = response.per_page || 20
+    page.value = response.page || 1
 
     setTimeout(() => {
         loading.value = false
@@ -236,7 +288,6 @@ async function load(){
 watch([page, limit], load, { immediate: true })
 
 defineExpose({ load })
-
 </script>
 
 <template>
@@ -244,27 +295,33 @@ defineExpose({ load })
         :wrapper-class="cn('border rounded-lg', props.class, loading ? 'opacity-50 pointer-events-none' : '')"
     >
         <TableHeader>
-            <TableRow
-                v-for="headerGroup in table.getHeaderGroups()"
-                :key="headerGroup.id"
-            >
+            <TableRow>
+                <TableHead v-if="props.selection === 'multiple'">
+                    <Checkbox
+                        class="translate-y-0.5"
+                        :model-value="selected.length === rows.length && rows.length > 0"
+                        :indeterminate="selected.length > 0 && selected.length < rows.length"
+                        @click.stop="toggleAll"
+                    />
+                </TableHead>
                 <TableHead
-                    v-for="header in headerGroup.headers"
-                    :key="header.id"
+                    v-for="c in columns"
+                    :key="c.id"
                     :style="{
-                        width: header.column.getSize() !== 0 ? header.column.getSize() + 'px' : 'auto',
+                        width: c.width ? c.width + 'px' : 'auto',
                     }"
                 >
-                    <FlexRender
-                        v-if="!header.isPlaceholder"
-                        :render="header.column.columnDef.header"
-                        :props="header.getContext()"
-                    />
+                    <slot
+                        :name="`header-${c.id}`"
+                        :column="c"
+                    >
+                        {{ c.label }}
+                    </slot>
                 </TableHead>
             </TableRow>
             <TableRow v-if="loading">
                 <TableCell
-                    :colspan="tableColumns.length"
+                    :colspan="columns.length + (props.selection ? 1 : 0)"
                     class="p-0"
                 >
                     <div class="h-1 bg-primary w-full animate-pulse" />
@@ -272,41 +329,52 @@ defineExpose({ load })
             </TableRow>
         </TableHeader>
         <TableBody>
-            <template v-if="table.getRowModel().rows?.length">
-                <TableRow
-                    v-for="row in table.getRowModel().rows"
-                    :key="row.id"
-                    :data-state="row.getIsSelected() ? 'selected' : undefined"
-                    :class="cn('hover:bg-muted/20 ', props.rowClass)"
-                    @click="onClick(row)"
-                    @dblclick="emit('dblclick:row', row.original)"
+            <TableRow v-if="!loading && rows.length === 0">
+                <TableCell
+                    :colspan="columns.length + (props.selection ? 1 : 0)"
+                    class="h-24 text-center"
                 >
-                    <TableCell
-                        v-for="cell in row.getVisibleCells()"
-                        :key="cell.id"
-                        :style="{
-                            width: cell.column.getSize() !== 0 ? cell.column.getSize() + 'px' : 'auto',
-                        }"
-                        class="h-12"
+                    {{ $t('No data available') }}
+                </TableCell>
+            </TableRow>
+
+            <TableRow
+                v-for="row in rows"
+                :key="row.id"
+                :data-state="isSelected(row) ? 'selected' : undefined"
+                :class="cn('hover:bg-muted/20 ', props.rowClass)"
+                @click="onClick(row)"
+                @dblclick="emit('dblclick:row', row.original)"
+            >
+                <TableCell v-if="props.selection">
+                    <Checkbox
+                        class="translate-y-0.5"
+                        :model-value="isSelected(row)"
+                        @click.stop="toggle(row)"
+                    />
+                </TableCell>
+                <TableCell
+                    v-for="c in columns"
+                    :key="c.id"
+                    :style="{
+                        width: c.width ? c.width + 'px' : 'auto',
+                    }"
+                    class="h-12"
+                >
+                    <slot
+                        :name="`row-${c.id}`"
+                        :column="c"
+                        :row="row"
                     >
-                        <FlexRender
-                            :render="cell.column.columnDef.cell"
-                            :props="cell.getContext()"
-                        />
-                    </TableCell>
-                </TableRow>
-            </template>
-            <template v-else>
-                <TableRow>
-                    <TableCell
-                        :colspan="tableColumns.length"
-                        class="h-24 text-center"
-                    >
-                        No data available
-                    </TableCell>
-                </TableRow>
-            </template>
+                        {{ findValue(row, c) }}
+                    </slot>
+                </TableCell>
+            </TableRow>
         </TableBody>
     </Table>
-    <slot />
+
+    <!-- <DataTablePagination
+        v-model:table="table"
+        class="mt-4"
+    /> -->
 </template>
