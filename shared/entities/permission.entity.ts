@@ -23,4 +23,8 @@ export default class Permission {
     public static from(row: Partial<PermissionData>): Permission {
         return new Permission(row)
     }
+
+    public get isSystem() {
+        return ['Administrator'].includes(this.name)
+    }
 }

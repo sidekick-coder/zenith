@@ -2,10 +2,11 @@ import BaseException from '#server/exceptions/base.ts'
 import db from '#server/facades/db.facade.ts'
 import rootRouter from '#server/facades/router.facade.ts'
 import authMiddleware from '#server/middlewares/auth.middleware.ts'
-import { list, paginate, undeleted } from '#server/queries/index.ts'
+import { create, findOrFail, paginate, undeleted, softDelete } from '#server/queries/index.ts'
+import { update } from '#server/queries/update.ts'
 import Permission from '#shared/entities/permission.entity.ts'
-import Role from '#shared/entities/role.entity.ts'
 import validator from '#shared/services/validator.service.ts'
+import permissionValidator from '#shared/validators/permission.validator.ts'
 
 const router = rootRouter.use(authMiddleware)
     .prefix('/api/permissions')
@@ -20,4 +21,76 @@ router.get('/', async ({ acl }) => {
     })
 
     return pagination
+})
+
+router.get('/:id', async ({ acl, params }) => {
+    acl.authorize('read', 'Permission')
+
+    const permission = await findOrFail('permissions', {
+        serialize: Permission.from,
+        query: qb => qb.selectAll().where(undeleted)
+            .where('id', '=', Number(params.id)),
+    })
+
+    if (!permission) {
+        throw new BaseException('Permission not found', 404)
+    }
+
+    return permission
+})
+
+router.post('/', async ({ acl, body }) => {
+    acl.authorize('create', 'Permission')
+
+    const data = await validator.validate(body, permissionValidator.create)
+
+    const permission = await create('permissions', {
+        serialize: Permission.from,
+        values: {
+            name: data.name,
+            action: data.action,
+            subject: data.subject,
+            conditions: data.conditions ? JSON.stringify(data.conditions) : null,
+        }
+    })
+
+    return permission
+})
+
+router.put('/:id', async ({ acl, params, body }) => {
+    acl.authorize('update', 'Permission')
+
+    const data = await validator.validate(body, permissionValidator.update)
+
+    const permissions = await update('permissions', {
+        serialize: Permission.from,
+        query: qb => qb.where(undeleted).where('id', '=', Number(params.id)),
+        values: {
+            name: data.name,
+            action: data.action,
+            subject: data.subject,
+            conditions: data.conditions ? JSON.stringify(data.conditions) : null,
+        }
+    })
+
+    if (permissions.length === 0) {
+        throw new BaseException('Permission not found', 404)
+    }
+
+    return permissions[0]
+})
+
+router.delete('/:id', async ({ acl, params }) => {
+    acl.authorize('delete', 'Permission')
+
+    const permissions = await softDelete('permissions', {
+        serialize: Permission.from,
+        query: qb => qb.where(undeleted).where('id', '=', Number(params.id)),
+    })
+
+    if (permissions.length === 0) {
+        throw new BaseException('Permission not found', 404)
+    }
+
+    return permissions[0]
 })

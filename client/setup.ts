@@ -48,6 +48,13 @@ export default defineClientSetup(({ menu, router }) => {
         to: '/admin/roles',
         parent: 'users'
     })
+    
+    menu.add({
+        id: 'users-permissions',
+        label: $t('Permissions'),
+        to: '/admin/permissions',
+        parent: 'users'
+    })
 
     menu.add({
         id: 'storage',

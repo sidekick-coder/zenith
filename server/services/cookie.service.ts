@@ -1,12 +1,12 @@
 import type {
     Request, 
-    Response 
+    Response,
+    CookieOptions
 } from 'express'
-import BaseCookieService from '#shared/services/cookie.service'
+import BaseCookieService from '#shared/services/cookie.service.ts'
 
 export default class CookieService extends BaseCookieService {
-    private cookies: Record<string, string> = {}
-    public request: Request
+    private request: Request
     private response: Response
 
     constructor(request: Request, response: Response) {
@@ -20,7 +20,6 @@ export default class CookieService extends BaseCookieService {
         const opts: CookieOptions = {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
-            ...options
         }
 
         this.response.cookie(_name, _value, opts)

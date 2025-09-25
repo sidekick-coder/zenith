@@ -82,9 +82,12 @@ const emit = defineEmits<{
     'dblclick:row': [item: T]
 }>()
 
-const slots = defineSlots<{
-     [key in `row-${string}`]: (props: { row: any }) => any
-}>()
+interface Slots {
+    default(): any
+    [key: `row-${string}`]: (props: { row: T }) => any
+}
+
+const slots = defineSlots<Slots>()
 
 const selected = defineModel('selected', {
     type: Object,
@@ -165,7 +168,9 @@ function onClick(item: any){
 </script>
 
 <template>
-    <Table :class="cn('border rounded', props.class, loading ? 'opacity-50 pointer-events-none' : '')">
+    <Table
+        :wrapper-class="cn('border rounded-lg', props.class, loading ? 'opacity-50 pointer-events-none' : '')"
+    >
         <TableHeader>
             <TableRow
                 v-for="headerGroup in table.getHeaderGroups()"
@@ -210,6 +215,7 @@ function onClick(item: any){
                         :style="{
                             width: cell.column.getSize() !== 0 ? cell.column.getSize() + 'px' : 'auto',
                         }"
+                        class="h-12"
                     >
                         <FlexRender
                             :render="cell.column.columnDef.cell"
@@ -230,4 +236,5 @@ function onClick(item: any){
             </template>
         </TableBody>
     </Table>
+    <slot />
 </template>

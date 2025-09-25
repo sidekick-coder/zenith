@@ -1,0 +1,158 @@
+<script lang="ts" setup>
+import { useForm } from 'vee-validate'
+import * as v from 'valibot'
+import { toTypedSchema } from '@vee-validate/valibot'
+import { ref, watch } from 'vue'
+import FormTextarea from './FormTextarea.vue'
+import ClientOnly from './ClientOnly.vue'
+import { $t } from '#shared/lang.ts'
+import FormTextField from '#client/components/FormTextField.vue'
+import { $fetch } from '#client/utils/fetcher.ts'
+import Button from '#client/components/Button.vue'
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from '#client/components/ui/dialog'
+import { tryCatch } from '#shared/tryCatch.ts'
+import permissionValidator from '#shared/validators/permission.validator'
+import type Permission from '#shared/entities/permission.entity.ts'
+import validator from '#shared/services/validator.service.ts'
+
+const emit = defineEmits(['submit'])
+
+const loading = ref(false)
+const open = ref(false)
+
+const props = defineProps({
+    permission: {
+        type: Object as () => Permission,
+        default: null,
+    },  
+})
+
+const schema = validator.create(v => v.intersect([
+    v.omit(permissionValidator.update, ['conditions']),
+    v.object({
+        conditions: v.nullish(v.string()),
+    })
+]))
+
+const { handleSubmit, resetForm } = useForm({
+    validationSchema: toTypedSchema(schema),
+})
+
+const onSubmit = handleSubmit(async (form) => {
+    loading.value = true
+
+    const data = {
+        ...form,
+        conditions: form.conditions ? JSON.parse(form.conditions) : null,
+    }
+
+    const [error] = await tryCatch(() => {
+        if (props.permission?.id) {
+            return $fetch(`/api/permissions/${props.permission.id}`, {
+                method: 'PUT',
+                data,
+            })
+        }
+
+        return $fetch('/api/permissions', {
+            method: 'POST',
+            data,
+        })
+    })
+
+    if (error) {
+        loading.value = false
+        return
+    }
+
+    
+    setTimeout(() => {
+        open.value = false
+        loading.value = false
+        resetForm()
+        emit('submit')
+    }, 1000)
+})
+
+watch(open, (value) => {
+    if (value) {
+        resetForm({
+            values: {
+                ...props.permission,
+                conditions: props.permission?.conditions ? JSON.stringify(props.permission.conditions, null, 2) : '',
+            }
+        })
+    }
+})
+</script>
+<template>
+    <ClientOnly>
+        <template #fallback>
+            <slot>
+                <Button>
+                    {{ $t('Add new') }}
+                </Button>
+            </slot>
+        </template>
+
+        <Dialog v-model:open="open">
+            <DialogTrigger>
+                <slot>
+                    <Button>
+                        {{ $t('Add new') }}
+                    </Button>
+                </slot>
+            </DialogTrigger>
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>{{ permission ? $t('Edit user') : $t('Add new user') }}</DialogTitle>
+                    <DialogDescription>
+                        {{ $t('Define details') }}
+                    </DialogDescription>
+                </DialogHeader>
+                <form
+                    class="space-y-4 py-2"
+                    @submit.prevent="onSubmit"
+                >
+                    <FormTextField
+                        name="name"
+                        :label="$t('Name')"
+                    />
+    
+                    <FormTextField
+                        name="action"
+                        :label="$t('Action')"
+                    />
+    
+                    <FormTextField
+                        name="subject"
+                        :label="$t('Subject')"
+                    />
+    
+                    <FormTextarea
+                        name="conditions"
+                        :label="$t('Conditions')"
+                    />
+                    
+                    <DialogFooter>
+                        <Button
+                            type="submit"
+                            class="w-full"
+                            :loading
+                        >
+                            {{ permission ? $t('Update') : $t('Create') }}
+                        </Button>
+                    </DialogFooter>
+                </form>
+            </DialogContent>
+        </Dialog>
+    </ClientOnly>
+</template>
