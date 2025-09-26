@@ -24,21 +24,19 @@ const deletingItems = ref<number[]>([])
 const columns = defineColumns([
     {
         id: 'id',
-        header: 'ID',
-        accessorKey: 'id',
-        size: 50,
-        minSize: 50,
-        maxSize: 100,
+        label: 'ID',
+        field: 'id',
+        width: 50,
     },
     {
         id: 'name',
-        header: $t('Name'),
-        accessorKey: 'name'
+        label: $t('Name'),
+        field: 'name'
     },
     {
         id: 'description',
-        header: $t('Description'),
-        accessorKey: 'description'
+        label: $t('Description'),
+        field: 'description'
     },
     { id: 'actions' }
 ])

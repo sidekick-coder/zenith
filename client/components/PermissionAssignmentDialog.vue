@@ -1,15 +1,10 @@
 <script lang="ts" setup>
 import { useForm } from 'vee-validate'
-import * as v from 'valibot'
 import { toTypedSchema } from '@vee-validate/valibot'
-import { ref, watch } from 'vue'
-import FormTextarea from './FormTextarea.vue'
+import { ref } from 'vue'
 import ClientOnly from './ClientOnly.vue'
-import FormSelect from './FormSelect.vue'
-import FormAutocomple from './FormAutocomplete.vue'
 import FormAutocomplete from './FormAutocomplete.vue'
 import { $t } from '#shared/lang.ts'
-import FormTextField from '#client/components/FormTextField.vue'
 import { $fetch } from '#client/utils/fetcher.ts'
 import Button from '#client/components/Button.vue'
 import {
@@ -24,7 +19,6 @@ import {
 import { tryCatch } from '#shared/tryCatch.ts'
 import schemas from '#shared/validators/index.ts'
 import Permission from '#shared/entities/permission.entity.ts'
-import validator from '#shared/services/validator.service.ts'
 
 const props = defineProps({ 
     assignType: {

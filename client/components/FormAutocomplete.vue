@@ -106,6 +106,10 @@ async function load() {
 
     const [error, response] = await tryCatch(() => $fetch<any>(props.fetch as string, {
         method: 'GET',
+        query: {
+            search: search.value,
+            limit: 5,
+        }
     }))
 
     if (error) {

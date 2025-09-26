@@ -6,21 +6,11 @@ import { $t } from '#shared/lang.ts'
 import AppLayout from '#client/layouts/AppLayout.vue'
 import { $fetch } from '#client/utils/fetcher.ts'
 import { tryCatch } from '#shared/tryCatch.ts'
-import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-    AlertDialogTrigger,
-} from '#client/components/ui/alert-dialog'
 import UserDialog from '#client/components/UserDialog.vue'
 import ClientOnly from '#client/components/ClientOnly.vue'
 import Button from '#client/components/Button.vue'
 import Icon from '#client/components/Icon.vue'
+import AlertButton from '#client/components/AlertButton.vue'
 
 const items = ref([])
 const page = ref(1)
@@ -29,24 +19,24 @@ const deletingItems = ref<string[]>([])
 const columns = defineColumns([
     {
         id: 'id',
-        header: 'ID',
-        accessorKey: 'id',
-        size: 50,
+        label: 'ID',
+        field: 'id',
+        width: 50,
     },
     {
         id: 'name',
-        header: $t('Name'),
-        accessorKey: 'name',
+        label: $t('Name'),
+        field: 'name',
     },
     {
         id: 'username',
-        header: $t('Username'),
-        accessorKey: 'username',
+        label: $t('Username'),
+        field: 'username',
     },
     {
         id: 'email',
-        header: 'Email',
-        accessorKey: 'email',
+        label: 'Email',
+        field: 'email',
     },
     { id: 'actions' }
 ])
@@ -120,31 +110,14 @@ watch(page, load, { immediate: true })
                         <Icon name="edit" />
                     </Button>
 
-                    <AlertDialog>
-                        <AlertDialogTrigger>
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                :loading="deletingItems.includes(row.id)"
-                            >
-                                <Icon name="trash" />
-                            </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                            <AlertDialogHeader>
-                                <AlertDialogTitle>{{ $t('Delete User') }}</AlertDialogTitle>
-                                <AlertDialogDescription>
-                                    {{ $t('Are you sure you want to delete this user? This action cannot be undone.') }}
-                                </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                                <AlertDialogCancel>{{ $t('Cancel') }}</AlertDialogCancel>
-                                <AlertDialogAction @click="destroy(row.id)">
-                                    {{ $t('Confirm') }}
-                                </AlertDialogAction>
-                            </AlertDialogFooter>
-                        </AlertDialogContent>
-                    </AlertDialog>
+                    <AlertButton 
+                        variant="ghost"
+                        size="sm"
+                        :loading="deletingItems.includes(row.id)"
+                        @confirm="destroy(row.id)"
+                    >
+                        <Icon name="trash" />
+                    </AlertButton>
                 </div>
             </template>
         </DataTable>

@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { toast } from 'vue-sonner'
-import { useRouter } from 'vue-router'
 import type { ComponentExposed } from 'vue-component-type-helpers'
 import Card from './ui/card/Card.vue'
 import { CardContent, CardDescription, CardHeader, CardTitle } from './ui/card'
@@ -27,9 +26,9 @@ import { createId } from '#client/utils/createId.ts'
 import DataTable from '#client/components/DataTable.vue'
 import PermissionDialog from '#client/components/PermissionDialog.vue'
 import ObjectInspect from '#client/components/ObjectInspect.vue'
-import type Permission from '#shared/entities/permission.entity.ts'
+import Permission from '#shared/entities/permission.entity.ts'
 
-const TypedDataTable = DataTable as typeof DataTable<PermissionAssignment, number>
+const TypedDataTable = DataTable as typeof DataTable<PermissionAssignment>
 
 const props = defineProps({ 
     assignType: {
@@ -44,8 +43,6 @@ const props = defineProps({
 
 
 
-const router = useRouter()
-
 const loading = ref(false)
 const saving = ref(false)
 const tableRef = ref<ComponentExposed<typeof DataTable>>()
@@ -56,36 +53,34 @@ const rows = ref<PermissionAssignment[]>([])
 const columns = defineColumns<PermissionAssignment>([
     {
         id: 'id',
-        header: 'ID',
-        accessorKey: 'id',
-        size: 50,
-        minSize: 50,
-        maxSize: 100,
+        label: 'ID',
+        field: 'id',
+        width: 50,
     },
     {
         id: 'name',
-        header: $t('Name'),
-        accessorFn: row => row.permission?.name,
+        label: $t('Name'),
+        field: row => row.permission?.name,
     },
     {
         id: 'origin',
-        header: $t('Origin'),
-        accessorFn: row => row.permission?.origin
+        label: $t('Origin'),
+        field: row => row.permission?.origin
     },
     {
         id: 'action',
-        header: $t('Action'),
-        accessorFn: row => row.permission?.action
+        label: $t('Action'),
+        field: row => row.permission?.action
     },
     {
         id: 'subject',
-        header: $t('Subject'),
-        accessorFn: row => row.permission?.subject
+        label: $t('Subject'),
+        field: row => row.permission?.subject
     },
     {
         id: 'conditions',
-        header: $t('Conditions'),
-        accessorFn: row => row.permission?.conditions
+        label: $t('Conditions'),
+        field: row => row.permission?.conditions
     },
     { id: 'actions' }
 ])
@@ -97,7 +92,7 @@ async function load() {
 async function attach(permission: Permission) {
     loading.value = true
 
-    const [error] = await tryCatch(() => $fetch<PermissionAssignment>('/api/permission-assignments', {
+    const [error, response] = await tryCatch(() => $fetch<PermissionAssignment>('/api/permission-assignments', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -112,10 +107,15 @@ async function attach(permission: Permission) {
         return
     }
 
+    const assignment = new PermissionAssignment(response)
+
+    assignment.permission = new Permission(permission)
+
+    rows.value.unshift(assignment)
+
     setTimeout(() => {
         toast.success($t('Attached successfully.'))
-        saving.value = false
-        load()
+        loading.value = false
     }, 800)
 }
 

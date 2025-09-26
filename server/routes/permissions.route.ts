@@ -13,7 +13,7 @@ const router = rootRouter.use(authMiddleware)
 router.get('/', async ({ acl, query }) => {
     acl.authorize('read', 'Permission')
 
-    const payload = validator.validate(query, schemas.pagination)
+    const payload = validator.validate(query, schemas.pagination.schema)
     
     const pagination = await paginate('permissions', {
         limit: payload.limit,
