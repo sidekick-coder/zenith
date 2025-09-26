@@ -22,7 +22,7 @@ const props = withDefaults(defineProps<Props<T>>(), {
     columns: () => [
         {
             id: 'label',
-            header: $t('Name'),
+            label: $t('Name'),
         }
     ]
 })

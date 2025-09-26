@@ -17,7 +17,6 @@ import { cn } from '#client/lib/utils.ts'
 import type Pagination from '#shared/entities/pagination.entity.ts'
 import { $fetch } from '#client/utils/fetcher.ts'
 
-
 export interface DataTableFetchParams {
     page: number
     limit: number
@@ -278,10 +277,17 @@ async function load(){
         loading.value = false
     }, 800)
 }
+function reset() {
+    page.value = 1
+    load()
+}
 
 watch([page, limit], load, { immediate: true })
 
-defineExpose({ load })
+defineExpose({ 
+    load,
+    reset
+})
 </script>
 
 <template>

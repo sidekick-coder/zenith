@@ -16,7 +16,7 @@ import DataTable from '#client/components/DataTable.vue'
 import PermissionDialog from '#client/components/PermissionDialog.vue'
 import ObjectInspect from '#client/components/ObjectInspect.vue'
 
-const TypedDataTable = DataTable as typeof DataTable<Permission, number>
+const TypedDataTable = DataTable as typeof DataTable<Permission>
 
 const loading = ref(false)
 const tableRef = ref<ComponentExposed<typeof DataTable>>()

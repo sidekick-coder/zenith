@@ -13,7 +13,7 @@ const group = router.use(authMiddleware)
 group.get('/', async () => {
     const drives = drive.listDrives()
 
-    return { data: drives }
+    return { items: drives }
 })
 
 group.get('/:id', async ({ params }) => {
