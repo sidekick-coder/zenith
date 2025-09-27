@@ -80,7 +80,11 @@ export default class AuthService {
         return hasher.hash(password)
     }
 
-    async authenticate(tokenValue: string) {
+    async authenticate(tokenValue?: string) {
+        if (!tokenValue) {
+            return null
+        }
+        
         const token = await this.tokenService.findToken(tokenValue)
         
         if (!token) {
