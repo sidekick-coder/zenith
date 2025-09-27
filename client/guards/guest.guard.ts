@@ -1,12 +1,21 @@
-import type { NavigationGuard } from 'vue-router'
 import di from '#client/utils/di.ts'
 
-const guestGuard: NavigationGuard = () => {
-    const user = di.get<any>('auth:user')
+export interface GuestGuardOptions {
+    redirect: string
+}
 
-    if (user) {
-        return '/admin'
+export function createGuestGuard(options: GuestGuardOptions) {
+    return () => {
+        const user = di.get<any>('auth:user')
+
+        if (user) {
+            return options.redirect
+        }
     }
 }
+
+const guestGuard = createGuestGuard({
+    redirect: '/admin'
+})
 
 export default guestGuard

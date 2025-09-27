@@ -31,7 +31,7 @@ import { $fetch } from '#client/utils/fetcher.ts'
 import { tryCatch } from '#shared/tryCatch.ts'
 import { $t } from '#shared/lang.ts'
 import { useMenu } from '#client/composables/useMenu.ts'
-import type { MenuGroup, MenuItem } from '#client/composables/useMenu.ts'
+import type { MenuItem } from '#client/composables/useMenu.ts'
 import Icon from '#client/components/Icon.vue'
 
 export interface BreadcrumbItem {
