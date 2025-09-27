@@ -21,16 +21,14 @@ const { handleSubmit } = useForm({
         })),
 })
 
-const onSubmit = handleSubmit(async (formValues) => {
+const onSubmit = handleSubmit(async (data) => {
     isLoading.value = true
 
-    const [error] = await tryCatch(() => {
-        return $fetch('/auth/login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', },
-            body: JSON.stringify(formValues),
-        })
+    const [error] = await tryCatch(() => $fetch('/api/auth/login', {
+        method: 'POST',
+        data,
     })
+    )
 
     if (error) {
         isLoading.value = false
@@ -41,7 +39,7 @@ const onSubmit = handleSubmit(async (formValues) => {
 
     setTimeout(() => {
         window.location.href = '/admin'
-    }, 1000)
+    }, 500)
 })
 </script>
 

@@ -11,12 +11,13 @@ export default defineClientSetup(({ menu, router }) => {
     router.auto(import.meta.glob<DefineComponent>('./pages/**/*.vue',), {
         strip: ['pages'],
         guards: record => {
-            if (record.path.startsWith('/admin')) {
-                return [authGuard]
+            
+            if (record.path === '/admin/auth/login') {
+                return [guestGuard]
             }
 
-            if (record.path.startsWith('/auth')) {
-                return [guestGuard]
+            if (record.path.startsWith('/admin')) {
+                return [authGuard]
             }
 
             return []

@@ -60,7 +60,7 @@ const onSubmit = handleSubmit(async (payload) => {
 
     setTimeout(async () => {
         isLoading.value = false
-        window.location.href = '/auth/login' // Redirect to the next step
+        window.location.href = '/admin/auth/login' // Redirect to the next step
     }, 1000)
 })
 </script>
