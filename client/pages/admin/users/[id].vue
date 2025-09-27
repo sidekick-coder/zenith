@@ -32,9 +32,17 @@ const tabs = [
     },
     {
         id: 'change-password',
-        label: $t('Change Password'),
+        label: $t('Password'),
         component: defineAsyncComponent(() => import('#client/components/UserChangePasswordForm.vue')),
         props: { userId: userId }
+    },
+    {
+        id: 'roles',
+        label: $t('Roles'),
+        component: defineAsyncComponent(() => import('#client/components/UserRoles.vue')),
+        props: { 
+            userId: userId
+        },
     },
     {
         id: 'permissions',
