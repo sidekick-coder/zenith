@@ -1,7 +1,7 @@
 import { toast } from 'vue-sonner'
 import di from './di'
 import { $t } from '#shared/lang'
-import type Router from '#server/router/router'
+import type Router from '#server/services/router.service'
 import CookieService from '#shared/services/cookie.service'
 
 interface Options extends RequestInit {
@@ -95,7 +95,7 @@ export function createServerFetcher(router: Router, cookies: Record<string, stri
     return fetcher
 }
 
-export async function $fetch<T>(url: string, options: Options = {}): Promise<T> {
+export async function $fetch<T = any>(url: string, options: Options = {}): Promise<T> {
     let fetcher: Fetcher = defaultFetcher
 
     if (di.has('fetcher')) {
