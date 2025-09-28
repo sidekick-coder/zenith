@@ -24,6 +24,7 @@ import type {
     SelectFrom,
     SerializeOptions
 } from '#server/queries/index.ts'
+import type Pagination from '#shared/entities/pagination.entity.ts'
 
 type Constructor = new (...args: any[]) => {}
 
@@ -43,7 +44,7 @@ export function Model<Table extends keyof Database>(table: Table) {
     return function ModelExtend<TBase extends Constructor>(Base: TBase) {
         return class extends Base {
             // 'this' is the concrete constructor (e.g. Food), so the return type is inferred correctly.
-            public static paginate<T>(this: new () => T, o?: ModelPaginateOptions<Table>): T[] {
+            public static paginate<T>(this: new () => T, o?: ModelPaginateOptions<Table>): Pagination<T> {
                 return paginate(table, {
                     page: o?.page,
                     limit: o?.limit,
