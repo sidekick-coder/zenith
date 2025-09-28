@@ -25,7 +25,7 @@ export interface DataTableFetchParams {
 export interface DataTableColumn<T extends Record<string, any> = any> {
     id?: string
     label?: string
-    field?: string | ((row: T) => any)
+    field?: keyof T | ((row: T) => any)
     width?: number
 }
 
