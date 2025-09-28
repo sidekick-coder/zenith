@@ -1,3 +1,5 @@
+import type Permission from './permission.entity.ts'
+import type Role from './role.entity.ts'
 import { BaseEntity, SoftDelete, Timestamp } from '#shared/mixins/index.ts'
 import { compose } from '#shared/utils/compose.ts'
 
@@ -6,6 +8,10 @@ export default class User extends compose(BaseEntity, Timestamp, SoftDelete) {
     public email: string
     public name: string
     public username: string
+
+
+    public permissions?: Permission[]
+    public roles?: Role[]
 
     public get initials(){
         const [firstName, secondName] = this.name.split(' ')

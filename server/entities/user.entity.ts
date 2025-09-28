@@ -6,9 +6,6 @@ import BaseUser from '#shared/entities/user.entity.ts'
 import { composeWith } from '#shared/utils/compose.ts'
 
 export default class User extends composeWith(BaseUser, Model('users')) {
-    public roles?: Role[]
-    public permissions?: Permission[]
-
     public async loadRoles(){
         this.roles = await list('roles', {
             serialize: Role.from,

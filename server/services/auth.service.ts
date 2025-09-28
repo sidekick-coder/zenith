@@ -97,17 +97,22 @@ export default class AuthService {
             return null
         }
 
-        const user = await db.selectFrom('users')
+        const row = await db.selectFrom('users')
             .selectAll()
             .where('id', '=', token.user_id)
             .where('deleted_at', 'is', null)
             .executeTakeFirst()
 
-        if (!user) {
+        if (!row) {
             return null
         }
 
-        return User.from(user)
+        const user = User.from(row)
+
+        await user.loadRoles()
+        await user.loadPermissions()
+
+        return user
     }
 
     async logout(tokenValue: string): Promise<boolean> {
