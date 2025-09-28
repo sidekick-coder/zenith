@@ -14,12 +14,12 @@ program.command('migration:make')
 
         const migrationName = `${timesmap}_${name}.ts`
 
-        let filename = basePath('server', 'database', 'migrations', migrationName)
+        let filename = basePath('server', 'migrations', migrationName)
 
         if (options.module) {
             const mod = await modules.findOrFail(options.module)
 
-            filename = mod.makePath('server', 'database', 'migrations', migrationName)
+            filename = mod.makePath('server', 'migrations', migrationName)
         }
 
         const contents = await template.fromFile(basePath('server', 'templates', 'migration.ts'))

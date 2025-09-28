@@ -38,7 +38,7 @@ export class Migrator {
         const allMigrations: Migration[] = []
 
         // Load root migrations
-        const rootFolder = basePath('server', 'database', 'migrations')
+        const rootFolder = basePath('server', 'migrations')
         if (fs.existsSync(rootFolder)) {
             const entries = await fs.promises.readdir(rootFolder)
             
@@ -69,7 +69,7 @@ export class Migrator {
         // Load module migrations
         const mods = await modules.list()
         for (const mod of mods) {
-            const migrationPath = mod.makePath('server', 'database', 'migrations')
+            const migrationPath = mod.makePath('server', 'migrations')
             if (!fs.existsSync(migrationPath)) continue
 
             const entries = await fs.promises.readdir(migrationPath)
@@ -280,13 +280,13 @@ export class Migrator {
     public async migrateByModule(moduleName: string): Promise<MigrationResult[]> {
         const mod = await modules.findOrFail(moduleName)
 
-        return this.migrateFolder(mod.makePath('server', 'database', 'migrations'))
+        return this.migrateFolder(mod.makePath('server', 'migrations'))
     }
 
     public async rollbackByModule(moduleName: string): Promise<MigrationResult[]> {
         const mod = await modules.findOrFail(moduleName)
 
-        return this.rollbackFolder(mod.makePath('server', 'database', 'migrations'))
+        return this.rollbackFolder(mod.makePath('server', 'migrations'))
     }
 
     public async up(steps: number = 1): Promise<MigrationResult[]> {
