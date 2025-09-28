@@ -107,7 +107,7 @@ export default class AuthService {
             return null
         }
 
-        return new User(user)
+        return User.from(user)
     }
 
     async logout(tokenValue: string): Promise<boolean> {

@@ -1,9 +1,11 @@
+import { Model } from '#server/mixins/model.mixin.ts'
 import { list } from '#server/queries/list.ts'
 import Permission from '#shared/entities/permission.entity.ts'
 import Role from '#shared/entities/role.entity.ts'
 import BaseUser from '#shared/entities/user.entity.ts'
+import { composeWith } from '#shared/utils/compose.ts'
 
-export default class User extends BaseUser {
+export default class User extends composeWith(BaseUser, Model('users')) {
     public roles?: Role[]
     public permissions?: Permission[]
 
@@ -21,6 +23,8 @@ export default class User extends BaseUser {
     }
 
     public async loadPermissions(){
+
+        if (!this.id) return
 
         if (!this.roles) {
             await this.loadRoles()

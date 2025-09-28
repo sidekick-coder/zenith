@@ -10,7 +10,7 @@ interface LoadOptions {
 }
 
 function load(options: LoadOptions) {
-    user.value = options.user
+    user.value = options.user ? User.from(options.user) : undefined
 }
 
 interface LogoutOptions {

@@ -1,16 +1,25 @@
-export default class User {
+import { BaseEntity, SoftDelete, Timestamp } from '#shared/mixins/index.ts'
+import { compose } from '#shared/utils/compose.ts'
+
+export default class User extends compose(BaseEntity, Timestamp, SoftDelete) {  
     public id: number
     public email: string
     public name: string
     public username: string
-    public created_at: string | Date
-    public updated_at: string | Date
 
-    constructor(data: User) {
-        Object.assign(this, data)
-    }
+    public get initials(){
+        const [firstName, secondName] = this.name.split(' ')
 
-    public static from(row: Partial<User>): User {
-        return new User(row as User)
+        console.log({ firstName,
+            secondName }) 
+
+        if (!secondName) {
+            return firstName[0].toUpperCase()
+        }
+
+        const a = firstName[0].toUpperCase()
+        const b = secondName[0].toUpperCase()
+
+        return a + b
     }
 }
