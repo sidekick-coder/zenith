@@ -8,5 +8,10 @@ export function BaseEntity<TBase extends Constructor>(Base: TBase) {
             Object.assign(instance as any, data)
             return instance
         }
+
+        public merge(data: Partial<this>): this {
+            Object.assign(this, data)
+            return this
+        }
     }
 }
