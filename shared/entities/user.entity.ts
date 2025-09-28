@@ -10,9 +10,6 @@ export default class User extends compose(BaseEntity, Timestamp, SoftDelete) {
     public get initials(){
         const [firstName, secondName] = this.name.split(' ')
 
-        console.log({ firstName,
-            secondName }) 
-
         if (!secondName) {
             return firstName[0].toUpperCase()
         }
