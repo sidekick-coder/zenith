@@ -49,7 +49,7 @@ async function load(){
     if (error) {
         loading.value = false
         toast.error($t('Failed to load role details.'))
-        router.push('/roles')
+        router.replace('/roles')
         return
     }
 
