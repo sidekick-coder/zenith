@@ -1,4 +1,3 @@
-export * from './auth.ts'
 export * from './autoPages.ts'
 export * from './createId.ts'
 export * from './defineClientSetup.ts'

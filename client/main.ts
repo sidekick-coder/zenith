@@ -8,12 +8,18 @@ import { useMenu } from './composables/useMenu'
 import setup from './setup'
 import { logger } from './utils/logger'
 import config from './facades/config.facade'
+import di from './utils/di'
+import { $auth } from './composables/useAuth'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
 
 export async function createApp() {
     const app = createSSRApp(App)
     const menu = useMenu()
     const router = createRouter()
+
+    const user = di.get<any>('auth:user', undefined)
+
+    $auth.load({ user })
 
     app.config.globalProperties.$t = $t
 
