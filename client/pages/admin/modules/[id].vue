@@ -14,7 +14,7 @@ import CardTitle from '#client/components/ui/card/CardTitle.vue'
 
 import { $t } from '#shared/lang.ts'
 import { $fetch } from '#client/utils/fetcher.ts'
-import { tryCatch } from '#shared/tryCatch.ts'
+import { tryCatch } from '#shared/utils/tryCatch.ts'
 
 const route = useRoute()
 const id = computed(() => route.params.id as string)

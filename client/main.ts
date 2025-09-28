@@ -8,7 +8,7 @@ import { useMenu } from './composables/useMenu'
 import setup from './setup'
 import { logger } from './utils/logger'
 import config from './facades/config.facade'
-import { tryCatch } from '#shared/tryCatch.ts'
+import { tryCatch } from '#shared/utils/tryCatch.ts'
 
 export async function createApp() {
     const app = createSSRApp(App)

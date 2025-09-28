@@ -6,7 +6,7 @@ import rootLogger from '#server/facades/logger.facade.ts'
 import { serverPath, storagePath } from '#server/utils/paths.ts'
 import { importGlob } from '#server/utils/importAll.ts'
 import type { ServerSetup } from '#server/utils/defineServerSetup.ts'
-import { tryCatch } from '#shared/tryCatch.ts'
+import { tryCatch } from '#shared/utils/tryCatch.ts'
 
 const logger = rootLogger.child({ label: 'boot.service' })
 

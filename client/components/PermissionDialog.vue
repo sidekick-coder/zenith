@@ -19,7 +19,7 @@ import {
     DialogTitle,
     DialogTrigger,
 } from '#client/components/ui/dialog'
-import { tryCatch } from '#shared/tryCatch.ts'
+import { tryCatch } from '#shared/utils/tryCatch.ts'
 import schemas from '#shared/validators/index.ts'
 import type Permission from '#shared/entities/permission.entity.ts'
 import validator from '#shared/services/validator.service.ts'

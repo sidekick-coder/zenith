@@ -7,7 +7,7 @@ import {
 import { orderBy } from 'lodash-es'
 import FileExplorerDirectory from '#client/components/FileExplorerDirectory.vue'
 import { $fetch } from '#client/utils/fetcher.ts'
-import { tryCatch } from '#shared/tryCatch.ts'
+import { tryCatch } from '#shared/utils/tryCatch.ts'
 
 interface FileItem {
     name: string

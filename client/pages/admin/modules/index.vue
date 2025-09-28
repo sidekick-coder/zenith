@@ -12,7 +12,7 @@ import Switch from '#client/components/ui/switch/Switch.vue'
 
 import { $t } from '#shared/lang.ts'
 import { $fetch } from '#client/utils/fetcher'
-import { tryCatch } from '#shared/tryCatch.ts'
+import { tryCatch } from '#shared/utils/tryCatch.ts'
 import Dialog from '#client/components/ui/dialog/Dialog.vue'
 import DialogContent from '#client/components/ui/dialog/DialogContent.vue'
 import DialogHeader from '#client/components/ui/dialog/DialogHeader.vue'

@@ -6,7 +6,7 @@ import { toTypedSchema } from '@vee-validate/valibot'
 import { toast } from 'vue-sonner'
 import { $t } from '#shared/lang.ts'
 import { $fetch } from '#client/utils/fetcher.ts'
-import { tryCatch } from '#shared/tryCatch.ts'
+import { tryCatch } from '#shared/utils/tryCatch.ts'
 import {
     Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter 
 } from '#client/components/ui/card'

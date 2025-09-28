@@ -10,7 +10,7 @@ import {
     storagePath
 } from '#server/utils/paths.ts'
 import router from '#server/facades/router.facade.ts'
-import { tryCatch } from '#shared/tryCatch.ts'
+import { tryCatch } from '#shared/utils/tryCatch.ts'
 import migrator from '#server/database/migrator.ts'
 
 const logger = rootLogger.child({ label: 'modules.service' })

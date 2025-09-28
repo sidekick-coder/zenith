@@ -6,7 +6,7 @@ import Route from '../entities/route.entity.ts'
 import type {
     Handler, Middleware, MiddlewareHandleResult 
 } from '../contracts/router.contract.ts'
-import { tryCatch } from '#shared/tryCatch.ts'
+import { tryCatch } from '#shared/utils/tryCatch.ts'
 
 const logger = rootLogger.child({ label: 'router' })
 

@@ -18,7 +18,7 @@ import {
 import { defineColumns } from '#client/components/DataTable.vue'
 import { $t } from '#shared/lang.ts'
 import { $fetch } from '#client/utils/fetcher.ts'
-import { tryCatch } from '#shared/tryCatch.ts'
+import { tryCatch } from '#shared/utils/tryCatch.ts'
 import Button from '#client/components/Button.vue'
 import Icon from '#client/components/Icon.vue'
 import PermissionAssignment from '#shared/entities/permissionAssignment.entity'

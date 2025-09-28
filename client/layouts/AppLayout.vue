@@ -28,7 +28,7 @@ import {
     SidebarMenuItem,SidebarMenuButton
 } from '#client/components/ui/sidebar'
 import { $fetch } from '#client/utils/fetcher.ts'
-import { tryCatch } from '#shared/tryCatch.ts'
+import { tryCatch } from '#shared/utils/tryCatch.ts'
 import { $t } from '#shared/lang.ts'
 import { useMenu } from '#client/composables/useMenu.ts'
 import type { MenuItem } from '#client/composables/useMenu.ts'

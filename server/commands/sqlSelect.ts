@@ -2,7 +2,7 @@ import { program } from 'commander'
 import { sql } from 'kysely'
 import db from '#server/facades/db.facade.ts'
 import cli from '#server/services/cli.service.ts'
-import { tryCatch } from '#shared/tryCatch.ts'
+import { tryCatch } from '#shared/utils/tryCatch.ts'
 
 interface TableListOptions {
     limit?: number

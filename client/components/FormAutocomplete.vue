@@ -18,7 +18,7 @@ import {
 import { Combobox, ComboboxAnchor, ComboboxEmpty, ComboboxGroup, ComboboxInput, ComboboxItem, ComboboxItemIndicator, ComboboxList } from '#client/components/ui/combobox'
 import ComboboxTrigger from '#client/components/ui/combobox/ComboboxTrigger.vue'
 import { $fetch } from '#client/utils/fetcher.ts'
-import { tryCatch } from '#shared/tryCatch.ts'
+import { tryCatch } from '#shared/utils/tryCatch.ts'
 
 const props = defineProps({
     name: {

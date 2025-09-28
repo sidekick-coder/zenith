@@ -2,7 +2,7 @@ import fs from 'fs'
 import path from 'path'
 import nodeSchedule from 'node-schedule'
 import rootLogger from '../facades/logger.facade.ts'
-import { tryCatch } from '#shared/tryCatch.ts'
+import { tryCatch } from '#shared/utils/tryCatch.ts'
 import Routine from '#server/entities/routine.entity.ts'
 import BaseException from '#server/exceptions/base.ts'
 

@@ -7,7 +7,7 @@ import {
 import Icon from '#client/components/Icon.vue'
 import FileExplorerBreadcrumb from '#client/components/FileExplorerBreadcrumb.vue'
 import { $fetch } from '#client/utils/fetcher.ts'
-import { tryCatch } from '#shared/tryCatch.ts'
+import { tryCatch } from '#shared/utils/tryCatch.ts'
 import { $t } from '#shared/lang.ts'
 
 interface FileItem {
