@@ -1,9 +1,11 @@
-import type Router from '#server/router/router.ts'
+import type Router from '#server/services/router.service.ts'
+import type EmmitterService from '#server/services/emmitter.service.ts'
 import type ScheduleService from '#server/services/schedule.service.ts'
 
 interface SetupServerParams {
    router: Router
    scheduler: ScheduleService
+   emmitter: EmmitterService
 }
 
 interface ServerSetupFn {

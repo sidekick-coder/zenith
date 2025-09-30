@@ -2,6 +2,7 @@ import path from 'path'
 import db from '#server/facades/db.facade.ts'
 import router from '#server/facades/router.facade.ts'
 import scheduler from '#server/facades/scheduler.facade.ts'
+import emmitter from '#server/facades/emmitter.facade.ts'
 import rootLogger from '#server/facades/logger.facade.ts'
 import { serverPath, storagePath } from '#server/utils/paths.ts'
 import { importGlob } from '#server/utils/importAll.ts'
@@ -35,7 +36,8 @@ export class BootService {
 
             const [error] = await tryCatch(() => mod.setup({
                 router,
-                scheduler 
+                scheduler,
+                emmitter
             }))
 
             if (error) {
@@ -59,8 +61,11 @@ export class BootService {
             await scheduler.clear()
         }
 
-        await db.load()
+        if (emmitter.hasHandlers()) {
+            emmitter.clear()
+        }
 
+        await db.load()
 
         await this.root()
         await this.setup()
