@@ -1,3 +1,4 @@
+import type { UpdateOrCreateOptions } from '#modules/callory-tracker/root/server/queries/updateOrCreate.ts'
 import type { Database } from '#server/contracts/database.contract.ts'
 import { 
     list,
@@ -10,6 +11,7 @@ import {
     update,
     destroy,
     firstOrCreate, 
+    updateOrCreate,
     softDelete
 } from '#server/queries/index.ts'
 
@@ -39,6 +41,7 @@ export type ModelCreateOptions<T extends keyof Database> = Omit<CreateOptions<T>
 export type ModelUpdateOptions<T extends keyof Database> = Omit<UpdateOptions<T>, 'serialize'>
 export type ModelDestroyOptions<T extends keyof Database> = DestroyOptions<T>
 export type ModelFirstOrCreateOptions<T extends keyof Database> = Omit<FirstOrCreateOptions<T>, 'serialize'>
+export type ModelUpdateOrCreateOptions<T extends keyof Database> = Omit<UpdateOrCreateOptions<T>, 'serialize'>
 
 export function Model<Table extends keyof Database>(table: Table) {
     return function ModelExtend<TBase extends Constructor>(Base: TBase) {
@@ -107,7 +110,6 @@ export function Model<Table extends keyof Database>(table: Table) {
             }
 
             public static create<T>(this: new () => T, values: ModelCreateOptions<Table>['values']): T | T[] {
-                console.log('Creating in table:', table, 'values:', values)
                 return create(table, {
                     values: values,
                     serialize: row => {
@@ -141,6 +143,21 @@ export function Model<Table extends keyof Database>(table: Table) {
             public static firstOrCreate<T>(this: new () => T, o: ModelFirstOrCreateOptions<Table>): T {
                 return firstOrCreate(table, {
                     select: o.select,
+                    values: o.values,
+                    serialize: row => {
+                        const instance = new this() as any
+                        
+                        Object.assign(instance as any, row)
+
+                        return instance
+                    },
+                }) as any
+            }
+
+            public static updateOrCreate<T>(this: new () => T, o: ModelUpdateOrCreateOptions<Table>): T {
+                return updateOrCreate(table, {
+                    select: o.select,
+                    update: o.update,
                     values: o.values,
                     serialize: row => {
                         const instance = new this() as any
