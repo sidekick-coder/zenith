@@ -1,6 +1,6 @@
  
 import type { ColumnType, Generated } from 'kysely'
-import { SoftDeleteTable, TimestampTable } from '#server/queries/index.ts'
+import type { SoftDeleteTable, TimestampTable } from '#server/queries/index.ts'
 
 export interface MigrationsTable {
   name: string
@@ -37,6 +37,8 @@ export interface UserRoleTable {
 export interface PermissionTable extends TimestampTable, SoftDeleteTable {
   id: Generated<number>
   name: string
+  description: string | null
+  origin: string
   subject: string
   action: string
   conditions: string | null
