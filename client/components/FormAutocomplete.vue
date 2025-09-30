@@ -150,7 +150,7 @@ if (props.fetch) {
                     <ComboboxTrigger as-child>
                         <Button
                             variant="outline"
-                            class="justify-between w-full h-auto"
+                            class="justify-between w-full h-auto min-h-10"
                             :disabled="disabled"
                         >
                             <slot
@@ -196,7 +196,7 @@ if (props.fetch) {
                         v-else-if="!options.length"
                         class="px-6"
                     >
-                        {{ $t('no_results') }}
+                        {{ $t('No results found') }}
                     </ComboboxEmpty>
 
                     <ComboboxGroup v-else>

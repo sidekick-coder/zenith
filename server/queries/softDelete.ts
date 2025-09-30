@@ -28,9 +28,16 @@ export function whereNotDeleted<QB extends WhereCapable<QB>>(qb: QB): QB {
     return qb.where('deleted_at', 'is', null)
 }
 
-export const undeleted = (qb: ExpressionBuilder<any, any>) => {
+export function undeleted (qb: ExpressionBuilder<any, any>) {
     return qb.eb('deleted_at', 'is', null)
 }
+
+undeleted.column = (col: string) => {
+    return (qb: ExpressionBuilder<any, any>) => {
+        return qb.eb(col, 'is', null)
+    }
+}
+
 
 export const deleted = (qb: ExpressionBuilder<any, any>) => {
     return qb.eb('deleted_at', 'is not', null)

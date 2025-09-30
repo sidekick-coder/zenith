@@ -8,7 +8,7 @@ function makeObjectBarrelIndex(files: string[], name = 'all'): string {
     const imports = files.map(file => `import * as ${camelCase(file.split('.')[0])} from './${file}'`).join('\n')
         
     // Generate const object with all imports
-    const objectEntries = files.map(file => `    ${camelCase(file.split('.')[0])}`).join('\n')
+    const objectEntries = files.map(file => `    ${camelCase(file.split('.')[0])}`).join(',\n')
         
     const indexContent = [
         `${imports}`,
@@ -30,7 +30,7 @@ function makeReExportBarrelIndex(files: string[]): string {
 
 program.command('make:index')
     .requiredOption('-d, --directory <directory>', 'Directory to where generate index.ts file')
-    .option('-m --mode', 'Mode of index file: "object" or "re-export"', 're-export')
+    .option('-m --mode <mode>', 'Mode of index file: "object" or "re-export"', 're-export')
     .option('-n, --name <name>', 'Name of export object', 'all')
     .action(async (options) => {
         const { directory, name, mode } = options
@@ -61,7 +61,7 @@ program.command('make:index')
         } 
 
         if (mode === 're-export') {
-            content =makeReExportBarrelIndex(files)
+            content = makeReExportBarrelIndex(files)
         }       
 
         fs.writeFileSync(path.join(directory, 'index.ts'), content, 'utf-8')

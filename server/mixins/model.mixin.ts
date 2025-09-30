@@ -107,6 +107,7 @@ export function Model<Table extends keyof Database>(table: Table) {
             }
 
             public static create<T>(this: new () => T, values: ModelCreateOptions<Table>['values']): T | T[] {
+                console.log('Creating in table:', table, 'values:', values)
                 return create(table, {
                     values: values,
                     serialize: row => {

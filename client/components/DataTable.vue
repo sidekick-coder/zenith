@@ -64,6 +64,10 @@ const props = defineProps({
         type: [String, Function] as PropType<string | DataTableFetchCallback>,
         default: null
     },
+    query: {
+        type: Object as PropType<Record<string, any>>,
+        default: () => ({}),
+    },
     serialize: {
         type: Function as PropType<(row: any) => T>,
         default: (row: any) => row as T,
@@ -251,6 +255,7 @@ async function load(){
             query: {
                 page: page.value,
                 limit: limit.value,
+                ...props.query,
             }
         })
     }
