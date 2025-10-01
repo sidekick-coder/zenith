@@ -71,7 +71,7 @@ const limit = defineModel('limit', {
                 >
                     <span class="sr-only">{{ $t('Go to first page') }}</span>
                     <Icon
-                        name="DoubleArrowLeftIcon"
+                        name="ChevronsLeft"
                         class="w-4 h-4"
                     />
                 </Button>
@@ -83,7 +83,7 @@ const limit = defineModel('limit', {
                 >
                     <span class="sr-only">{{ $t('Go to previous page') }}</span>
                     <Icon
-                        name="ChevronLeftIcon"
+                        name="ChevronLeft"
                         class="w-4 h-4"
                     />
                 </Button>
@@ -95,7 +95,7 @@ const limit = defineModel('limit', {
                 >
                     <span class="sr-only">{{ $t('Go to next page') }}</span>
                     <Icon
-                        name="ChevronRightIcon"
+                        name="ChevronRight"
                         class="w-4 h-4"
                     />
                 </Button>
@@ -107,7 +107,7 @@ const limit = defineModel('limit', {
                 >
                     <span class="sr-only">{{ $t('Go to last page') }}</span>
                     <Icon
-                        name="DoubleArrowRightIcon"
+                        name="ChevronsRight"
                         class="w-4 h-4"
                     />
                 </Button>
