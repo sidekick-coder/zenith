@@ -19,6 +19,10 @@ defineProps({
         type: String,
         default: 'text',
     },
+    step: {
+        type: String,
+        default: null,
+    },
     label: {
         type: String,
         required: true,
@@ -66,6 +70,7 @@ defineProps({
                         :autocomplete
                         :readonly
                         :autofocus
+                        :step
                         class="h-10"
                         v-bind="componentField"
                     />
