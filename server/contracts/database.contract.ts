@@ -51,10 +51,20 @@ export interface PermissionAssignmentTable {
   assignable_id: string
 }
 
+export interface FileTable extends TimestampTable, SoftDeleteTable {
+  id: Generated<number>
+  drive: string
+  mimetype: string
+  client_name: string
+  filename: string
+  metadata: string | null
+}
+
 export interface Database  {
   users: UserTable
   tokens: TokenTable
   migrations: MigrationsTable
+  files: FileTable
   
   roles: RoleTable
   user_roles: UserRoleTable

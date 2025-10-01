@@ -8,6 +8,15 @@ import BaseException from '#server/exceptions/base.ts'
 export default class DriveService {
     private static drives: Map<string, DriveContract> = new Map()
     private selected: DriveContract
+    public get selectedName(): string {
+        for (const [name, drive] of DriveService.drives.entries()) {
+            if (drive === this.selected) {
+                return name
+            }
+        }
+
+        return 'unknown'
+    }
 
     constructor(name: string = 'storage') {
         const drive = DriveService.drives.get(name)
@@ -98,22 +107,24 @@ export default class DriveService {
         return drive as T
     }
 
+    
+
 }
 
-const rootDrive = new FsDrive('/')
-const storageDrive = new FsDrive(storagePath('drive'))
+const root = new FsDrive('/')
+const storage = new FsDrive(storagePath('drive'))
 
-rootDrive.metas = {
+root.metas = {
     name: 'Root',
     description: 'Root filesystem drive',
     editable: false,
 }
 
-storageDrive.metas = {
+storage.metas = {
     name: 'Local Filesystem',
     description: 'Default local filesystem drive',
     editable: false,
 }
 
-DriveService.register('root', rootDrive)
-DriveService.register('storage', storageDrive)
+DriveService.register('root', root)
+DriveService.register('storage', storage)

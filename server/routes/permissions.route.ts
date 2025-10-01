@@ -19,7 +19,8 @@ router.get('/', async ({ acl, query }) => {
         limit: payload.limit,
         page: payload.page,
         serialize: Permission.from,
-        query: qb => qb.selectAll().where(undeleted)
+        query: qb => qb.selectAll()
+            .where(undeleted)
             .orderBy('created_at', 'desc'),
     })
 

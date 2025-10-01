@@ -32,70 +32,58 @@ export default defineClientSetup(({ menu, router }) => {
     menu.add({
         id: 'users',
         label: $t('Users'),
-        icon: 'UsersIcon',
-        group: $t('General')
-    })
-
-    menu.add({
-        id: 'users-list',
-        label: $t('List'),
         to: '/admin/users',
-        parent: 'users'
+        icon: 'Users',
+        group: $t('Auth')
     })
     
     menu.add({
-        id: 'users-roles',
+        id: 'roles',
         label: $t('Roles'),
         to: '/admin/roles',
-        parent: 'users'
+        icon: 'Users',
+        group: $t('Auth')
     })
     
     menu.add({
-        id: 'users-permissions',
+        id: 'permissions',
         label: $t('Permissions'),
         to: '/admin/permissions',
-        parent: 'users'
+        icon: 'Users',
+        group: $t('Auth')
     })
 
     menu.add({
-        id: 'storage',
-        label: $t('Storage'),
-        icon: 'DatabaseIcon',
-        group: $t('General')
-    })
-
-    menu.add({
-        id: 'storage-drives',
+        id: 'drives',
         label: $t('Drives'),
         to: '/admin/drives',
-        parent: 'storage'
+        icon: 'Folder',
+        group: $t('Storage')
+    })
+    
+    menu.add({
+        id: 'files',
+        label: $t('Files'),
+        to: '/admin/files',
+        icon: 'List',
+        group: $t('Storage')
     })
 
     menu.add({
         id: 'modules',
         label: $t('Modules'),
+        to: '/admin/modules',
         icon: 'PuzzleIcon',
-        group: $t('General')
-    })
-
-    menu.add({
-        id: 'settings',
-        label: $t('Settings'),
-        group: $t('General'),
-        icon: 'SettingsIcon'
+        group: $t('Settings'),
     })
     
     menu.add({
-        id: 'settings-site',
+        id: 'site',
         label: $t('Site'),
-        parent: 'settings',
+        icon: 'Settings',
+        group: $t('Settings'),
         to: '/admin/settings/site'
     })
 
-    menu.add({
-        id: 'modules-list',
-        label: $t('List'),
-        to: '/admin/modules',
-        parent: 'modules'
-    })
+   
 })
