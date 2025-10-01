@@ -4,6 +4,7 @@ import * as permissionAssignment from './permissionAssignment.validator.ts'
 import * as query from './query.validator.ts'
 import * as role from './role.validator.ts'
 import * as settingSite from './settingSite.validator.ts'
+import * as user from './user.validator.ts'
 
 const schemas = {
     pagination,
@@ -11,7 +12,8 @@ const schemas = {
     permissionAssignment,
     query,
     role,
-    settingSite
+    settingSite,
+    user
 }
 
 export default schemas

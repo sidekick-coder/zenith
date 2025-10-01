@@ -2,6 +2,7 @@ import { exists } from './exists.ts'
 import BaseException from '#server/exceptions/base.ts'
 import db from '#server/facades/db.facade.ts'
 import hasher from '#server/facades/hasher.facade.ts'
+import emmitter from '#server/facades/emmitter.facade.ts'
 
 export interface UserPayload {
     name: string
@@ -36,6 +37,8 @@ export async function createUser(payload: UserPayload) {
         deleted_at: null,
     }
 
+    await emmitter.emitAndWait('user:before-create', { user: userData })
+
     const user = await  db.insertInto('users')
         .values(userData)
         .returningAll()
@@ -44,6 +47,8 @@ export async function createUser(payload: UserPayload) {
     if (!user) {
         throw new BaseException('Failed to create user', 500)
     }
+
+    await emmitter.emitAndWait('user:after-create', { user })
 
     return user
 }

@@ -34,7 +34,7 @@ export default class EmmitterService {
         const handlers = this.handlers.filter(h => h.event === event)
 
         for await (const handler of handlers) {
-            await tryCatch(() => handler.listener(args))
+            await handler.listener(args)
         }
     }
 

@@ -1,9 +1,11 @@
+import { createUser } from '#server/queries/index.ts'
 import BaseException from '#server/exceptions/base.ts'
 import rootRouter from '#server/facades/router.facade.ts'
 import authMiddleware from '#server/middlewares/auth.middleware.ts'
 import userRepository from '#server/repositories/user.repository.ts'
 import validator from '#shared/services/validator.service.ts'
 import { $t } from '#shared/lang.ts' 
+import schemas from '#shared/validators/index.ts'
 
 const router = rootRouter.use(authMiddleware)
     .prefix('/api/users')
@@ -17,20 +19,9 @@ router.get('/', async (ctx) => {
 })
 
 router.post('/', async ({ body }) => {
-    const payload = validator.validate(body, (v) => v.object({
-        email: v.pipe(v.string(), v.email()),
-        password: v.pipe(v.string(), v.minLength(6)),
-        username: v.optional(v.string()),
-        name: v.optional(v.string()),
-    }))
+    const payload = validator.validate(body, schemas.user.create)
 
-    const exists = await userRepository.exists(payload.email)
-
-    if (exists) {
-        throw new BaseException('User already exists', 400)
-    }
-
-    const user = await userRepository.create({
+    const user = await createUser({
         ...payload,
         username: payload.username || payload.email,
         name: payload.name || payload.email,
