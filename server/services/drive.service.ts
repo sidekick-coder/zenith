@@ -67,6 +67,14 @@ export default class DriveService {
         return this.selected.write(filename, data)
     }
 
+    public url(entry: DriveEntry){
+        if (!this.selected.url) {
+            return undefined
+        }
+
+        return this.selected.url(entry)
+    }
+
     /**
      * Upload a file from the local filesystem to the drive.
      * @param source filename in local filesystem
@@ -113,6 +121,10 @@ export default class DriveService {
 
 const root = new FsDrive('/')
 const storage = new FsDrive(storagePath('drive'))
+
+storage.url = async (entry: DriveEntry) => {
+    return `/api/files/${encodeURIComponent(entry.path)}`
+}
 
 root.metas = {
     name: 'Root',

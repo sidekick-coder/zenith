@@ -70,6 +70,8 @@ async function execute(url: URL, request: Request, response: Response, route: Ro
         params: router.extractParams(route.path, url.pathname),
         query: Object.fromEntries(url.searchParams.entries()),
         body: request.body,
+        response,
+        request,
         file,
         files,
         cookie: new CookieService(request, response)

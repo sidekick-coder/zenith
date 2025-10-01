@@ -3,6 +3,7 @@ import path, { join, relative } from 'path'
 import mime from 'mime'
 import type DriveContract from '#server/contracts/drive.contract.ts'
 import DriveEntity from '#shared/entities/driveEntry.entity.ts'
+import type DriveEntry from '#shared/entities/driveEntry.entity.ts'
 
 export default class FsDrive implements DriveContract {
     private basePath: string
@@ -99,5 +100,9 @@ export default class FsDrive implements DriveContract {
         const filePath = join(this.basePath, filename)
 
         await fs.promises.unlink(filePath)
+    }
+
+    async url(_entry: DriveEntry): Promise<string | undefined> {
+        return undefined
     }
 }

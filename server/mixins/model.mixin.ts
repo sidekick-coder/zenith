@@ -109,7 +109,7 @@ export function Model<Table extends keyof Database>(table: Table) {
                 return count(table, o) as any
             }
 
-            public static create<T>(this: new () => T, values: ModelCreateOptions<Table>['values']): T | T[] {
+            public static create<T>(this: new () => T, values: ModelCreateOptions<Table>['values']): T {
                 return create(table, {
                     values: values,
                     serialize: row => {

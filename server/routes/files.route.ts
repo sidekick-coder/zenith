@@ -1,15 +1,12 @@
-import { randomUUID } from 'crypto'
-import mime from 'mime'
 import File from '#server/entities/file.entity.ts'
 import BaseException from '#server/exceptions/base.ts'
-import drive from '#server/facades/drive.facade.ts'
 import rootRouter from '#server/facades/router.facade.ts'
 import authMiddleware from '#server/middlewares/auth.middleware.ts'
-import { update, create, findOrFail, paginate, undeleted, softDelete } from '#server/queries/index.ts'
-import Permission from '#shared/entities/permission.entity.ts'
+import { undeleted } from '#server/queries/index.ts'
 import validator from '#shared/services/validator.service.ts'
 import schemas from '#shared/validators/index.ts'
 import files from '#server/facades/files.facade.ts'
+import drive from '#server/facades/drive.facade.ts'
 
 const router = rootRouter.use(authMiddleware)
     .prefix('/api/files')
@@ -35,7 +32,7 @@ router.post('/upload', async (ctx) => {
         throw new BaseException('No file provided')
     }
 
-    const entity = files.fromFile({
+    const entity = files.create({
         file,
         drive: ctx.query.drive as string | undefined,
         metadata: ctx.query.metadata as any,
@@ -57,3 +54,31 @@ router.get('/:id', async ({ acl, params }) => {
     return file
 })
 
+router.get('/:id/stream', async ({ acl, params, response }) => {
+    const file = await File.findOrFail({
+        query: qb => qb.selectAll()
+            .where(undeleted)
+            .where('id', '=', Number(params.id)),
+    })
+
+    acl.authorize('read', file)
+
+    if (!file.drive) {
+        throw new BaseException('File has no associated drive', 500)
+    }
+
+    const driveInstance = drive.use(file.drive)
+    const exists = await driveInstance.exists(file.filename)
+
+    if (!exists) {
+        throw new BaseException('File not found on storage', 404)
+    }
+
+    const data = await driveInstance.read(file.filename)
+
+    response.set('Content-Type', file.mimetype || 'application/octet-stream')
+    response.set('Content-Length', String(data.length))
+    response.set('Content-Disposition', `inline; filename="${file.client_name}"`)
+
+    return data
+})

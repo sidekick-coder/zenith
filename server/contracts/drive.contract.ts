@@ -1,3 +1,4 @@
+import type DriveEntry from '#shared/entities/driveEntry.entity.ts'
 import type FileEntity from '#shared/entities/driveEntry.entity.ts'
 
 export default interface DriveContract {
@@ -8,4 +9,5 @@ export default interface DriveContract {
     read(filename: string): Promise<Uint8Array>;
     write(filename: string, data: Uint8Array): Promise<void>;
     delete(filename: string): Promise<void>;
+    url?(entry: DriveEntry): Promise<string | undefined>;
 }

@@ -1,7 +1,9 @@
 import { randomUUID } from 'crypto'
 import mime from 'mime'
+import { undeleted } from '#server/queries/index.ts'
 import drive from '#server/facades/drive.facade.ts'
 import File from '#server/entities/file.entity.ts'
+import DriveEntry from '#shared/entities/driveEntry.entity.ts'
 
 interface CreatePayload {
     file: Express.Multer.File
@@ -11,7 +13,30 @@ interface CreatePayload {
 
 export default class FileService {
 
-    public async fromFile(options: CreatePayload) {
+    public async url(payload: File | File['id']) {
+
+        let file: File | undefined
+
+        if (typeof payload === 'number') {
+            file = await File.findOrFail({
+                query: qb => qb.selectAll()
+                    .where('id', '=', payload)
+                    .where(undeleted),
+            })
+        } 
+
+        if (payload instanceof File) {
+            file = payload
+        }
+
+        if (!file) {
+            return undefined
+        }
+
+        return `/api/files/${file.id}/stream`
+    }
+
+    public async create(options: CreatePayload) {
         const file = options.file
         
         let current = drive
