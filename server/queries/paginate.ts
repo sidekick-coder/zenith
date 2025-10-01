@@ -1,4 +1,4 @@
-import type { Selectable } from 'kysely'
+import type { Selectable, SelectQueryBuilder } from 'kysely'
 import type { SelectFrom } from './common.ts'
 import { list } from './list.ts'
 import { count } from './count.ts'
@@ -10,7 +10,7 @@ export interface PaginateOptions<T extends keyof Database> {
     page?: number
     limit?: number
     serialize?: (row: Selectable<Database[T]>) => any
-    query?: (qb: SelectFrom<T>) => SelectFrom<T>
+    query?: (qb: SelectFrom<T>) => any
 }
 
 export type PaginateResult<T extends keyof Database, O extends PaginateOptions<T> | undefined> =
