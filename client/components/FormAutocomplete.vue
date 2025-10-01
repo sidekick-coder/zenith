@@ -177,7 +177,6 @@ if (props.fetch) {
                     <div class="relative w-full items-center">
                         <ComboboxInput
                             v-model="search"
-                            :placeholder
                             :disabled="disabled"
                         />
                     </div>
