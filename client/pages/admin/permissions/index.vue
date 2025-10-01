@@ -15,6 +15,7 @@ import { createId } from '#client/utils/createId.ts'
 import DataTable from '#client/components/DataTable.vue'
 import PermissionDialog from '#client/components/PermissionDialog.vue'
 import ObjectInspect from '#client/components/ObjectInspect.vue'
+import { $acl } from '#client/composables/useAcl.ts'
 
 const TypedDataTable = DataTable as typeof DataTable<Permission>
 

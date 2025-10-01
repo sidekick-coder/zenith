@@ -9,6 +9,7 @@ import { update, create, findOrFail, paginate, undeleted, softDelete } from '#se
 import Permission from '#shared/entities/permission.entity.ts'
 import validator from '#shared/services/validator.service.ts'
 import schemas from '#shared/validators/index.ts'
+import files from '#server/facades/files.facade.ts'
 
 const router = rootRouter.use(authMiddleware)
     .prefix('/api/files')
@@ -30,28 +31,14 @@ router.get('/', async ({ acl, query }) => {
 router.post('/upload', async (ctx) => {
     const file = await ctx.file('file')
 
-    let current = drive
-
-    if (ctx.query.drive) {
-        current = drive.use(ctx.query.drive as string)
-    }
-
     if (!file) {
         throw new BaseException('No file provided')
     }
 
-    const mimetype = mime.getType(file.originalname)
-    const ext = mime.getExtension(mimetype || '') || file.originalname.split('.').pop()
-    const filename = randomUUID() + (ext ? `.${ext}` : '')
-
-    await current.write(filename, file.buffer)
-
-    const entity = await File.create({
-        client_name: file.originalname,
-        drive: current.selectedName,
-        mimetype: mimetype || file.mimetype,
-        metadata: ctx.query.metadata ? JSON.stringify(ctx.query.metadata) : null,
-        filename: filename,
+    const entity = files.fromFile({
+        file,
+        drive: ctx.query.drive as string | undefined,
+        metadata: ctx.query.metadata as any,
     })
 
     return entity
