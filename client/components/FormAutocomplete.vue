@@ -125,7 +125,7 @@ async function load() {
 
     setTimeout(() => {
         loading.value = false
-    }, 1000)
+    }, 500)
 }
 
 if (props.fetch) {
