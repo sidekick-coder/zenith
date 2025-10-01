@@ -304,6 +304,9 @@ defineExpose({
                 <TableHead
                     v-if="props.selection === 'multiple'"
                     class="w-10 text-center p-0"
+                    :style="{
+                        height: 'var(--datatable-th-height, 3rem)'
+                    }"
                 >
                     <Checkbox
                         class="translate-y-0.5"
@@ -317,6 +320,7 @@ defineExpose({
                     :key="c.id"
                     :style="{
                         width: c.width ? c.width + 'px' : 'auto',
+                        height: 'var(--datatable-th-height, 3rem)'
                     }"
                 >
                     <slot
@@ -369,8 +373,8 @@ defineExpose({
                     :key="c.id"
                     :style="{
                         width: c.width ? c.width + 'px' : 'auto',
+                        height: 'var(--datatable-th-height, 3rem)'
                     }"
-                    class="h-12"
                 >
                     <slot
                         :name="`row-${c.id}`"
