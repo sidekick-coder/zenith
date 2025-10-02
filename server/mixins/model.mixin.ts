@@ -46,9 +46,44 @@ export type ModelUpdateOrCreateOptions<T extends keyof Database> = Omit<UpdateOr
 export function Model<Table extends keyof Database>(table: Table) {
     return function ModelExtend<TBase extends Constructor>(Base: TBase) {
         return class extends Base {
+
+            constructor(...args: any[]) {
+                super(...args)
+                
+                if (typeof (this.constructor as any).boot === 'function') {
+                    (this.constructor as any).boot.apply(this.constructor)
+                }
+            }
+
+            public static table = table
+            public static listeners = [] as Array<(...args: any[]) => void>
+            public static on(event: string, listener: (...args: any[]) => void) {
+                const constructor = this as any
+                
+                const listeners = constructor.listeners || []
+
+                listeners.push({ 
+                    event,
+                    listener 
+                })
+
+                constructor.listeners = listeners
+            }
+            public static async emit(event: string, ...args: any[]) {
+                const constructor = this as any
+                
+                const listeners = constructor.listeners || []
+
+                for await (const l of listeners.filter((l: any) => l.event === event)) {
+                    await l.listener(...args)
+                }
+            }
+            
             // 'this' is the concrete constructor (e.g. Food), so the return type is inferred correctly.
-            public static paginate<T>(this: new () => T, o?: ModelPaginateOptions<Table>): Pagination<T> {
-                return paginate(table, {
+            public static async paginate<T>(this: new () => T, o?: ModelPaginateOptions<Table>): Promise<Pagination<T>> {
+                const constructor = this as any
+
+                const pagination = await paginate(table, {
                     page: o?.page,
                     limit: o?.limit,
                     query: o?.query,
@@ -59,11 +94,19 @@ export function Model<Table extends keyof Database>(table: Table) {
 
                         return instance
                     },
-                }) as any
+                })
+
+                for await (const item of pagination.items) {
+                    await constructor.emit.bind(constructor)('serialized', item)
+                }
+
+                return pagination as any
             }
 
-            public static list<T>(this: new () => T, o?: ModelListOptions<Table>): T[] {
-                return list(table, {
+            public static async list<T>(this: new () => T, o?: ModelListOptions<Table>): Promise<T[]> {
+                const contructor = this as any 
+
+                const items = await list(table, {
                     query: o?.query,
                     serialize: row => {
                         const instance = new this() as any
@@ -72,11 +115,19 @@ export function Model<Table extends keyof Database>(table: Table) {
 
                         return instance
                     },
-                }) as any
+                })
+
+                for await (const item of items) {
+                    await contructor.emit.bind(contructor)('serialized', item)
+                }
+
+                return items as any
             }
 
-            public static find<T>(this: new () => T, o?: ModelListOptions<Table>): T | undefined {
-                return find(table, {
+            public static async find<T>(this: new () => T, o?: ModelListOptions<Table>): Promise<T | undefined> {
+                const contructor = this as any
+
+                const row = await find(table, {
                     query: o?.query,
                     serialize: row => {
                         const instance = new this() as any
@@ -85,11 +136,19 @@ export function Model<Table extends keyof Database>(table: Table) {
 
                         return instance
                     },
-                }) as any
+                })
+
+                if (row) {
+                    await contructor.emit.bind(contructor)('serialized', row)
+                }
+
+                return row as any
             }
 
-            public static findOrFail<T>(this: new () => T, o?: ModelListOptions<Table>): T {
-                return findOrFail(table, {
+            public static async findOrFail<T>(this: new () => T, o?: ModelListOptions<Table>): Promise<T> {
+                const contructor = this as any
+
+                const row = await findOrFail(table, {
                     query: o?.query,
                     serialize: row => {
                         const instance = new this() as any
@@ -98,7 +157,11 @@ export function Model<Table extends keyof Database>(table: Table) {
 
                         return instance
                     },
-                }) as any
+                })
+
+                await contructor.emit.bind(contructor)('serialized', row)
+
+                return row as any
             }
 
             public static exists<T>(this: new () => T, o?: ModelListOptions<Table>): boolean {
