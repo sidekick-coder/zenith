@@ -9,5 +9,5 @@ export default interface DriveContract {
     read(filename: string): Promise<Uint8Array>;
     write(filename: string, data: Uint8Array): Promise<void>;
     delete(filename: string): Promise<void>;
-    url?(entry: DriveEntry): Promise<string | undefined>;
+    url(entry: DriveEntry): Promise<string | undefined>;
 }

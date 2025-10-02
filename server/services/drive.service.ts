@@ -1,43 +1,32 @@
 import fs from 'fs'
 import type DriveContract from '#server/contracts/drive.contract.ts'
 import type DriveEntry from '#shared/entities/driveEntry.entity.ts'
-import FsDrive from '#server/gateways/FsDrive.ts'
-import { storagePath } from '#server/utils/paths.ts'
+// import FsDrive from '#server/gateways/FsDrive.ts'
+// import { storagePath } from '#server/utils/paths.ts'
 import BaseException from '#server/exceptions/base.ts'
+import config from '#server/facades/config.facade.ts'
+import FilesystemDrive from '#modules/callory-tracker/root/server/gateways/filesystemDrive.gateway.ts'
 
 export default class DriveService {
-    private static drives: Map<string, DriveContract> = new Map()
-    private selected: DriveContract
-    public get selectedName(): string {
-        for (const [name, drive] of DriveService.drives.entries()) {
-            if (drive === this.selected) {
-                return name
-            }
-        }
+    private drives: Map<string, DriveContract> = new Map()
+    private selected?: string
 
-        return 'unknown'
-    }
-
-    constructor(name: string = 'storage') {
-        const drive = DriveService.drives.get(name)
+    public get current() {
+        if (!this.selected) return undefined 
         
-        if (!drive) {
-            throw new Error(`Drive with name "${name}" not found.`)
-        }
+        const drive = this.drives.get(this.selected)
+        
+        if (!drive) return undefined
 
-        this.selected = drive
+        return drive
     }
 
-    public static register(name: string, drive: DriveContract): void {
-        if (this.drives.has(name)) {
-            throw new Error(`Drive with name "${name}" already exists.`)
-        }
-
-        this.drives.set(name, drive)
+    constructor(name?: string) {
+        this.selected = name
     }
 
     public listDrives(): (DriveContract & { id: string })[] {
-        return Array.from(DriveService.drives.entries()).map(([id, drive]) => ({
+        return Array.from(this.drives.entries()).map(([id, drive]) => ({
             id,
             ...drive 
         }))
@@ -48,31 +37,39 @@ export default class DriveService {
     }
 
     public list(folder?: string): Promise<DriveEntry[]> {
-        return this.selected.list(folder)
+        if (!this.current) throw new BaseException('No drive selected')
+
+        return this.current.list(folder)
     }
 
     public find(filename: string): Promise<DriveEntry> {
-        return this.selected.find(filename)
+        if (!this.current) throw new BaseException('No drive selected')
+
+        return this.current.find(filename)
     }
 
     public exists(filename: string): Promise<boolean> {
-        return this.selected.exists(filename)
+        if (!this.current) throw new BaseException('No drive selected')
+
+        return this.current.exists(filename)
     }
 
     public read(filename: string): Promise<Uint8Array> {
-        return this.selected.read(filename)
+        if (!this.current) throw new BaseException('No drive selected')
+
+        return this.current.read(filename)
     }
 
     public write(filename: string, data: Uint8Array): Promise<void> {
-        return this.selected.write(filename, data)
+        if (!this.current) throw new BaseException('No drive selected')
+
+        return this.current.write(filename, data)
     }
 
     public url(entry: DriveEntry){
-        if (!this.selected.url) {
-            return undefined
-        }
+        if (!this.current) throw new BaseException('No drive selected')
 
-        return this.selected.url(entry)
+        return this.current.url(entry)
     }
 
     /**
@@ -102,11 +99,13 @@ export default class DriveService {
     }
 
     public delete(filename: string): Promise<void> {
-        return this.selected.delete(filename)
+        if (!this.current) throw new BaseException('No drive selected')
+
+        return this.current.delete(filename)
     }
 
     public getDrive<T extends DriveContract>(id: string): T{
-        const drive = DriveService.drives.get(id)
+        const drive = this.drives.get(id)
         
         if (!drive) {
             throw new BaseException('Drive not found')
@@ -115,28 +114,26 @@ export default class DriveService {
         return drive as T
     }
 
-    
+    public load(){
+        this.drives.clear()
 
+        const items = config.get('drive.disks', {})
+
+        for (const [id, item] of Object.entries<any>(items)) {
+            if (item.driver === 'filesystem') {
+                const drive = new FilesystemDrive(item.root)
+
+                drive.metas = {
+                    name: item.name || id,
+                    description: item.description || '',
+                }
+                
+                this.drives.set(id, drive)
+
+                if (item.default) {
+                    this.selected = id
+                }
+            }
+        }
+    }
 }
-
-const root = new FsDrive('/')
-const storage = new FsDrive(storagePath('drive'))
-
-storage.url = async (entry: DriveEntry) => {
-    return `/api/files/${encodeURIComponent(entry.path)}`
-}
-
-root.metas = {
-    name: 'Root',
-    description: 'Root filesystem drive',
-    editable: false,
-}
-
-storage.metas = {
-    name: 'Local Filesystem',
-    description: 'Default local filesystem drive',
-    editable: false,
-}
-
-DriveService.register('root', root)
-DriveService.register('storage', storage)

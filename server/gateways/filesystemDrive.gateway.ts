@@ -5,7 +5,7 @@ import type DriveContract from '#server/contracts/drive.contract.ts'
 import DriveEntity from '#shared/entities/driveEntry.entity.ts'
 import type DriveEntry from '#shared/entities/driveEntry.entity.ts'
 
-export default class FsDrive implements DriveContract {
+export default class FilesystemDrive implements DriveContract {
     private basePath: string
     public metas = {}
 
