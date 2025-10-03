@@ -1,13 +1,9 @@
 import express from 'express'
 import cookieParser from 'cookie-parser'
-import type {
-    Request, 
-    Response 
-} from 'express'
-import multer from 'multer'
+import type { Request,  Response } from 'express'
 import vite from './server/services/vite.service.ts'
 import logger from './server/facades/logger.facade.ts'
-import type Route from '#server/entities/role.entity.ts'
+import type Route from '#server/entities/route.entity.ts'
 import router from '#server/facades/router.facade.ts'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
 import type { HttpContext } from '#server/contracts/router.contract.ts'
@@ -19,62 +15,20 @@ import build from '#server/services/build.service.ts'
 import CookieService from '#server/services/cookie.service.ts'
 import encrypt from '#server/facades/encrypt.facade.ts'
 import drive from '#server/facades/drive.facade.ts'
+import UploadService from '#server/services/upload.service.ts'
 
-const upload = multer({ storage: multer.memoryStorage(), })
-
-async function execute(url: URL, request: Request, response: Response, route: Route) {        
-
-    const file: HttpContext['file'] = (name: string) => {
-        return new Promise<Express.Multer.File | undefined>((resolve, reject) => {
-            const single = upload.single(name)
-
-            single(request, response, (err) => {
-                if (err) {
-                    return reject(err)
-                }
-
-                const file = (request as any)[name] as Express.Multer.File | undefined
-
-                if (!file) {
-                    return resolve(undefined)
-                }
-
-                resolve(file)
-            })
-
-        })
-    }
-
-    const files: HttpContext['files'] = (name: string) => {
-        return new Promise<Express.Multer.File[] | undefined>((resolve, reject) => {
-            const multiple = upload.array(name)
-
-            multiple(request, response, (err) => {
-                if (err) {
-                    return reject(err)
-                }
-
-                const files = (request as any)[name] as Express.Multer.File[] | undefined
-
-                if (!files || files.length === 0) {
-                    return resolve(undefined)
-                }
-
-                resolve(files)
-            })
-        })
-    }
-
+async function execute(url: URL, request: Request, response: Response, route: Route) {
     const ctx: HttpContext = {
+        response,
+        request,
+
         url: url.pathname,
         method: request.method.toLowerCase(),
         params: router.extractParams(route.path, url.pathname),
         query: Object.fromEntries(url.searchParams.entries()),
         body: request.body,
-        response,
-        request,
-        file,
-        files,
+        
+        upload: new UploadService(request, response),
         cookie: new CookieService(request, response)
     }
 

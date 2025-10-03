@@ -39,6 +39,11 @@ export function defineColumns<T extends Record<string, any> = any>(columns: Data
 
 </script>
 <script setup lang="ts" generic="T extends Record<string, any>">
+
+defineOptions({ 
+    inheritAttrs: false
+})
+
 const props = defineProps({
     selection: {
         type: String as () => 'single' | 'multiple',
@@ -298,6 +303,7 @@ defineExpose({
 <template>
     <Table
         :wrapper-class="cn('border rounded-lg', props.class, loading ? 'opacity-50 pointer-events-none' : '')"
+        v-bind="$attrs"
     >
         <TableHeader>
             <TableRow>
@@ -373,7 +379,7 @@ defineExpose({
                     :key="c.id"
                     :style="{
                         width: c.width ? c.width + 'px' : 'auto',
-                        height: 'var(--datatable-th-height, 3rem)'
+                        height: 'var(--datatable-td-height, 3rem)'
                     }"
                 >
                     <slot

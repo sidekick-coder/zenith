@@ -3,9 +3,9 @@ import type {
     Response,
     CookieOptions
 } from 'express'
-import BaseCookieService from '#shared/services/cookie.service.ts'
+import Base from '#shared/services/cookie.service.ts'
 
-export default class CookieService extends BaseCookieService {
+export default class CookieService extends Base {
     private request: Request
     private response: Response
 

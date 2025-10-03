@@ -1,9 +1,20 @@
 import fs from 'fs'
+import { randomUUID } from 'crypto'
+import mime from 'mime'
+import { undeleted } from '#server/queries/index.ts'
 import type DriveContract from '#server/contracts/drive.contract.ts'
-import type DriveEntry from '#shared/entities/driveEntry.entity.ts'
+import DriveEntry from '#shared/entities/driveEntry.entity.ts'
 import BaseException from '#server/exceptions/base.ts'
 import config from '#server/facades/config.facade.ts'
 import FilesystemDrive from '#modules/callory-tracker/root/server/gateways/filesystemDrive.gateway.ts'
+import File from '#server/entities/file.entity.ts'
+import type { DriveUrlOptions } from '#server/contracts/drive.contract.ts'
+
+interface CreatePayload {
+    file: Express.Multer.File
+    drive?: string
+    metadata?: Record<string, any>
+}
 
 export default class DriveService {
     private drives: Map<string, DriveContract> = new Map()
@@ -29,10 +40,29 @@ export default class DriveService {
     public listDrives(): (DriveContract & { id: string })[] {
         return Array.from(this.drives.values())
     }
+    
+    public get(name?: string) {
+        if (!name || !this.drives.has(name || '')) {
+            throw new BaseException('Drive not found')
+        }
 
-    public use(name: string) {
+        const drive = this.drives.get(name)
+
+        if (!drive) {
+            throw new BaseException('Drive not found')
+        }
+
+        return drive
+    }
+
+    public use(name?: string) {
+        if (!this.drives.has(name || '')) {
+            throw new BaseException('Drive not found')
+        }
+        
         return new DriveService(name, this.drives)
     }
+    
 
     public list(folder?: string): Promise<DriveEntry[]> {
         if (!this.current) throw new BaseException('No drive selected')
@@ -64,10 +94,44 @@ export default class DriveService {
         return this.current.write(filename, data)
     }
 
-    public url: DriveContract['url'] = async (filename, options) => {
-        if (!this.current) throw new BaseException('No drive selected')
+    /**
+     * Retrieve a URL for a file in the drive.
+     * @param payload  File instance, File ID, DriveEntry instance or filename string
+     * @param options 
+     * @returns string
+     */
+    public async url(payload: File['id'] | File | DriveEntry | string, options: DriveUrlOptions = {}): Promise<string> {        
+        if (payload instanceof File) {
+            const drive = this.get(payload.drive)
 
-        return this.current.url(filename, options)
+            return drive.url(payload.filename, options)
+        }
+
+        if (payload instanceof DriveEntry) {
+            const drive = this.get(this.selected)
+
+            return drive.url(payload.path, options)
+        }
+
+        if (typeof payload === 'string') {
+            const drive = this.get(this.selected)
+
+            return drive.url(payload, options)
+        }
+
+        if (typeof payload === 'number') {
+            const file = await File.findOrFail({
+                query: qb => qb.selectAll()
+                    .where('id', '=', payload)
+                    .where(undeleted),
+            })
+
+            const drive = this.get(file.drive)
+
+            return drive.url(file.filename, options)
+        }
+
+        throw new BaseException('Invalid payload')
     }
 
     /**
@@ -128,5 +192,27 @@ export default class DriveService {
                 }
             }
         }
+    }
+
+    public async createFile(options: CreatePayload) {
+        const file = options.file
+            
+        const drive = this.use(options.drive || this.selected)
+            
+        const mimetype = mime.getType(file.originalname)
+        const ext = mime.getExtension(mimetype || '') || file.originalname.split('.').pop()
+        const filename = randomUUID() + (ext ? `.${ext}` : '')
+            
+        await drive.write(filename, file.buffer)
+            
+        const entity = await File.create({
+            client_name: file.originalname,
+            drive: drive.selected!,
+            mimetype: mimetype || file.mimetype,
+            metadata: options.metadata ? JSON.stringify(options.metadata) : null,
+            filename: filename,
+        })
+            
+        return entity
     }
 }

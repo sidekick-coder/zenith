@@ -1,4 +1,5 @@
-import type { CookieOptions } from 'express'
+import type UploadService from '#server/services/upload.service.ts'
+import type CookieService from '#shared/services/cookie.service.ts'
 
 export interface HttpContextBase {
     url: string;
@@ -6,12 +7,8 @@ export interface HttpContextBase {
     params: Record<string, string>
     query: Record<string, string | string[]>
     body: any
-    cookie: {
-        get(name: string): string | undefined
-        set(name: string, value: string, options?: CookieOptions): void
-    }
-    file(name: string): Promise<Express.Multer.File | undefined>
-    files(name: string): Promise<Express.Multer.File[] | undefined>
+    cookie: CookieService
+    upload: UploadService
     [key: string]: any; // Allow additional properties
 }
 

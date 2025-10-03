@@ -1,7 +1,7 @@
 import type ms from 'ms'
 import type DriveEntry from '#shared/entities/driveEntry.entity.ts'
 
-interface DriveUrlOptions {
+export interface DriveUrlOptions {
     expires?: ms.StringValue; // ms format, e.g. '1h', '30m', '15s'
 }
 
