@@ -3,12 +3,14 @@ import type { HTMLAttributes } from 'vue'
 import { cn } from '#client/lib/utils'
 
 const props = defineProps<{
+  tag?: keyof HTMLElementTagNameMap
   class?: HTMLAttributes['class']
 }>()
 </script>
 
 <template>
-  <div
+  <component
+    :is="props.tag || 'div'"
     data-slot="card"
     :class="
       cn(
@@ -18,5 +20,5 @@ const props = defineProps<{
     "
   >
     <slot />
-  </div>
+  </component>
 </template>
