@@ -8,6 +8,7 @@ import { serverPath, storagePath } from '#server/utils/paths.ts'
 import { importGlob } from '#server/utils/importAll.ts'
 import type { ServerSetup } from '#server/utils/defineServerSetup.ts'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
+import drive from '#server/facades/drive.facade.ts'
 
 const logger = rootLogger.child({ label: 'boot.service' })
 
@@ -53,6 +54,8 @@ export class BootService {
     }
 
     public async boot() {
+        
+
         if (router.list().length > 0) {
             router.clear()
         }
@@ -64,6 +67,8 @@ export class BootService {
         if (emmitter.hasHandlers()) {
             emmitter.clear()
         }
+
+        drive.load()
 
         await db.load()
 

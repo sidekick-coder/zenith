@@ -1,34 +1,43 @@
 import fs from 'fs'
 import path, { join, relative } from 'path'
 import mime from 'mime'
+import ms from 'ms'
 import type DriveContract from '#server/contracts/drive.contract.ts'
 import DriveEntity from '#shared/entities/driveEntry.entity.ts'
-import type DriveEntry from '#shared/entities/driveEntry.entity.ts'
+import encrypt from '#server/facades/encrypt.facade.ts'
+
+interface Payload {
+    name: string;
+    description?: string;
+    path: string;
+}
 
 export default class FilesystemDrive implements DriveContract {
-    private basePath: string
+    public id: string
+    public name: string
+    public description?: string
+    public path: string
     public metas = {}
 
-    constructor(basePath: string = './storage/files') {
-        this.basePath = basePath
-
-        if (!fs.existsSync(this.basePath)) {
-            fs.mkdirSync(this.basePath)
-        }
+    constructor(id: string, payload: Payload) {
+        this.id = id
+        this.path = payload.path
+        this.name = payload.name
+        this.description = payload.description
     }
 
     public absolutePath(...args: string[]) {
-        return join(this.basePath, ...args)
+        return join(this.path, ...args)
     }
 
     public async exists(filename: string): Promise<boolean> {
-        return fs.promises.access(join(this.basePath, filename))
+        return fs.promises.access(join(this.path, filename))
             .then(() => true)
             .catch(() => false)
     }
 
     async list(folder?: string): Promise<DriveEntity[]> {
-        const filepath = folder ? join(this.basePath, folder) : this.basePath
+        const filepath = folder ? join(this.path, folder) : this.path
 
         const files = await fs.promises.readdir(filepath)
 
@@ -48,7 +57,7 @@ export default class FilesystemDrive implements DriveContract {
             
             const entry = new DriveEntity({
                 name: filename,
-                path: '/' + relative(this.basePath, filePath),
+                path: '/' + relative(this.path, filePath),
                 type: stats.isDirectory() ? 'directory' : 'file',
                 metas
             })
@@ -72,7 +81,7 @@ export default class FilesystemDrive implements DriveContract {
     }
 
     async mkdir(filename: string): Promise<void> {
-        const dirPath = join(this.basePath, filename)
+        const dirPath = join(this.path, filename)
 
         console.log(dirPath)
 
@@ -80,7 +89,7 @@ export default class FilesystemDrive implements DriveContract {
     }
 
     async read(filename: string): Promise<Uint8Array> {
-        const filePath = join(this.basePath, filename)
+        const filePath = join(this.path, filename)
         
         const buffer = await fs.promises.readFile(filePath)
         
@@ -88,7 +97,7 @@ export default class FilesystemDrive implements DriveContract {
     }
 
     async write(filename: string, data: Uint8Array): Promise<void> {
-        const filePath = join(this.basePath, filename)
+        const filePath = join(this.path, filename)
         const folder = path.dirname(filePath)
 
         await fs.promises.mkdir(folder, { recursive: true })
@@ -97,12 +106,28 @@ export default class FilesystemDrive implements DriveContract {
     }
 
     async delete(filename: string): Promise<void> {
-        const filePath = join(this.basePath, filename)
+        const filePath = join(this.path, filename)
 
         await fs.promises.unlink(filePath)
     }
 
-    async url(_entry: DriveEntry): Promise<string | undefined> {
-        return undefined
+    public url: DriveContract['url'] = async (filename, options) => {
+        const expires = ms(options?.expires || '30m') // milliseconds
+        
+        const expireAt = Date.now() + expires
+
+        const data = {
+            filename: `/${filename}`,
+            expireAt
+        }
+
+        const key = encrypt.encrypt(JSON.stringify(data))
+        const basename = path.basename(filename)
+        const params = new URLSearchParams()
+
+        params.append('filename', encodeURIComponent(data.filename))
+        params.append('key', encodeURIComponent(key))
+
+        return `/api/drives/${this.id}/stream/${basename}?${params.toString()}`
     }
 }

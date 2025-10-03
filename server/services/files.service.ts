@@ -33,7 +33,7 @@ export default class FileService {
             return undefined
         }
 
-        return `/api/files/${file.id}/stream`
+        return drive.use(file.drive).url(file.filename, { expires: '1h' })
     }
 
     public async create(options: CreatePayload) {
@@ -53,7 +53,7 @@ export default class FileService {
         
         const entity = await File.create({
             client_name: file.originalname,
-            drive: current.selectedName,
+            drive: current.selected!,
             mimetype: mimetype || file.mimetype,
             metadata: options.metadata ? JSON.stringify(options.metadata) : null,
             filename: filename,

@@ -1,15 +1,13 @@
 import fs from 'fs'
 import type DriveContract from '#server/contracts/drive.contract.ts'
 import type DriveEntry from '#shared/entities/driveEntry.entity.ts'
-// import FsDrive from '#server/gateways/FsDrive.ts'
-// import { storagePath } from '#server/utils/paths.ts'
 import BaseException from '#server/exceptions/base.ts'
 import config from '#server/facades/config.facade.ts'
 import FilesystemDrive from '#modules/callory-tracker/root/server/gateways/filesystemDrive.gateway.ts'
 
 export default class DriveService {
     private drives: Map<string, DriveContract> = new Map()
-    private selected?: string
+    public selected?: string
 
     public get current() {
         if (!this.selected) return undefined 
@@ -21,19 +19,19 @@ export default class DriveService {
         return drive
     }
 
-    constructor(name?: string) {
+    constructor(name?: string, drives?: Map<string, DriveContract>) {
         this.selected = name
+        if (drives) {
+            this.drives = drives
+        }
     }
 
     public listDrives(): (DriveContract & { id: string })[] {
-        return Array.from(this.drives.entries()).map(([id, drive]) => ({
-            id,
-            ...drive 
-        }))
+        return Array.from(this.drives.values())
     }
 
     public use(name: string) {
-        return new DriveService(name)
+        return new DriveService(name, this.drives)
     }
 
     public list(folder?: string): Promise<DriveEntry[]> {
@@ -66,10 +64,10 @@ export default class DriveService {
         return this.current.write(filename, data)
     }
 
-    public url(entry: DriveEntry){
+    public url: DriveContract['url'] = async (filename, options) => {
         if (!this.current) throw new BaseException('No drive selected')
 
-        return this.current.url(entry)
+        return this.current.url(filename, options)
     }
 
     /**
@@ -121,12 +119,7 @@ export default class DriveService {
 
         for (const [id, item] of Object.entries<any>(items)) {
             if (item.driver === 'filesystem') {
-                const drive = new FilesystemDrive(item.root)
-
-                drive.metas = {
-                    name: item.name || id,
-                    description: item.description || '',
-                }
+                const drive = new FilesystemDrive(id, item)
                 
                 this.drives.set(id, drive)
 

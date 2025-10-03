@@ -23,12 +23,12 @@ const columns = defineColumns<Drive>([
     {
         id: 'name',
         label: $t('Name'),
-        field: row => row.metas?.name || row.id
+        field: 'name'
     },
     {
         id: 'description',
         label: $t('Description'),
-        field: 'metas.description',
+        field: 'description',
     },
     { id: 'actions' }
 ])

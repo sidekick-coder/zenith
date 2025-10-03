@@ -1,23 +1,24 @@
 import express from 'express'
 import cookieParser from 'cookie-parser'
 import type {
-    CookieOptions, 
     Request, 
     Response 
 } from 'express'
 import multer from 'multer'
 import vite from './server/services/vite.service.ts'
 import logger from './server/facades/logger.facade.ts'
-import type Route from '#server/router/route.ts'
+import type Route from '#server/entities/role.entity.ts'
 import router from '#server/facades/router.facade.ts'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
-import type { HttpContext } from '#server/router/types.ts'
+import type { HttpContext } from '#server/contracts/router.contract.ts'
 import errorService from '#server/services/error.service.ts'
 import bootService from '#server/services/boot.service.ts'
 import config from '#server/facades/config.facade.ts'
 import env from '#server/env.ts'
 import build from '#server/services/build.service.ts'
 import CookieService from '#server/services/cookie.service.ts'
+import encrypt from '#server/facades/encrypt.facade.ts'
+import drive from '#server/facades/drive.facade.ts'
 
 const upload = multer({ storage: multer.memoryStorage(), })
 
@@ -127,6 +128,9 @@ async function main() {
 
     await vite.init(app)
     await config.loadAndWatch()
+
+    encrypt.load(config.get('app.key'))
+    drive.load()
     
     build.watch()
 

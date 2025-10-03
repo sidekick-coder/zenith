@@ -1,4 +1,6 @@
 export interface Drive {
     id: string;
-    metas: Record<string, any>;
+    name: string;
+    description?: string;
+    [key: string]: any;
 }

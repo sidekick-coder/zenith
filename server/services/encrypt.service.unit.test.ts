@@ -7,7 +7,10 @@ import EncryptService from './encrypt.service.ts'
 
 describe('EncryptService', () => {
     it('should encrypt and decrypt text correctly', () => {
-        const service = new EncryptService('test-secret-key')
+        const service = new EncryptService()
+
+        service.load('test-secret-key')
+        
         const originalText = 'Hello, World!'
         
         const encrypted = service.encrypt(originalText)        
