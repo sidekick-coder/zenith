@@ -32,3 +32,18 @@ applyTo: '**/*.vue'
 - use $t('Text') for static texts
 - use $t('Text :0', [value]) for dynamic texts
 - use $t('Text :0 :1', [value1,value2]) for dynamic texts
+
+## Props
+- use defineProps to define props
+- dont use withDefaults, use optional props instead
+- always declare type props
+
+Ex: 
+```ts
+const props = defineProps({
+    description: {
+        type: String,
+        required: false
+    }
+})
+```
