@@ -3,6 +3,7 @@ import BaseException from '#server/exceptions/base.ts'
 import db from '#server/facades/db.facade.ts'
 import hasher from '#server/facades/hasher.facade.ts'
 import emmitter from '#server/facades/emmitter.facade.ts'
+import User from '#server/entities/user.entity.ts'
 
 export interface UserPayload {
     name: string
@@ -50,5 +51,5 @@ export async function createUser(payload: UserPayload) {
 
     await emmitter.emitAndWait('user:after-create', { user })
 
-    return user
+    return User.from(user)
 }

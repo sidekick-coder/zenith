@@ -34,11 +34,13 @@ router.post('/auth/logout', async ({ cookie }) => {
     if (!cookie.get('Authorization')) {
         throw new BaseException('Not logged in', 400)
     }
+    
     cookie.set('Authorization', '', {
         httpOnly: true,
         sameSite: true,
         expires: new Date(0),
     })
+
     return {
         success: true,
         message: 'Logged out' 
