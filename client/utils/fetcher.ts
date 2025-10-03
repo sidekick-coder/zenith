@@ -3,6 +3,7 @@ import di from './di'
 import { $t } from '#shared/lang'
 import type Router from '#server/services/router.service'
 import CookieService from '#shared/services/cookie.service'
+import { tryCatch } from '#shared/utils/tryCatch.ts'
 
 interface Options extends RequestInit {
     query?: Record<string, any>
@@ -103,4 +104,8 @@ export async function $fetch<T = any>(url: string, options: Options = {}): Promi
     }
 
     return fetcher<T>(url, options)
+}
+
+$fetch.try = async function<T = any>(url: string, options: Options = {}) {
+    return tryCatch(() => $fetch<T>(url, options))
 }
