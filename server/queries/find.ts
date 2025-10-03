@@ -4,15 +4,15 @@ import type { Database } from '#server/contracts/database.contract.ts'
 import db from '#server/facades/db.facade.ts'
 
 export interface FindOptions<T extends keyof Database> extends SerializeOptions<T> {
-    select?: (qb: SelectFrom<T>) => SelectFrom<T>
+    query?: (qb: SelectFrom<T>) => SelectFrom<T>
 }
 
 export async function find<T extends keyof Database, O extends FindOptions<T>>(table: T, options?: O) {
     const items = await list(table, { 
         serialize: options?.serialize,  
         query: () => {
-            const query: any = options?.select 
-                ? options.select(db.selectFrom(table))
+            const query: any = options?.query 
+                ? options.query(db.selectFrom(table))
                 : db.selectFrom(table).selectAll()
 
             return query.limit(1)
