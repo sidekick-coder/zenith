@@ -184,6 +184,19 @@ export function Model<Table extends keyof Database>(table: Table) {
                     },
                 }) as any
             }
+            
+            public static createMany<T>(this: new () => T, values: Array<ModelCreateOptions<Table>['values']>): T[] {
+                return create(table, {
+                    values: values as any[],
+                    serialize: row => {
+                        const instance = new this() as any
+                        
+                        Object.assign(instance as any, row)
+
+                        return instance
+                    },
+                }) as any
+            }
 
             public static update<T>(this: new () => T, o: ModelUpdateOptions<Table>): T[] {
                 return update(table, {
