@@ -24,16 +24,9 @@ import type {
     UpdateOptions, 
     DestroyOptions, 
     FirstOrCreateOptions,
-    SelectFrom,
-    SerializeOptions
 } from '#server/queries/index.ts'
 import type Pagination from '#shared/entities/pagination.entity.ts'
-
-type Constructor = new (...args: any[]) => {}
-
-export interface ModelOptions<T extends keyof Database> extends SerializeOptions<T> {
-    select?: (qb: SelectFrom<T>) => SelectFrom<T>
-}
+import type { Constructor } from '#shared/utils/compose.ts'
 
 export type ModelListOptions<T extends keyof Database> = Omit<ListOptions<T>, 'serialize'>
 export type ModelPaginateOptions<T extends keyof Database> = Omit<PaginateOptions<T>, 'serialize'>
@@ -44,9 +37,17 @@ export type ModelDestroyOptions<T extends keyof Database> = DestroyOptions<T>
 export type ModelFirstOrCreateOptions<T extends keyof Database> = Omit<FirstOrCreateOptions<T>, 'serialize'>
 export type ModelUpdateOrCreateOptions<T extends keyof Database> = Omit<UpdateOrCreateOptions<T>, 'serialize'>
 
-export function Model<Table extends keyof Database>(table: Table) {
+export function Model<Table extends keyof Database>(table: Table, primaryKey: keyof Database[Table] = 'id' as any) {
     return function ModelExtend<TBase extends Constructor>(Base: TBase) {
         return class extends Base {            
+            public static serialize<T>(this: new () => T, row: any): Promise<T> {
+                const instance = new this() as any
+
+                Object.assign(instance as any, row)
+
+                return instance as any
+            }
+
             // 'this' is the concrete constructor (e.g. Food), so the return type is inferred correctly.
             public static async paginate<T>(this: new () => T, o?: ModelPaginateOptions<Table>): Promise<Pagination<T>> {
                 const constructor = this as any
@@ -55,13 +56,7 @@ export function Model<Table extends keyof Database>(table: Table) {
                     page: o?.page,
                     limit: o?.limit,
                     query: o?.query,
-                    serialize: row => {
-                        const instance = new this() as any
-                        
-                        Object.assign(instance as any, row)
-
-                        return instance
-                    },
+                    serialize: row => constructor.serialize(row),
                 })
 
                 for await (const row of pagination.items) {
@@ -76,13 +71,7 @@ export function Model<Table extends keyof Database>(table: Table) {
 
                 const items = await list(table, {
                     query: o?.query,
-                    serialize: row => {
-                        const instance = new this() as any
-                        
-                        Object.assign(instance as any, row)
-
-                        return instance
-                    },
+                    serialize: row => constructor.serialize(row),
                 })
 
                 for await (const item of items) {
@@ -97,13 +86,7 @@ export function Model<Table extends keyof Database>(table: Table) {
 
                 const row = await find(table, {
                     query: o?.query,
-                    serialize: row => {
-                        const instance = new this() as any
-                        
-                        Object.assign(instance as any, row)
-
-                        return instance
-                    },
+                    serialize: row => constructor.serialize(row),
                 })
 
                 if (row) {
@@ -118,13 +101,7 @@ export function Model<Table extends keyof Database>(table: Table) {
 
                 const row = await findOrFail(table, {
                     query: o?.query,
-                    serialize: row => {
-                        const instance = new this() as any
-                        
-                        Object.assign(instance as any, row)
-
-                        return instance
-                    },
+                    serialize: row => constructor.serialize(row),
                 })
 
                 await emitHook(constructor, 'serialized', row)
@@ -141,42 +118,30 @@ export function Model<Table extends keyof Database>(table: Table) {
             }
 
             public static create<T>(this: new () => T, values: ModelCreateOptions<Table>['values']): T {
+                const constructor = this as any
+
                 return create(table, {
                     values: values,
-                    serialize: row => {
-                        const instance = new this() as any
-                        
-                        Object.assign(instance as any, row)
-
-                        return instance
-                    },
+                    serialize: row => constructor.serialize(row),
                 }) as any
             }
             
             public static createMany<T>(this: new () => T, values: Array<ModelCreateOptions<Table>['values']>): T[] {
+                const constructor = this as any
+
                 return create(table, {
                     values: values as any[],
-                    serialize: row => {
-                        const instance = new this() as any
-                        
-                        Object.assign(instance as any, row)
-
-                        return instance
-                    },
+                    serialize: row => constructor.serialize(row),
                 }) as any
             }
 
             public static update<T>(this: new () => T, o: ModelUpdateOptions<Table>): T[] {
+                const constructor = this as any
+
                 return update(table, {
                     query: o.query,
                     values: o.values,
-                    serialize: row => {
-                        const instance = new this() as any
-                        
-                        Object.assign(instance as any, row)
-
-                        return instance
-                    },
+                    serialize: row => constructor.serialize(row),
                 }) as any
             }
 
@@ -185,50 +150,42 @@ export function Model<Table extends keyof Database>(table: Table) {
             }
 
             public static firstOrCreate<T>(this: new () => T, o: ModelFirstOrCreateOptions<Table>): T {
+                const constructor = this as any
+
                 return firstOrCreate(table, {
                     select: o.select,
                     values: o.values,
-                    serialize: row => {
-                        const instance = new this() as any
-                        
-                        Object.assign(instance as any, row)
-
-                        return instance
-                    },
+                    serialize: row => constructor.serialize(row),
                 }) as any
             }
 
             public static updateOrCreate<T>(this: new () => T, o: ModelUpdateOrCreateOptions<Table>): T {
+                const constructor = this as any
+                 
                 return updateOrCreate(table, {
                     select: o.select,
                     update: o.update,
                     values: o.values,
-                    serialize: row => {
-                        const instance = new this() as any
-                        
-                        Object.assign(instance as any, row)
-
-                        return instance
-                    },
+                    serialize: row => constructor.serialize(row),
                 }) as any
             }
 
             public async save() {
                 await update(table, {
-                    query: qb => (qb as any).where('id', '=', (this as any).id),
+                    query: qb => (qb as any).where(primaryKey, '=', (this as any).id),
                     values: this as any,
                 })
             }
 
             public async destroy() {
                 await destroy(table, {
-                    query: qb => (qb as any).where('id', '=', (this as any).id)
+                    query: qb => (qb as any).where(primaryKey, '=', (this as any).id)
                 })
             }
 
             public async softDelete() {
                 const rows = await softDelete(table, {
-                    query: qb => (qb as any).where('id', '=', (this as any).id)
+                    query: qb => (qb as any).where(primaryKey, '=', (this as any).id)
                 })
 
                 const row = rows[0]
