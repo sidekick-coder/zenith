@@ -9,6 +9,7 @@ import config from '#server/facades/config.facade.ts'
 import FilesystemDrive from '#modules/callory-tracker/root/server/gateways/filesystemDrive.gateway.ts'
 import File from '#server/entities/file.entity.ts'
 import type { DriveUrlOptions } from '#server/contracts/drive.contract.ts'
+import { storagePath } from '#server/utils/paths.ts'
 
 interface CreatePayload {
     file: Express.Multer.File
@@ -214,5 +215,22 @@ export default class DriveService {
         })
             
         return entity
+    }
+
+    public createDefaulDrives(){
+        config.set('drive.disks.storage', {
+            "driver": "filesystem",
+            "default": true,
+            "path": storagePath('drive'),
+            "name": "Storage",
+            "description": "Storage directory"
+        })
+        
+        config.set('drive.disks.root', {
+            "driver": "filesystem",
+            "path": "/",
+            "name": "Root",
+            "description": "Root directory"
+        })
     }
 }
