@@ -44,7 +44,7 @@ const onSubmit = handleSubmit(async (payload) => {
     isLoading.value = true
 
     const [error] = await tryCatch(() => {
-        return $fetch('/setup/user', {
+        return $fetch('/api/setup/user', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', },
             body: JSON.stringify(payload),
