@@ -3,7 +3,7 @@ import { addTimestampColumns } from '#server/queries/index.ts'
 
 export async function up(db: Kysely<any>): Promise<void> {
     await db.schema.createTable('tokens')
-        .addColumn('id', 'integer', col => col.primaryKey())
+        .addColumn('id', 'integer', col => col.autoIncrement().primaryKey())
         .addColumn('user_id', 
             'integer', 
             col => col

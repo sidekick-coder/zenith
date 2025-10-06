@@ -3,7 +3,7 @@ import { addTimestampColumns, addSoftDeleteColumn } from '#server/queries/index.
 
 export async function up(db: Kysely<any>): Promise<void> {
     await db.schema.createTable('permissions')
-        .addColumn('id', 'integer', col => col.primaryKey())
+        .addColumn('id', 'integer', col => col.autoIncrement().primaryKey())
         .addColumn('name', 'varchar(255)', col => col.notNull())
         .addColumn('description', 'text')
         .addColumn('origin', 'varchar(50)', col => col.notNull().defaultTo('custom'))
