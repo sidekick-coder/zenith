@@ -21,7 +21,7 @@ interface MigrationResult {
     error?: string;
 }
 
-export class Migrator {
+export default class MigratorService {
     private async ensureMigrationsTable() {
         await db.schema
             .createTable('migrations')
@@ -382,7 +382,3 @@ export class Migrator {
         return results
     }
 }
-
-const migrator = new Migrator()
-
-export default migrator

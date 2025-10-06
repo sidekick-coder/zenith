@@ -1,6 +1,6 @@
 import { program } from 'commander'
 import chalk from 'chalk'
-import migrator from '#server/database/migrator.ts'
+import migrator from '#server/facades/migrator.facade.ts'
 import cli from '#server/services/cli.service.ts'
 import db from '#server/facades/db.facade.ts'
 

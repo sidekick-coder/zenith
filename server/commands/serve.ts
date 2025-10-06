@@ -3,6 +3,7 @@ import { program } from 'commander'
 import chokidar from 'chokidar'
 import { basePath } from '#server/utils/paths.ts'
 import logger from '#server/facades/logger.facade.ts'
+import { debounce } from 'lodash-es'
 
 program.command('serve').option('-w, --watch', 'Watch for changes and restart server')
     .action((options) => {
@@ -14,13 +15,13 @@ program.command('serve').option('-w, --watch', 'Watch for changes and restart se
 
         let serverProcess: cp.ChildProcess | null = null
 
-        const reload = () => {
+        const reload = debounce(() => {
             if (serverProcess) {
                 serverProcess.kill()
                 logger.debug('stopped server...')
+                logger.debug('reload server...')
             }
 
-            logger.debug('reload server...')
 
             serverProcess = cp.fork(modulePath, [], { 
                 execArgv,
@@ -47,7 +48,7 @@ program.command('serve').option('-w, --watch', 'Watch for changes and restart se
                     logger.debug(`Server process killed with signal ${signal}`)
                 }
             })
-        }
+        }, 100)
 
         if (options.watch) {
             const entries = [
@@ -57,7 +58,7 @@ program.command('serve').option('-w, --watch', 'Watch for changes and restart se
                 
             ]
 
-            const ignore = ['.git','node_modules', 'client', 'storage', '.runtime']
+            const ignore = ['.git','node_modules', 'client', 'storage', '.runtime', '.volumes']
 
             logger.debug('Watching directories', entries)
             

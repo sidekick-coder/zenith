@@ -1,8 +1,8 @@
 import di from './di.facade.ts'
-import DatabaseManager from '#server/database/manager.ts'
+import DatabaseService from '#server/services/database.service.ts'
 
-di.set(DatabaseManager.DI_KEY, new DatabaseManager())
+di.set(DatabaseService.KEY, new DatabaseService())
 
-const db = di.proxy<DatabaseManager>(DatabaseManager.DI_KEY)
+const db = di.proxy<DatabaseService>(DatabaseService.KEY)
 
 export default db

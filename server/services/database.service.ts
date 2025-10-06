@@ -6,7 +6,6 @@ import rootLogger from '../facades/logger.facade.ts'
 import type { Database } from '../contracts/database.contract.ts'
 import config from '#server/facades/config.facade.ts'
 import di from '#server/facades/di.facade.ts'
-import { SqliteBooleanPlugin } from '#server/database/plugins/sqliteBoolean.plugin.ts'
 
 // In-memory SQLite dialect for initialization
 // This is used to create the Kysely instance before loading the actual database connection
@@ -14,8 +13,8 @@ const memory = new SqliteDialect({ database: new SQLite(':memory:') })
 
 const logger = rootLogger.child({ label: 'db' })
 
-export default class DatabaseManager extends Kysely<Database> {
-    public static readonly DI_KEY = 'db'
+export default class DatabaseService extends Kysely<Database> {
+    public static readonly KEY = 'db'
     public configConnectionName = 'initial'
     public configConnection = ''
 
@@ -49,19 +48,18 @@ export default class DatabaseManager extends Kysely<Database> {
             throw new Error(`Unsupported database driver: ${connection.driver}`)
         }
 
-        const db = new DatabaseManager({
+        const db = new DatabaseService({
             dialect: dialect,
-            plugins: [new SqliteBooleanPlugin()]
         })
 
         db.configConnectionName = name
         db.configConnection = connection.database
 
-        if (di.has(DatabaseManager.DI_KEY)) {
-            await di.get<DatabaseManager>(DatabaseManager.DI_KEY).destroy()
+        if (di.has(DatabaseService.KEY)) {
+            await di.get<DatabaseService>(DatabaseService.KEY).destroy()
         }
 
-        di.set(DatabaseManager.DI_KEY, db)
+        di.set(DatabaseService.KEY, db)
 
         if (!quiet) {
             logger.info('connected to database', {
