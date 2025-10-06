@@ -27,7 +27,7 @@ export default class User extends composeWith(BaseUser, Model('users')) {
             await this.loadRoles()
         }
 
-        const userPermissions = await list('permissions', {
+        const permissions = await list('permissions', {
             serialize: Permission.from,
             query: (qb) => qb
                 .selectAll()
@@ -39,19 +39,24 @@ export default class User extends composeWith(BaseUser, Model('users')) {
                 )
         })
 
-        const rolesPermissions = await list('permissions', {
-            serialize: Permission.from,
-            query: (qb) => qb
-                .selectAll()
-                .where('id', 'in', (eb) =>
-                    eb.selectFrom('permissions_assignments')
-                        .select('permission_id')
-                        .where('assignable_type', '=', 'role')
-                        .where('assignable_id', 'in', this.roles?.map(r => r.id.toString()) || [])
-                )
-        })
+        if (this.roles?.length) {
+            const rolesPermissions = await list('permissions', {
+                serialize: Permission.from,
+                query: (qb) => qb
+                    .selectAll()
+                    .where('id', 'in', (eb) =>
+                        eb.selectFrom('permissions_assignments')
+                            .select('permission_id')
+                            .where('assignable_type', '=', 'role')
+                            .where('assignable_id', 'in', this.roles?.map(r => r.id.toString()) || [])
+                    )
+            })
 
-        this.permissions = userPermissions.concat(rolesPermissions)
+            permissions.push(...rolesPermissions)
+        }
+
+
+        this.permissions = permissions
     }
 
 }

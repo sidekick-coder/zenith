@@ -1,5 +1,7 @@
 import { randomBytes } from 'crypto'
 import db from '#server/facades/db.facade.ts'
+import { create } from '#server/queries/index.ts'
+import normalizers from '#server/normalizers/index.ts'
 
 export interface Token {
     id: number
@@ -36,15 +38,14 @@ export default class TokenService {
             ? new Date(Date.now() + data.expires_in_hours * 60 * 60 * 1000)
             : null
 
-        const result = await db.insertInto('tokens')
-            .values({
+        const result = await create('tokens', {
+            values: {
                 user_id: data.user_id,
                 token,
                 type: data.type || 'auth',
-                expires_at: expiresAt?.toISOString()
-            })
-            .returningAll()
-            .executeTakeFirstOrThrow()
+                expires_at: expiresAt ? normalizers.datetime.toDb(expiresAt) : null,
+            }
+        })
 
         return {
             ...result,
