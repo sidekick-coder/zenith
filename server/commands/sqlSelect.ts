@@ -48,7 +48,11 @@ program.command('sql:select')
         const [error, response] = await tryCatch(async () => {
             await db.load()
 
-            return sql.raw(query).execute(db)
+            const result = await sql.raw(query).execute(db)
+            
+            await db.destroy()
+
+            return result
         })
 
         if (error) {
@@ -59,4 +63,5 @@ program.command('sql:select')
         const rows = response.rows as Record<string, any>[]
 
         cli.ui.table(rows)
+
     })
