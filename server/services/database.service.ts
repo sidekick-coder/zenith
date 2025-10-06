@@ -23,6 +23,7 @@ export default class DatabaseService extends Kysely<Database> {
     public static readonly KEY = 'db'
     public configConnectionName = 'initial'
     public configConnection = ''
+    public driver: 'sqlite' | 'mysql' | 'postgresql' = 'sqlite'
 
 
     constructor(kyselyConfig?: KyselyConfig & { dialect: Dialect }) {
@@ -110,6 +111,7 @@ export default class DatabaseService extends Kysely<Database> {
 
         db.configConnectionName = name
         db.configConnection = connection.database
+        db.driver = connection.driver
 
         if (di.has(DatabaseService.KEY)) {
             await di.get<DatabaseService>(DatabaseService.KEY).destroy()

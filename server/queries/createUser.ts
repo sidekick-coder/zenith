@@ -4,6 +4,7 @@ import db from '#server/facades/db.facade.ts'
 import hasher from '#server/facades/hasher.facade.ts'
 import emmitter from '#server/facades/emmitter.facade.ts'
 import User from '#server/entities/user.entity.ts'
+import { create } from './create.ts'
 
 export interface UserPayload {
     name: string
@@ -33,17 +34,13 @@ export async function createUser(payload: UserPayload) {
         email: payload.email,
         username: payload.username,
         password: await hasher.hash(payload.password),
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        deleted_at: null,
     }
 
     await emmitter.emitAndWait('user:before-create', { user: userData })
 
-    const user = await  db.insertInto('users')
-        .values(userData)
-        .returningAll()
-        .executeTakeFirst()
+    const user = await create('users', {
+        values: userData,
+    })
 
     if (!user) {
         throw new BaseException('Failed to create user', 500)

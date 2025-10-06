@@ -2,13 +2,11 @@ import BaseException from '#server/exceptions/base.ts'
 import root from '#server/facades/router.facade.ts'
 import config from '#server/facades/config.facade.ts'
 import { $t } from '#shared/lang.ts'
-import { basePath } from '#server/utils/paths.ts'
 import migrator from '#server/facades/migrator.facade.ts'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
 import db from '#server/facades/db.facade.ts'
-import userRepository from '#server/repositories/user.repository.ts'
-import { create } from '#server/queries/index.ts'
-import { sql } from 'kysely'
+import {  createUser } from '#server/queries/index.ts'
+import { createUserPermission } from '#server/queries/createUserPermission.ts'
 
 const router = root.prefix('/api/setup').group()
 
@@ -73,28 +71,17 @@ router.post('/user', async ({ body }) => {
         throw new BaseException($t('Username, Email and password are required'), 400)
     }
 
-    const user = await userRepository.create({
-        name: payload.name || '',
+    const user = await createUser({
+        name: payload.name,
         username: payload.username,
-        email: payload.email || '',
-        password: payload.password // Raw password - repository will hash it
+        email: payload.email,
+        password: payload.password
     })
 
-    const permission = await create('permissions', {
-        values: {
-            action: 'manage',
-            subject: 'all',
-            conditions: ''
-        }
+    await createUserPermission(user.id, {
+        action: 'manage',
+        subject: 'all'
     })
-
-    await create('permissions_assignments', {
-        values: {
-            permission_id: permission.id,
-            assignable_type: 'user',
-            assignable_id: user!.id.toString()
-        }
-    })  
 
     config.set('setup.user', true)
 

@@ -1,36 +1,55 @@
-import type { Selectable, Insertable } from 'kysely'
+import type { Insertable } from 'kysely'
 import type { Database } from '#server/contracts/database.contract.ts'
 import db from '#server/facades/db.facade.ts'
+import type { SerializableResult, SerializeOptions } from './common.ts'
 
-export interface CreateOptions<T extends keyof Database> {
+export interface CreateOptions<T extends keyof Database> extends SerializeOptions<T> {
     values: Insertable<Database[T]> | Insertable<Database[T]>[]
-    serialize?: (row: Selectable<Database[T]>) => any
+    primaryKey?: string // default 'id'
 }
 
-export type CreateResult<T extends keyof Database, O extends CreateOptions<T> | undefined> =
-    O extends undefined ? Selectable<Database[T]>[] :
-    O extends { values: infer V; serialize: (row: Selectable<Database[T]>) => infer R } ? 
-        V extends any[] ? R[] : R :
-    O extends { values: infer V } ? 
-        V extends any[] ? Selectable<Database[T]>[] : Selectable<Database[T]> :
-    O extends { serialize: (row: Selectable<Database[T]>) => infer R } ? R[] : Selectable<Database[T]>[]
 
-export async function create<T extends keyof Database, O extends CreateOptions<T>>(table: T, options?: O): Promise<CreateResult<T, O>> {
+export async function createDefault<T extends keyof Database, O extends CreateOptions<T>>(table: T, options?: O) {
     const values = options?.values || []
-    const query = db.insertInto(table).values(values)
+    const insert = db.insertInto(table).values(values)
 
-    let rows: any[] = await query.returningAll().execute()
+    let row: any = await insert.returningAll().executeTakeFirst()
 
     if (options?.serialize) {
-        rows = rows.map(options.serialize)
+        row = options.serialize(row)
     }
 
-    // Return single object if values was not an array, otherwise return array
-    const isArrayInput = Array.isArray(values)
-    
-    if (!isArrayInput && rows.length > 0) {
-        return rows[0] as CreateResult<T, O>
+    return row as SerializableResult<T, O>
+}
+
+export async function createMysql<T extends keyof Database, O extends CreateOptions<T>>(table: T, options?: O) {
+    const values = options?.values || []
+    const insert = db.insertInto(table).values(values)
+
+    const primaryKey = (options?.primaryKey || 'id') as keyof Database[T]
+
+    let result = await insert.executeTakeFirst()
+
+    const resultId = result.insertId as any
+
+    const select = db.selectFrom(table).selectAll() as any
+
+    let row = await select
+        .where(primaryKey, '=', resultId)
+        .executeTakeFirst()
+
+    if (options?.serialize) {
+        row = options.serialize(row)
     }
 
-    return rows as CreateResult<T, O>
+    return row as SerializableResult<T, O>
+}
+
+
+export async function create<T extends keyof Database, O extends CreateOptions<T>>(table: T, options?: O) {
+    if (db.driver === 'mysql') {
+        return createMysql(table, options)
+    }
+
+    return createDefault(table, options)
 }
