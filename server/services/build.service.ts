@@ -5,13 +5,6 @@ import { logger } from '../facades/logger.facade.ts'
 import { storagePath } from '#server/utils/paths.ts'
 
 export class BuildService {
-    public async server(){
-        
-    }
-
-    public async client() {
-        
-    }
 
     public reloadServer(){
         logger.info('reload server')
@@ -49,7 +42,7 @@ export class BuildService {
         await viteBuild({ build: { outDir: storagePath('tmp/dist/client') } })
 
         await fs.promises.rm(storagePath('dist'), { recursive: true })
-        await fs.promises.rename(storagePath('tmp/dist'), storagePath('dist'))
+        await fs.renameSync(storagePath('tmp/dist'), storagePath('dist'))
 
         logger.info('build completed')
     }

@@ -2,7 +2,7 @@
 import { toTypedSchema } from '@vee-validate/valibot'
 import { useForm } from 'vee-validate'
 import * as v from 'valibot'
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { toast } from 'vue-sonner'
 import Button from '#client/components/Button.vue'
 import Card from '#client/components/ui/card/Card.vue'
@@ -16,8 +16,10 @@ import FormTextField from '#client/components/FormTextField.vue'
 import CardContent from '#client/components/ui/card/CardContent.vue'
 import { $t } from '#shared/lang.ts'
 import FormSelect from '#client/components/FormSelect.vue'
+import { syncRefs, useLocalStorage } from '@vueuse/core'
 
 const isLoading = ref(false)
+const isTestLoading = ref(false)
 
 const types = [
     {
@@ -29,7 +31,7 @@ const types = [
         label: $t('MySQL') 
     },
     {
-        value: 'postgres',
+        value: 'postgresql',
         label: $t('PostgreSQL') 
     },
 ]
@@ -40,16 +42,43 @@ const { handleSubmit, values } = useForm({
             type: v.picklist(types.map(t => t.value), $t('Database Type')),
             options: v.any()
         })),
+        initialValues: {
+            type: 'mysql',
+            options: {
+                database: 'zenith',
+                host: 'localhost',
+                port: 3306,
+                user: 'root',
+                password: 'docker',
+            }
+        }
 })
 
-const onSubmit = handleSubmit(async (payload) => {
+
+const onTestConnection = handleSubmit(async (data) => {
+    isTestLoading.value = true
+
+    const [error, response] = await $fetch.try('/api/setup/database/test', {
+        method: 'POST',
+        data,
+    })
+
+    isTestLoading.value = false
+
+    if (error) {
+        return
+    }
+
+    toast.success(response.message || $t('Database connection test successful'))
+})
+
+const onSubmit = handleSubmit(async (data) => {
     isLoading.value = true
 
     const [error] = await tryCatch(() => {
-        return $fetch('/setup/database', {
+        return $fetch('/api/setup/database', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', },
-            body: JSON.stringify(payload),
+            data
         })
     })
 
@@ -102,12 +131,98 @@ const onSubmit = handleSubmit(async (payload) => {
                         value="storage/database.sqlite"
                     />
                 </template>
+
+                <template v-if="values.type === 'mysql'">
+                    <FormTextField
+                        name="options.host"
+                        type="text"
+                        :label="$t('Host')"
+                        placeholder="localhost"
+                        autocomplete="off"
+                    />
+                    <FormTextField
+                        name="options.port"
+                        type="number"
+                        :label="$t('Port')"
+                        placeholder="3306"
+                        autocomplete="off"
+                    />
+                    <FormTextField
+                        name="options.database"
+                        type="text"
+                        :label="$t('Database Name')"
+                        placeholder="my_database"
+                        autocomplete="off"
+                    />
+                    <FormTextField
+                        name="options.user"
+                        type="text"
+                        :label="$t('User')"
+                        placeholder="root"
+                        autocomplete="off"
+                    />
+                    <FormTextField
+                        name="options.password"
+                        type="password"
+                        :label="$t('Password')"
+                        placeholder="••••••••"
+                        autocomplete="off"
+                    />
+                </template>
+
+                <template v-if="values.type === 'postgresql'">
+                    <FormTextField
+                        name="options.host"
+                        type="text"
+                        :label="$t('Host')"
+                        placeholder="localhost"
+                        autocomplete="off"
+                    />
+                    <FormTextField
+                        name="options.port"
+                        type="number"
+                        :label="$t('Port')"
+                        placeholder="5432"
+                        autocomplete="off"
+                    />
+                    <FormTextField
+                        name="options.database"
+                        type="text"
+                        :label="$t('Database Name')"
+                        placeholder="my_database"
+                        autocomplete="off"
+                    />
+                    <FormTextField
+                        name="options.username"
+                        type="text"
+                        :label="$t('Username')"
+                        placeholder="postgres"
+                        autocomplete="off"
+                    />
+                    <FormTextField
+                        name="options.password"
+                        type="password"
+                        :label="$t('Password')"
+                        placeholder="••••••••"
+                        autocomplete="off"
+                    />
+                </template>
             </CardContent>
-            <CardFooter class="flex justify-center">
+            <CardFooter class="flex gap-3 mt-4">
+                <Button
+                    type="button"
+                    variant="outline"
+                    class="flex-1"
+                    :disabled="isLoading || isTestLoading"
+                    :loading="isTestLoading"
+                    @click="onTestConnection"
+                >
+                    {{ $t('Test Connection') }}
+                </Button>
                 <Button
                     type="submit"
-                    class="mt-4 w-full"
-                    :disabled="isLoading"
+                    class="flex-1"
+                    :disabled="isLoading || isTestLoading"
                     :loading="isLoading"
                     :tabindex="4"
                 >

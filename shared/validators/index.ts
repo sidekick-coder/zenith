@@ -5,6 +5,7 @@ import * as query from './query.validator.ts'
 import * as role from './role.validator.ts'
 import * as settingSite from './settingSite.validator.ts'
 import * as user from './user.validator.ts'
+import * as connection from './connection.validator.ts'
 
 const schemas = {
     pagination,
@@ -13,7 +14,8 @@ const schemas = {
     query,
     role,
     settingSite,
-    user
+    user,
+    connection,
 }
 
 export default schemas

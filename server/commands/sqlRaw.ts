@@ -12,7 +12,11 @@ program.command('sql:raw')
         const [error, response] = await tryCatch(async () => {
             await db.load()
 
-            return sql.raw(query).execute(db)
+            const result = await sql.raw(query).execute(db)
+
+            await db.destroy()
+
+            return result
         })
 
         if (error) {

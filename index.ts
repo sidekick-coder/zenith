@@ -82,8 +82,11 @@ async function main() {
 
     await vite.init(app)
     await config.loadAndWatch()
+    
+    if (config.has('app.key')) {
+        encrypt.load(config.get('app.key'))
+    }
 
-    encrypt.load(config.get('app.key'))
     drive.load()
     
     build.watch()
@@ -123,4 +126,8 @@ async function main() {
 main().catch((err) => {
     console.error(err)
     process.exit(1)
+})
+
+process.on('unhandledRejection', (err) => {
+  console.error('Unhandled rejection:', err);
 })

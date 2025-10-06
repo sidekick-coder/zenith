@@ -4,9 +4,9 @@ import { addSoftDeleteColumn, addTimestampColumns } from '#server/queries/index.
 export async function up(db: Kysely<any>): Promise<void> {
     await db.schema.createTable('users')
         .addColumn('id', 'integer', col => col.primaryKey())
-        .addColumn('name', 'text')
-        .addColumn('username', 'text', col => col.notNull())
-        .addColumn('email', 'text', col => col.notNull())
+        .addColumn('name', 'varchar(255)')
+        .addColumn('username', 'varchar(255)', col => col.notNull())
+        .addColumn('email', 'varchar(255)', col => col.notNull())
         .addColumn('password', 'text', col => col.notNull())
         .$call(addTimestampColumns)
         .$call(addSoftDeleteColumn)

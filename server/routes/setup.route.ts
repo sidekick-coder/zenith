@@ -1,5 +1,5 @@
 import BaseException from '#server/exceptions/base.ts'
-import router from '#server/facades/router.facade.ts'
+import root from '#server/facades/router.facade.ts'
 import config from '#server/facades/config.facade.ts'
 import { $t } from '#shared/lang.ts'
 import { basePath } from '#server/utils/paths.ts'
@@ -8,8 +8,31 @@ import { tryCatch } from '#shared/utils/tryCatch.ts'
 import db from '#server/facades/db.facade.ts'
 import userRepository from '#server/repositories/user.repository.ts'
 import { create } from '#server/queries/index.ts'
+import { sql } from 'kysely'
 
-router.post('/setup/database', async ({ body }) => {
+const router = root.prefix('/api/setup').group()
+
+router.post('/database/test', async ({ body }) => {
+    const payload = body
+    const driver = payload.type
+    const options = payload.options || {}
+
+    const connection = db.createConnection(driver, options)
+
+    const [error] = await tryCatch(() => db.createDatabase(connection))
+
+    if (error) {
+        throw new BaseException(error.message || $t('Database connection test failed'), 400)
+    }
+
+    return { 
+        status: 200, 
+        success: true, 
+        message: $t('Database connection test successful')
+    }
+})
+
+router.post('/database', async ({ body }) => {
     const payload = body
     const driver = payload.type
     const options = payload.options || {}
@@ -18,24 +41,11 @@ router.post('/setup/database', async ({ body }) => {
         throw new BaseException($t('Database setup already completed'), 400)
     }
 
-    const connection: any = { driver }
+    const connection = db.createConnection(driver, options)
 
-    if (driver === 'sqlite') {
-        let database = options.database || 'storage/database.sqlite'
-
-        database = database.startsWith('/') ? database : basePath(database)
-
-        connection.database = database
-    }
-
-    const database = {
-        default: 'default',
-        connections: { default: connection }
-    }
-
-    config.set('database', database)
-
-    console.log(config.list())
+    
+    config.set('database.connections.default', connection)
+    config.set('database.default', 'default')
 
     const [error] = await tryCatch(async () => {
         await db.load('default')
@@ -43,7 +53,7 @@ router.post('/setup/database', async ({ body }) => {
     })
 
     if (error) {
-        config.set('database', {})
+        console.error(error)
         throw new BaseException($t('Failed to run migrations'), 500)
     }
 
@@ -52,7 +62,7 @@ router.post('/setup/database', async ({ body }) => {
     return { status: 200, }
 })
 
-router.post('/setup/user', async ({ body }) => {
+router.post('/user', async ({ body }) => {
     const payload = body
 
     if (config.get('setup.user')) {

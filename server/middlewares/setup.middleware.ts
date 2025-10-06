@@ -10,15 +10,22 @@ export type SetupMiddlewareContext = MiddlewareHandleResult<[SetupMiddleware]>
 export class SetupMiddleware implements Middleware {
     public checked: boolean = false
     public async handle(ctx: HttpContext){
-        const allowedPaths = [
-            '/admin/setup',
-            '/setup',
-            '/setup/database',
-            '/setup/user',
-            '/setup/complete',
+
+        const excludeExt = [
+            '.js',
+            '.css',
+            '.png',
+            '.jpg',
+            '.jpeg',
+            '.gif',
+            '.json'
         ]
 
-        if (allowedPaths.includes(ctx.url)) {
+        if (excludeExt.some(ext => ctx.url.endsWith(ext))) {
+            return
+        }
+
+        if (ctx.url.startsWith('/api/setup') || ctx.url.startsWith('/setup')) {
             return
         }
 

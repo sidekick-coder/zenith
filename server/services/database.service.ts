@@ -1,11 +1,17 @@
-import { SqliteDialect } from 'kysely'
+import { MysqlDialect, SqliteDialect } from 'kysely'
 import type { Dialect, KyselyConfig, } from 'kysely'
-import { Kysely } from 'kysely'
+import { Kysely, sql } from 'kysely'
 import SQLite from 'better-sqlite3'
 import rootLogger from '../facades/logger.facade.ts'
 import type { Database } from '../contracts/database.contract.ts'
 import config from '#server/facades/config.facade.ts'
 import di from '#server/facades/di.facade.ts'
+import { createPool } from 'mysql2'
+import { Pool } from 'pg'
+import { basePath } from '#server/utils/paths.ts'
+import validator from '#shared/services/validator.service.ts'
+import schemas from '#shared/validators/index.ts'
+import { tryCatch } from '#shared/utils/tryCatch.ts'
 
 // In-memory SQLite dialect for initialization
 // This is used to create the Kysely instance before loading the actual database connection
@@ -25,6 +31,68 @@ export default class DatabaseService extends Kysely<Database> {
         super(config)
     }
 
+    public createConnection(driver: 'sqlite' | 'mysql' | 'postgresql', options: any) {
+        const connection: any = { driver }
+
+         if (driver === 'sqlite') {
+            let database = options.database || 'storage/database.sqlite'
+            database = database.startsWith('/') ? database : basePath(database)
+            connection.database = database
+        }
+    
+        if (driver === 'mysql') {
+            connection.host = options.host || 'localhost'
+            connection.port = options.port || 3306
+            connection.database = options.database
+            connection.user = options.user
+            connection.password = options.password
+        }
+    
+        if (driver === 'postgresql') {
+            connection.host = options.host || 'localhost'
+            connection.port = options.port || 5432
+            connection.database = options.database
+            connection.user = options.user
+            connection.password = options.password
+        }
+
+        return connection
+    }
+
+    public async createDatabase(connection: Record<string, any>) {
+        let dialect: Dialect | undefined = undefined
+
+        if (connection.driver === 'sqlite') {
+            dialect = new SqliteDialect({ database: new SQLite(connection.database) })
+        }
+
+        if (connection.driver === 'mysql') {
+            const pool = createPool(validator.validate(connection, schemas.connection.mysql))
+
+            try {
+                const conn = await pool.promise().getConnection();
+
+                conn.release()
+            } catch (error) {
+                throw new Error(`Failed to connect to MySQL database: ${error.message}`)
+            }
+
+            dialect = new MysqlDialect({ 
+                pool: async () => pool as any,
+            })
+        }
+
+        if (!dialect) {
+            throw new Error(`Unsupported database driver: ${connection.driver}`)
+        }
+
+        const db = new DatabaseService({
+            dialect: dialect,
+        })
+
+        return db
+    }
+
     public async load(connectionName?: string, quiet = false) {
         const defaultConnection = config.get('database.default')
         const connections = config.get('database.connections', {})
@@ -38,19 +106,7 @@ export default class DatabaseService extends Kysely<Database> {
             return
         }
 
-        let dialect: Dialect | undefined = undefined
-
-        if (connection.driver === 'sqlite') {
-            dialect = new SqliteDialect({ database: new SQLite(connection.database) })
-        }
-
-        if (!dialect) {
-            throw new Error(`Unsupported database driver: ${connection.driver}`)
-        }
-
-        const db = new DatabaseService({
-            dialect: dialect,
-        })
+        const db = await this.createDatabase(connection)
 
         db.configConnectionName = name
         db.configConnection = connection.database
@@ -69,6 +125,5 @@ export default class DatabaseService extends Kysely<Database> {
             })
 
         }
-
     }
 }

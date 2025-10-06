@@ -4,6 +4,7 @@ import { basePath } from '#server/utils/paths.ts'
 import modules from '#server/services/modules.service.ts'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
 import db from '#server/facades/db.facade.ts'
+import { format } from 'date-fns'
 
 interface Migration {
     name: string;
@@ -26,8 +27,8 @@ export default class MigratorService {
         await db.schema
             .createTable('migrations')
             .ifNotExists()
-            .addColumn('name', 'text', (col) => col.primaryKey())
-            .addColumn('module', 'text')
+            .addColumn('name', 'varchar(255)', (col) => col.primaryKey())
+            .addColumn('module', 'varchar(255)')
             .addColumn('executed_at', 'timestamp', (col) => col.notNull())
             .execute()
     }
@@ -147,7 +148,7 @@ export default class MigratorService {
                 .values({
                     name: migration.name,
                     module: migration.module,
-                    executed_at: new Date().toISOString()
+                    executed_at: format(new Date(), 'yyyy-MM-dd HH:mm:ss'),
                 })
                 .execute()
 
@@ -376,7 +377,11 @@ export default class MigratorService {
         const results = await this.latest()
         
         if (results.some(r => r.result === 'failed')) {
-            throw new Error('Failed to run all migrations')
+            const error = new Error('Failed to run all migrations')
+
+            Object.assign(error, { results })
+
+            throw error
         }
 
         return results

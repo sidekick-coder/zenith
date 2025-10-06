@@ -26,5 +26,7 @@ program.command('migration:status')
                 value: 'name',
             }
         ])
+
+        await db.destroy()
     })
 
