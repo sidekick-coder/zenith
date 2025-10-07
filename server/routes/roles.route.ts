@@ -2,21 +2,24 @@ import BaseException from '#server/exceptions/base.ts'
 import db from '#server/facades/db.facade.ts'
 import rootRouter from '#server/facades/router.facade.ts'
 import authMiddleware from '#server/middlewares/auth.middleware.ts'
-import { list } from '#server/queries/index.ts'
-import Role from '#shared/entities/role.entity.ts'
+import Role from '#server/entities/role.entity.ts'
 import validator from '#shared/services/validator.service.ts'
+import schemas from '#shared/validators/index.ts'
 
 const router = rootRouter.use(authMiddleware)
     .prefix('/api/roles')
     .group()
 
-router.get('/', async ({ acl }) => {
+router.get('/', async ({ acl, query }) => {
     
     acl.authorize('read', 'Role')
-    
-    const data = await list('roles', { serialize: r => new Role(r) })
 
-    return { data }
+    const { page, limit } = validator.validate(query, schemas.pagination.schema)
+
+    return Role.paginate({ 
+        page, 
+        limit
+    })
 })
 
 router.get('/:id', async ({ params, acl }) => {

@@ -1,13 +1,8 @@
-export default class Role {
+import { compose } from "#shared/utils/compose.ts"
+import { BaseEntity, SoftDelete, Timestamp } from "../mixins/index.ts"
+
+export default class Role extends compose(BaseEntity, Timestamp, SoftDelete) {
     public id: number
     public name: string
     public description?: string
-
-    constructor(data: Partial<Role>) {
-        Object.assign(this, data)
-    }
-
-    public static from(payload: any): Role {
-        return new Role(payload)
-    }
 }
