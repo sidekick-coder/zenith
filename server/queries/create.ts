@@ -2,10 +2,12 @@ import type { Insertable } from 'kysely'
 import type { Database } from '#server/contracts/database.contract.ts'
 import db from '#server/facades/db.facade.ts'
 import type { SerializableResult, SerializeOptions } from './common.ts'
+import normalizers from '#server/normalizers/index.ts'
 
 export interface CreateOptions<T extends keyof Database> extends SerializeOptions<T> {
-    values: Insertable<Database[T]> | Insertable<Database[T]>[]
+    values: Insertable<Database[T]>
     primaryKey?: string // default 'id'
+    normalize?: boolean | ((value: any) => any) // default true
 }
 
 
@@ -47,9 +49,22 @@ export async function createMysql<T extends keyof Database, O extends CreateOpti
 
 
 export async function create<T extends keyof Database, O extends CreateOptions<T>>(table: T, options?: O) {
-    if (db.driver === 'mysql') {
-        return createMysql(table, options)
+    let values: any = options?.values || {}
+
+    const normalize = typeof options?.normalize === 'function' ? options?.normalize : normalizers.all.toDb
+
+    if (options?.normalize !== false) {
+        values = normalize(values)
     }
 
-    return createDefault(table, options)
+    const parsedOptions = {
+        ...options,
+        values
+    }
+
+    if (db.driver === 'mysql') {
+        return createMysql(table, parsedOptions)
+    }
+
+    return createDefault(table, parsedOptions)
 }

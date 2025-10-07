@@ -43,7 +43,7 @@ export default class TokenService {
                 user_id: data.user_id,
                 token,
                 type: data.type || 'auth',
-                expires_at: expiresAt ? normalizers.datetime.toDb(expiresAt) : null,
+                expires_at: expiresAt as any
             }
         })
 
