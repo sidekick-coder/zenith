@@ -12,10 +12,10 @@ const router = rootRouter.use(authMiddleware)
 router.get('/', async ({ acl, query }) => {
     const payload = await validator.validate(query, schemas.permissionAssignment.index)
 
-    acl.authorize('read', acl.subject('PermissionAssignment', {
+    acl.authorize('read', 'PermissionAssignment', {
         assignable_type: payload.assign_type,
         assignable_id: payload.assign_id,
-    }))
+    })
 
     const pagination = await paginate('permissions_assignments', {
         query: qb => qb.selectAll()
@@ -24,22 +24,19 @@ router.get('/', async ({ acl, query }) => {
             .orderBy('id', 'desc'),
     })
 
-    const permissions = await list('permissions', {
-        serialize: Permission.from,
-        query: qb => qb.selectAll()
-            .where(undeleted)
-            .where('id', 'in', pagination.items.map(i => Number(i.permission_id)))
-    })
+    // const permissions = await list('permissions', {
+    //     serialize: Permission.from,
+    //     query: qb => qb.selectAll()
+    //         .where(undeleted)
+    //         .where('id', 'in', pagination.items.map(i => Number(i.permission_id)))
+    // })
 
-    const items = pagination.items.map(item => ({
-        ...item,
-        permission: permissions.find(p => p.id === item.permission_id) || null,
-    }))
+    // const items = pagination.items.map(item => ({
+    //     ...item,
+    //     permission: permissions.find(p => p.id === item.permission_id) || null,
+    // }))
 
-    return {
-        ...pagination,
-        items,
-    }
+    return pagination
 })
 
 router.post('/', async ({ acl, body }) => {

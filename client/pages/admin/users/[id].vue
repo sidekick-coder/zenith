@@ -63,7 +63,7 @@ async function load(){
     if (error) {
         loading.value = false
         toast.error($t('Failed to load user details.'))
-        router.replace('/admin/404')
+        router.replace('/admin/users')
         return
     }
 

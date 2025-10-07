@@ -2,6 +2,7 @@ import { emitHook } from './hooks.mixin.ts'
 import type { UpdateOrCreateOptions } from '#modules/callory-tracker/root/server/queries/updateOrCreate.ts'
 import type { Database } from '#server/contracts/database.contract.ts'
 import * as queries from '#server/queries/index.ts'
+import { omit } from 'lodash-es'
 
 import type { 
     ListOptions, 
@@ -39,7 +40,7 @@ export function Model<Table extends keyof Database>(table: Table, primaryKey: ke
             public static async paginate<T>(this: new () => T, o?: ModelPaginateOptions<Table>): Promise<Pagination<T>> {
                 const constructor = this as any
 
-                const pagination = await paginate(table, {
+                const pagination = await queries.paginate(table, {
                     page: o?.page,
                     limit: o?.limit,
                     query: o?.query,
@@ -56,7 +57,7 @@ export function Model<Table extends keyof Database>(table: Table, primaryKey: ke
             public static async list<T>(this: new () => T, o?: ModelListOptions<Table>): Promise<T[]> {
                 const constructor = this as any 
 
-                const items = await list(table, {
+                const items = await queries.list(table, {
                     query: o?.query,
                     serialize: row => constructor.serialize(row),
                 })
@@ -68,10 +69,10 @@ export function Model<Table extends keyof Database>(table: Table, primaryKey: ke
                 return items as any
             }
 
-            public static async find<T>(this: new () => T, o?: ModelListOptions<Table>): Promise<T | undefined> {
+            public static async findOne<T>(this: new () => T, o?: ModelListOptions<Table>): Promise<T | undefined> {
                 const constructor = this as any
 
-                const row = await find(table, {
+                const row = await queries.findOne(table, {
                     query: o?.query,
                     serialize: row => constructor.serialize(row),
                 })
@@ -83,10 +84,10 @@ export function Model<Table extends keyof Database>(table: Table, primaryKey: ke
                 return row as any
             }
 
-            public static async findOrFail<T>(this: new () => T, o?: ModelListOptions<Table>): Promise<T> {
+            public static async findOneOrFail<T>(this: new () => T, o?: ModelListOptions<Table>): Promise<T> {
                 const constructor = this as any
 
-                const row = await findOrFail(table, {
+                const row = await queries.findOneOrFail(table, {
                     query: o?.query,
                     serialize: row => constructor.serialize(row),
                 })
@@ -96,30 +97,36 @@ export function Model<Table extends keyof Database>(table: Table, primaryKey: ke
                 return row as any
             }
 
-            public static async findById<T>(this: new () => T, id: any): Promise<T | undefined> {
-                return this.find({
-                    query: qb => (qb as any).where(primaryKey, '=', id).selectAll()
-                })
+            public static async find<T>(this: new () => T, id: any): Promise<T | null> {
+                const constructor = this as any
+
+                return queries.findOne(table,{
+                    serialize: row => constructor.serialize(row),
+                    where: (qb: any) => qb(primaryKey as string, '=', id)
+                }) as any
             }
 
-            public static async findByIdOrFail<T>(this: new () => T, id: any): Promise<T> {
-                return this.findOrFail({
-                    query: qb => (qb as any).where(primaryKey, '=', id).selectAll()
-                })
+            public static async findOrFail<T>(this: new () => T, id: any): Promise<T> {
+                const constructor = this as any
+
+                return queries.findOneOrFail(table, {
+                    serialize: row => constructor.serialize(row),
+                    where: (qb: any) => qb(primaryKey as string, '=', id)
+                }) as any
             }
 
             public static exists<T>(this: new () => T, o?: ModelListOptions<Table>): boolean {
-                return exists(table, { query: o?.query }) as any
+                return queries.exists(table, { query: o?.query }) as any
             }
 
             public static count<T>(this: new () => T, o?: ModelCountOptions<Table>): number {
-                return count(table, o) as any
+                return queries.count(table, o) as any
             }
 
             public static create<T>(this: new () => T, values: ModelCreateOptions<Table>['values']): T {
                 const constructor = this as any
 
-                return create(table, {
+                return queries.create(table, {
                     values: values,
                     serialize: row => constructor.serialize(row),
                 }) as any
@@ -128,7 +135,7 @@ export function Model<Table extends keyof Database>(table: Table, primaryKey: ke
             public static createMany<T>(this: new () => T, values: Array<ModelCreateOptions<Table>['values']>): T[] {
                 const constructor = this as any
 
-                return create(table, {
+                return queries.create(table, {
                     values: values as any[],
                     serialize: row => constructor.serialize(row),
                 }) as any
@@ -137,21 +144,21 @@ export function Model<Table extends keyof Database>(table: Table, primaryKey: ke
             public static update<T>(this: new () => T, o: ModelUpdateOptions<Table>): T[] {
                 const constructor = this as any
 
-                return update(table, {
-                    query: o.query,
+                return queries.update(table, {
+                    where: o.where,
                     values: o.values,
                     serialize: row => constructor.serialize(row),
                 }) as any
             }
 
             public static destroy<T>(this: new () => T, o?: ModelDestroyOptions<Table>): void {
-                return destroy(table, o) as any
+                return queries.destroy(table, o) as any
             }
 
             public static firstOrCreate<T>(this: new () => T, o: ModelFirstOrCreateOptions<Table>): T {
                 const constructor = this as any
 
-                return firstOrCreate(table, {
+                return queries.firstOrCreate(table, {
                     select: o.select,
                     values: o.values,
                     serialize: row => constructor.serialize(row),
@@ -161,7 +168,7 @@ export function Model<Table extends keyof Database>(table: Table, primaryKey: ke
             public static updateOrCreate<T>(this: new () => T, o: ModelUpdateOrCreateOptions<Table>): T {
                 const constructor = this as any
                  
-                return updateOrCreate(table, {
+                return queries.updateOrCreate(table, {
                     select: o.select,
                     update: o.update,
                     values: o.values,
@@ -170,20 +177,20 @@ export function Model<Table extends keyof Database>(table: Table, primaryKey: ke
             }
 
             public async save() {
-                await update(table, {
-                    where: qb => (qb as any).eb(primaryKey, '=', (this as any)[primaryKey]),
-                    values: this as any,
+                await queries.update(table, {
+                    where: (qb: any) => qb(primaryKey, '=', (this as any)[primaryKey]),
+                    values: omit(this as any, [primaryKey as string]),
                 })
             }
 
             public async destroy() {
-                await destroy(table, {
+                await queries.destroy(table, {
                     query: qb => (qb as any).where(primaryKey, '=', (this as any).id)
                 })
             }
 
             public async softDelete() {
-                const rows = await softDelete(table, {
+                const rows = await queries.softDelete(table, {
                     query: qb => (qb as any).where(primaryKey, '=', (this as any).id)
                 })
 

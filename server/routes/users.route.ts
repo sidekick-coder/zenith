@@ -37,7 +37,7 @@ router.post('/', async ({ body }) => {
 })
 
 router.get('/:id', async ({ params, acl }) => {
-    const user = await User.findByIdOrFail(Number(params.id))
+    const user = await User.findOrFail(Number(params.id))
 
     acl.authorize('read', user)
 
@@ -53,7 +53,7 @@ router.patch('/:id', async ({ params, acl, body }) => {
 
     const id = Number(params.id)
 
-    const user = await User.findByIdOrFail(Number(params.id))
+    const user = await User.findOrFail(id)
 
     acl.authorize('update', user)
 
@@ -64,7 +64,7 @@ router.patch('/:id', async ({ params, acl, body }) => {
     return user
 })
 
-router.put('/:id/password', async ({ params, body }) => {
+router.put('/:id/password', async ({ params, acl, body }) => {
     const payload = validator.validate(body, (v) => {
         const base  = v.object({
             currentPassword: v.string(),
@@ -83,15 +83,20 @@ router.put('/:id/password', async ({ params, body }) => {
             ))
     })
 
-    const user = await userRepository.find(Number(params.id))
+    const user = await User.findOrFail(Number(params.id))
+
+    acl.authorize('update', user)
     
     if (!user) {
         throw new BaseException('User not found', 404)
     }
 
-    await userRepository.update(Number(params.id), { password: payload.password })
+    await User.update({ 
+        where: qb => qb('id', '=', Number(params.id)),
+        values: { password: payload.password }
+    })
 
-    return { success: true, }
+    return { success: true }
 })
 
 router.delete('/:id', async ({ params }) => {
