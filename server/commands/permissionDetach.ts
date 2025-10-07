@@ -1,10 +1,5 @@
 import { program } from 'commander'
-import { create } from '#server/queries/create.ts'
-import Permission from '#shared/entities/permission.entity.ts'
-import { find } from '#server/queries/find.ts'
-import User from '#server/entities/user.entity.ts'
-import cli from '#server/services/cli.service.ts'
-import { findOrFail } from '#server/queries/findOrFail.ts'
+import { findOneOrFail } from '#server/queries/index.ts'
 import { destroy } from '#server/queries/destroy.ts'
 
 program.command('permission:detach')
@@ -16,12 +11,12 @@ program.command('permission:detach')
     .action(async (options) => {
         const { type, id, permissionId } = options
 
-        const assignment = await findOrFail('permissions_assignments', {
-            query: (qb) => qb
-                .selectAll()
-                .where('permission_id', '=', Number(permissionId))
-                .where('assignable_type', '=', type)
-                .where('assignable_id', '=', id.toString()),
+        const assignment = await findOneOrFail('permissions_assignments', {
+            where: (qb) => qb.and([
+                qb('permission_id', '=', Number(permissionId)),
+                qb('assignable_type', '=', type),
+                qb('assignable_id', '=', id.toString())
+            ]),
         })
 
         await destroy('permissions_assignments', {

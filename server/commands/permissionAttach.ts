@@ -1,10 +1,9 @@
 import { program } from 'commander'
 import { create } from '#server/queries/create.ts'
 import Permission from '#shared/entities/permission.entity.ts'
-import { find } from '#server/queries/find.ts'
-import User from '#server/entities/user.entity.ts'
+import { findOneOrFail } from '#server/queries/index.ts'
 import cli from '#server/services/cli.service.ts'
-import { findOrFail } from '#server/queries/findOrFail.ts'
+import User from '#server/entities/user.entity.ts'
 
 program.command('permission:attach')
     .helpGroup('permission')
@@ -15,14 +14,14 @@ program.command('permission:attach')
     .action(async (options) => {
         const { type, id, permissionId } = options
 
-        const permission = await find('permissions', {
+        const permission = await findOneOrFail('permissions', {
             serialize: Permission.from,
-            query: (qb) => {
+            where: (qb) => {
                 if (!Number.isInteger(parseInt(permissionId, 10))) {
-                    return qb.selectAll().where('name', '=', permissionId)
+                    return qb('name', '=', permissionId)
                 }
 
-                return qb.selectAll().where('id', '=', parseInt(permissionId, 10))
+                return qb('id', '=', parseInt(permissionId, 10))
             }
         })
 
@@ -32,24 +31,22 @@ program.command('permission:attach')
 
         // if user check if user exists
         if (type === 'user') {
-            await findOrFail('users', {
-                query: (qb) => qb.selectAll().where('id', '=', parseInt(id, 10))
-            })
+            await User.findByIdOrFail(Number(id))
         }
 
         // if role check if role exists
         if (type === 'role') {
-            await findOrFail('roles', {
-                query: (qb) => qb.selectAll().where('id', '=', parseInt(id, 10))
+            await findOneOrFail('roles', {
+                where: (qb) => qb('id', '=', Number(id))
             })
         }
 
-        const exists = await find('permissions_assignments', {
-            query: (qb) => qb
-                .selectAll()
-                .where('permission_id', '=', permission.id)
-                .where('assignable_type', '=', type)
-                .where('assignable_id', '=', id.toString()),
+        const exists = await findOneOrFail('permissions_assignments', {
+            where: (qb) => qb.and([
+                qb('permission_id', '=', permission.id),
+                qb('assignable_type', '=', type),
+                qb('assignable_id', '=', id.toString()),
+            ])
         })
 
         if (exists) {

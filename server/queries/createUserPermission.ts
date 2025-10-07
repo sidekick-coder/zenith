@@ -1,5 +1,5 @@
 import { lowerCase } from 'lodash-es'
-import { find } from './find.ts'
+import { findOne } from './findOne.ts'
 import { create } from './create.ts'
 import { firstOrCreate } from './firstOrCreate.ts'
 import Permission from '#shared/entities/permission.entity.ts'
@@ -21,12 +21,13 @@ export async function createUserPermission(userId: number, payload: Partial<Perm
         }
     })
 
-    let assignment = await find('permissions_assignments', {
-        query: (qb) => qb
-            .selectAll()
-            .where('permission_id', '=', permission.id)
-            .where('assignable_type', '=', 'user')
-            .where('assignable_id', '=', userId.toString())
+    let assignment = await findOne('permissions_assignments', {
+        where: (qb) => qb
+            .and([
+                qb('permission_id', '=', permission.id),
+                qb('assignable_type', '=', 'user'),
+                qb('assignable_id', '=', userId.toString())
+            ])
     })
 
     if (!assignment) {

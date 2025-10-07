@@ -1,20 +1,7 @@
 import { emitHook } from './hooks.mixin.ts'
 import type { UpdateOrCreateOptions } from '#modules/callory-tracker/root/server/queries/updateOrCreate.ts'
 import type { Database } from '#server/contracts/database.contract.ts'
-import { 
-    list,
-    paginate,
-    find,
-    findOrFail,
-    exists,
-    count,
-    create,
-    update,
-    destroy,
-    firstOrCreate, 
-    updateOrCreate,
-    softDelete
-} from '#server/queries/index.ts'
+import * as queries from '#server/queries/index.ts'
 
 import type { 
     ListOptions, 
@@ -111,13 +98,13 @@ export function Model<Table extends keyof Database>(table: Table, primaryKey: ke
 
             public static async findById<T>(this: new () => T, id: any): Promise<T | undefined> {
                 return this.find({
-                    query: qb => (qb as any).where(primaryKey, '=', id)
+                    query: qb => (qb as any).where(primaryKey, '=', id).selectAll()
                 })
             }
 
             public static async findByIdOrFail<T>(this: new () => T, id: any): Promise<T> {
                 return this.findOrFail({
-                    query: qb => (qb as any).where(primaryKey, '=', id)
+                    query: qb => (qb as any).where(primaryKey, '=', id).selectAll()
                 })
             }
 
@@ -184,7 +171,7 @@ export function Model<Table extends keyof Database>(table: Table, primaryKey: ke
 
             public async save() {
                 await update(table, {
-                    query: qb => (qb as any).where(primaryKey, '=', (this as any).id),
+                    where: qb => (qb as any).eb(primaryKey, '=', (this as any)[primaryKey]),
                     values: this as any,
                 })
             }

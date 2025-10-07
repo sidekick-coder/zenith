@@ -44,7 +44,7 @@ router.get('/:id', async ({ params, acl }) => {
     return user
 })
 
-router.patch('/:id', async ({ params, body }) => {
+router.patch('/:id', async ({ params, acl, body }) => {
     const payload = validator.validate(body, (v) => v.object({
         name: v.optional(v.string()),
         username: v.optional(v.string()),
