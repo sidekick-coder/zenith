@@ -91,10 +91,14 @@ async function destroy(id: number) {
             <div class="flex items-center gap-2">
                 <Button
                     variant="outline"
+                    size="icon"
                     :disabled="loading"
                     @click="load"
                 >
-                    {{ $t('Reload') }}
+                    <Icon
+                        name="RotateCcw"
+                        :class="{ 'animate-spin': loading }"
+                    />
                 </Button>
 
                 <PermissionDialog @submit="load" />

@@ -11,9 +11,12 @@ import ClientOnly from '#client/components/ClientOnly.vue'
 import Button from '#client/components/Button.vue'
 import Icon from '#client/components/Icon.vue'
 import AlertButton from '#client/components/AlertButton.vue'
+import type { ComponentExposed } from 'vue-component-type-helpers'
 
 const items = ref([])
 const page = ref(1)
+const loading = ref(false)
+const tableRef = ref<ComponentExposed<typeof DataTable>>()
 const deletingItems = ref<string[]>([])
 
 const columns = defineColumns([
@@ -41,21 +44,8 @@ const columns = defineColumns([
     { id: 'actions' }
 ])
 
-async function load(){
-    const [error, response] = await tryCatch(() => $fetch<any>('/api/users', {
-        method: 'GET',
-        query: {
-            page: page.value,
-            limit: 20,
-        },
-    }))
-
-    if (error) {
-        console.error('Failed to load users:', error)
-        return
-    }
-
-    items.value = response.data || []
+function load(){
+    tableRef.value?.load()
 }
 
 function reset() {
@@ -88,17 +78,29 @@ watch(page, load, { immediate: true })
             <h1 class="text-2xl font-bold mb-4 text-foreground flex-1">
                 {{ $t('Users') }}
             </h1>
-            <div>
+            <div class="flex items-center gap-2">
+                <Button
+                    variant="outline"
+                    size="icon"
+                    :disabled="loading"
+                    @click="load"
+                >
+                    <Icon
+                        name="RotateCcw"
+                        :class="{ 'animate-spin': loading }"
+                    />
+                </Button>
                 <ClientOnly>
                     <UserDialog @submit="reset" />
                 </ClientOnly>
             </div>
         </div>
 
-        <DataTable 
-            :rows="items"
-            :page="page"
+        <DataTable
+            ref="tableRef"
+            v-model:loading="loading"
             :columns="columns"
+            fetch="/api/users"
         >
             <template #row-actions="{ row }">
                 <div class="flex items-center gap-2 justify-end">

@@ -12,6 +12,7 @@ export async function count<T extends keyof Database, O extends CountOptions<T>>
         : db.selectFrom(table)
 
     const row = await (query as any)
+        .clearSelect()
         .select((eb: any) => eb.fn.countAll().as('count'))
         .executeTakeFirst()
 

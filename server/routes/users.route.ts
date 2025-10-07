@@ -6,16 +6,21 @@ import userRepository from '#server/repositories/user.repository.ts'
 import validator from '#shared/services/validator.service.ts'
 import { $t } from '#shared/lang.ts' 
 import schemas from '#shared/validators/index.ts'
+import User from '#server/entities/user.entity.ts'
 
 const router = rootRouter.use(authMiddleware)
     .prefix('/api/users')
     .group()
 
-router.get('/', async (ctx) => {
-    const page = ctx.query.page ? Number(ctx.query.page as string) : 1
-    const limit = ctx.query.limit ? Number(ctx.query.limit as string) : 10
+router.get('/', async ({ acl, query }) => {
+    acl.authorize('read', 'User')
 
-    return userRepository.paginate(page, limit)
+    const payload = validator.validate(query, schemas.pagination.schema)
+
+    return User.paginate({
+        page: payload.page,
+        limit: payload.limit,
+    })
 })
 
 router.post('/', async ({ body }) => {
@@ -31,12 +36,10 @@ router.post('/', async ({ body }) => {
     return user
 })
 
-router.get('/:id', async ({ params }) => {
-    const user = await userRepository.find(Number(params.id))
+router.get('/:id', async ({ params, acl }) => {
+    const user = await User.findByIdOrFail(Number(params.id))
 
-    if (!user) {
-        throw new BaseException('User not found', 404)
-    }
+    acl.authorize('read', user)
 
     return user
 })
@@ -50,18 +53,13 @@ router.patch('/:id', async ({ params, body }) => {
 
     const id = Number(params.id)
 
-    const user = await userRepository.find(id)
+    const user = await User.findByIdOrFail(Number(params.id))
 
-    if (!user) {
-        throw new BaseException('User not found', 404)
-    }
+    acl.authorize('update', user)
 
-    console.log('Updating user', {
-        id,
-        payload 
-    })
+    user.merge(payload)
 
-    await userRepository.update(id, payload)
+    await user.save()
 
     return user
 })

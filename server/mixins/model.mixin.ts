@@ -109,6 +109,18 @@ export function Model<Table extends keyof Database>(table: Table, primaryKey: ke
                 return row as any
             }
 
+            public static async findById<T>(this: new () => T, id: any): Promise<T | undefined> {
+                return this.find({
+                    query: qb => (qb as any).where(primaryKey, '=', id)
+                })
+            }
+
+            public static async findByIdOrFail<T>(this: new () => T, id: any): Promise<T> {
+                return this.findOrFail({
+                    query: qb => (qb as any).where(primaryKey, '=', id)
+                })
+            }
+
             public static exists<T>(this: new () => T, o?: ModelListOptions<Table>): boolean {
                 return exists(table, { query: o?.query }) as any
             }
