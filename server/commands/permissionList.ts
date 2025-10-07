@@ -2,6 +2,7 @@ import { program } from 'commander'
 import Permission from '#shared/entities/permission.entity.ts'
 import cli from '#server/services/cli.service.ts'
 import { list } from '#server/queries/list.ts'
+import db from '#server/facades/db.facade.ts'
 
 program.command('permission:list')
     .helpGroup('permission')
@@ -9,6 +10,8 @@ program.command('permission:list')
     .option('-t, --type <type>', 'Assignable type (user, role)')
     .option('-i, --id <id>', 'Assignable ID')
     .action(async (options) => {
+        await db.load()
+
         const { type, id } = options
 
         const permissions = await list('permissions', {
@@ -37,4 +40,6 @@ program.command('permission:list')
         })
 
         cli.ui.table(permissions)
+
+        await db.destroy()
     })

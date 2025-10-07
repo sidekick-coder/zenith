@@ -1,18 +1,12 @@
-import type { Selectable } from 'kysely'
-import type { SelectFrom } from './common.ts'
+import type { SelectFrom, SerializeOptions, SerializableResult } from './common.ts'
 import type { Database } from '#server/contracts/database.contract.ts'
 import db from '#server/facades/db.facade.ts'
 
-export interface ListOptions<T extends keyof Database> {
-    serialize?: (row: Selectable<Database[T]>) => any
+export interface ListOptions<T extends keyof Database>  extends SerializeOptions<T> {
     query?: (qb: SelectFrom<T>) => SelectFrom<T>
 }
 
-export type ListResult<T extends keyof Database, O extends ListOptions<T> | undefined> =
-    O extends undefined ? Selectable<Database[T]>[] :
-    O extends { serialize: (row: Selectable<Database[T]>) => infer R } ? R[] : Selectable<Database[T]>[]
-
-export async function list<T extends keyof Database, O extends ListOptions<T>>(table: T, options?: O): Promise<ListResult<T, O>> {
+export async function list<T extends keyof Database, O extends ListOptions<T>>(table: T, options?: O) {
     const query = options?.query 
         ? options.query(db.selectFrom(table)) 
         : db.selectFrom(table).selectAll()
@@ -23,5 +17,5 @@ export async function list<T extends keyof Database, O extends ListOptions<T>>(t
         rows = rows.map(options.serialize)
     }
 
-    return rows as ListResult<T, O>
+    return rows as SerializableResult<T, O>[]
 }

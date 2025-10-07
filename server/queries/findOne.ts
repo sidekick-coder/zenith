@@ -9,10 +9,10 @@ export interface FindOneOptions<T extends keyof Database> extends SerializeOptio
 }
 
 export async function findOne<T extends keyof Database, O extends FindOneOptions<T>>(table: T, options?: O) {
-    const query = db.selectFrom(table).selectAll() as any
+    let query = db.selectFrom(table).selectAll() as any
 
     if (options?.where) {
-        query.where((eb: any) => options.where!(eb))
+        query = query.where((eb: any) => options.where!(eb)) as any
     }
 
     const row: any = await query.limit(1).executeTakeFirst()

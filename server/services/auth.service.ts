@@ -109,7 +109,6 @@ export default class AuthService {
 
         const user = User.from(row)
 
-        await user.loadRoles()
         await user.loadPermissions()
 
         return user
