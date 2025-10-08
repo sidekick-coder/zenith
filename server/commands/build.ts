@@ -3,5 +3,5 @@ import build from '#server/services/build.service.ts'
 
 program.command('build')
     .action(async () => {
-        await build.all()
+        await build.build()
     })

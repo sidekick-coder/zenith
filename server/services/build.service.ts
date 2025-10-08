@@ -41,8 +41,11 @@ export class BuildService {
 
         await viteBuild({ build: { outDir: storagePath('tmp/dist/client') } })
 
-        await fs.promises.rm(storagePath('dist'), { recursive: true })
-        await fs.renameSync(storagePath('tmp/dist'), storagePath('dist'))
+        if (fs.existsSync(storagePath('dist'))) {
+            await fs.promises.rm(storagePath('dist'), { recursive: true })
+        }
+
+        await fs.promises.rename(storagePath('tmp/dist'), storagePath('dist'))
 
         logger.info('build completed')
     }
