@@ -28,6 +28,12 @@ router.get('/:id', async ({ params }) => {
     return driveData
 })
 
+router.post('/generate-defaults', async () => {
+    await drive.createDefaultDrives()
+
+    return { message: 'Default drives created' }
+})
+
 router.get('/:id/files', async ({ params, query }) => {
     const current = drive.use(params.id)
 

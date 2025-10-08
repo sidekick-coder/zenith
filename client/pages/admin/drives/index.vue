@@ -7,18 +7,28 @@ import AppLayout from '#client/layouts/AppLayout.vue'
 import Button from '#client/components/Button.vue'
 import Icon from '#client/components/Icon.vue'
 import type { Drive } from '#client/types.ts'
+import { $fetch } from '#client/utils/fetcher.ts'
+import { toast } from 'vue-sonner'
+import AlertButton from '#client/components/AlertButton.vue'
+import Switch from '#client/components/ui/switch/Switch.vue'
 
 const items = ref<Drive[]>([])
 const loading = ref(false)
+const generating = ref(false)
 
 const tableRef = ref<ComponentExposed<typeof DataTable<Drive>>>()
 
 const columns = defineColumns<Drive>([
     {
+        id: 'default',
+        label: 'Default',
+        width: 120,
+    },
+    {
         id: 'id',
         label: 'ID',
         field: 'id',
-        width: 50,
+        width: 120,
     },
     {
         id: 'name',
@@ -37,8 +47,24 @@ async function load(){
     await tableRef.value?.load()
 }
 
-function reset() {
-    return tableRef.value?.reset()
+async function generateDefaults(){
+    generating.value = true
+
+    const [error] = await $fetch.try('/api/drives/generate-defaults', {
+        method: 'POST'
+    })
+
+    if (error) {
+        generating.value = false
+        return
+    }
+
+    setTimeout(() => {
+        generating.value = false
+        toast.success($t('Default drives created'))    
+        load()
+    }, 1000)
+
 }
 </script>
 <template>
@@ -48,6 +74,13 @@ function reset() {
                 {{ $t('Drives') }}
             </h1>
             <div class="flex items-center gap-2">
+                <AlertButton
+                    variant="outline"
+                    :loading="generating"
+                    @confirm="generateDefaults"
+                >
+                    {{ $t('Generate Default Drives') }}
+                </AlertButton>
                 <Button
                     variant="outline"
                     size="icon"
@@ -69,6 +102,15 @@ function reset() {
             :columns="columns"
             fetch="/api/drives"
         >
+
+            <template #row-default="{ row }">
+                <div class="flex items-center justify-start h-full">
+                    <Switch
+                        :model-value="!!row.default"
+                    />
+                </div>
+            </template>
+
             <template #row-actions="{ row }">
                 <div class="flex items-center gap-2 justify-end">
                     <Button

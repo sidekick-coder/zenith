@@ -20,6 +20,7 @@ interface CreatePayload {
 export default class DriveService {
     private drives: Map<string, DriveContract> = new Map()
     public selected?: string
+    public defaultDrive?: string
 
     public get current() {
         if (!this.selected) return undefined 
@@ -38,8 +39,11 @@ export default class DriveService {
         }
     }
 
-    public listDrives(): (DriveContract & { id: string })[] {
-        return Array.from(this.drives.values())
+    public listDrives(): (DriveContract & { default: boolean })[] {
+        return Array.from(this.drives.values()).map(drive => ({
+            ...drive,
+            default: drive.id === this.defaultDrive
+        }))
     }
     
     public get(name?: string) {
@@ -121,7 +125,7 @@ export default class DriveService {
         }
 
         if (typeof payload === 'number') {
-            const file = await File.findOrFail({
+            const file = await File.findOneOrFail({
                 query: qb => qb.selectAll()
                     .where('id', '=', payload)
                     .where(undeleted),
@@ -184,13 +188,14 @@ export default class DriveService {
 
         for (const [id, item] of Object.entries<any>(items)) {
             if (item.driver === 'filesystem') {
-                const drive = new FilesystemDrive(id, item)
+                const drive = new FilesystemDrive(id, item) as any
                 
                 this.drives.set(id, drive)
+            }
 
-                if (item.default) {
-                    this.selected = id
-                }
+            if (item.default) {
+                this.selected = id
+                this.defaultDrive = id
             }
         }
     }
@@ -232,5 +237,7 @@ export default class DriveService {
             "name": "Root",
             "description": "Root directory"
         })
+
+        this.load()
     }
 }
