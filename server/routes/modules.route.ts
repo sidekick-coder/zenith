@@ -21,9 +21,11 @@ router.get('/:id', ({ params }) => {
 })
 
 router.post('/:id/toggle', async ({ params }) => {
-    await modules.toggle(params.id, { build: env.isProduction })
+    await modules.toggle(params.id)
 
     await build.build()
+
+    await build.reloadServer()
 })
 
 router.post('/:id/migrate', async ({ params }) => {

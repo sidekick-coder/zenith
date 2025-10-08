@@ -2,8 +2,6 @@ import fs from 'fs'
 import path from 'path'
 import { spawn } from 'child_process'
 import rootLogger from '../facades/logger.facade.ts'
-import build from './build.service.ts'
-import bootService from './boot.service.ts'
 import config from '#server/facades/config.facade.ts'
 import {
     basePath,
@@ -180,7 +178,7 @@ export class ModulesService {
         }
     }
 
-    public async enable(moduleName: string, options: Options = {}) {
+    public async enable(moduleName: string) {
         const mod = await this.find(moduleName)
 
         if (!mod) {
@@ -194,20 +192,12 @@ export class ModulesService {
 
         await this.createModuleRuntimeFiles(mod)
 
-        if (options?.build) {
-            await build.all()
-        }
-
-        if (options?.boot) {
-            await bootService.boot()
-        }
-
         config.set(`modules.enabled.${moduleName}`, true)
 
         logger.info(`module ${moduleName} enabled`)
     }
 
-    public async disable(moduleName: string, options: Options = {}) {
+    public async disable(moduleName: string) {
         const mod = await this.findOrFail(moduleName)
 
         if (!mod.enabled) {
@@ -217,25 +207,17 @@ export class ModulesService {
 
         await this.removeModuleRuntimeFiles(mod)
 
-        if (options?.build) {
-            await build.all()
-        }
-
-        if (options?.boot) {
-            await bootService.boot()
-        }
-
         config.set(`modules.enabled.${moduleName}`, false)
 
         logger.info(`module ${moduleName} disabled`)
     }
 
-    public async toggle(moduleName: string, options: Options = {}) {
+    public async toggle(moduleName: string) {
         if (config.get(`modules.enabled.${moduleName}`)) {
-            return this.disable(moduleName, options)
+            return this.disable(moduleName)
         }
 
-        return await this.enable(moduleName, options)
+        return await this.enable(moduleName)
     }
 
     public async prepare(moduleName: string) {
