@@ -1,7 +1,7 @@
 import { randomBytes } from 'crypto'
 import db from '#server/facades/db.facade.ts'
 import { create } from '#server/queries/index.ts'
-import normalizers from '#server/normalizers/index.ts'
+import { tryCatch } from '#shared/utils/tryCatch.ts'
 
 export interface Token {
     id: number
@@ -59,12 +59,13 @@ export default class TokenService {
      * Find a token by its value
      */
     async findToken(tokenValue: string): Promise<Token | null> {
-        const result = await db.selectFrom('tokens')
+        const [error, result] = await tryCatch(() => db.selectFrom('tokens')
             .selectAll()
             .where('token', '=', tokenValue)
             .executeTakeFirst()
+        )
 
-        if (!result) {
+        if (error || !result) {
             return null
         }
 

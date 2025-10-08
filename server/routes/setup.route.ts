@@ -7,6 +7,7 @@ import { tryCatch } from '#shared/utils/tryCatch.ts'
 import db from '#server/facades/db.facade.ts'
 import {  createUser } from '#server/queries/index.ts'
 import { createUserPermission } from '#server/queries/createUserPermission.ts'
+import { serverPath } from '#server/utils/paths.ts'
 
 const router = root.prefix('/api/setup').group()
 
@@ -47,7 +48,7 @@ router.post('/database', async ({ body }) => {
 
     const [error] = await tryCatch(async () => {
         await db.load('default')
-        await migrator.latestOrFail()
+        await migrator.migrateFolder(serverPath('migrations'))
     })
 
     if (error) {

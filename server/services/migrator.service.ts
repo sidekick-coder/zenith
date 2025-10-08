@@ -19,7 +19,8 @@ interface MigrationResult {
     filename: string;
     module: string | null;
     result: 'success' | 'failed';
-    error?: string;
+    errorMessage?: string;
+    error?: any;
 }
 
 export default class MigratorService {
@@ -128,7 +129,7 @@ export default class MigratorService {
                 filename: fileName,
                 module: null,
                 result: 'failed',
-                error: `Migration ${fileName} not found`
+                errorMessage: `Migration ${fileName} not found`
             }
         }
 
@@ -162,7 +163,8 @@ export default class MigratorService {
                 filename: migration.name,
                 module: migration.module,
                 result: 'failed',
-                error: error instanceof Error ? error.message : String(error)
+                errorMessage: error instanceof Error ? error.message : String(error),
+                error
             }
         }
     }

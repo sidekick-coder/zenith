@@ -1,6 +1,6 @@
-import { MysqlDialect, SqliteDialect } from 'kysely'
+import { MysqlDialect, PostgresDialect, SqliteDialect } from 'kysely'
 import type { Dialect, KyselyConfig, } from 'kysely'
-import { Kysely, sql } from 'kysely'
+import { Kysely } from 'kysely'
 import SQLite from 'better-sqlite3'
 import rootLogger from '../facades/logger.facade.ts'
 import type { Database } from '../contracts/database.contract.ts'
@@ -11,7 +11,6 @@ import { Pool } from 'pg'
 import { basePath } from '#server/utils/paths.ts'
 import validator from '#shared/services/validator.service.ts'
 import schemas from '#shared/validators/index.ts'
-import { tryCatch } from '#shared/utils/tryCatch.ts'
 
 // In-memory SQLite dialect for initialization
 // This is used to create the Kysely instance before loading the actual database connection
@@ -80,6 +79,21 @@ export default class DatabaseService extends Kysely<Database> {
 
             dialect = new MysqlDialect({ 
                 pool: async () => pool as any,
+            })
+        }
+
+        if (connection.driver === 'postgresql') {
+            const pool = new Pool(validator.validate(connection, schemas.connection.postgresql))
+
+            try {
+                const client = await pool.connect()
+                client.release()
+            } catch (error: any) {
+                throw new Error(`Failed to connect to PostgreSQL database: ${error.message}`)
+            }
+
+            dialect = new PostgresDialect({ 
+                pool: pool,
             })
         }
 
