@@ -24,17 +24,20 @@ router.get('/', async ({ acl, query }) => {
             .orderBy('id', 'desc'),
     })
 
-    // const permissions = await list('permissions', {
-    //     serialize: Permission.from,
-    //     query: qb => qb.selectAll()
-    //         .where(undeleted)
-    //         .where('id', 'in', pagination.items.map(i => Number(i.permission_id)))
-    // })
+    if (!pagination.items.length) {
+        return pagination
+    }
 
-    // const items = pagination.items.map(item => ({
-    //     ...item,
-    //     permission: permissions.find(p => p.id === item.permission_id) || null,
-    // }))
+    const permissions = await list('permissions', {
+        serialize: Permission.from,
+        query: qb => qb.selectAll()
+            .where(undeleted)
+            .where('id', 'in', pagination.items.map(i => Number(i.permission_id)))
+    })
+
+    pagination.items.map(item => {
+        item.permission = permissions.find(p => p.id === item.permission_id)
+    })
 
     return pagination
 })

@@ -42,16 +42,6 @@ const { handleSubmit, values } = useForm({
             type: v.picklist(types.map(t => t.value), $t('Database Type')),
             options: v.any()
         })),
-        initialValues: {
-            type: 'mysql',
-            options: {
-                database: 'zenith',
-                host: 'localhost',
-                port: 3306,
-                user: 'root',
-                password: 'docker',
-            }
-        }
 })
 
 
