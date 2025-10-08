@@ -183,9 +183,9 @@ const onSubmit = handleSubmit(async (data) => {
                         autocomplete="off"
                     />
                     <FormTextField
-                        name="options.username"
+                        name="options.user"
                         type="text"
-                        :label="$t('Username')"
+                        :label="$t('User')"
                         placeholder="postgres"
                         autocomplete="off"
                     />
