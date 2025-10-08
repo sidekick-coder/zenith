@@ -217,7 +217,7 @@ export default class DriveService {
         return entity
     }
 
-    public createDefaulDrives(){
+    public createDefaultDrives(){
         config.set('drive.disks.storage', {
             "driver": "filesystem",
             "default": true,
