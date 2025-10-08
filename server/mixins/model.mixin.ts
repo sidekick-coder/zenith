@@ -1,5 +1,5 @@
 import { emitHook } from './hooks.mixin.ts'
-import type { UpdateOrCreateOptions } from '#modules/callory-tracker/root/server/queries/updateOrCreate.ts'
+import type { UpdateOrCreateOptions } from '#server/queries/updateOrCreate.ts'
 import type { Database } from '#server/contracts/database.contract.ts'
 import * as queries from '#server/queries/index.ts'
 import { omit } from 'lodash-es'
