@@ -136,7 +136,7 @@ export function Model<Table extends keyof Database>(table: Table, primaryKey: ke
                 const constructor = this as any
 
                 return queries.create(table, {
-                    values: values as any[],
+                    values: values as any,
                     serialize: row => constructor.serialize(row),
                 }) as any
             }
