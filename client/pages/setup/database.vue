@@ -16,8 +16,6 @@ import FormTextField from '#client/components/FormTextField.vue'
 import CardContent from '#client/components/ui/card/CardContent.vue'
 import { $t } from '#shared/lang.ts'
 import FormSelect from '#client/components/FormSelect.vue'
-import { syncRefs, useLocalStorage } from '@vueuse/core'
-
 const isLoading = ref(false)
 const isTestLoading = ref(false)
 
