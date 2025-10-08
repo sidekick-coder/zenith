@@ -9,4 +9,5 @@ onMounted(() => {
 </script>
 <template>
     <slot v-if="show" />
+    <slot name="fallback" v-else />
 </template>

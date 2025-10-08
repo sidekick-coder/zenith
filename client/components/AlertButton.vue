@@ -12,6 +12,9 @@ import {
     AlertDialogTrigger,
 } from '#client/components/ui/alert-dialog'
 import { $t } from '#shared/lang.ts'
+import ClientOnly from './ClientOnly.vue';
+
+defineOptions({ inheritAttrs: false })
 
 defineProps({
     title: {
@@ -31,25 +34,32 @@ const emit = defineEmits<{
 </script>
 
 <template>
-    <AlertDialog>
-        <AlertDialogTrigger>
+    <ClientOnly>
+        <template #fallback>
             <Button v-bind="$attrs">
                 <slot />
             </Button>
-        </AlertDialogTrigger>
-        <AlertDialogContent>
-            <AlertDialogHeader>
-                <AlertDialogTitle>{{ title }}</AlertDialogTitle>
-                <AlertDialogDescription>
-                    {{ description }}
-                </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-                <AlertDialogCancel>{{ $t('Cancel') }}</AlertDialogCancel>
-                <AlertDialogAction @click="emit('confirm')">
-                    {{ $t('Confirm') }}
-                </AlertDialogAction>
-            </AlertDialogFooter>
-        </AlertDialogContent>
-    </AlertDialog>
+        </template>
+        <AlertDialog>
+            <AlertDialogTrigger>
+                <Button v-bind="$attrs">
+                    <slot />
+                </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+                <AlertDialogHeader>
+                    <AlertDialogTitle>{{ title }}</AlertDialogTitle>
+                    <AlertDialogDescription>
+                        {{ description }}
+                    </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                    <AlertDialogCancel>{{ $t('Cancel') }}</AlertDialogCancel>
+                    <AlertDialogAction @click="emit('confirm')">
+                        {{ $t('Confirm') }}
+                    </AlertDialogAction>
+                </AlertDialogFooter>
+            </AlertDialogContent>
+        </AlertDialog>
+    </ClientOnly>
 </template>
