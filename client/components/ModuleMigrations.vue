@@ -23,12 +23,12 @@ const loading = ref(false)
 
 const columns = [
     {
-        accessorKey: 'name',
-        header: 'Name',
+        field: 'name',
+        label: 'Name',
     },
     {
-        accessorKey: 'status',
-        header: 'Status',
+        field: 'status',
+        label: 'Status',
     },
 ]
 
@@ -116,6 +116,6 @@ async function rollback() {
         :rows="migrations"
         :columns="columns"
         :loading="loading"
-        class="border-x-0 rounded-0"
+        class="border-x-0 rounded-none"
     />
 </template>
