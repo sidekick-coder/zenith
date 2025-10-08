@@ -6,17 +6,22 @@ import db from '#server/facades/db.facade.ts'
 export interface UpdateOptions<T extends keyof Database> extends SerializeOptions<T> {
     values: Updateable<Database[T]>
     where?: (qb: ExpressionBuilder<Database, T>) => ExpressionWrapper<Database, T, any>
+    query?: (qb: UpdateFrom<T>) => UpdateFrom<T>
 }
 
 export async function updateDefault<T extends keyof Database, O extends UpdateOptions<T>>(table: T, options?: O) {
     const values = options?.values || []
-    const updateQb = db.updateTable(table) as any
+    let query = db.updateTable(table) as any
 
-    if (options?.where) {
-        updateQb.where((eb: any) => options.where!(eb))
+    if (options?.query) {
+        query = options.query(query)
     }
 
-    let rows: any[] = await updateQb.set(values).returningAll()
+    if (options?.where) {
+        query = query.where((eb: any) => options.where!(eb))
+    }
+
+    let rows: any[] = await query.set(values).returningAll()
         .execute()
 
     if (options?.serialize) {
