@@ -5,9 +5,10 @@ import { $t } from '#shared/lang.ts'
 import migrator from '#server/facades/migrator.facade.ts'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
 import db from '#server/facades/db.facade.ts'
+import drive from '#server/facades/drive.facade.ts'
 import {  createUser } from '#server/queries/index.ts'
 import { createUserPermission } from '#server/queries/createUserPermission.ts'
-import { serverPath } from '#server/utils/paths.ts'
+import { serverPath, generateKey } from '#server/utils/index.ts'
 
 const router = root.prefix('/api/setup').group()
 
@@ -84,7 +85,10 @@ router.post('/user', async ({ body }) => {
         subject: 'all'
     })
 
+    drive.createDefaultDrives()
+
     config.set('setup.user', true)
+    config.set('app.key', generateKey(32))
 
     return { status: 200, }
 })
