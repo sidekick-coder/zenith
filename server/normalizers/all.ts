@@ -1,25 +1,24 @@
 import * as  datetime from './datetime.ts'
 
-export function toDb(value: any) {
-    if (value === null || value === undefined) {
-        return value
+export function toDb(payload: Record<string, any>) {
+
+    const result = { ...payload }
+
+    for (const key in result) {
+        if (result[key] instanceof Date) {
+            result[key] = datetime.toDb(result[key])
+        }
     }
 
-    if (value instanceof Date) {
-        return datetime.toDb(value)
-    }
-
-    return value
+    return result
 }
 
-export function fromDb(value: any) {
-    if (value === null || value === undefined) {
-        return value
+export function fromDb(value: Record<string, any>) {
+    const result = { ...value }
+
+    for (const key in result) {
+        // result[key] = parseValue(result[key])
     }
 
-    if (typeof value === 'string' && !isNaN(Date.parse(value))) {
-        return datetime.fromDb(value)
-    }
-
-    return value
+    return result
 }
