@@ -19,7 +19,6 @@ export default class CookieService extends Base {
     public set(_name: string, _value: string) {
         const opts: CookieOptions = {
             httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
         }
 
         this.response.cookie(_name, _value, opts)
