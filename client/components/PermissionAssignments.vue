@@ -160,14 +160,14 @@ async function detachAndDelete(item: PermissionAssignment, permission: Permissio
 </script>
 <template>
     <Card>
-        <CardHeader class="flex items-center justify-between">
+        <CardHeader class="flex flex-col md:flex-row items-center justify-between">
             <div>
                 <CardTitle>{{ $t('Permissions') }}</CardTitle>
                 <CardDescription>
                     {{ $t('Manage permissions and access levels.') }}
                 </CardDescription>
             </div>
-            <div class="flex items-center gap-2">
+            <div class="flex  items-center gap-2">
                 <Button
                     variant="outline"
                     :disabled="loading"
@@ -195,12 +195,12 @@ async function detachAndDelete(item: PermissionAssignment, permission: Permissio
                 :fetch="url"
             >
                 <template #row-name="{ row }">
-                    <div class="font-medium">
+                    <div class="font-medium truncate">
                         {{ row.permission?.name }}
                     </div>
                     <small
                         v-if="row.permission?.description"
-                        class="text-xs text-muted-foreground"
+                        class="text-xs text-muted-foreground "
                     >
                         {{ row.permission?.description || '-' }}
                     </small>

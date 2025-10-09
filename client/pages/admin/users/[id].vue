@@ -92,7 +92,6 @@ onMounted(load)
                     v-for="t in tabs"
                     :key="t.id"
                     :value="t.id"
-                    class="min-w-60"
                 >
                     {{ t.label }}
                 </TabsTrigger>
