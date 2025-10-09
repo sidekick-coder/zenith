@@ -24,10 +24,10 @@ program.command('table:list')
             return
         }
 
-        response.forEach((table) => {
-            console.log(table.name)
+        const items = response.map(r => ({
+            name: r.name,
+            columns: r.columns.map(c => c.name).join(', '),
+        }))
 
-            cli.ui.table(table.columns)
-        })
-
+        cli.ui.table(items)
     })
