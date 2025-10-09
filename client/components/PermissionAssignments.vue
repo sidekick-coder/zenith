@@ -27,6 +27,7 @@ import DataTable from '#client/components/DataTable.vue'
 import PermissionDialog from '#client/components/PermissionDialog.vue'
 import ObjectInspect from '#client/components/ObjectInspect.vue'
 import Permission from '#shared/entities/permission.entity.ts'
+import { $acl } from '#client/composables/useAcl.ts'
 
 const TypedDataTable = DataTable as typeof DataTable<PermissionAssignment>
 
@@ -229,7 +230,7 @@ async function detachAndDelete(item: PermissionAssignment, permission: Permissio
                 <template #row-actions="{ row }">
                     <div class="flex items-center gap-2 justify-end">
                         <PermissionDialog
-                            v-if="row.permission?.editable"
+                            v-if="row.permission && $acl.can('update', 'Permission', row.permission)"
                             :permission="row.permission"
                             @submit="load"
                         >
