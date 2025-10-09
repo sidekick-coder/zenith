@@ -13,9 +13,14 @@ import {
     TableHeader,
     TableRow,
 } from '#client/components/ui/table'
+import {
+    Card,
+    CardContent,
+} from '#client/components/ui/card'
 import { cn } from '#client/lib/utils.ts'
 import type Pagination from '#shared/entities/pagination.entity.ts'
 import { $fetch } from '#client/utils/fetcher.ts'
+import { useBreakpoints } from '#client/composables/useBreakpoint.ts'
 
 export interface DataTableFetchParams {
     page: number
@@ -27,6 +32,7 @@ export interface DataTableColumn<T extends Record<string, any> = any> {
     label?: string
     field?: keyof T | ((row: T) => any)
     width?: number
+    cardClass?: string
 }
 
 interface DataTableFetchCallback {
@@ -92,6 +98,8 @@ interface Slots {
 
 defineSlots<Slots>()
 
+
+
 const selected = defineModel('selected', {
     type: Array as () => T[],
     default: () => ([]),
@@ -106,6 +114,15 @@ const loading = defineModel('loading', {
     type: Boolean,
     default: false,
 })
+
+const breakpoint = defineModel<'sm' | 'md' | 'lg' | 'xl' | '2xl'>('breakpoint', {
+    type: String as PropType<'sm' | 'md' | 'lg' | 'xl' | '2xl'>,
+    default: 'sm',
+})
+
+const breakpoints = useBreakpoints()
+
+const shouldBreak = breakpoints.smaller(breakpoint)
 
 function findKey(row: any) {
     if (typeof props.rowKey === 'function') {
@@ -301,7 +318,9 @@ defineExpose({
 </script>
 
 <template>
+    <!-- Desktop Table View -->
     <Table
+        v-if="!shouldBreak"
         :wrapper-class="cn('border rounded-lg', props.class, loading ? 'opacity-50 pointer-events-none' : '')"
         v-bind="$attrs"
     >
@@ -393,6 +412,93 @@ defineExpose({
             </TableRow>
         </TableBody>
     </Table>
+
+    <!-- Mobile Card View -->
+    <div
+        v-if="shouldBreak"
+        :class="cn('space-y-4', props.class, loading ? 'opacity-50 pointer-events-none' : '')"
+        v-bind="$attrs"
+    >
+        <!-- Loading indicator -->
+        <div
+            v-if="loading"
+            class="h-1 bg-primary w-full animate-pulse rounded"
+        />
+
+        <!-- Select all checkbox for mobile -->
+        <Card
+            v-if="props.selection === 'multiple' && rows.length > 0"
+            class="py-2"
+        >
+            <CardContent class="flex items-center gap-2">
+                <Checkbox
+                    :model-value="selected.length === rows.length && rows.length > 0"
+                    :indeterminate="selected.length > 0 && selected.length < rows.length"
+                    @click.stop="toggleAll"
+                />
+                <span class="text-sm text-muted-foreground">
+                    {{ $t('Select all') }}
+                </span>
+            </CardContent>
+        </Card>
+
+        <!-- Empty state -->
+        <Card v-if="!loading && rows.length === 0">
+            <CardContent class="text-center py-8">
+                {{ $t('No data available') }}
+            </CardContent>
+        </Card>
+
+        <!-- Cards -->
+        <Card
+            v-for="row in rows"
+            :key="row.id"
+            :data-state="isSelected(row) ? 'selected' : undefined"
+            :class="cn(
+                'cursor-pointer transition-colors hover:bg-muted/20',
+                isSelected(row) ? 'border-primary bg-primary/5' : '',
+                props.rowClass
+            )"
+            @click="onClick(row)"
+            @dblclick="emit('dblclick:row', row.original)"
+        >
+            <CardContent class="p-0">
+                <div class="flex items-start gap-2">
+                    <Checkbox
+                        v-if="props.selection"
+                        class="mt-1"
+                        :model-value="isSelected(row)"
+                        @click.stop="toggle(row)"
+                    />
+                    <div class="w-full">
+                        <div
+                            v-for="c in columns"
+                            :key="c.id"
+                            :class="cn('space-x-4 flex justify-between items-center border-b px-4 py-3 last:border-b-0', c.cardClass)"
+                        >
+                            <div class="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                                <slot
+                                    :name="`header-${c.id}`"
+                                    :column="c"
+                                >
+                                    {{ c.label }}
+                                </slot>
+                            </div>
+                            <slot
+                                :name="`row-${c.id}`"
+                                :column="c"
+                                :row="row"
+                            >
+                                <div class="text-sm font-medium truncate block max-w-[40%]">
+                                     {{ findValue(row, c) }}
+                                </div>
+                            </slot>
+                        </div>
+                    </div>
+                </div>
+            </CardContent>
+        </Card>
+    </div>
 
     <DataTablePagination
         v-if="totalPages > 1"
