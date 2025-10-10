@@ -366,19 +366,8 @@ defineExpose({
             </TableRow>
         </TableHeader>
         <TableBody>
-            <TableRow v-if="loading">
-                <TableCell
-                    :colspan="columns.length + (props.selection ? 1 : 0)"
-                    class="text-center"
-                    :style="{
-                         height: 'var(--datatable-td-height, 3rem)'
-                    }"
-                >
-                    {{ $t('Loading...') }}
-                </TableCell>
-            </TableRow>
 
-            <TableRow v-else-if="rows.length === 0">
+            <TableRow v-if="rows.length === 0">
                 <TableCell
                     :colspan="columns.length + (props.selection ? 1 : 0)"
                     class="text-center"
@@ -386,7 +375,7 @@ defineExpose({
                          height: 'var(--datatable-td-height, 3rem)'
                     }"
                 >
-                    {{ $t('No data available') }}
+                    {{ loading ? $t('Loading...') : $t('No data available') }}
                 </TableCell>
             </TableRow>
 
