@@ -1,8 +1,8 @@
+import { omit } from 'lodash-es'
 import { emitHook } from './hooks.mixin.ts'
 import type { UpdateOrCreateOptions } from '#server/queries/updateOrCreate.ts'
 import type { Database } from '#server/contracts/database.contract.ts'
 import * as queries from '#server/queries/index.ts'
-import { omit } from 'lodash-es'
 
 import type { 
     ListOptions, 
@@ -147,6 +147,16 @@ export function Model<Table extends keyof Database>(table: Table, primaryKey: ke
                 return queries.update(table, {
                     where: o.where,
                     values: o.values,
+                    serialize: row => constructor.serialize(row),
+                }) as any
+            }
+
+            public static updateById<T>(this: new () => T, id: any, values: ModelUpdateOptions<Table>['values']): Promise<T> {
+                const constructor = this as any
+
+                return queries.update(table, {
+                    where: (qb: any) => qb(primaryKey as string, '=', id),
+                    values: values,
                     serialize: row => constructor.serialize(row),
                 }) as any
             }
