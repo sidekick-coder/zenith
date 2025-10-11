@@ -1,6 +1,7 @@
 import fs from 'fs'
 import { randomUUID } from 'crypto'
 import mime from 'mime'
+import path from 'path'
 import { undeleted } from '#server/queries/index.ts'
 import type DriveContract from '#server/contracts/drive.contract.ts'
 import DriveEntry from '#shared/entities/driveEntry.entity.ts'
@@ -9,7 +10,7 @@ import config from '#server/facades/config.facade.ts'
 import FilesystemDrive from '#server/gateways/filesystemDrive.gateway.ts'
 import File from '#server/entities/file.entity.ts'
 import type { DriveUrlOptions } from '#server/contracts/drive.contract.ts'
-import { storagePath } from '#server/utils/paths.ts'
+import { storagePath, tmpPath } from '#server/utils/paths.ts'
 
 interface CreatePayload {
     file: Express.Multer.File
@@ -221,6 +222,78 @@ export default class DriveService {
             
         return entity
     }
+
+    public async createFileFromLocal(localFilePath: string, metadata?: Record<string, any>) {
+        // Check if file exists
+        const fileExists = await fs.promises.access(localFilePath, fs.constants.F_OK)
+            .then(() => true)
+            .catch(() => false)
+        
+        if (!fileExists) {
+            throw new BaseException(`File not found: ${localFilePath}`)
+        }
+
+        // Get file stats and extract original name
+        const stats = await fs.promises.stat(localFilePath)
+        const originalName = path.basename(localFilePath)
+        
+        if (!stats.isFile()) {
+            throw new BaseException(`Path is not a file: ${localFilePath}`)
+        }
+
+        // Determine mimetype
+        const mimetype = mime.getType(originalName)
+        const ext = mime.getExtension(mimetype || '') || originalName.split('.').pop()
+        
+        // Generate unique filename for storage
+        const filename = randomUUID() + (ext ? `.${ext}` : '')
+        
+        // Upload to drive
+        await this.upload(localFilePath, filename)
+        
+        // Create file entity
+        const entity = await File.create({
+            client_name: originalName,
+            drive: this.selected!,
+            mimetype: mimetype || 'application/octet-stream',
+            metadata: metadata ? JSON.stringify(metadata) : null,
+            filename: filename,
+        })
+        
+        return entity
+    }
+
+    public async createFileFromUrl(fileUrl: string, drive?: string, metadata?: Record<string, any>) {
+        // Download the file from URL
+        const response = await fetch(fileUrl)
+        
+        if (!response.ok) {
+            throw new BaseException(`Failed to download file from URL: ${response.statusText}`)
+        }
+
+        const buffer = await response.arrayBuffer()
+        const uint8Array = new Uint8Array(buffer)
+
+        // Extract filename from URL or generate a random one
+        const urlPath = new URL(fileUrl).pathname
+        const originalName = path.basename(urlPath) || `download-${randomUUID()}`
+        
+        // Determine mimetype
+        const contentType = response.headers.get('content-type')
+        const mimetype = contentType || mime.getType(originalName)
+        const ext = mime.getExtension(mimetype || '') || originalName.split('.').pop()
+        
+        // Generate unique filename for storage
+        const filename = randomUUID() + (ext ? `.${ext}` : '')
+        
+        // Create temporary file path
+        const tmpFilePath = tmpPath(filename)
+        
+        // Write file to tmp directory
+        await fs.promises.writeFile(tmpFilePath, uint8Array)
+
+        return this.createFileFromLocal(tmpFilePath, metadata)
+    }    
 
     public createDefaultDrives(){
         config.set('drive.disks.storage', {
