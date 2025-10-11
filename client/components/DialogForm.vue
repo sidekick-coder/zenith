@@ -1,7 +1,6 @@
 <script lang="ts">
 export interface FormField {
     component: 'text-field' | 'textarea' | 'select' | 'autocomplete'
-    name: string
     [key: string]: any
 }
 
