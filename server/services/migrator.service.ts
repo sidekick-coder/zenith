@@ -1,12 +1,12 @@
 import fs from 'fs'
 import path from 'path'
+import { format } from 'date-fns'
 import { basePath } from '#server/utils/paths.ts'
 import modules from '#server/services/modules.service.ts'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
 import db from '#server/facades/db.facade.ts'
-import { format } from 'date-fns'
 
-interface Migration {
+export interface Migration {
     name: string;
     module: string | null;
     filePath: string;
@@ -292,10 +292,15 @@ export default class MigratorService {
         return this.rollbackFolder(mod.makePath('server', 'migrations'))
     }
 
-    public async up(steps: number = 1): Promise<MigrationResult[]> {
+    public async up(steps: number = 1, filters: { module?: string } = {}): Promise<MigrationResult[]> {
         await this.ensureMigrationsTable()
         
-        const migrations = await this.list()
+        let migrations = await this.list()
+
+        if (filters.module) {
+            migrations = migrations.filter(m => m.module === filters.module)
+        }
+
         const pendingMigrations = migrations
             .filter(m => !m.executedAt)
             .sort((a, b) => a.name.localeCompare(b.name))
@@ -320,10 +325,15 @@ export default class MigratorService {
         return results
     }
 
-    public async down(steps: number = 1): Promise<MigrationResult[]> {
+    public async down(steps: number = 1, filters: { module?: string } = {}): Promise<MigrationResult[]> {
         await this.ensureMigrationsTable()
         
-        const migrations = await this.list()
+        let migrations = await this.list()
+
+        if (filters.module) {
+            migrations = migrations.filter(m => m.module === filters.module)
+        }
+        
         const executedMigrations = migrations
             .filter(m => m.executedAt)
             .sort((a, b) => b.name.localeCompare(a.name))
@@ -348,10 +358,15 @@ export default class MigratorService {
         return results
     }
 
-    public async latest(): Promise<MigrationResult[]> {
+    public async latest(filters: { module?: string } = {}): Promise<MigrationResult[]> {
         await this.ensureMigrationsTable()
         
-        const migrations = await this.list()
+        let migrations = await this.list()
+
+        if (filters.module) {
+            migrations = migrations.filter(m => m.module === filters.module)
+        }
+
         const pendingMigrations = migrations
             .filter(m => !m.executedAt)
             .sort((a, b) => a.name.localeCompare(b.name))

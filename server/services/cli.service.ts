@@ -1,4 +1,6 @@
 import Table from 'cli-table3'
+import type { Command } from 'commander'
+import db from '#server/facades/db.facade.ts'
 
 interface TableColumn {
     label: string
@@ -120,6 +122,8 @@ export class UI {
 
         console.log(table.toString())
     }
+
+    
 }
 
 export class CLIService {
@@ -127,6 +131,24 @@ export class CLIService {
 
     constructor() {
         this.ui = new UI()
+    }
+
+    public with(capabilities: ('db')[], fn: (...args: any[]) => Promise<any>) {
+        return async (...args: any[]) => {
+            try {
+                if (capabilities.includes('db')) {
+                    await db.load()
+                }
+
+                await fn(...args)
+
+            } catch (error) {
+                await db.destroy()
+                console.error(error)
+                process.exit(1)
+            }
+        }
+
     }
 }
 

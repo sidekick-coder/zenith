@@ -7,10 +7,13 @@ import build from '#server/services/build.service.ts'
 program.command('module:disable')
     .helpGroup('module')
     .argument('<module>', 'Module to disable')
-    .action(async (name) => {
+    .option('-b, --build', 'Run build after disabling the module', false)
+    .action(async (name, options) => {
         await config.load()
         
-        await modules.disable(name, { build: env.isProduction })
+        await modules.disable(name)
 
-        await build.build()
+        if (options.build) {
+            await build.build()
+        }
     })

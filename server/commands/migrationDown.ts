@@ -6,7 +6,8 @@ program.command('migration:down')
     .helpGroup('migration')
     .description('Rollback executed migrations')
     .option('-s, --step <number>', 'Number of migrations to rollback', Number)
-    .action(async (options) => {
+    .option('-m, --module <string>', 'Filter by module name')
+    .action(cli.with(['db'], async (options: { step?: number, module?: string }) => {
         const results = await migrator.down(options.step)
 
         if (results.length === 0) {
@@ -15,5 +16,5 @@ program.command('migration:down')
         }
 
         cli.ui.table(results)
-    })
+    }))
 

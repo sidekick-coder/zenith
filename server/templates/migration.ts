@@ -4,7 +4,7 @@ const table = 'table_name'
 
 export async function up(db: Kysely<any>): Promise<void> {
     await db.schema.createTable(table)
-        .addColumn('id', 'integer', col => col.primaryKey())
+        .addIdColumn()
         .execute()
 }
 

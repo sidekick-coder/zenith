@@ -6,9 +6,15 @@ import db from '#server/facades/db.facade.ts'
 
 program.command('migration:status')
     .helpGroup('migration')
-    .action(async () => {
+    .option('-m, --module <module>', 'Filter by module')
+    .action(async (options) => {
         await db.load()
-        const items = await migrator.list()
+        
+        let items = await migrator.list()
+
+        if (options.module) {
+            items = items.filter(i => i.module === options.module)
+        }
 
         cli.ui.table(items, [
             {

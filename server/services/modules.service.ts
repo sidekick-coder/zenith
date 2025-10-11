@@ -244,6 +244,10 @@ export class ModulesService {
                 source: basePath('client'), 
                 target: path.join(rootDir, 'client') 
             },
+            { 
+                source: basePath('arte'), 
+                target: mod.makePath('arte')
+            },
         ]
 
         for (const { source, target } of symlinks) {
