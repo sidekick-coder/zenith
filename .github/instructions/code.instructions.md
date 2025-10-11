@@ -4,6 +4,7 @@ applyTo: '**/*.vue'
 
 ## Code style
 - use 4 spaces for indentation
+- dont use try/catch blocks unless is explicitly described in the prompt
 
 ## General
 - use vue setup syntax
