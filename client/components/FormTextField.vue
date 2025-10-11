@@ -20,7 +20,7 @@ defineProps({
         default: 'text',
     },
     step: {
-        type: String,
+        type: [String, Number],
         default: null,
     },
     label: {
