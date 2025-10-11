@@ -12,3 +12,17 @@ export const addTimestampColumns = (ctb: CreateTableBuilder<any, any>) => {
         .addColumn('created_at', 'timestamp', (col) =>  col.defaultTo(now()).notNull())
         .addColumn('updated_at', 'timestamp', (col) =>  col.defaultTo(now()).notNull())
 }
+
+declare module 'kysely' {
+  interface CreateTableBuilder<TB extends string, C extends string = never> {
+    addTimestampColumns(): CreateTableBuilder<TB, C | 'created_at' | 'updated_at'>
+  }
+}
+
+CreateTableBuilder.prototype.addTimestampColumns = function (
+    this: CreateTableBuilder<any, any>,
+) {
+    return this
+        .addColumn('created_at', 'timestamp', (col) =>  col.defaultTo(now()).notNull())
+        .addColumn('updated_at', 'timestamp', (col) =>  col.defaultTo(now()).notNull())
+}

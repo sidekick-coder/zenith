@@ -1,5 +1,5 @@
-import db from "#server/facades/db.facade.ts"
-import { CreateTableBuilder } from "kysely"
+import { CreateTableBuilder } from 'kysely'
+import db from '#server/facades/db.facade.ts'
 
 declare module 'kysely' {
   interface CreateTableBuilder<TB extends string, C extends string = never> {
@@ -10,8 +10,8 @@ declare module 'kysely' {
 }
 
 CreateTableBuilder.prototype.addIdColumn = function (
-  this: CreateTableBuilder<any, any>,
-  col: string = 'id'
+    this: CreateTableBuilder<any, any>,
+    col: string = 'id'
 ) {
     if (db.driver === 'postgresql') {
         return this.addColumn(col, 'serial', col => col.primaryKey())
