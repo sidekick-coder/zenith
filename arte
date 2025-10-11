@@ -13,6 +13,7 @@ const args = [
 
 const child = cp.spawn(bin, args, {
     stdio: 'inherit',
+    cwd: import.meta.dirname,
     // shell: true,
 });
 
