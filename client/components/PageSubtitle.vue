@@ -9,7 +9,7 @@ defineProps({
 <template>
     <component
         :is="tag"
-        class="text-muted-foreground text-lg"
+        class="text-muted-foreground text-base"
     >
         <slot />
     </component>
