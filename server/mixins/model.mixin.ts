@@ -132,13 +132,21 @@ export function Model<Table extends keyof Database>(table: Table, primaryKey: ke
                 }) as any
             }
             
-            public static createMany<T>(this: new () => T, values: Array<ModelCreateOptions<Table>['values']>): T[] {
+            public static async createMany<T>(this: new () => T, values: Array<ModelCreateOptions<Table>['values']>): T[] {
                 const constructor = this as any
 
-                return queries.create(table, {
-                    values: values as any,
-                    serialize: row => constructor.serialize(row),
-                }) as any
+                const rows  = []
+
+                for await (const value of values) {
+                    const row = await queries.create(table, {
+                        values: value,
+                        serialize: row => constructor.serialize(row),
+                    })
+
+                    rows.push(row)
+                }
+
+                return rows as any
             }
 
             public static update<T>(this: new () => T, o: ModelUpdateOptions<Table>): T[] {

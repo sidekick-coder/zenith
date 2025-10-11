@@ -1,7 +1,7 @@
 import type { Insertable } from 'kysely'
+import type { SerializableResult, SerializeOptions } from './common.ts'
 import type { Database } from '#server/contracts/database.contract.ts'
 import db from '#server/facades/db.facade.ts'
-import type { SerializableResult, SerializeOptions } from './common.ts'
 import normalizers from '#server/normalizers/index.ts'
 
 export interface CreateOptions<T extends keyof Database> extends SerializeOptions<T> {
@@ -12,7 +12,7 @@ export interface CreateOptions<T extends keyof Database> extends SerializeOption
 
 
 export async function createDefault<T extends keyof Database, O extends CreateOptions<T>>(table: T, options?: O) {
-    const values = options?.values || []
+    const values = (options?.values || {}) as Insertable<Database[T]>
     const insert = db.insertInto(table).values(values)
 
     let row: any = await insert.returningAll().executeTakeFirst()
@@ -25,12 +25,12 @@ export async function createDefault<T extends keyof Database, O extends CreateOp
 }
 
 export async function createMysql<T extends keyof Database, O extends CreateOptions<T>>(table: T, options?: O) {
-    const values = options?.values || []
+    const values = (options?.values || {}) as Insertable<Database[T]>
     const insert = db.insertInto(table).values(values)
 
     const primaryKey = (options?.primaryKey || 'id') as keyof Database[T]
 
-    let result = await insert.executeTakeFirst()
+    const result = await insert.executeTakeFirst()
 
     const resultId = result.insertId as any
 
