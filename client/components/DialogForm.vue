@@ -13,7 +13,7 @@ export function defineFormFields(field: Record<string, FormField>) {
 import { useForm } from 'vee-validate'
 import * as v from 'valibot'
 import { toTypedSchema } from '@vee-validate/valibot'
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import type { BaseSchema } from 'valibot'
 import FormTextarea from './FormTextarea.vue'
 import FormSelect from './FormSelect.vue'
@@ -33,6 +33,14 @@ import {
 } from '#client/components/ui/dialog'
 
 const props = defineProps({
+    title: {
+        type: String,
+        default: $t('Create'),
+    },
+    description: {
+        type: String,
+        default: $t('Fill in the details below to create a new item'),
+    },
     schema: {
         type: Object as () => T,
         required: true,
@@ -76,7 +84,7 @@ const components = computed(() => {
     })
 })
 
-const { handleSubmit, errors, values, resetForm } = useForm({
+const { handleSubmit, resetForm } = useForm({
     validationSchema: toTypedSchema(props.schema as T),
     initialValues: props.values as v.InferInput<T>,
 })
@@ -108,6 +116,15 @@ const onSubmit = handleSubmit(async (data) => {
     }, 1000)
 
 })
+
+watch(open, () => {
+    if (!open.value) return
+
+    resetForm({
+        values: props.values as v.InferInput<T>,
+    })
+    
+})
 </script>
 <template>
     <Dialog v-model:open="open">
@@ -117,10 +134,8 @@ const onSubmit = handleSubmit(async (data) => {
 
         <DialogContent>
             <DialogHeader>
-                <DialogTitle>{{ $t('Create user') }}</DialogTitle>
-                <DialogDescription>
-                    {{ $t('Fill in the details below to create a new user account') }}
-                </DialogDescription>
+                <DialogTitle>{{ title }}</DialogTitle>
+                <DialogDescription>{{ description }}</DialogDescription>
             </DialogHeader>
             <form
                 class="space-y-4 py-2"
