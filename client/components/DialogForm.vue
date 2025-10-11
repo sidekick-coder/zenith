@@ -18,6 +18,7 @@ import type { BaseSchema } from 'valibot'
 import FormTextarea from './FormTextarea.vue'
 import FormSelect from './FormSelect.vue'
 import FormAutocomplete from './FormAutocomplete.vue'
+import ClientOnly from './ClientOnly.vue'
 import { $t } from '#shared/lang.ts'
 import FormTextField from '#client/components/FormTextField.vue'
 import { $fetch } from '#client/utils/fetcher.ts'
@@ -84,9 +85,21 @@ const components = computed(() => {
     })
 })
 
-const { handleSubmit, resetForm } = useForm({
+const { handleSubmit, errors, resetForm } = useForm({
     validationSchema: toTypedSchema(props.schema as T),
     initialValues: props.values as v.InferInput<T>,
+})
+
+const errorsWihoutFields = computed(() => {
+    const result: Record<string, any> = {}
+
+    for (const [key, value] of Object.entries(errors.value)) {
+        if (props.fields[key as keyof v.InferInput<T>]) continue
+
+        result[key] = value
+    }
+    
+    return result
 })
 
 const onSubmit = handleSubmit(async (data) => {
@@ -123,65 +136,82 @@ watch(open, () => {
     resetForm({
         values: props.values as v.InferInput<T>,
     })
-    
 })
 </script>
 <template>
-    <Dialog v-model:open="open">
-        <DialogTrigger v-if="$slots.default">
+    <ClientOnly>
+        <template #fallback>
             <slot />
-        </DialogTrigger>
+        </template>
 
-        <DialogContent>
-            <DialogHeader>
-                <DialogTitle>{{ title }}</DialogTitle>
-                <DialogDescription>{{ description }}</DialogDescription>
-            </DialogHeader>
-            <form
-                class="space-y-4 py-2"
-                @submit.prevent="onSubmit"
-            >
-                <template
-                    v-for="field in components"
-                    :key="field.name"
+        <Dialog v-model:open="open">
+            <DialogTrigger v-if="$slots.default">
+                <slot />
+            </DialogTrigger>
+    
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>{{ title }}</DialogTitle>
+                    <DialogDescription>{{ description }}</DialogDescription>
+                </DialogHeader>
+                <form
+                    class="space-y-4 py-2"
+                    @submit.prevent="onSubmit"
                 >
-                    <FormTextField
-                        v-if="field.component === 'text-field'"
-                        :name="field.name"
-                        v-bind="field.props"
-                    />
-
-                    <FormTextarea
-                        v-else-if="field.component === 'textarea'"
-                        :name="field.name"
-                        v-bind="field.props"
-                    />
-                    
-                    <FormSelect
-                        v-else-if="field.component === 'select'"
-                        :name="field.name"
-                        v-bind="field.props"
-                    />
-
-                    <FormAutocomplete
-                        v-else-if="field.component === 'autocomplete'"
-                        :name="field.name"
-                        v-bind="field.props"
-                    />
-
-                    <!-- Add other field types like select, checkbox, radio as needed -->
-                </template>
-
-                <DialogFooter>
-                    <Button
-                        type="submit"
-                        class="w-full"
-                        :loading
+                    <template
+                        v-for="field in components"
+                        :key="field.name"
                     >
-                        {{ $t('Save') }}
-                    </Button>
-                </DialogFooter>
-            </form>
-        </DialogContent>
-    </Dialog>
+                        <FormTextField
+                            v-if="field.component === 'text-field'"
+                            :name="field.name"
+                            v-bind="field.props"
+                        />
+    
+                        <FormTextarea
+                            v-else-if="field.component === 'textarea'"
+                            :name="field.name"
+                            v-bind="field.props"
+                        />
+                        
+                        <FormSelect
+                            v-else-if="field.component === 'select'"
+                            :name="field.name"
+                            v-bind="field.props"
+                        />
+    
+                        <FormAutocomplete
+                            v-else-if="field.component === 'autocomplete'"
+                            :name="field.name"
+                            v-bind="field.props"
+                        />
+    
+                        <!-- Add other field types like select, checkbox, radio as needed -->
+                    </template>
+    
+                    <div
+                        v-if="Object.keys(errorsWihoutFields).length"
+                        class="mb-2 text-sm text-red-600"
+                    >
+                        <div
+                            v-for="(message, field) in errorsWihoutFields"
+                            :key="field"
+                        >
+                            {{ message }}
+                        </div>
+                    </div>
+                    
+                    <DialogFooter>
+                        <Button
+                            type="submit"
+                            class="w-full"
+                            :loading
+                        >
+                            {{ $t('Save') }}
+                        </Button>
+                    </DialogFooter>
+                </form>
+            </DialogContent>
+        </Dialog>
+    </ClientOnly>
 </template>
