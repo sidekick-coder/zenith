@@ -5,6 +5,7 @@ import { watchDebounced } from '@vueuse/core'
 import { ref  } from 'vue'
 import type { PropType } from 'vue'
 import Icon from './Icon.vue'
+import Separator from './ui/separator/Separator.vue'
 import { cn } from '#client/lib/utils'
 import { Button } from '#client/components/ui/button'
 import {
@@ -45,6 +46,10 @@ const props = defineProps({
         type: String,
         default: null,
     },
+    clearable: {
+        type: Boolean,
+        default: false,
+    },
     class: {
         type: String,
         default: null,
@@ -61,6 +66,10 @@ const props = defineProps({
         type: String,
         default: null,
     },
+    fetchOption: {
+        type: Function as PropType<(value: any) => Promise<any>>,
+        default: null,
+    },
     serialize: {
         type: Function as PropType<(option: any) => T>,
         default: (option: any) => option as T,
@@ -68,7 +77,7 @@ const props = defineProps({
 })
 
 // general
-const { setValue } = useField(props.name)
+const { setValue, value } = useField(props.name)
 const selectedObject = ref<any>(props.initialOption)
 
 const options = defineModel('options', {
@@ -95,14 +104,43 @@ function findValue(option: any) {
 }
 
 function select(option: any) {
+    if (!option) {
+        selectedObject.value = null
+        setValue(null)
+        return
+    }
+
     selectedObject.value = option
 
     setValue(findValue(option))
 }
 
 // fetch
+async function loadSelected(){
+    if (!props.fetchOption || !value.value) {
+        return
+    }
+
+    loading.value = true
+
+    const [error, response] = await tryCatch(() => props.fetchOption!(value.value))
+
+    if (error) {
+        console.error('Failed to load selected option:', error)
+        loading.value = false
+        return
+    }
+
+    selectedObject.value = props.serialize(response)
+
+    setTimeout(() => {
+        loading.value = false
+    }, 500)
+}
 async function load() {
     loading.value = true
+
+    await loadSelected()
 
     const [error, response] = await tryCatch(() => $fetch<any>(props.fetch as string, {
         method: 'GET',
@@ -165,7 +203,15 @@ if (props.fetch) {
                                 {{ placeholder }}
                             </div>
 
-                            <ChevronsUpDown class="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                            <div class="ml-2 flex items-center space-x-2">
+                                <Icon
+                                    v-if="loading"
+                                    name="Loader2"
+                                    class="animate-spin"
+                                />
+
+                                <ChevronsUpDown class="size-4 shrink-0 opacity-50" />
+                            </div>
                         </Button>
                     </ComboboxTrigger>
                 </ComboboxAnchor>
@@ -181,24 +227,21 @@ if (props.fetch) {
                         />
                     </div>
 
-                    <div
-                        v-if="loading"
-                        class="w-full p-6 flex items-center justify-center"
-                    >
-                        <Icon
-                            name="Loader"
-                            class="animate-spin mx-auto"
-                        />
-                    </div>
-
-                    <ComboboxEmpty
-                        v-else-if="!options.length"
-                        class="px-6"
-                    >
-                        {{ $t('No results found') }}
+                    <ComboboxEmpty class="px-6">
+                        {{ $t('No results') }}
                     </ComboboxEmpty>
 
-                    <ComboboxGroup v-else>
+                    <ComboboxGroup>
+                        <ComboboxItem
+                            v-if="clearable"
+                            :value="null"
+                            @click="select(null)"
+                        >
+                            {{ $t('Clear selection') }}
+                        </ComboboxItem>
+                        
+                        <Separator />
+
                         <ComboboxItem
                             v-for="o in options"
                             :key="findValue(o)"
