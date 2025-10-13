@@ -7,10 +7,14 @@ import logger from '#server/facades/logger.facade.ts'
 program.command('module:toggle')
     .helpGroup('module')
     .argument('<module>', 'Module to toggle')
-    .action(async (name) => {
-        await modules.toggle(name, { build: env.isProduction })
+    .option('-b, --build', 'Whether to build after toggling the module', false)
+    .action(async (name, options) => {
+        await modules.toggle(name)
 
-        await build.build()
+        if (options.build) {
+            await build.build()
+        }
+
 
         logger.info(`Module ${name} toggled`)
     })
