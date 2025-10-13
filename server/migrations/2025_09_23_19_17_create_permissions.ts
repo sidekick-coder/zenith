@@ -10,8 +10,8 @@ export async function up(db: Kysely<any>): Promise<void> {
         .addColumn('subject', 'varchar(255)', col => col.notNull())
         .addColumn('action', 'varchar(255)', col => col.notNull())
         .addColumn('conditions', 'text')
-        .$call(addTimestampColumns)
-        .$call(addSoftDeleteColumn)
+        .addTimestampColumns()
+        .addSoftDeleteColumn()
         .execute()
 
     await db.schema.createTable('permissions_assignments')

@@ -14,7 +14,7 @@ export async function up(db: Kysely<any>): Promise<void> {
         .addColumn('token', 'varchar(255)', col => col.notNull().unique())
         .addColumn('type', 'varchar(255)', col => col.notNull().defaultTo('auth'))
         .addColumn('expires_at', 'timestamp')
-        .$call(addTimestampColumns)
+        .addTimestampColumns()
         .execute()
 }
 

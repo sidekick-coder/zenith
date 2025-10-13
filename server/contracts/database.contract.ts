@@ -16,6 +16,13 @@ export interface UserTable extends TimestampTable, SoftDeleteTable {
   password: string
 }
 
+export interface UserMetaTable extends TimestampTable, SoftDeleteTable {
+  id: Generated<number>
+  user_id: number
+  name: string
+  value: string | null
+}
+
 export interface TokenTable extends TimestampTable {
   id: Generated<number>
   user_id: number
@@ -62,6 +69,7 @@ export interface FileTable extends TimestampTable, SoftDeleteTable {
 
 export interface Database  {
   users: UserTable
+  user_metas: UserMetaTable
   tokens: TokenTable
   migrations: MigrationsTable
   files: FileTable

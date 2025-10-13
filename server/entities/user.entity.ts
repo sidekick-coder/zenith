@@ -1,7 +1,7 @@
 import { Model } from '#server/mixins/model.mixin.ts'
 import { list } from '#server/queries/list.ts'
 import Permission from '#shared/entities/permission.entity.ts'
-import Role from '#shared/entities/role.entity.ts'
+import Role from '#server/entities/role.entity.ts'
 import BaseUser from '#shared/entities/user.entity.ts'
 import { composeWith } from '#shared/utils/compose.ts'
 

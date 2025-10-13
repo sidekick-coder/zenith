@@ -11,8 +11,8 @@ export async function up(db: Kysely<any>): Promise<void> {
         .addColumn('client_name', 'varchar(255)', col => col.notNull())
         .addColumn('filename', 'text', col => col.notNull())
         .addColumn('metadata', 'text')
-        .$call(addTimestampColumns)
-        .$call(addSoftDeleteColumn)
+        .addTimestampColumns()
+        .addSoftDeleteColumn()
         .execute()
 }
 

@@ -6,8 +6,8 @@ export async function up(db: Kysely<any>): Promise<void> {
         .addIdColumn()
         .addColumn('name', 'varchar(255)', col => col.notNull().unique())
         .addColumn('description', 'text', col => col)
-        .$call(addTimestampColumns)
-        .$call(addSoftDeleteColumn)
+        .addTimestampColumns()
+        .addSoftDeleteColumn()
         .execute()
 
     await db.schema.createTable('user_roles')
