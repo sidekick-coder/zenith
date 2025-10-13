@@ -65,9 +65,9 @@ router.post('/', async ({ params, body, acl }) => {
             .selectAll()
     })
 
-    acl.authorize('read', user)
+    acl.authorize('update', user)
 
-    const payload = validator.validate(body, schemas.userMeta.schema)
+    const payload = validator.validate(body, schemas.userMeta.create)
 
     const userMeta = await UserMeta.create({
         user_id: userId,
@@ -78,7 +78,7 @@ router.post('/', async ({ params, body, acl }) => {
     return userMeta
 })
 
-router.patch('/:id', async ({ params, body, acl }) => {
+router.put('/:id', async ({ params, body, acl }) => {
     const userId = validator.validate(params.userId, schemas.query.number)
     const metaId = validator.validate(params.id, schemas.query.number)
 
@@ -88,7 +88,7 @@ router.patch('/:id', async ({ params, body, acl }) => {
             .selectAll()
     })
 
-    acl.authorize('read', user)
+    acl.authorize('update', user)
 
     const userMeta = await UserMeta.findOneOrFail({
         query: q => q.where('id', '=', metaId)
@@ -99,13 +99,7 @@ router.patch('/:id', async ({ params, body, acl }) => {
 
     const payload = validator.validate(body, schemas.userMeta.update)
 
-    await UserMeta.update({
-        where: ({ eb }) => eb.and([
-            eb('id', '=', metaId),
-            eb('user_id', '=', userId)
-        ]),
-        values: payload
-    })
+    await UserMeta.updateById(metaId, payload)
 
     userMeta.merge(payload)
 
@@ -122,7 +116,7 @@ router.delete('/:id', async ({ params, acl }) => {
             .selectAll()
     })
 
-    acl.authorize('read', user)
+    acl.authorize('update', user)
 
     const userMeta = await UserMeta.findOneOrFail({
         query: q => q.where('id', '=', metaId)

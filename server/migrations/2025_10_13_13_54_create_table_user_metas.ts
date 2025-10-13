@@ -9,6 +9,8 @@ export async function up(db: Kysely<any>): Promise<void> {
             .onDelete('cascade'))
         .addColumn('name', 'text', col => col.notNull())
         .addColumn('value', 'text')
+        .addTimestampColumns()
+        .addSoftDeleteColumn()
         .execute()
 }
 

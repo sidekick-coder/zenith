@@ -53,6 +53,12 @@ const tabs = [
             assignId: userId 
         },
     },
+    {
+        id: 'metas',
+        label: $t('Metas'),
+        component: defineAsyncComponent(() => import('#client/components/UserMetas.vue')),
+        props: { userId: userId }
+    },
 ]
 
 async function load(){
