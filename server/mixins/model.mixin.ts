@@ -123,16 +123,20 @@ export function Model<Table extends keyof Database>(table: Table, primaryKey: ke
                 return queries.count(table, o) as any
             }
 
-            public static create<T>(this: new () => T, values: ModelCreateOptions<Table>['values']): T {
+            public static async create<T>(this: new () => T, payload: ModelCreateOptions<Table>['values']): Promise<T> {
                 const constructor = this as any
 
+                const values = { ...payload }
+
+                await emitHook(constructor, 'beforeCreate', values)
+
                 return queries.create(table, {
-                    values: values,
                     serialize: row => constructor.serialize(row),
+                    values: values,
                 }) as any
             }
-            
-            public static async createMany<T>(this: new () => T, values: Array<ModelCreateOptions<Table>['values']>): T[] {
+
+            public static async createMany<T>(this: new () => T, values: Array<ModelCreateOptions<Table>['values']>): Promise<T[]> {
                 const constructor = this as any
 
                 const rows  = []
@@ -149,12 +153,16 @@ export function Model<Table extends keyof Database>(table: Table, primaryKey: ke
                 return rows as any
             }
 
-            public static update<T>(this: new () => T, o: ModelUpdateOptions<Table>): T[] {
+            public static async update<T>(this: new () => T, o: ModelUpdateOptions<Table>): Promise<T> {
                 const constructor = this as any
+
+                const values = { ...o.values }
+
+                await emitHook(constructor, 'beforeUpdate', values, o.where)
 
                 return queries.update(table, {
                     where: o.where,
-                    values: o.values,
+                    values: values,
                     serialize: row => constructor.serialize(row),
                 }) as any
             }
@@ -162,10 +170,9 @@ export function Model<Table extends keyof Database>(table: Table, primaryKey: ke
             public static updateById<T>(this: new () => T, id: any, values: ModelUpdateOptions<Table>['values']): Promise<T> {
                 const constructor = this as any
 
-                return queries.update(table, {
+                return constructor.update({
                     where: (qb: any) => qb(primaryKey as string, '=', id),
                     values: values,
-                    serialize: row => constructor.serialize(row),
                 }) as any
             }
 

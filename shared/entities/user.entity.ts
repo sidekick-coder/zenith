@@ -8,6 +8,7 @@ export default class User extends compose(BaseEntity, Timestamp, SoftDelete) {
     public email: string
     public name: string
     public username: string
+    public password?: string
 
 
     public permissions?: Permission[]
