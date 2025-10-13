@@ -1,3 +1,4 @@
+import UserMeta from './userMeta.entity.ts'
 import { Model } from '#server/mixins/model.mixin.ts'
 import { list } from '#server/queries/list.ts'
 import Permission from '#shared/entities/permission.entity.ts'
@@ -87,6 +88,45 @@ export default class User extends composeWith(BaseUser, Hooks, Model('users')) {
                 eb('email', '=', uuid),
                 eb('username', '=', uuid),
             ]))
+        })
+    }
+
+    public async getMeta<T = any>(name: string, defaultValue?: T): Promise<T> {
+        const meta = await UserMeta.findOne({
+            where: (qb) => qb.and([
+                qb('user_id', '=', this.id),
+                qb('name', '=', name),
+            ])
+        })
+
+        if (meta?.value?.startsWith('json:')) {
+            return JSON.parse(meta.value.substring(5)) as T
+        }
+
+        return (meta ? meta.value : defaultValue) as T
+    }
+
+    public async setMeta(name: string, value: any): Promise<UserMeta> {
+        const meta = await UserMeta.findOne({
+            where: (qb) => qb.and([
+                qb('user_id', '=', this.id),
+                qb('name', '=', name),
+            ])
+        })
+
+        if (meta) {
+            await UserMeta.updateById(meta.id, { value })
+
+            meta.value = value
+            
+            return meta
+        }
+
+        
+        return await UserMeta.create({
+            user_id: this.id,
+            name,
+            value
         })
     }
 
