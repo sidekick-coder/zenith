@@ -10,7 +10,7 @@ program.command('permission:create')
     .requiredOption('-a, --action <action>', 'Permission action')
     .requiredOption('-s, --subject <subject>', 'Permission subject')
     .option('-c, --conditions <conditions>', 'Permission conditions, as JSON string', '{}')
-    .action(async (options) => {
+    .action(cli.with(['db'], async (options) => {
         const { name, subject, action, conditions } = options
 
         const permission = await create('permissions', {
@@ -26,4 +26,4 @@ program.command('permission:create')
         console.log('✓ Permission created and assigned successfully')
 
         cli.ui.object(permission)
-    })
+    }))

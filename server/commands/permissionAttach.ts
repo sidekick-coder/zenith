@@ -1,7 +1,7 @@
 import { program } from 'commander'
 import { create } from '#server/queries/create.ts'
 import Permission from '#shared/entities/permission.entity.ts'
-import { findOneOrFail } from '#server/queries/index.ts'
+import { findOneOrFail, findOne } from '#server/queries/index.ts'
 import cli from '#server/services/cli.service.ts'
 import User from '#server/entities/user.entity.ts'
 
@@ -11,10 +11,10 @@ program.command('permission:attach')
     .requiredOption('-p, --permissionId <permissionId>', 'Permission ID or name')
     .requiredOption('-t, --type <type>', 'Assignable type (user, role)')
     .requiredOption('-i, --id <id>', 'Assignable ID')
-    .action(async (options) => {
+    .action(cli.with(['db'], async (options) => {
         const { type, id, permissionId } = options
 
-        const permission = await findOneOrFail('permissions', {
+        const permission = await findOne('permissions', {
             serialize: Permission.from,
             where: (qb) => {
                 if (!Number.isInteger(parseInt(permissionId, 10))) {
@@ -31,7 +31,7 @@ program.command('permission:attach')
 
         // if user check if user exists
         if (type === 'user') {
-            await User.findByIdOrFail(Number(id))
+            await User.findOrFail(Number(id))
         }
 
         // if role check if role exists
@@ -41,7 +41,7 @@ program.command('permission:attach')
             })
         }
 
-        const exists = await findOneOrFail('permissions_assignments', {
+        const exists = await findOne('permissions_assignments', {
             where: (qb) => qb.and([
                 qb('permission_id', '=', permission.id),
                 qb('assignable_type', '=', type),
@@ -64,4 +64,4 @@ program.command('permission:attach')
         })
 
         cli.ui.object(created)
-    })
+    }))

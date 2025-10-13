@@ -12,11 +12,13 @@ import type {
     UpdateOptions, 
     DestroyOptions, 
     FirstOrCreateOptions,
+    FindOneOptions
 } from '#server/queries/index.ts'
 import type Pagination from '#shared/entities/pagination.entity.ts'
 import type { Constructor } from '#shared/utils/compose.ts'
 
 export type ModelListOptions<T extends keyof Database> = Omit<ListOptions<T>, 'serialize'>
+export type ModelFindOptions<T extends keyof Database> = Omit<FindOneOptions<T>, 'serialize'|'orderBy'>
 export type ModelPaginateOptions<T extends keyof Database> = Omit<PaginateOptions<T>, 'serialize'>
 export type ModelCountOptions<T extends keyof Database> = CountOptions<T>
 export type ModelCreateOptions<T extends keyof Database> = Omit<CreateOptions<T>, 'serialize'>
@@ -69,11 +71,12 @@ export function Model<Table extends keyof Database>(table: Table, primaryKey: ke
                 return items as any
             }
 
-            public static async findOne<T>(this: new () => T, o?: ModelListOptions<Table>): Promise<T | undefined> {
+            public static async findOne<T>(this: new () => T, o?: ModelFindOptions<Table>): Promise<T | undefined> {
                 const constructor = this as any
 
                 const row = await queries.findOne(table, {
                     query: o?.query,
+                    where: o?.where,
                     serialize: row => constructor.serialize(row),
                 })
 
@@ -84,7 +87,7 @@ export function Model<Table extends keyof Database>(table: Table, primaryKey: ke
                 return row as any
             }
 
-            public static async findOneOrFail<T>(this: new () => T, o?: ModelListOptions<Table>): Promise<T> {
+            public static async findOneOrFail<T>(this: new () => T, o?: ModelFindOptions<Table>): Promise<T> {
                 const constructor = this as any
 
                 const row = await queries.findOneOrFail(table, {
