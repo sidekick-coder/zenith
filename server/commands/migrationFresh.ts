@@ -11,5 +11,10 @@ program.command('migration:fresh')
             module: options.module
         })
 
+        if (!results.length) {
+            console.log('No migrations to run')
+            return
+        }
+
         cli.ui.table(results)
     }))

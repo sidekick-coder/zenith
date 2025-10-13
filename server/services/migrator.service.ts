@@ -399,17 +399,17 @@ export default class MigratorService {
             migrations = migrations.filter(m => m.module === filters.module)
         }
 
-        const executeMigrations = migrations
-            .filter(m => !m.executedAt)
-            .sort((a, b) => a.name.localeCompare(b.name))
+        const executedMigrations = migrations
+            .filter(m => m.executedAt)
+            .sort((a, b) => b.name.localeCompare(a.name))
 
-        if (executeMigrations.length === 0) {
+        if (executedMigrations.length === 0) {
             return []
         }
 
         const results: MigrationResult[] = []
         
-        for (const migration of executeMigrations) {
+        for (const migration of executedMigrations) {
             const result = await this.rollbackFile(migration.name)
             
             results.push(result)
