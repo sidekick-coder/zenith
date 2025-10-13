@@ -8,7 +8,9 @@ program.command('migration:down')
     .option('-s, --step <number>', 'Number of migrations to rollback', Number)
     .option('-m, --module <string>', 'Filter by module name')
     .action(cli.with(['db'], async (options: { step?: number, module?: string }) => {
-        const results = await migrator.down(options.step)
+        const results = await migrator.down(options.step, {
+            module: options.module
+        })
 
         if (results.length === 0) {
             console.log('No migrations to rollback')

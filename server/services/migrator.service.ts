@@ -389,6 +389,51 @@ export default class MigratorService {
 
         return results
     }
+    
+    public async rollback(filters: { module?: string } = {}): Promise<MigrationResult[]> {
+        await this.ensureMigrationsTable()
+        
+        let migrations = await this.list()
+
+        if (filters.module) {
+            migrations = migrations.filter(m => m.module === filters.module)
+        }
+
+        const executeMigrations = migrations
+            .filter(m => !m.executedAt)
+            .sort((a, b) => a.name.localeCompare(b.name))
+
+        if (executeMigrations.length === 0) {
+            return []
+        }
+
+        const results: MigrationResult[] = []
+        
+        for (const migration of executeMigrations) {
+            const result = await this.rollbackFile(migration.name)
+            
+            results.push(result)
+            
+            // Stop on first failure
+            if (result.result === 'failed') {
+                break
+            }
+        }
+
+        return results
+    }
+
+    public async fresh(filters: { module?: string } = {}): Promise<MigrationResult[]> {
+        const downResults = await this.rollback(filters)
+        
+        if (downResults.some(r => r.result === 'failed')) {
+            return downResults
+        }
+
+        const upResults = await this.latest(filters)
+        
+        return upResults
+    }
 
     public async latestOrFail(): Promise<MigrationResult[]> {
         const results = await this.latest()

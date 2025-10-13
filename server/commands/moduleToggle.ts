@@ -15,6 +15,5 @@ program.command('module:toggle')
             await build.build()
         }
 
-
         logger.info(`Module ${name} toggled`)
     })
