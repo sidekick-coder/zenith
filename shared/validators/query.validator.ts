@@ -7,6 +7,11 @@ export const number = () => validator.create(v => v.pipe(
     v.integer(),
 ))
 
+export const boolean = () => validator.create(v => v.pipe(
+    v.union([v.string(), v.boolean()]),
+    v.transform(v => v === true || v === 'true'),
+))
+
 export const date = () => validator.create(v => v.pipe(
     v.union([v.string(), v.date()]),
     v.transform(v => v instanceof Date ? v : new Date(v)),

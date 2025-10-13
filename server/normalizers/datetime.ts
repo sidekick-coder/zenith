@@ -1,5 +1,5 @@
-import db from "#server/facades/db.facade.ts"
-import { format } from "date-fns"
+import { format } from 'date-fns'
+import db from '#server/facades/db.facade.ts'
 
 export function toDb(value: Date | string | null): string | null {
     if (value === null) {
@@ -7,11 +7,11 @@ export function toDb(value: Date | string | null): string | null {
     }
 
     if (db.driver === 'sqlite') {
-        return format(new Date(value), "yyyy-MM-dd HH:mm:ss")
+        return format(new Date(value), 'yyyy-MM-dd HH:mm:ss')
     }
 
     if (db.driver === 'mysql') {
-        return format(new Date(value), "yyyy-MM-dd HH:mm:ss")
+        return format(new Date(value), 'yyyy-MM-dd HH:mm:ss')
     }
 
     return new Date(value).toISOString()

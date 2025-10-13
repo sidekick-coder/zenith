@@ -1,4 +1,5 @@
 import * as  datetime from './datetime.ts'
+import * as json from './json.ts'
 
 export function toDb(payload: Record<string, any>) {
 
@@ -7,6 +8,14 @@ export function toDb(payload: Record<string, any>) {
     for (const key in result) {
         if (result[key] instanceof Date) {
             result[key] = datetime.toDb(result[key])
+        }
+
+        if (typeof result[key] === 'object') {
+            result[key] = json.toDb(result[key])
+        }
+
+        if (Array.isArray(result[key])) {
+            result[key] = json.toDb(result[key])
         }
     }
 
