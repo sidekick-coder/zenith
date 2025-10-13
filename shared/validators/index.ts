@@ -5,6 +5,7 @@ import * as query from './query.validator.ts'
 import * as role from './role.validator.ts'
 import * as settingSite from './settingSite.validator.ts'
 import * as user from './user.validator.ts'
+import * as userMeta from './userMeta.validator.ts'
 import * as connection from './connection.validator.ts'
 
 const schemas = {
@@ -15,6 +16,7 @@ const schemas = {
     role,
     settingSite,
     user,
+    userMeta,
     connection,
 }
 
