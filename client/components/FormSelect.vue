@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { watch } from 'vue'
 import { get } from 'lodash-es'
+import { SelectIcon } from 'reka-ui'
+import { ChevronDown } from 'lucide-vue-next'
 import { FormField } from './ui/form'
 import FormControl from './ui/form/FormControl.vue'
 import FormDescription from './ui/form/FormDescription.vue'
@@ -102,12 +104,20 @@ watch(() => props.fetch, fetchOptions, { immediate: true })
         <FormItem>
             <FormLabel>{{ label }}</FormLabel>
             <FormControl>
-                <Select
-                    v-bind="componentField"
-                    :disabled
-                    :readonly
-                >
-                    <select-trigger class="w-full">
+                <Select v-bind="componentField">
+                    <SelectTrigger
+                        v-if="readonly"
+                        disabled
+                        class="w-full disabled:opacity-100"
+                    >
+                        <select-value :placeholder="placeholder" />
+                    </SelectTrigger>
+                    
+                    <select-trigger
+                        v-else
+                        class="w-full"
+                        :disabled="disabled"
+                    >
                         <select-value :placeholder="placeholder" />
                     </select-trigger>
                     <select-content>
