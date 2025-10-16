@@ -12,7 +12,7 @@ defineProps<{
 </script>
 
 <template>
-  <Card class="text-sm">
+  <Card class="text-sm py-0">
     <CardHeader v-if="title" class="p-3 border-b">
       <CardTitle>
         {{ title }}

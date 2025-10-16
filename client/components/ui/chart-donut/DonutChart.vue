@@ -29,6 +29,11 @@ const props = withDefaults(defineProps<Pick<BaseChartProps<T>, "data" | "colors"
    * Render custom tooltip component.
    */
   customTooltip?: Component
+
+  centralLabel?: string | ((total: number) => string)
+
+  padAngle?: number
+  cornerRadius?: number
 }>(), {
   margin: () => ({ top: 0, bottom: 0, left: 0, right: 0 }),
   sortFunction: () => undefined,
@@ -57,6 +62,14 @@ const legendItems = computed(() => props.data.map((item, i) => ({
 const totalValue = computed(() => props.data.reduce((prev, curr) => {
   return prev + curr[props.category]
 }, 0))
+
+function getCentralLabel() {
+  if (typeof props.centralLabel === 'function') {
+    return props.centralLabel(totalValue.value)
+  }
+
+  return props.type === 'donut' ? (props.centralLabel ?? valueFormatter(totalValue.value)) : ''
+}
 </script>
 
 <template>
@@ -76,7 +89,9 @@ const totalValue = computed(() => props.data.reduce((prev, curr) => {
         :color="colors"
         :arc-width="type === 'donut' ? 20 : 0"
         :show-background="false"
-        :central-label="type === 'donut' ? valueFormatter(totalValue) : ''"
+        :central-label="getCentralLabel()"
+        :pad-angle="padAngle"
+        :corner-radius="cornerRadius"
         :events="{
           [Donut.selectors.segment]: {
             click: (d: Data, ev: PointerEvent, i: number, elements: HTMLElement[]) => {
