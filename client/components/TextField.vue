@@ -7,10 +7,6 @@ defineProps({
         type: String,
         default: 'default',
     },
-    modelValue: {
-        type: [String, Number],
-        default: '',
-    },
     type: {
         type: String,
         default: 'text',
@@ -43,6 +39,10 @@ defineProps({
         type: Boolean,
         default: false,
     },
+    lazy: {
+        type: Boolean,
+        default: false,
+    },
     labelClass: {
         type: String,
         default: 'min-w-[132px]',
@@ -53,7 +53,9 @@ defineProps({
     },
 })
 
-defineEmits(['update:modelValue'])
+const [model, modifiers] = defineModel<string | number>({
+    default: '',
+})
 </script>
 <template>
     <div>
@@ -72,8 +74,11 @@ defineEmits(['update:modelValue'])
             >
                 {{ label }}
             </Label>
+            
+            <slot name="prepend" />
+
             <Input
-                :model-value="modelValue"
+                :model-value="model"
                 :type
                 :placeholder
                 :disabled
@@ -82,8 +87,10 @@ defineEmits(['update:modelValue'])
                 :autofocus
                 :class="[label && variant === 'horizontal' ? 'rounded-l-none flex-1' : '', inputClass]"
                 class="h-10"
-                @update:model-value="$emit('update:modelValue', $event)"
+                @update:model-value="!modifiers.lazy && (model = $event)"
+                @change="modifiers.lazy && (model = $event.target.value)"
             />
+
             <slot name="append" />
         </div>
         <p
