@@ -30,6 +30,11 @@ export type ModelUpdateOrCreateOptions<T extends keyof Database> = Omit<UpdateOr
 export function Model<Table extends keyof Database>(table: Table, primaryKey: keyof Database[Table] = 'id' as any) {
     return function ModelExtend<TBase extends Constructor>(Base: TBase) {
         return class extends Base {            
+            public static __model = {
+                table,
+                primaryKey,
+            }
+            
             public static serialize<T>(this: new () => T, row: any): Promise<T> {
                 const instance = new this() as any
 
