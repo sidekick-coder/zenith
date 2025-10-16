@@ -1,6 +1,7 @@
 <script lang="ts">
 import { watch } from 'vue'
 import type { PropType } from 'vue'
+import { watchDebounced } from '@vueuse/core'
 import DataTablePagination from './DataTablePagination.vue'
 import { cn } from '#client/lib/utils.ts'
 import type Pagination from '#shared/entities/pagination.entity.ts'
@@ -134,6 +135,10 @@ function reset() {
 }
 
 watch([page, limit], load, { immediate: true })
+watchDebounced(() => props.query, reset, { 
+    deep: true,
+    debounce: 1000 
+})
 
 defineExpose({ 
     load,
