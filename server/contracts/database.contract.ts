@@ -67,12 +67,20 @@ export interface FileTable extends TimestampTable, SoftDeleteTable {
   metadata: string | null
 }
 
+export interface FileMetaTable extends TimestampTable, SoftDeleteTable {
+  id: Generated<number>
+  file_id: number
+  name: string
+  value: string | null
+}
+
 export interface Database  {
   users: UserTable
   user_metas: UserMetaTable
   tokens: TokenTable
   migrations: MigrationsTable
   files: FileTable
+  files_metas: FileMetaTable
   
   roles: RoleTable
   user_roles: UserRoleTable
