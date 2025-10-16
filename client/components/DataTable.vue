@@ -1,7 +1,6 @@
 <script lang="ts">
-import { computed, h, watch  } from 'vue'
+import { watch  } from 'vue'
 import type { PropType } from 'vue'
-import { ref } from 'vue'
 import { get } from 'lodash-es'
 import Checkbox from './ui/checkbox/Checkbox.vue'
 import DataTablePagination from './DataTablePagination.vue'
@@ -366,13 +365,12 @@ defineExpose({
             </TableRow>
         </TableHeader>
         <TableBody>
-
             <TableRow v-if="rows.length === 0">
                 <TableCell
                     :colspan="columns.length + (props.selection ? 1 : 0)"
                     class="text-center"
                     :style="{
-                         height: 'var(--datatable-td-height, 3rem)'
+                        height: 'var(--datatable-td-height, 3rem)'
                     }"
                 >
                     {{ loading ? $t('Loading...') : $t('No data available') }}
@@ -494,7 +492,7 @@ defineExpose({
                                 :row="row"
                             >
                                 <div class="text-sm font-medium truncate block max-w-[40%]">
-                                     {{ findValue(row, c) }}
+                                    {{ findValue(row, c) }}
                                 </div>
                             </slot>
                         </div>

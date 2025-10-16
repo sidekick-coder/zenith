@@ -23,3 +23,9 @@ export const datetime = () => validator.create(v => v.pipe(
     v.transform(v => v instanceof Date ? v : new Date(v)),
     v.transform(v => format(v, 'yyyy-MM-dd HH:mm'))
 ))
+
+export const array = () => validator
+    .create(v => v.pipe(
+        v.string(),
+        v.transform(value => value.split(',')),
+    ))
