@@ -16,4 +16,18 @@ export default class File extends composeWith(
             file.url = await drive.url(file.filename)
         })
     }
+
+    public static async has(filename: string): Promise<boolean> {
+        const exists = await this.exists({
+            query: q => q.where('filename', '=', filename)
+        })
+
+        return exists
+    }
+
+    public static async findByFilename(filename: string) {
+        return await this.findOne({
+            where: qb => qb('filename', '=', filename)
+        })
+    }
 }
