@@ -1,3 +1,4 @@
+import type { ReadStream } from 'fs'
 import type ms from 'ms'
 import type DriveEntry from '#shared/entities/driveEntry.entity.ts'
 
@@ -16,4 +17,5 @@ export default interface DriveContract {
     write(filename: string, data: Uint8Array): Promise<void>;
     delete(filename: string): Promise<void>;
     url(filename: string, options?: DriveUrlOptions): Promise<string>;
+    readStream(filename: string): Promise<ReadStream>;
 }

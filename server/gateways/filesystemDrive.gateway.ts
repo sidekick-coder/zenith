@@ -96,6 +96,14 @@ export default class FilesystemDrive implements DriveContract {
         return new Uint8Array(buffer)
     }
 
+    public readStream(filename: string) {
+        const filePath = join(this.path, filename)
+        
+        const stream = fs.createReadStream(filePath)
+        
+        return Promise.resolve(stream)
+    }
+
     async write(filename: string, data: Uint8Array): Promise<void> {
         const filePath = join(this.path, filename)
         const folder = path.dirname(filePath)

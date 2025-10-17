@@ -30,4 +30,8 @@ export default class File extends composeWith(
             where: qb => qb('filename', '=', filename)
         })
     }
+
+    public readStream() {
+        return drive.use(this.drive).readStream(this.filename)
+    }
 }

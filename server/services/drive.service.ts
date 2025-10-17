@@ -92,6 +92,12 @@ export default class DriveService {
         return this.current.read(filename)
     }
 
+    public readStream(filename: string) {
+        if (!this.current) throw new BaseException('No drive selected')
+
+        return this.current.readStream(filename)
+    }
+
     public write(filename: string, data: Uint8Array): Promise<void> {
         if (!this.current) throw new BaseException('No drive selected')
 
