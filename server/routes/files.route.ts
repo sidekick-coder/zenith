@@ -25,18 +25,20 @@ router.get('/', async ({ acl, query }) => {
     })
 })
 
-router.post('/upload', async (ctx) => {
-    const file = await ctx.file('file')
+router.post('/upload', async ({ upload, query  }) => {
+    const file = await upload.single('file')
 
     if (!file) {
         throw new BaseException('No file provided')
     }
 
-    const entity = files.create({
-        file,
-        drive: ctx.query.drive as string | undefined,
-        metadata: ctx.query.metadata as any,
-    })
+    let currentDrive = drive
+
+    if (query.drive) {
+        currentDrive = drive.use(query.drive as string)
+    }
+
+    const entity = await currentDrive.createFile(file.buffer, file.originalname)
 
     return entity
 })

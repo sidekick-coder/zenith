@@ -1,7 +1,7 @@
 import fs from 'fs'
 import { randomUUID } from 'crypto'
-import mime from 'mime'
 import path from 'path'
+import mime from 'mime'
 import { undeleted } from '#server/queries/index.ts'
 import type DriveContract from '#server/contracts/drive.contract.ts'
 import DriveEntry from '#shared/entities/driveEntry.entity.ts'
@@ -201,27 +201,22 @@ export default class DriveService {
         }
     }
 
-    public async createFile(options: CreatePayload) {
-        const file = options.file
-            
-        const drive = this.use(options.drive || this.selected)
-            
-        const mimetype = mime.getType(file.originalname)
-        const ext = mime.getExtension(mimetype || '') || file.originalname.split('.').pop()
+    public async createFile(buffer: Buffer, clientName: string) {            
+        const mimetype = mime.getType(clientName)
+        const ext = mime.getExtension(mimetype || '') || clientName.split('.').pop()
         const filename = randomUUID() + (ext ? `.${ext}` : '')
-            
-        await drive.write(filename, file.buffer)
+
+        await this.write(filename, buffer)
             
         const entity = await File.create({
-            client_name: file.originalname,
-            drive: drive.selected!,
-            mimetype: mimetype || file.mimetype,
-            metadata: options.metadata ? JSON.stringify(options.metadata) : null,
+            client_name: clientName,
+            drive: this.selected!,
+            mimetype: mimetype || 'application/octet-stream',
             filename: filename,
         })
             
         return entity
-    }
+    }  
 
     public async createFileFromLocal(localFilePath: string, metadata?: Record<string, any>) {
         // Check if file exists
@@ -263,6 +258,7 @@ export default class DriveService {
         return entity
     }
 
+
     public async createFileFromUrl(fileUrl: string, drive?: string, metadata?: Record<string, any>) {
         // Download the file from URL
         const response = await fetch(fileUrl)
@@ -297,18 +293,18 @@ export default class DriveService {
 
     public createDefaultDrives(){
         config.set('drive.disks.storage', {
-            "driver": "filesystem",
-            "default": true,
-            "path": storagePath('drive'),
-            "name": "Storage",
-            "description": "Storage directory"
+            'driver': 'filesystem',
+            'default': true,
+            'path': storagePath('drive'),
+            'name': 'Storage',
+            'description': 'Storage directory'
         })
         
         config.set('drive.disks.root', {
-            "driver": "filesystem",
-            "path": "/",
-            "name": "Root",
-            "description": "Root directory"
+            'driver': 'filesystem',
+            'path': '/',
+            'name': 'Root',
+            'description': 'Root directory'
         })
 
         this.load()

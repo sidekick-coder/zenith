@@ -17,6 +17,7 @@ import ObjectInspect from '#client/components/ObjectInspect.vue'
 import { $auth } from '#client/composables/useAuth.ts'
 import { $acl } from '#client/composables/useAcl.ts'
 import { $file } from '#client/utils/file.ts'
+import Image from '#client/components/Image.vue'
 
 const loading = ref(false)
 const uploading = ref(false)
@@ -30,6 +31,10 @@ const columns = defineColumns<File>([
         label: 'ID',
         field: 'id',
         width: 50,
+    },
+    {
+        id: 'preview',
+        label: $t('Preview'),
     },
     {
         id: 'client_name',
@@ -133,26 +138,24 @@ async function destroy(id: number) {
             v-model:loading="loading"
             v-model:selected="selected"
             :columns="columns"
-            :serialize="File.from"
+            :serialize="row => File.from(row)"
             fetch="/api/files"
             row-key="id"
         >
-            <template #row-metadata="{ row }">
-                <ObjectInspect
-                    v-if="row.metadata"
-                    :model-value="row.metadata"
+            <template #row-preview="{ row }">
+                <Image
+                    v-if="row.isImage() && row.url"
+                    :src="row.url"
+                    class="size-16 object-cover rounded border border-muted-foreground/50"
+                />
+                <div
+                    v-else
+                    class="size-16 flex items-center justify-center bg-muted rounded border border-muted-foreground/50"
                 >
-                    <template #trigger>
-                        <Button
-                            size="sm"
-                            variant="outline"
-                        >
-                            {{ $t('View') }}
-                        </Button>
-                    </template>
-                </ObjectInspect>
-                <div v-else>
-                    -
+                    <Icon
+                        name="File"
+                        class="size-6 text-muted-foreground"
+                    />
                 </div>
             </template>
 
