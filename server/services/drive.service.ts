@@ -12,10 +12,8 @@ import File from '#server/entities/file.entity.ts'
 import type { DriveUrlOptions } from '#server/contracts/drive.contract.ts'
 import { storagePath, tmpPath } from '#server/utils/paths.ts'
 
-interface CreatePayload {
-    file: Express.Multer.File
-    drive?: string
-    metadata?: Record<string, any>
+interface CreateFileOptions {
+    filename?: string
 }
 
 export default class DriveService {
@@ -216,9 +214,20 @@ export default class DriveService {
         })
             
         return entity
-    }  
+    } 
+    
+    public async createFileFromFilename(filename: string) {            
+        const mimetype = mime.getType(filename)
+            
+        return await File.create({
+            client_name: filename,
+            filename: filename,
+            drive: this.selected!,
+            mimetype: mimetype || 'application/octet-stream',
+        })
+    } 
 
-    public async createFileFromLocal(localFilePath: string, metadata?: Record<string, any>) {
+    public async createFileFromLocal(localFilePath: string, options?: CreateFileOptions) {
         // Check if file exists
         const fileExists = await fs.promises.access(localFilePath, fs.constants.F_OK)
             .then(() => true)
@@ -241,25 +250,16 @@ export default class DriveService {
         const ext = mime.getExtension(mimetype || '') || originalName.split('.').pop()
         
         // Generate unique filename for storage
-        const filename = randomUUID() + (ext ? `.${ext}` : '')
+        const filename = options?.filename || randomUUID() + (ext ? `.${ext}` : '')
         
         // Upload to drive
         await this.upload(localFilePath, filename)
         
-        // Create file entity
-        const entity = await File.create({
-            client_name: originalName,
-            drive: this.selected!,
-            mimetype: mimetype || 'application/octet-stream',
-            metadata: metadata ? JSON.stringify(metadata) : null,
-            filename: filename,
-        })
-        
-        return entity
+        return this.createFileFromFilename(filename)
     }
 
 
-    public async createFileFromUrl(fileUrl: string, drive?: string, metadata?: Record<string, any>) {
+    public async createFileFromUrl(fileUrl: string, options?: CreateFileOptions) {
         // Download the file from URL
         const response = await fetch(fileUrl)
         
@@ -288,7 +288,7 @@ export default class DriveService {
         // Write file to tmp directory
         await fs.promises.writeFile(tmpFilePath, uint8Array)
 
-        return this.createFileFromLocal(tmpFilePath, metadata)
+        return this.createFileFromLocal(tmpFilePath, options)
     }    
 
     public createDefaultDrives(){
