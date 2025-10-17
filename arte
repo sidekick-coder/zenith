@@ -14,6 +14,10 @@ const args = [
 const child = cp.spawn(bin, args, {
     stdio: 'inherit',
     cwd: import.meta.dirname,
+    env: {
+        ZARTE: 'true',
+        ...process.env,
+    }
     // shell: true,
 });
 

@@ -15,7 +15,14 @@ const configSchema = v.optional(v.pipe(v.string(), v.transform((value) => {
     return Object.fromEntries(entries)
 })))
 
+const boolean = v.pipe(
+    v.union([v.literal('true'), v.literal('false'), v.literal('1'), v.literal('0')]),
+    v.transform((value) => value === 'true' || value === '1'),
+    v.boolean()
+)
+
 const base = v.object({
+    ZARTE: v.optional(boolean, 'false'),
     NODE_ENV: v.optional(v.union([v.literal('development'), v.literal('production'), v.literal('test')]), 'development'),
     LOG_LEVEL: v.optional(v.picklist(['error', 'warn', 'info', 'debug']), 'info'),
     LOG_LABEL_FILTER: v.optional(v.pipe(v.string(), v.transform((value) => value.split(',').map(l => l.trim())))),

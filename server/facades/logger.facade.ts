@@ -56,8 +56,13 @@ export function formatLog(data: any) {
         return message
     }
 
-    let result = `${timestamp}`
-    result += levelColor(` [${level}]`) + ':'
+    let result = ''
+
+    if (!env.ZARTE) {
+        result += `[${timestamp}] `
+    }
+
+    result += levelColor(`[${level}]`) + ':'
 
     if (label) {
         result += ` ${chalk.gray(label)}`
@@ -70,7 +75,7 @@ export function formatLog(data: any) {
     }
 
     if (Object.keys(rest).length > 0) {
-        result += '\n' + chalk.gray(printObject(rest))
+        result += '\n' + chalk.gray(printObject(rest).trim())
     }
 
     return result.trim()
@@ -91,23 +96,30 @@ function filter(labels: string[] = []) {
     })
 }
 
-export const logger = winston.createLogger({
-    level: env.LOG_LEVEL,
-    format: winston.format.json(),
-    transports: [
+const transports: winston.transport[] = [
+    new winston.transports.Console({
+        format: format.combine(
+            filter(env.LOG_LABEL_FILTER)(),
+            format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss', }),
+            format.printf(formatLog)
+        ),
+    }),
+]
+
+if (!env.ZARTE) {
+    transports.push(
         new winston.transports.File({
             filename: 'storage/logs/error.log', 
             level: 'error' 
         }),
         new winston.transports.File({ filename: 'storage/logs/app.log' }),
-        new winston.transports.Console({
-            format: format.combine(
-                filter(env.LOG_LABEL_FILTER)(),
-                format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss', }),
-                format.printf(formatLog)
-            ),
-        }),
-    ],
+    )
+}
+
+export const logger = winston.createLogger({
+    level: env.LOG_LEVEL,
+    format: winston.format.json(),
+    transports,
 })
 
 export default logger

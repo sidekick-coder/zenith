@@ -1,9 +1,9 @@
 import cp from 'child_process'
 import { program } from 'commander'
 import chokidar from 'chokidar'
+import { debounce } from 'lodash-es'
 import { basePath } from '#server/utils/paths.ts'
 import logger from '#server/facades/logger.facade.ts'
-import { debounce } from 'lodash-es'
 
 program.command('serve').option('-w, --watch', 'Watch for changes and restart server')
     .action((options) => {
@@ -25,7 +25,11 @@ program.command('serve').option('-w, --watch', 'Watch for changes and restart se
 
             serverProcess = cp.fork(modulePath, [], { 
                 execArgv,
-                silent: false 
+                silent: false,
+                env: {
+                    ...process.env,
+                    ZARTE: 'false',
+                }
             })
 
             // Listen for server-restart events from the child process
