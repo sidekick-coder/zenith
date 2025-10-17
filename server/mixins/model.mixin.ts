@@ -65,7 +65,7 @@ export function Model<Table extends keyof Database>(table: Table, primaryKey: ke
                 const constructor = this as any 
 
                 const items = await queries.list(table, {
-                    query: o?.query,
+                    ...o,
                     serialize: row => constructor.serialize(row),
                 })
 
