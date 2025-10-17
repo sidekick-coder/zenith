@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"name": "core",
+			"path": "../.."
+		},
+		{
+			"name": "module",
+			"path": "./"
+		}
+	],
+	"settings": {}
+}
