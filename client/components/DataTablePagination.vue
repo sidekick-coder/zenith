@@ -64,27 +64,24 @@ const visiblePages = computed(() => {
 </script>
 
 <template>
-    <div class="flex items-center justify-between px-2">
-        <div class="flex-1 text-sm text-muted-foreground">
+    <div class="flex flex-col sm:flex-row items-center justify-between px-2 gap-4">
+        <div class="flex-1 text-sm text-muted-foreground order-2 sm:order-1">
             {{ $t('Showing :0 of :1 rows', [limit, total]) }}
         </div>
-        <div class="flex items-center space-x-6 lg:space-x-8">
-            <div class="flex items-center space-x-4">
+        <div class="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-6 lg:space-x-8 order-1 sm:order-2">
+            <div class="flex items-center space-x-2 sm:space-x-4">
                 <Select
                     v-model="limit"
                     :label="$t('Rows per page')"
                     :options="limitOptions"
                     variant="horizontal"
-                    label-class="min-w-auto"
+                    label-class="min-w-auto text-xs sm:text-sm"
                 />
-                <span class="text-sm text-muted-foreground">
-                    {{ page }} of {{ totalPages }}
-                </span>
             </div>
-            <div class="flex items-center space-x-2">
+            <div class="flex items-center space-x-2 sm:space-x-2">
                 <Button
                     variant="outline"
-                    class="hidden w-8 h-8 p-0 lg:flex"
+                    class="w-8 h-8 p-0"
                     :disabled="page === 1"
                     @click="page = 1"
                 >
@@ -103,7 +100,7 @@ const visiblePages = computed(() => {
                     <span class="sr-only">{{ $t('Go to previous page') }}</span>
                     <Icon
                         name="ChevronLeft"
-                        class="w-4 h-4"
+                        class="w-3 h-3 sm:w-4 sm:h-4"
                     />
                 </Button>
                 <Button
@@ -124,12 +121,12 @@ const visiblePages = computed(() => {
                     <span class="sr-only">{{ $t('Go to next page') }}</span>
                     <Icon
                         name="ChevronRight"
-                        class="w-4 h-4"
+                        class="w-3 h-3 sm:w-4 sm:h-4"
                     />
                 </Button>
                 <Button
                     variant="outline"
-                    class="hidden w-8 h-8 p-0 lg:flex"
+                    class="w-8 h-8 p-0"
                     :disabled="page === totalPages"
                     @click="page = totalPages"
                 >
