@@ -5,7 +5,6 @@ import authMiddleware from '#server/middlewares/auth.middleware.ts'
 import { undeleted } from '#server/queries/index.ts'
 import validator from '#shared/services/validator.service.ts'
 import schemas from '#shared/validators/index.ts'
-import files from '#server/facades/files.facade.ts'
 import drive from '#server/facades/drive.facade.ts'
 
 const router = rootRouter.use(authMiddleware)
@@ -45,11 +44,11 @@ router.post('/upload', async ({ upload, query  }) => {
 
 
 router.get('/:id', async ({ acl, params }) => {
-    const file = await File.findOrFail({
-        query: qb => qb.selectAll()
-            .where(undeleted)
-            .where('id', '=', Number(params.id)),
-    })
+    const id = validator.validate(params.id, schemas.query.number)
+
+    console.log('Fetching file with ID:', id)  // Debug log
+
+    const file = await File.find(id)
 
     acl.authorize('read', file)
 

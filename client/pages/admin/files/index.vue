@@ -164,10 +164,9 @@ async function destroy(id: number) {
                     <Button
                         variant="ghost"
                         size="sm"
-                        :href="row.url"
-                        target="_blank"
+                        :to="`/admin/files/${row.id}`"
                     >
-                        <Icon name="Eye" />
+                        <Icon name="Edit" />
                     </Button>
                     <AlertButton
                         v-if="$acl.can('delete', row)"

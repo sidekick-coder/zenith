@@ -108,10 +108,14 @@ export function Model<Table extends keyof Database>(table: Table, primaryKey: ke
             public static async find<T>(this: new () => T, id: any): Promise<T | null> {
                 const constructor = this as any
 
-                return queries.findOne(table,{
+                const row = await queries.findOne(table,{
                     serialize: row => constructor.serialize(row),
                     where: (qb: any) => qb(primaryKey as string, '=', id)
                 }) as any
+
+                await emitHook(constructor, 'serialized', row)
+
+                return row as any
             }
 
             public static async findOrFail<T>(this: new () => T, id: any): Promise<T> {
