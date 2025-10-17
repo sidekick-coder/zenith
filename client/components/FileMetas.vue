@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import { toast } from 'vue-sonner'
 import type { ComponentExposed } from 'vue-component-type-helpers'
+import { Files } from 'lucide-vue-next'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from './ui/card'
 import DataTable, { defineColumns } from '#client/components/DataTable.vue'
 import { $t } from '#shared/lang.ts'
@@ -123,36 +124,39 @@ async function destroy(id: FileMeta['id']) {
                 row-key="id"
             >
                 <template #row-actions="{ row }">
-                    <div class="flex items-center gap-2">
+                    <div class="flex items-center gap-2 justify-end">
                         <DialogForm 
                             :fetch="`/api/files/${fileId}/metas/${row.id}`"
                             :title="$t('Edit meta')"
                             :description="$t('Fill in the details below to edit the meta')"
                             :schema="schemas.fileMeta.update"
-                            :fields="fields"
+                            :fields="{
+                                name: {
+                                    ...fields.name,
+                                    disabled: true,
+                                },
+                                value: fields.value,
+                            }"
+                            :values="row"
                             method="PUT"
                             @submit="load"
                         >
                             <Button
                                 size="icon"
-                                variant="outline"
+                                variant="ghost"
                             >
                                 <Icon name="Edit" />
                             </Button>
                         </DialogForm>
 
                         <AlertButton
+                            variant="ghost"
                             :title="$t('Delete meta')"
                             :description="$t('Are you sure you want to delete this meta?')"
                             :loading="deletingItems.includes(row.id)"
                             @confirm="destroy(row.id)"
                         >
-                            <Button
-                                size="icon"
-                                variant="destructive"
-                            >
-                                <Icon name="Trash" />
-                            </Button>
+                            <Icon name="Trash" />
                         </AlertButton>
                     </div>
                 </template>
