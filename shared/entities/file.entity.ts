@@ -18,4 +18,7 @@ export default class File extends compose(BaseEntity, Timestamp, SoftDelete) {
     public client_name: string
     public filename: string
     public metadata?: Record<string, any>
+
+    // dynamic
+    public url?: string
 }

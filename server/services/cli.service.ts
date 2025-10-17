@@ -1,6 +1,7 @@
 import Table from 'cli-table3'
 import type { Command } from 'commander'
 import db from '#server/facades/db.facade.ts'
+import drive from '#server/facades/drive.facade.ts'
 
 interface TableColumn {
     label: string
@@ -133,11 +134,15 @@ export class CLIService {
         this.ui = new UI()
     }
 
-    public with(capabilities: ('db')[], fn: (...args: any[]) => Promise<any>) {
+    public with(capabilities: ('db' | 'drive' )[], fn: (...args: any[]) => Promise<any>) {
         return async (...args: any[]) => {
             try {
                 if (capabilities.includes('db')) {
                     await db.load()
+                }
+
+                if (capabilities.includes('drive')) {
+                    await drive.load()
                 }
 
                 await fn(...args)

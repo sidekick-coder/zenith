@@ -46,11 +46,6 @@ const columns = defineColumns<File>([
         label: $t('Drive'),
         field: 'drive'
     },
-    {
-        id: 'metadata',
-        label: $t('Metadata'),
-        width: 100,
-    },
     { id: 'actions' }
 ])
 
@@ -163,6 +158,14 @@ async function destroy(id: number) {
 
             <template #row-actions="{ row }">
                 <div class="flex items-center gap-2 justify-end">                    
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        :href="row.url"
+                        target="_blank"
+                    >
+                        <Icon name="Eye" />
+                    </Button>
                     <AlertButton
                         v-if="$acl.can('delete', row)"
                         variant="ghost"
