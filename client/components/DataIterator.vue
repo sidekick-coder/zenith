@@ -38,7 +38,11 @@ const props = defineProps({
     serialize: {
         type: Function as PropType<(item: any) => T>,
         default: (item: any) => item as T,
-    }
+    },
+    limitOptions: {
+        type: Array as PropType<number[]>,
+        default: () => [10, 20, 30, 40, 50],
+    },
 })
 
 interface Slots {
@@ -191,6 +195,7 @@ defineExpose({
             v-model:limit="limit"
             v-model:total="total"
             v-model:total-pages="totalPages"
+            :limit-options="limitOptions"
             class="mt-4"
         />
     </div>

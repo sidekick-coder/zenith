@@ -1,14 +1,8 @@
 <script setup lang="ts">
-import type { Table } from '@tanstack/vue-table'
+import { computed } from 'vue'
 import Icon from './Icon.vue'
+import Select from './Select.vue'
 import { Button } from '#client/components/ui/button'
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '#client/components/ui/select'
 
 const page = defineModel('page', {
     type: Number,
@@ -31,6 +25,41 @@ const limit = defineModel('limit', {
     required: true,
 })
 
+const limitOptions = defineModel('limitOptions', {
+    type: Array as () => number[],
+    required: false,
+    default: () => [10, 20, 30, 40, 50],
+})
+
+const visiblePages = computed(() => {
+    const current = page.value
+    const total = totalPages.value
+    const pages: number[] = []
+    
+    if (total <= 3) {
+        // Show all pages if total is 3 or less
+        for (let i = 1; i <= total; i++) {
+            pages.push(i)
+        }
+        return pages
+    }
+    
+    // Calculate the range of 3 pages to show
+    let start = Math.max(1, current - 1)
+    const end = Math.min(total, start + 2)
+    
+    // Adjust start if end is at the boundary
+    if (end - start < 2) {
+        start = Math.max(1, end - 2)
+    }
+    
+    for (let i = start; i <= end; i++) {
+        pages.push(i)
+    }
+    
+    return pages
+})
+
 
 </script>
 
@@ -40,27 +69,17 @@ const limit = defineModel('limit', {
             {{ $t('Showing :0 of :1 rows', [limit, total]) }}
         </div>
         <div class="flex items-center space-x-6 lg:space-x-8">
-            <div class="flex items-center space-x-2">
-                <p class="text-sm font-medium">
-                    Rows per page
-                </p>
-                <Select v-model="limit">
-                    <SelectTrigger class="h-8 w-[70px]">
-                        <SelectValue :placeholder="limit.toString()" />
-                    </SelectTrigger>
-                    <SelectContent side="top">
-                        <SelectItem
-                            v-for="i in [10, 20, 30, 40, 50]"
-                            :key="i"
-                            :value="`${i}`"
-                        >
-                            {{ i }}
-                        </SelectItem>
-                    </SelectContent>
-                </Select>
-            </div>
-            <div class="flex w-[100px] items-center justify-center text-sm font-medium">
-                {{ $t('Page :0 of :1', [page, totalPages]) }}
+            <div class="flex items-center space-x-4">
+                <Select
+                    v-model="limit"
+                    :label="$t('Rows per page')"
+                    :options="limitOptions"
+                    variant="horizontal"
+                    label-class="min-w-auto"
+                />
+                <span class="text-sm text-muted-foreground">
+                    {{ page }} of {{ totalPages }}
+                </span>
             </div>
             <div class="flex items-center space-x-2">
                 <Button
@@ -86,6 +105,15 @@ const limit = defineModel('limit', {
                         name="ChevronLeft"
                         class="w-4 h-4"
                     />
+                </Button>
+                <Button
+                    v-for="pageNumber in visiblePages"
+                    :key="pageNumber"
+                    :variant="page === pageNumber ? 'default' : 'outline'"
+                    class="w-8 h-8 p-0"
+                    @click="page = pageNumber"
+                >
+                    {{ pageNumber }}
                 </Button>
                 <Button
                     variant="outline"
