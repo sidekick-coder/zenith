@@ -1,7 +1,8 @@
 import Table from 'cli-table3'
-import type { Command } from 'commander'
 import db from '#server/facades/db.facade.ts'
 import drive from '#server/facades/drive.facade.ts'
+import encrypt from '#server/facades/encrypt.facade.ts'
+import config from '#server/facades/config.facade.ts'
 
 interface TableColumn {
     label: string
@@ -134,15 +135,23 @@ export class CLIService {
         this.ui = new UI()
     }
 
-    public with(capabilities: ('db' | 'drive' )[], fn: (...args: any[]) => Promise<any>) {
+    public with(capabilities: ('config' | 'db' | 'drive' | 'encrypt' )[], fn: (...args: any[]) => Promise<any>) {
         return async (...args: any[]) => {
             try {
+                if (capabilities.includes('config')) {
+                    await config.load()
+                }
+
                 if (capabilities.includes('db')) {
                     await db.load()
                 }
 
                 if (capabilities.includes('drive')) {
                     await drive.load()
+                }
+
+                if (capabilities.includes('encrypt')) {
+                    encrypt.load(config.get('app.key'))
                 }
 
                 await fn(...args)
