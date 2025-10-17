@@ -3,6 +3,7 @@ import { watch } from 'vue'
 import type { PropType } from 'vue'
 import { watchDebounced } from '@vueuse/core'
 import DataTablePagination from './DataTablePagination.vue'
+import Icon from './Icon.vue'
 import { cn } from '#client/lib/utils.ts'
 import type Pagination from '#shared/entities/pagination.entity.ts'
 import { $fetch } from '#client/utils/fetcher.ts'
@@ -158,26 +159,22 @@ defineExpose({
         <!-- Loading indicator -->
         <div
             v-if="loading"
-            class="absolute top-0 left-0 right-0 h-1 bg-primary animate-pulse rounded z-10"
-        />
+            class="absolute top-0 left-0 right-0 inset-0 z-10 flex items-center justify-center"
+        >
+            <Icon
+                name="Loader2"
+                class="animate-spin text-primary size-6"
+            />
+        </div>
 
         <!-- Default slot for custom content above items -->
         <slot />
 
-        <!-- Loading slot -->
-        <div v-if="loading && items.length === 0">
-            <slot name="loading">
-                <div class="text-center py-8 text-muted-foreground">
-                    {{ $t('Loading...') }}
-                </div>
-            </slot>
-        </div>
-
         <!-- Empty state -->
-        <div v-else-if="!loading && items.length === 0">
+        <div v-if="!loading && items.length === 0">
             <slot name="empty">
                 <div class="text-center py-8 text-muted-foreground">
-                    {{ $t('No data available') }}
+                    {{ $t('No items') }}
                 </div>
             </slot>
         </div>

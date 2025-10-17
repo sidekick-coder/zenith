@@ -39,7 +39,7 @@ const loading = defineModel<boolean>('loading', {
 })
 
 const emit = defineEmits<{
-    (e: 'click'): void;
+    (e: 'click', event: Event): void
 }>()
 
 function onClick(e: Event) {
