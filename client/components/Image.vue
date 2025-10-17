@@ -29,13 +29,13 @@ defineProps({
         </DialogTrigger>
             
         <DialogContent 
-            class="sm:max-w-none w-auto h-auto p-2"
+            class="sm:max-w-auto w-auto p-0 h-auto bg-transparent border-0 shadow-none"
             hide-close
         >
             <img
                 :src="src"
                 :alt="alt"
-                class="block w-[100dvw] max-w-[80dvw] max-h-[80dvh] rounded-lg object-cover"
+                class="block h-[100dvw] max-h-[80dvh] rounded-lg object-contain"
             >
         </DialogContent>
     </Dialog>
