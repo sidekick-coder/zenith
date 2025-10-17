@@ -29,7 +29,7 @@ defineProps({
         </DialogTrigger>
             
         <DialogContent 
-            class="sm:max-w-auto w-auto p-0 h-auto bg-transparent border-0 shadow-none"
+            class="sm:max-w-auto w-auto p-0 h-auto bg-transparent border-0 shadow-none focus:outline-none"
             hide-close
         >
             <img
