@@ -32,11 +32,12 @@ export class ViteServer {
                 
             const state: Record<string, any> = {
                 'auth:user': null,
-                'setup': config.get('setup') || {},
                 'config': env.CLIENT_CONFIG || {},
+                'setup': config.get('setup') || {},
             }
 
             state.config.site = config.get('site', {})
+            state.config.branding = config.get('branding', {})
 
             if (state.setup.user) {
                 state['auth:user'] = await auth.authenticate(_request.cookies['Authorization'] || '')

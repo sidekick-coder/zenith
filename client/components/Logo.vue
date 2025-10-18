@@ -1,12 +1,22 @@
 <script setup lang="ts">
 import LogoIcon from './LogoIcon.vue'
+import config from '#client/facades/config.facade.ts'
+
+const logoFileId = config.get('branding.logoFileId', null)
 </script>
 
 <template>
-    <div class="flex aspect-square size-8 items-center justify-center rounded-md bg-primary text-sidebar-primary-foreground">
+    <img
+        v-if="logoFileId"
+        :src="`/api/files/${logoFileId}/stream`"
+        alt="Logo"
+        class="size-8 rounded-md"
+    >
+
+    <div
+        v-else
+        class="flex aspect-square size-8 items-center justify-center rounded-md bg-primary text-sidebar-primary-foreground"
+    >
         <LogoIcon class="size-5 fill-current text-white dark:text-black" />
-    </div>
-    <div class="ml-1 grid flex-1 text-left text-sm">
-        <span class="mb-0.5 truncate leading-tight font-semibold">Dashboard</span>
     </div>
 </template>

@@ -33,6 +33,7 @@ import { $t } from '#shared/lang.ts'
 import { useMenu } from '#client/composables/useMenu.ts'
 import type { MenuItem } from '#client/composables/useMenu.ts'
 import Icon from '#client/components/Icon.vue'
+import config from '#client/facades/config.facade.ts'
 
 export interface BreadcrumbItem {
     label: string;
@@ -180,6 +181,7 @@ async function onLogout() {
                         >
                             <router-link to="/">
                                 <Logo />
+                                <span class="font-medium">{{ config.get('branding.name', 'Dashboard') }}</span>
                             </router-link>
                         </SidebarMenuButton>
                     </SidebarMenuItem>
