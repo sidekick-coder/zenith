@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { onMounted, onUnmounted, ref } from 'vue'
 import Button from '#client/components/Button.vue'
-import Dashboard from '#client/layouts/AppLayout.vue'
+import AppLayout from '#client/layouts/AppLayout.vue'
 
 import Card from '#client/components/ui/card/Card.vue'
 import CardDescription from '#client/components/ui/card/CardDescription.vue'
@@ -19,23 +19,50 @@ import DialogHeader from '#client/components/ui/dialog/DialogHeader.vue'
 import DialogTitle from '#client/components/ui/dialog/DialogTitle.vue'
 import DialogDescription from '#client/components/ui/dialog/DialogDescription.vue'
 import Icon from '#client/components/Icon.vue'
+import PageTitle from '#client/components/PageTitle.vue'
+import PageSubtitle from '#client/components/PageSubtitle.vue'
+import DialogForm from '#client/components/DialogForm.vue'
+import schemas from '#shared/validators/index.ts'
+import DataTable, { defineColumns } from '#client/components/DataTable.vue'
 
 const items = ref<any[]>([])
+const columns = defineColumns<any>([
+    { 
+        id: 'enabled',
+        label: $t('Enabled'),
+        field: 'enabled',
+        width: 80
+    },
+    { 
+        id: 'name',
+        label: $t('Name'),
+        field: 'name',
+    },    
+    { id: 'actions' }
+])
 
 async function load() {
-    const response = await fetch('/api/modules', {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json', },
+    const [error, response] = await $fetch.try('/api/modules')
+
+    if (error) {
+        return
+    }
+
+    items.value = response 
+
+    // sort by enabled 
+    items.value.sort((a, b) => {
+        return Number(b.enabled) - Number(a.enabled)
     })
-
-    const json = await response.json()
-
-    items.value = json
 }
 
 onMounted(load)
 
 const toggling = ref(false)
+
+function reloadWindow(){
+    window.location.reload()
+}
 
 async function toggle(item: any) {
     toggling.value = true
@@ -54,14 +81,29 @@ async function toggle(item: any) {
 
     setTimeout(() => {
         toggling.value = false
-        window.location.reload()
+        reloadWindow()
     }, 1000)
-
 }
+
+function preventHotReload(){
+    throw '(skipping full reload)'
+}
+
+// onMounted(() => {
+//     if (import.meta.hot) {
+//         import.meta.hot.on('vite:beforeFullReload', preventHotReload)
+//     }
+// })
+
+// onUnmounted(() => {
+//     if (import.meta.hot) {
+//         import.meta.hot.off('vite:beforeFullReload', preventHotReload)
+//     }
+// })
 
 </script>
 <template>
-    <Dashboard>
+    <AppLayout>
         <Dialog :open="toggling">
             <DialogContent
                 class="sm:max-w-[425px]"
@@ -82,32 +124,75 @@ async function toggle(item: any) {
             </DialogContent>
         </Dialog>
 
-        <div class="flex flex-wrap gap-4">
-            <Card
-                v-for="(item, index) in items"
-                :key="index"
-                class="w-full lg:w-3/12 xl:w-2/12"
-            >
-                <CardHeader class="mb-auto">
-                    <CardTitle>
-                        {{ item.name }}
-                    </CardTitle>
-                    <CardDescription>
-                        {{ item.description || $t('No description available') }}
-                    </CardDescription>
-                </CardHeader>
+        <div class="mb-6">
+            <div>
+                <PageTitle>
+                    {{ $t('Modules') }}
+                </PageTitle>
+                <PageSubtitle>
+                    {{ $t('Manage the modules installed on your system.') }}
+                </PageSubtitle>
+            </div>
+        </div>
 
-                <CardFooter class="flex justify-end gap-2">
-                    <Button :to="`/admin/modules/${item.id}`">
+        <DataTable
+            :rows="items"
+            :columns="columns"
+        >
+            <template #row-enabled="{ row }">
+                <Switch
+                    :model-value="row.enabled"
+                    @click="toggle(row)"
+                />
+            </template>
+            
+            <template #row-name="{ row }">
+                <div class="flex items-center gap-4">
+                    <div class="bg-primary text-primary-foreground flex items-center justify-center size-10 rounded">
+                        <Icon
+                            :name="row.icon || 'Box'"
+                            class="size-5 inline-block"
+                        />
+                    </div>
+                    <div>
+                        <div class="font-medium">
+                            {{ row.name }}
+                        </div>
+                        <div>
+                            {{ row.description }}
+                        </div>
+                    </div>
+                </div>
+            </template>
+
+            <template #row-actions="{ row }">
+                <div class="flex justify-end gap-2">
+                    <Button :to="`/admin/modules/${row.id}`">
                         {{ $t('Configure') }}
                     </Button>
-                    <div class="flex-1" />
-                    <Switch
-                        :model-value="item.enabled"
-                        @click="toggle(item)"
-                    />
-                </CardFooter>
-            </Card>
-        </div>
-    </Dashboard>
+                    <DialogForm
+                        :title="$t('Uninstall Module')"
+                        :description="$t('Are you sure you want to uninstall the module {module}? This action cannot be undone.', { module: row.name })"
+                        :submit-text="$t('Uninstall')"
+                        :fetch="`/api/modules/${row.id}/uninstall`"
+                        :schema="schemas.modules.uninstall"
+                        :fields="{
+                            rollback: {
+                                component: 'switch',
+                                label: $t('Rollback migrations'),
+                                hint: $t('If enabled, any database migrations applied by this module will be rolled back.'),
+                            }
+                        }"
+                        @submit="reloadWindow"
+                    >
+                        <Button
+                            variant="destructive"
+                        >
+                            {{ $t('Uninstall') }}
+                        </Button>
+                    </DialogForm>
+                </div>
+            </template>
+        </DataTable>
+    </AppLayout>
 </template>
