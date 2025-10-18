@@ -16,6 +16,7 @@ import PageTitle from '#client/components/PageTitle.vue'
 import PageSubtitle from '#client/components/PageSubtitle.vue'
 import schemas from '#shared/validators/index.ts'
 import Icon from '#client/components/Icon.vue'
+import { $server } from '#client/utils/server.ts'
 
 const loading = ref(false)
 const saving = ref(false)
@@ -34,9 +35,6 @@ async function load() {
         loading.value = false
         return
     }
-
-    console.log(response)
-
     
     resetForm({
         values: response
@@ -50,10 +48,13 @@ async function load() {
 const onSubmit = handleSubmit(async (data) => {
     saving.value = true
 
-    const [error] = await tryCatch(() => $fetch('/api/branding', {
-        method: 'PUT',
-        data
-    }))
+    await $server.reloadAfter({
+        fn: async () => $fetch('/api/branding', {
+            method: 'PUT',
+            data,
+        })
+        
+    })
 
     if (error) {
         saving.value = false
@@ -105,7 +106,7 @@ onMounted(() => {
                 <Card>
                     <CardContent class="space-y-4">
                         <FormSelect
-                            name="logo-type"
+                            name="logoType"
                             :label="$t('Logo Type')"
                             :hint="$t('Choose how you want to set your logo')"
                             :disabled="loading || saving"
@@ -117,24 +118,24 @@ onMounted(() => {
                         />
                         
                         <FormTextField
-                            v-if="values['logo-type'] === 'url'"
-                            name="logo-url"
+                            v-if="values.logoType === 'url'"
+                            name="logoUrl"
                             :label="$t('Logo URL')"
                             :hint="$t('URL to your brand logo image')"
                             :disabled="loading || saving"
                         />
                         
                         <FormTextarea
-                            v-if="values['logo-type'] === 'svg'"
-                            name="logo-svg"
+                            v-if="values.logoType === 'svg'"
+                            name="logoSvg"
                             :label="$t('SVG Code')"
                             :hint="$t('Paste your SVG code here')"
                             :disabled="loading || saving"
                         />
                         
                         <FormTextField
-                            v-if="values['logo-type'] === 'file'"
-                            name="logo-file-id"
+                            v-if="values.logoType === 'file'"
+                            name="logoFileId"
                             :label="$t('File ID')"
                             :hint="$t('ID of the uploaded logo file')"
                             :disabled="loading || saving"
@@ -150,62 +151,62 @@ onMounted(() => {
                         
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <FormTextField
-                                name="color-background"
+                                name="cssVars.background"
                                 :label="$t('Background')"
                                 :disabled="loading || saving"
                             />
                             <FormTextField
-                                name="color-foreground"
+                                name="cssVars.foreground"
                                 :label="$t('Foreground')"
                                 :disabled="loading || saving"
                             />
                             <FormTextField
-                                name="color-primary"
+                                name="cssVars.primary"
                                 :label="$t('Primary')"
                                 :disabled="loading || saving"
                             />
                             <FormTextField
-                                name="color-primary-foreground"
+                                name="cssVars.primary-foreground"
                                 :label="$t('Primary Foreground')"
                                 :disabled="loading || saving"
                             />
                             <FormTextField
-                                name="color-secondary"
+                                name="cssVars.secondary"
                                 :label="$t('Secondary')"
                                 :disabled="loading || saving"
                             />
                             <FormTextField
-                                name="color-secondary-foreground"
+                                name="cssVars.secondary-foreground"
                                 :label="$t('Secondary Foreground')"
                                 :disabled="loading || saving"
                             />
                             <FormTextField
-                                name="color-accent"
+                                name="cssVars.accent"
                                 :label="$t('Accent')"
                                 :disabled="loading || saving"
                             />
                             <FormTextField
-                                name="color-accent-foreground"
+                                name="cssVars.accent-foreground"
                                 :label="$t('Accent Foreground')"
                                 :disabled="loading || saving"
                             />
                             <FormTextField
-                                name="color-muted"
+                                name="cssVars.muted"
                                 :label="$t('Muted')"
                                 :disabled="loading || saving"
                             />
                             <FormTextField
-                                name="color-muted-foreground"
+                                name="cssVars.muted-foreground"
                                 :label="$t('Muted Foreground')"
                                 :disabled="loading || saving"
                             />
                             <FormTextField
-                                name="color-destructive"
+                                name="cssVars.destructive"
                                 :label="$t('Destructive')"
                                 :disabled="loading || saving"
                             />
                             <FormTextField
-                                name="color-destructive-foreground"
+                                name="cssVars.destructive-foreground"
                                 :label="$t('Destructive Foreground')"
                                 :disabled="loading || saving"
                             />
@@ -221,37 +222,37 @@ onMounted(() => {
                         
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <FormTextField
-                                name="color-card"
+                                name="cssVars.card"
                                 :label="$t('Card Background')"
                                 :disabled="loading || saving"
                             />
                             <FormTextField
-                                name="color-card-foreground"
+                                name="cssVars.card-foreground"
                                 :label="$t('Card Foreground')"
                                 :disabled="loading || saving"
                             />
                             <FormTextField
-                                name="color-popover"
+                                name="cssVars.popover"
                                 :label="$t('Popover Background')"
                                 :disabled="loading || saving"
                             />
                             <FormTextField
-                                name="color-popover-foreground"
+                                name="cssVars.popover-foreground"
                                 :label="$t('Popover Foreground')"
                                 :disabled="loading || saving"
                             />
                             <FormTextField
-                                name="color-border"
+                                name="cssVars.border"
                                 :label="$t('Border')"
                                 :disabled="loading || saving"
                             />
                             <FormTextField
-                                name="color-input"
+                                name="cssVars.input"
                                 :label="$t('Input Background')"
                                 :disabled="loading || saving"
                             />
                             <FormTextField
-                                name="color-ring"
+                                name="cssVars.ring"
                                 :label="$t('Focus Ring')"
                                 :disabled="loading || saving"
                             />
@@ -267,27 +268,27 @@ onMounted(() => {
                         
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <FormTextField
-                                name="color-chart-1"
+                                name="cssVars.chart-1"
                                 :label="$t('Chart Color 1')"
                                 :disabled="loading || saving"
                             />
                             <FormTextField
-                                name="color-chart-2"
+                                name="cssVars.chart-2"
                                 :label="$t('Chart Color 2')"
                                 :disabled="loading || saving"
                             />
                             <FormTextField
-                                name="color-chart-3"
+                                name="cssVars.chart-3"
                                 :label="$t('Chart Color 3')"
                                 :disabled="loading || saving"
                             />
                             <FormTextField
-                                name="color-chart-4"
+                                name="cssVars.chart-4"
                                 :label="$t('Chart Color 4')"
                                 :disabled="loading || saving"
                             />
                             <FormTextField
-                                name="color-chart-5"
+                                name="cssVars.chart-5"
                                 :label="$t('Chart Color 5')"
                                 :disabled="loading || saving"
                             />
@@ -303,42 +304,42 @@ onMounted(() => {
                         
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <FormTextField
-                                name="color-sidebar"
+                                name="cssVars.sidebar"
                                 :label="$t('Sidebar Background')"
                                 :disabled="loading || saving"
                             />
                             <FormTextField
-                                name="color-sidebar-foreground"
+                                name="cssVars.sidebar-foreground"
                                 :label="$t('Sidebar Foreground')"
                                 :disabled="loading || saving"
                             />
                             <FormTextField
-                                name="color-sidebar-primary"
+                                name="cssVars.sidebar-primary"
                                 :label="$t('Sidebar Primary')"
                                 :disabled="loading || saving"
                             />
                             <FormTextField
-                                name="color-sidebar-primary-foreground"
+                                name="cssVars.sidebar-primary-foreground"
                                 :label="$t('Sidebar Primary Foreground')"
                                 :disabled="loading || saving"
                             />
                             <FormTextField
-                                name="color-sidebar-accent"
+                                name="cssVars.sidebar-accent"
                                 :label="$t('Sidebar Accent')"
                                 :disabled="loading || saving"
                             />
                             <FormTextField
-                                name="color-sidebar-accent-foreground"
+                                name="cssVars.sidebar-accent-foreground"
                                 :label="$t('Sidebar Accent Foreground')"
                                 :disabled="loading || saving"
                             />
                             <FormTextField
-                                name="color-sidebar-border"
+                                name="cssVars.sidebar-border"
                                 :label="$t('Sidebar Border')"
                                 :disabled="loading || saving"
                             />
                             <FormTextField
-                                name="color-sidebar-ring"
+                                name="cssVars.sidebar-ring"
                                 :label="$t('Sidebar Ring')"
                                 :disabled="loading || saving"
                             />

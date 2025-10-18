@@ -1,5 +1,6 @@
 import path from 'path'
 import db from '#server/facades/db.facade.ts'
+import assets from '#server/facades/assets.facade.ts'
 import router from '#server/facades/router.facade.ts'
 import scheduler from '#server/facades/scheduler.facade.ts'
 import emmitter from '#server/facades/emmitter.facade.ts'
@@ -9,6 +10,7 @@ import { importGlob } from '#server/utils/importAll.ts'
 import type { ServerSetup } from '#server/utils/defineServerSetup.ts'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
 import drive from '#server/facades/drive.facade.ts'
+import setup from '#server/setup.ts'
 
 const logger = rootLogger.child({ label: 'boot.service' })
 
@@ -19,6 +21,14 @@ export class BootService {
     }
 
     public async setup() {
+
+        await setup.setup({
+            router,
+            scheduler,
+            emmitter,
+            assets
+        })
+
         const files = await importGlob(storagePath('runtime', 'server', '*.setup.ts'), {
             onBeforeImport(ctx) {
                 ctx.filename += `?t=${Date.now()}` // prevent caching
@@ -38,7 +48,8 @@ export class BootService {
             const [error] = await tryCatch(() => mod.setup({
                 router,
                 scheduler,
-                emmitter
+                emmitter,
+                assets
             }))
 
             if (error) {
@@ -68,8 +79,7 @@ export class BootService {
             emmitter.clear()
         }
 
-        drive.load()
-
+        await drive.load()
         await db.load()
 
         await this.root()

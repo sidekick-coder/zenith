@@ -10,6 +10,7 @@ import rootLogger from '#server/facades/logger.facade.ts'
 import { clientPath, storagePath } from '#server/utils/paths.ts'
 import router from '#server/facades/router.facade.ts'
 import auth from '#server/facades/auth.facade.ts'
+import assets from '#server/facades/assets.facade.ts'
 
 const isProduction = env.NODE_ENV === 'production'
 
@@ -52,6 +53,10 @@ export class ViteServer {
             let head = rendered.head ?? ''
             const body = rendered.html ?? ''
 
+            // inject assets from assets facade
+            const assetStyles = this.getAssetsHtml()
+            head += assetStyles
+
             // only inject styles in development mode
             if (!isProduction) {
                 head += '<link rel="stylesheet" href="/client/style.css">'
@@ -76,6 +81,25 @@ export class ViteServer {
             console.log(error.stack)
             response.status(500).end(error.stack)
         }
+    }
+
+    private getAssetsHtml(): string {
+        let html = ''
+        
+        // Get all assets from the assets service
+        const allAssets = assets.getAll()
+        
+        for (const [name, asset] of Object.entries(allAssets)) {
+            if (asset.src) {
+                html += `<link rel="stylesheet" href="${asset.src}">`
+            }
+            
+            if (asset.content) {
+                html += `<style data-asset="${name}">${asset.content}</style>`
+            }
+        }
+        
+        return html
     }
     
     public async init(app: Application) {
