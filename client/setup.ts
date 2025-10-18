@@ -93,5 +93,11 @@ export default defineClientSetup(({ menu, router }) => {
         to: '/admin/settings/branding'
     })
 
-   
+    menu.add({
+        id: 'pwa',
+        group: $t('Settings'),
+        label: $t('PWA'),
+        icon: 'Tablet',
+        to: '/admin/settings/pwa'
+    })
 })

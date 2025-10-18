@@ -10,6 +10,7 @@ import * as fileMeta from './fileMeta.validator.ts'
 import * as connection from './connection.validator.ts'
 import * as modules from './modules.validator.ts'
 import * as branding from './branding.validator.ts'
+import * as pwa from './pwa.validator.ts'
 
 const schemas = {
     pagination,
@@ -24,6 +25,7 @@ const schemas = {
     connection,
     modules,
     branding,
+    pwa,
 }
 
 export default schemas
