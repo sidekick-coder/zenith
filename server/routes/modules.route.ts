@@ -7,6 +7,7 @@ import { basePath } from '#server/utils/paths.ts'
 import env from '#server/env.ts'
 import BaseException from '#server/exceptions/base.ts'
 import build from '#server/services/build.service.ts'
+import validator from '#shared/services/validator.service.ts'
 
 const router = root.use(authMiddleware)
     .prefix('/api/modules')
@@ -18,6 +19,21 @@ router.get('/', () => {
 
 router.get('/:id', ({ params }) => {
     return modules.find(params.id)
+})
+
+
+router.get('/:id/migrations', async ({ params }) => {
+    const all = await migrator.list()
+
+    const migrations = all
+        .filter(m => m.module === params.id)
+        .map(m => ({
+            name: m.name,
+            filename: path.relative(basePath(), m.filePath),
+            status: m.executedAt ? 'executed' : 'pending',
+        }))
+
+    return migrations
 })
 
 router.post('/:id/toggle', async ({ params }) => {
@@ -41,7 +57,9 @@ router.post('/:id/migrate', async ({ params }) => {
 })
 
 router.post('/:id/rollback', async ({ params }) => {
-    const items = await migrator.rollbackByModule(params.id)
+    const items = await migrator.rollback({
+        module: params.id,
+    })
 
     const itemWithError = items.find(i => i.error)
 
@@ -52,17 +70,33 @@ router.post('/:id/rollback', async ({ params }) => {
     return { success: true, }
 })
 
-router.get('/:id/migrations', async ({ params }) => {
-    const all = await migrator.list()
+router.post('/:id/fresh', async ({ params }) => {
+    const items = await migrator.fresh({
+        module: params.id,
+    })
 
-    const migrations = all
-        .filter(m => m.module === params.id)
-        .map(m => ({
-            name: m.name,
-            filename: path.relative(basePath(), m.filePath),
-            status: m.executedAt ? 'executed' : 'pending',
-        }))
+    const itemWithError = items.find(i => i.error)
 
-    return migrations
+    if (itemWithError?.error) {
+        throw new BaseException(itemWithError.error)
+    }
+
+    return items
+})
+
+router.post('/:id/uninstall', async ({ params, body }) => {
+    const options = validator.validate(body, v => v.object({
+        rollback: v.optional(v.boolean()),
+    }))
+
+    await modules.uninstall(params.id, {
+        rollback: options.rollback,
+    })
+
+    await build.build()
+
+    await build.reloadServer()
+
+    return { success: true, }
 })
 

@@ -3,7 +3,7 @@
 import { ref, onMounted } from 'vue'
 import { toast } from 'vue-sonner'
 import { $fetch } from '../utils/fetcher'
-import DataTable from './DataTable.vue'
+import DataTable, { defineColumns } from './DataTable.vue'
 import { CardHeader, CardTitle } from './ui/card'
 import AlertButton from './AlertButton.vue'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
@@ -21,7 +21,7 @@ interface Migration {
 const migrations = ref<Migration[]>([])
 const loading = ref(false)
 
-const columns = [
+const columns = defineColumns<Migration>([
     {
         field: 'name',
         label: 'Name',
@@ -30,7 +30,7 @@ const columns = [
         field: 'status',
         label: 'Status',
     },
-]
+])
 
 async function load() {
     loading.value = true
@@ -86,6 +86,24 @@ async function rollback() {
         load()
     }, 1000)
 }
+
+async function fresh() {
+    executing.value = true
+
+    const [error] = await tryCatch(() => $fetch(`/api/modules/${props.id}/fresh`, { method: 'POST' }))
+
+    if (error) {
+        executing.value = false
+        return
+    }
+
+    toast.success($t('Fresh migrations applied successfully'))
+
+    setTimeout(() => {
+        executing.value = false
+        load()
+    }, 1000)
+}
 </script>
 
 <template>
@@ -101,6 +119,15 @@ async function rollback() {
             @confirm="rollback"
         >
             Rollback
+        </AlertButton>
+        
+        <AlertButton
+            :loading="executing"
+            :description="$t('This will drop all tables and recreate them. This can potentially lead to data loss')"
+            variant="destructive"
+            @confirm="fresh"
+        >
+            Fresh
         </AlertButton>
         
         <AlertButton
