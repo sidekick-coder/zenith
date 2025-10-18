@@ -1,11 +1,14 @@
 import fs from 'fs'
+import { Readable } from 'stream'
 import path from 'path'
 import { spawn } from 'child_process'
+import unzipper from 'unzipper'
 import rootLogger from '../facades/logger.facade.ts'
 import config from '#server/facades/config.facade.ts'
 import {
     basePath,
-    storagePath
+    storagePath,
+    tmpPath
 } from '#server/utils/paths.ts'
 import router from '#server/facades/router.facade.ts'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
@@ -330,6 +333,35 @@ export class ModulesService {
         }
 
         logger.info(`Module '${moduleName}' installed successfully`)
+    }
+
+    public async installFromZip(zipPath: string, id: string) {
+        const modulesPath = basePath('modules')
+        const moduleDir = path.join(modulesPath, id)
+        const tempDir = tmpPath(id + '_unzipped')
+
+        // Check if module already exists
+        if (fs.existsSync(moduleDir)) {
+            throw new Error(`Module '${id}' already exists`)
+        }
+
+        const directory = await unzipper.Open.file(zipPath)
+
+        await directory.extract({ path: tempDir })
+
+        let targetDir = tempDir
+
+        // If the zip contains a single root folder, use it
+        const entries = fs.readdirSync(tempDir)
+        
+        if (entries.length === 1) {
+            targetDir = path.join(tempDir, entries[0])
+        }
+
+        // Move extracted files to module directory
+        fs.renameSync(targetDir, moduleDir)
+
+        logger.info(`Module '${id}' installed successfully from zip`)
     }
 
     public async uninstall(moduleName: string, options: UninstallOptions = {}) {

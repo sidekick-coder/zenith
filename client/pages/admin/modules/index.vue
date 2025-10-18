@@ -60,10 +60,6 @@ onMounted(load)
 
 const toggling = ref(false)
 
-function reloadWindow(){
-    window.location.reload()
-}
-
 async function toggle(item: any) {
     toggling.value = true
 
@@ -81,26 +77,9 @@ async function toggle(item: any) {
 
     setTimeout(() => {
         toggling.value = false
-        reloadWindow()
+        load()
     }, 1000)
 }
-
-function preventHotReload(){
-    throw '(skipping full reload)'
-}
-
-// onMounted(() => {
-//     if (import.meta.hot) {
-//         import.meta.hot.on('vite:beforeFullReload', preventHotReload)
-//     }
-// })
-
-// onUnmounted(() => {
-//     if (import.meta.hot) {
-//         import.meta.hot.off('vite:beforeFullReload', preventHotReload)
-//     }
-// })
-
 </script>
 <template>
     <AppLayout>
@@ -124,7 +103,7 @@ function preventHotReload(){
             </DialogContent>
         </Dialog>
 
-        <div class="mb-6">
+        <div class="mb-6 flex items-center justify-between">
             <div>
                 <PageTitle>
                     {{ $t('Modules') }}
@@ -132,6 +111,14 @@ function preventHotReload(){
                 <PageSubtitle>
                     {{ $t('Manage the modules installed on your system.') }}
                 </PageSubtitle>
+            </div>
+            <div>
+                <Button
+                    :to="'/admin/modules/install'"
+                    class="mt-4"
+                >
+                    {{ $t('Add new') }}
+                </Button>
             </div>
         </div>
 
@@ -183,7 +170,7 @@ function preventHotReload(){
                                 hint: $t('If enabled, any database migrations applied by this module will be rolled back.'),
                             }
                         }"
-                        @submit="reloadWindow"
+                        @submit="load"
                     >
                         <Button
                             variant="destructive"
