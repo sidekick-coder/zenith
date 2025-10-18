@@ -24,8 +24,8 @@ defineEmits(['update:modelValue'])
 </script>
 
 <template>
-    <div class="rounded-lg border p-4 flex items-center justify-between">
-        <div class="space-y-0.5">
+    <div class="rounded-lg border p-4 flex items-center justify-between gap-x-4">
+        <div class="space-y-2">
             <label class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
                 {{ label }}
             </label>

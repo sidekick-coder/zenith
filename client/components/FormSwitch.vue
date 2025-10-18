@@ -35,8 +35,8 @@ defineProps({
         :name
         :validate-on-blur="false"
     >
-        <FormItem class="rounded-lg border p-4 flex items-center justify-between">
-            <div class="space-y-0.5">
+        <FormItem class="rounded-lg border p-4 flex items-center justify-between gap-x-4">
+            <div class="space-y-2">
                 <FormLabel>{{ label }}</FormLabel>
                 <FormDescription v-if="hint">
                     {{ hint }}

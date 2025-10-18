@@ -1,6 +1,6 @@
 <script lang="ts">
 export interface FormField {
-    component: 'text-field' | 'textarea' | 'select' | 'autocomplete'
+    component: 'text-field' | 'textarea' | 'select' | 'autocomplete' | 'switch'
     [key: string]: any
 }
 
@@ -19,6 +19,7 @@ import FormTextarea from './FormTextarea.vue'
 import FormSelect from './FormSelect.vue'
 import FormAutocomplete from './FormAutocomplete.vue'
 import ClientOnly from './ClientOnly.vue'
+import FormSwitch from './FormSwitch.vue'
 import { $t } from '#shared/lang.ts'
 import FormTextField from '#client/components/FormTextField.vue'
 import { $fetch } from '#client/utils/fetcher.ts'
@@ -61,6 +62,10 @@ const props = defineProps({
     fields: {
         type: Object as () => Record<keyof v.InferInput<T>, FormField>,
         default: () => ({}),
+    },
+    submitText: {
+        type: String,
+        default: $t('Save'),
     },
 })
 
@@ -185,6 +190,12 @@ watch(open, () => {
                             :name="field.name"
                             v-bind="field.props"
                         />
+
+                        <FormSwitch
+                            v-else-if="field.component === 'switch'"
+                            :name="field.name"
+                            v-bind="field.props"
+                        />
     
                         <!-- Add other field types like select, checkbox, radio as needed -->
                     </template>
@@ -207,7 +218,7 @@ watch(open, () => {
                             class="w-full"
                             :loading
                         >
-                            {{ $t('Save') }}
+                            {{ submitText }}
                         </Button>
                     </DialogFooter>
                 </form>
