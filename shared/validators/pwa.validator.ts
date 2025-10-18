@@ -9,13 +9,11 @@ export const schema = validator.create(v => v.object({
     backgroundColor: v.optional(v.string()),
     themeColor: v.optional(v.string()),
     icons: v.optional(v.array(v.object({
-        src: v.optional(v.string()),
         fileId: v.optional(v.string()),
         sizes: v.optional(v.string()),
         type: v.optional(v.string())
     }))),
     screenshots: v.optional(v.array(v.object({
-        src: v.optional(v.string()),
         fileId: v.optional(v.string()),
         formFactor: v.optional(v.string()),
         sizes: v.optional(v.string())

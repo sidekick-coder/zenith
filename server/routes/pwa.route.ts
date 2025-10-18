@@ -19,19 +19,15 @@ async function generateManifestFromConfig() {
 
     // Process icons with file URLs
     const icons = []
-    if (pwaSettings.icons && Array.isArray(pwaSettings.icons)) {
-        for (const icon of pwaSettings.icons) {
-            const processedIcon = { ...icon }
-            if (icon.fileId) {
-                processedIcon.src = await drive.url(icon.fileId)
-            }
-            if (!processedIcon.src) {
-                processedIcon.src = icon.src || `/logo-${icon.sizes?.split('x')[0] || '512'}.png`
-            }
-            icons.push(processedIcon)
-        }
-    } else {
-        // Default icons
+    for (const icon of pwaSettings.icons || []) {
+        icons.push({
+            src: `/api/files/${icon.fileId}/stream`,
+            sizes: icon.sizes,
+            type: icon.type
+        })
+    } 
+
+    if (icons.length === 0) {
         icons.push(
             { 
                 src: '/logo-128.png', 
