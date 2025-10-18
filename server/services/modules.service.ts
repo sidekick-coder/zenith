@@ -361,6 +361,8 @@ export class ModulesService {
         // Move extracted files to module directory
         fs.renameSync(targetDir, moduleDir)
 
+        await this.prepare(id)
+
         logger.info(`Module '${id}' installed successfully from zip`)
     }
 

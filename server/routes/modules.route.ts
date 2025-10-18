@@ -87,6 +87,16 @@ router.post('/:id/fresh', async ({ params }) => {
 })
 
 router.post('/:id/uninstall', async ({ params, body }) => {
+    const mod = await modules.find(params.id)
+
+    if (!mod) {
+        throw new BaseException('Module not found', 404)
+    }
+
+    if (mod.enabled) {
+        throw new BaseException('Module is enabled, cannot uninstall')
+    }
+
     const options = validator.validate(body, v => v.object({
         rollback: v.optional(v.boolean()),
     }))
@@ -94,9 +104,6 @@ router.post('/:id/uninstall', async ({ params, body }) => {
     await modules.uninstall(params.id, {
         rollback: options.rollback,
     })
-
-    await server.build()
-    await server.reload()
 
     return { success: true, }
 })
