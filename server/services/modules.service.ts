@@ -1,5 +1,4 @@
 import fs from 'fs'
-import { Readable } from 'stream'
 import path from 'path'
 import { spawn } from 'child_process'
 import unzipper from 'unzipper'
@@ -10,11 +9,11 @@ import {
     storagePath,
     tmpPath
 } from '#server/utils/paths.ts'
-import router from '#server/facades/router.facade.ts'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
 import migrator from '#server/facades/migrator.facade.ts'
+import Module from '#server/entities/module.entity.ts'
 
-const logger = rootLogger.child({ label: 'modules.service' })
+const logger = rootLogger.child({ label: 'modules' })
 
 /**
  * Execute a shell command and return a promise
@@ -41,11 +40,6 @@ function executeCommand(command: string, args: string[], options: { cwd?: string
     })
 }
 
-interface Options {
-    build?: boolean;
-    boot?: boolean;
-}
-
 interface InstallOptions {
     enable?: boolean
     migrate?: boolean
@@ -56,32 +50,6 @@ interface InstallOptions {
 interface UninstallOptions {
     rollback?: boolean
 }
-
-class Module {
-    public id: string
-    public name: string
-    public enabled: boolean = false
-
-    constructor(name: string) {
-        this.id = name
-        this.name = name
-    }
-
-    public makePath(...parts: string[]) {
-        return basePath('modules', this.name, ...parts)
-    }
-
-    public async loadRoutes(){
-        const filename = this.makePath('server', 'routes.ts')
-
-        if (!fs.existsSync(filename)) {
-            return
-        }
-
-        await router.loadFile(filename)
-    }
-}
-
 interface ListOptions {
     enabled?: boolean;
 }
@@ -96,9 +64,11 @@ export class ModulesService {
         let items = [] as Module[]
 
         for (const name of moduleNames) {
-            const mod = new Module(name)
-
-            mod.enabled = config.get(`modules.enabled.${name}`, false)
+            const mod = Module.from({
+                id: name,
+                name: name,
+                enabled: config.get(`modules.enabled.${name}`, false),
+            })
 
             items.push(mod)
         }
@@ -370,33 +340,22 @@ export class ModulesService {
         const mod = await this.findOrFail(moduleName)
         const moduleDir = mod.makePath()
 
-        logger.info(`Uninstalling module '${moduleName}'`)
+        logger.info(`uninstalling module '${moduleName}'`)
 
         // Rollback migrations if requested
         if (options.rollback) {
-            const result = await migrator.rollbackByModule(moduleName)
-            logger.info(`Migrations for module '${moduleName}' rolled back successfully`, result)
-        }
-
-        // Disable the module
-        if (mod.enabled) {
-            await this.disable(moduleName)
+            await migrator.rollback({
+                module: moduleName
+            })
         }
 
         // Remove module folder        
-        const [removeError] = await tryCatch(() => fs.rmSync(moduleDir, { 
+        fs.rmSync(moduleDir, { 
             recursive: true, 
             force: true 
-        }))
-            
-        if (removeError) {
-            logger.error(`Failed to remove module directory: ${removeError.message}`)
-            throw new Error(`Failed to remove module directory: ${removeError.message}`)
-        }
+        })
 
-        logger.info(`Module directory '${moduleDir}' removed successfully`)
-
-        logger.info(`Module '${moduleName}' uninstalled successfully`)
+        logger.info(`'${moduleName}' uninstalled successfully`)
     }
 }
 
