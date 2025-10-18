@@ -53,16 +53,7 @@ const onSubmit = handleSubmit(async (data) => {
             method: 'PUT',
             data,
         })
-        
     })
-
-    if (error) {
-        saving.value = false
-        return
-    }
-
-    toast.success($t('Updated successfully.'))
-    saving.value = false
 })
 
 onMounted(() => {
@@ -148,8 +139,8 @@ onMounted(() => {
                         <h3 class="text-lg font-semibold mb-4">
                             {{ $t('Main Theme Colors') }}
                         </h3>
-                        
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
                             <FormTextField
                                 name="cssVars.background"
                                 :label="$t('Background')"
@@ -208,139 +199,6 @@ onMounted(() => {
                             <FormTextField
                                 name="cssVars.destructive-foreground"
                                 :label="$t('Destructive Foreground')"
-                                :disabled="loading || saving"
-                            />
-                        </div>
-                    </CardContent>
-                </Card>
-
-                <Card>
-                    <CardContent class="space-y-4">
-                        <h3 class="text-lg font-semibold mb-4">
-                            {{ $t('Interface Colors') }}
-                        </h3>
-                        
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <FormTextField
-                                name="cssVars.card"
-                                :label="$t('Card Background')"
-                                :disabled="loading || saving"
-                            />
-                            <FormTextField
-                                name="cssVars.card-foreground"
-                                :label="$t('Card Foreground')"
-                                :disabled="loading || saving"
-                            />
-                            <FormTextField
-                                name="cssVars.popover"
-                                :label="$t('Popover Background')"
-                                :disabled="loading || saving"
-                            />
-                            <FormTextField
-                                name="cssVars.popover-foreground"
-                                :label="$t('Popover Foreground')"
-                                :disabled="loading || saving"
-                            />
-                            <FormTextField
-                                name="cssVars.border"
-                                :label="$t('Border')"
-                                :disabled="loading || saving"
-                            />
-                            <FormTextField
-                                name="cssVars.input"
-                                :label="$t('Input Background')"
-                                :disabled="loading || saving"
-                            />
-                            <FormTextField
-                                name="cssVars.ring"
-                                :label="$t('Focus Ring')"
-                                :disabled="loading || saving"
-                            />
-                        </div>
-                    </CardContent>
-                </Card>
-
-                <Card>
-                    <CardContent class="space-y-4">
-                        <h3 class="text-lg font-semibold mb-4">
-                            {{ $t('Chart Colors') }}
-                        </h3>
-                        
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <FormTextField
-                                name="cssVars.chart-1"
-                                :label="$t('Chart Color 1')"
-                                :disabled="loading || saving"
-                            />
-                            <FormTextField
-                                name="cssVars.chart-2"
-                                :label="$t('Chart Color 2')"
-                                :disabled="loading || saving"
-                            />
-                            <FormTextField
-                                name="cssVars.chart-3"
-                                :label="$t('Chart Color 3')"
-                                :disabled="loading || saving"
-                            />
-                            <FormTextField
-                                name="cssVars.chart-4"
-                                :label="$t('Chart Color 4')"
-                                :disabled="loading || saving"
-                            />
-                            <FormTextField
-                                name="cssVars.chart-5"
-                                :label="$t('Chart Color 5')"
-                                :disabled="loading || saving"
-                            />
-                        </div>
-                    </CardContent>
-                </Card>
-
-                <Card>
-                    <CardContent class="space-y-4">
-                        <h3 class="text-lg font-semibold mb-4">
-                            {{ $t('Sidebar Colors') }}
-                        </h3>
-                        
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <FormTextField
-                                name="cssVars.sidebar"
-                                :label="$t('Sidebar Background')"
-                                :disabled="loading || saving"
-                            />
-                            <FormTextField
-                                name="cssVars.sidebar-foreground"
-                                :label="$t('Sidebar Foreground')"
-                                :disabled="loading || saving"
-                            />
-                            <FormTextField
-                                name="cssVars.sidebar-primary"
-                                :label="$t('Sidebar Primary')"
-                                :disabled="loading || saving"
-                            />
-                            <FormTextField
-                                name="cssVars.sidebar-primary-foreground"
-                                :label="$t('Sidebar Primary Foreground')"
-                                :disabled="loading || saving"
-                            />
-                            <FormTextField
-                                name="cssVars.sidebar-accent"
-                                :label="$t('Sidebar Accent')"
-                                :disabled="loading || saving"
-                            />
-                            <FormTextField
-                                name="cssVars.sidebar-accent-foreground"
-                                :label="$t('Sidebar Accent Foreground')"
-                                :disabled="loading || saving"
-                            />
-                            <FormTextField
-                                name="cssVars.sidebar-border"
-                                :label="$t('Sidebar Border')"
-                                :disabled="loading || saving"
-                            />
-                            <FormTextField
-                                name="cssVars.sidebar-ring"
-                                :label="$t('Sidebar Ring')"
                                 :disabled="loading || saving"
                             />
                         </div>
