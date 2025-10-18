@@ -39,6 +39,11 @@ router.post('/upload', async ({ upload, query  }) => {
 
     const entity = await currentDrive.createFile(file.buffer, file.originalname)
 
+    if (query.public) {
+        await File.updateById(entity.id, { private: false })
+        entity.private = false
+    }
+
     return entity
 })
 
@@ -55,31 +60,38 @@ router.get('/:id', async ({ acl, params }) => {
     return file
 })
 
-router.get('/:id/stream', async ({ acl, params, response }) => {
-    const file = await File.findOrFail({
-        query: qb => qb.selectAll()
-            .where(undeleted)
-            .where('id', '=', Number(params.id)),
+rootRouter
+    .get('/api/files/:id/stream', async ({ params,acl, response }) => {
+        const id = validator.validate(params.id, schemas.query.number)
+
+        const file = await File.findOneOrFail({
+            query: qb => qb.selectAll().where('id', '=', Number(params.id)),
+        })
+
+        if (!file) {
+            throw new BaseException('File not found', 404)
+        }
+
+        if (!file.private) {
+            acl.authorize('read', file)
+        }
+
+        const stream = await file.readStream()
+
+        response.set('Content-Type', file.mimetype || 'application/octet-stream')
+        response.set('Content-Disposition', `inline; filename="${file.client_name}"`)
+        
+        stream.pipe(response)
+
+        stream.on('error', (streamErr) => {
+            console.error(`Error streaming file: ${streamErr}`)
+            response.status(500).send('Error streaming file')
+        })
+
+        return new Promise<void>((resolve, reject) => {
+            // Optional: Handle when the stream finishes
+            stream.on('error', reject)
+            stream.on('end', resolve)
+
+        })
     })
-
-    acl.authorize('read', file)
-
-    if (!file.drive) {
-        throw new BaseException('File has no associated drive', 500)
-    }
-
-    const driveInstance = drive.use(file.drive)
-    const exists = await driveInstance.exists(file.filename)
-
-    if (!exists) {
-        throw new BaseException('File not found on storage', 404)
-    }
-
-    const data = await driveInstance.read(file.filename)
-
-    response.set('Content-Type', file.mimetype || 'application/octet-stream')
-    response.set('Content-Length', String(data.length))
-    response.set('Content-Disposition', `inline; filename="${file.client_name}"`)
-
-    return data
-})

@@ -2,9 +2,11 @@ import type { Updateable, ExpressionBuilder, ExpressionWrapper } from 'kysely'
 import type { UpdateFrom, SerializableResult, SerializeOptions } from './common.ts'
 import type { Database } from '#server/contracts/database.contract.ts'
 import db from '#server/facades/db.facade.ts'
+import normalizers from '#server/normalizers/index.ts'
 
 export interface UpdateOptions<T extends keyof Database> extends SerializeOptions<T> {
     values: Updateable<Database[T]>
+    normalize?: boolean | ((value: any) => any) // default true
     where?: (qb: ExpressionBuilder<Database, T>) => ExpressionWrapper<Database, T, any>
     query?: (qb: UpdateFrom<T>) => UpdateFrom<T>
 }
@@ -57,9 +59,24 @@ export async function updateMysql<T extends keyof Database, O extends UpdateOpti
 }
 
 export async function update<T extends keyof Database, O extends UpdateOptions<T>>(table: T, options?: O) {
-    if (db.driver === 'mysql') {
-        return updateMysql(table, options)
+    let values: any = options?.values || {}
+
+    const normalize = typeof options?.normalize === 'function' ? options?.normalize : normalizers.all.toDb
+
+    if (options?.normalize !== false) {
+        values = normalize(values)
     }
 
-    return updateDefault(table, options)
+    const parsedOptions = {
+        ...options,
+        values
+    }
+
+    console.log(parsedOptions)
+
+    if (db.driver === 'mysql') {
+        return updateMysql(table, parsedOptions)
+    }
+
+    return updateDefault(table, parsedOptions)
 }

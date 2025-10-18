@@ -1,16 +1,15 @@
 import { Kysely } from 'kysely'
-import { addSoftDeleteColumn, addTimestampColumns } from '#server/queries/index.ts'
 
 const table = 'files'
 
 export async function up(db: Kysely<any>): Promise<void> {
     await db.schema.createTable(table)
         .addIdColumn()
+        .addColumn('private', 'boolean', col => col.notNull().defaultTo(true))
         .addColumn('drive', 'varchar(80)', col => col.notNull())
         .addColumn('mimetype', 'varchar(255)', col => col.notNull())
         .addColumn('client_name', 'varchar(255)', col => col.notNull())
         .addColumn('filename', 'text', col => col.notNull())
-        .addColumn('metadata', 'text')
         .addTimestampColumns()
         .addSoftDeleteColumn()
         .execute()

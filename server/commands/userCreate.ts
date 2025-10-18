@@ -1,5 +1,6 @@
 import { program } from 'commander'
 import userRepository from '#server/repositories/user.repository.ts'
+import cli from '#server/services/cli.service.ts'
 
 program.command('user:create')
     .helpGroup('user')
@@ -8,7 +9,7 @@ program.command('user:create')
     .requiredOption('-e, --email <email>', 'User email')
     .requiredOption('-p, --password <password>', 'User password')
     .option('-s, --skip-if-exists', 'Skip if user already exists')
-    .action(async (options) => {
+    .action(cli.with(['db'], async (options) => {
         const { username, email, password } = options
 
         // Check if user already exists
@@ -41,4 +42,4 @@ program.command('user:create')
         console.log(`  ID: ${newUser.id}`)
         console.log(`  Username: ${newUser.username}`)
         console.log(`  Email: ${newUser.email}`)
-    })
+    }))
