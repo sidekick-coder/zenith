@@ -84,6 +84,14 @@ export default defineClientSetup(({ menu, router }) => {
         group: $t('Settings'),
         to: '/admin/settings/site'
     })
+    
+    menu.add({
+        id: 'branding',
+        label: $t('Branding'),
+        icon: 'PaletteIcon',
+        group: $t('Settings'),
+        to: '/admin/settings/branding'
+    })
 
    
 })

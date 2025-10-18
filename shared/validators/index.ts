@@ -9,6 +9,7 @@ import * as userMeta from './userMeta.validator.ts'
 import * as fileMeta from './fileMeta.validator.ts'
 import * as connection from './connection.validator.ts'
 import * as modules from './modules.validator.ts'
+import * as branding from './branding.validator.ts'
 
 const schemas = {
     pagination,
@@ -21,7 +22,8 @@ const schemas = {
     userMeta,
     fileMeta,
     connection,
-    modules
+    modules,
+    branding,
 }
 
 export default schemas
