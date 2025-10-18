@@ -14,6 +14,8 @@ import schemas from '#shared/validators/index.ts'
 import Icon from '#client/components/Icon.vue'
 import { $server } from '#client/utils/server.ts'
 import FormTextField from '#client/components/FormTextField.vue'
+import FormFilePicker from '#client/components/FormFilePicker.vue'
+import Image from '#client/components/Image.vue'
 
 const loading = ref(false)
 const saving = ref(false)
@@ -221,54 +223,74 @@ onMounted(() => {
                             {{ $t('No icons configured. Add icons for your PWA.') }}
                         </div>
 
-                        <div 
-                            v-for="(icon, index) in icons" 
-                            :key="index" 
-                            class="border rounded-lg p-4 space-y-4"
-                        >
-                            <div class="flex items-center justify-between">
-                                <h4 class="font-medium">
-                                    {{ $t('Icon :0', [index + 1]) }}
-                                </h4>
-                                <Button
-                                    type="button"
-                                    variant="outline"
-                                    size="sm"
-                                    :disabled="loading || saving"
-                                    @click="removeIcon(index)"
-                                >
-                                    <Icon 
-                                        name="Trash2" 
-                                        class="size-4" 
-                                    />
-                                </Button>
-                            </div>
+                        <div class="flex flex-wrap [&>*]:p-2 -mx-2 -mt-2">
+                            <div
+                                v-for="(icon, index) in icons" 
+                                :key="index" 
+                                class="w-full xl:w-2/12"
+                            >
+                                <div class="border rounded-lg p-4">
+                                    <div class="flex items-center justify-between">
+                                        <h4 class="font-medium">
+                                            {{ $t('Icon :0', [index + 1]) }}
+                                        </h4>
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            size="sm"
+                                            :disabled="loading || saving"
+                                            @click="removeIcon(index)"
+                                        >
+                                            <Icon 
+                                                name="Trash2" 
+                                                class="size-4" 
+                                            />
+                                        </Button>
+                                    </div>
+        
+                                    <div class="flex flex-col gap-y-4">
+                                        <FormFilePicker
+                                            :name="`icons.${index}.fileId`"
+                                            :label="$t('File ID')"
+                                            :disabled="loading || saving"
+                                            :placeholder="$t('Enter file ID')"
+                                            accept="image/*"
+                                        >
+                                            <template #preview="{ value }">
+                                                <div class="border rounded-lg bg-muted/50 p-4 flex items-center justify-center">
+                                                    <Image
+                                                        v-if="value"
+                                                        :src="`/api/files/${value}/stream`"
+                                                        class="rounded-lg size-32 object-cover"
+                                                    />
+                                                    <div
+                                                        v-else
+                                                        class="flex items-center justify-center p-8 text-muted-foreground"
+                                                    >
+                                                        <Icon 
+                                                            name="File" 
+                                                            class="size-12"
+                                                        />
+                                                    </div>
+                                                </div>
+                                            </template>
+                                        </FormFilePicker>
 
-                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                                <FormTextField
-                                    :name="`icons.${index}.src`"
-                                    :label="$t('Source URL')"
-                                    :disabled="loading || saving"
-                                    :placeholder="$t('Enter icon URL')"
-                                />
-                                <FormTextField
-                                    :name="`icons.${index}.fileId`"
-                                    :label="$t('File ID')"
-                                    :disabled="loading || saving"
-                                    :placeholder="$t('Enter file ID')"
-                                />
-                                <FormTextField
-                                    :name="`icons.${index}.sizes`"
-                                    :label="$t('Sizes')"
-                                    :disabled="loading || saving"
-                                    :placeholder="$t('e.g., 192x192')"
-                                />
-                                <FormTextField
-                                    :name="`icons.${index}.type`"
-                                    :label="$t('Type')"
-                                    :disabled="loading || saving"
-                                    :placeholder="$t('e.g., image/png')"
-                                />
+                                        <FormTextField
+                                            :name="`icons.${index}.sizes`"
+                                            :label="$t('Sizes')"
+                                            :disabled="loading || saving"
+                                            :placeholder="$t('e.g., 192x192')"
+                                        />
+                                        
+                                        <FormTextField
+                                            :name="`icons.${index}.type`"
+                                            :label="$t('Type')"
+                                            :disabled="loading || saving"
+                                            :placeholder="$t('e.g., image/png')"
+                                        />
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </CardContent>
