@@ -21,7 +21,12 @@ async function waitTillOnline(timeout = 5000) {
     }
 }
 
-async function reloadAfter(fn: Function) {
+interface ReloadOptions {
+    fn: Function
+    href?: string
+}
+
+async function reloadAfter({ fn, href }: ReloadOptions) {
     const kill = () => { throw '(skipping full reload)' }
 
     if (import.meta.hot) {
@@ -30,16 +35,19 @@ async function reloadAfter(fn: Function) {
     }
 
     await tryCatch(() => fn())
+    await waitTillOnline()
 
     if (import.meta.hot) {
         import.meta.hot.off('vite:beforeFullReload', kill)
         import.meta.hot.off('vite:beforeUpdate', kill)
     }
 
-    await waitTillOnline()
 
-    if (import.meta.hot) {
-        return import.meta.hot.invalidate()
+    await new Promise(resolve => setTimeout(resolve, 5000))
+
+    if (href) {
+        window.location.href = href
+        return
     }
 
     window.location.reload()

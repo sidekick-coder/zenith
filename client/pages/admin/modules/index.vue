@@ -64,8 +64,17 @@ const toggling = ref(false)
 async function toggle(item: any) {
     toggling.value = true
 
-    await $server.reloadAfter(async () => {
-        await $fetch(`/api/modules/${item.id}/toggle`, { method: 'POST', })
+    await $server.reloadAfter({
+        fn: async () => $fetch(`/api/modules/${item.id}/toggle`, { method: 'POST', })
+    })
+}
+
+async function uninstall(id: string, data: any) {
+    await $server.reloadAfter({
+        fn: async () => $fetch(`/api/modules/${id}/uninstall`, { 
+            method: 'POST',
+            data
+        })
     })
 }
 </script>
@@ -149,7 +158,7 @@ async function toggle(item: any) {
                         :title="$t('Uninstall Module')"
                         :description="$t('Are you sure you want to uninstall the module {module}? This action cannot be undone.', { module: row.name })"
                         :submit-text="$t('Uninstall')"
-                        :fetch="`/api/modules/${row.id}/uninstall`"
+                        :fetch="data => uninstall(row.id, data)"
                         :schema="schemas.modules.uninstall"
                         :fields="{
                             rollback: {

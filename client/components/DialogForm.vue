@@ -13,7 +13,8 @@ export function defineFormFields(field: Record<string, FormField>) {
 import { useForm } from 'vee-validate'
 import * as v from 'valibot'
 import { toTypedSchema } from '@vee-validate/valibot'
-import { computed, ref, watch } from 'vue'
+import { computed, ref, watch  } from 'vue'
+import type { PropType } from 'vue'
 import type { BaseSchema } from 'valibot'
 import FormTextarea from './FormTextarea.vue'
 import FormSelect from './FormSelect.vue'
@@ -33,6 +34,7 @@ import {
     DialogTitle,
     DialogTrigger,
 } from '#client/components/ui/dialog'
+import { tryCatch } from '#shared/utils/tryCatch.ts'
 
 const props = defineProps({
     title: {
@@ -52,7 +54,7 @@ const props = defineProps({
         default: () => ({}),
     },
     fetch: {
-        type: String,
+        type: [String, Function] as PropType<string | ((data: any) => Promise<any>)>,
         default: null,
     },
     method: {
@@ -107,6 +109,17 @@ const errorsWihoutFields = computed(() => {
     return result
 })
 
+function doFetch(data: v.InferInput<T>) {
+    if (typeof props.fetch === 'function') {
+        return props.fetch(data)
+    }
+
+    return $fetch(props.fetch as string, {
+        method: props.method,
+        data,
+    })
+}
+
 const onSubmit = handleSubmit(async (data) => {
     if (!props.fetch) {
         open.value = false
@@ -115,10 +128,7 @@ const onSubmit = handleSubmit(async (data) => {
 
     loading.value = true
 
-    const [error, response] = await $fetch.try(props.fetch, {
-        method: props.method,
-        data,
-    })
+    const [error, response] = await tryCatch(() => doFetch(data))
 
     if (error) {
         loading.value = false

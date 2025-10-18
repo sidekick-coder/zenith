@@ -16,6 +16,9 @@ import Button from '#client/components/Button.vue'
 import { Input } from '#client/components/ui/input'
 import { Label } from '#client/components/ui/label'
 import AppLayout from '#client/layouts/AppLayout.vue'
+import PageSubtitle from '#client/components/PageSubtitle.vue'
+import PageTitle from '#client/components/PageTitle.vue'
+import { $server } from '#client/utils/server.ts'
 
 const router = useRouter()
 const uploading = ref(false)
@@ -61,27 +64,25 @@ const onSubmit = handleSubmit(async (_form) => {
     uploading.value = true
 
     const formData = new FormData()
+
     formData.append('file', selectedFile.value)
 
-    const [error] = await tryCatch(() => $fetch('/api/modules/install/zip', {
+    const payload = {
         method: 'POST',
+        body: formData,
         query: {
             id: _form.id,
         },
-        body: formData,
-    }))
-
-    if (error) {
-        toast.error($t('Failed to install module: :0', [error.message || 'Unknown error']))
-        uploading.value = false
-        return
     }
 
-    setTimeout(() => {
-        uploading.value = false
-        toast.success($t('Module installed successfully'))
-        router.push('/admin/modules')
-    }, 800)
+    await $server.reloadAfter({
+        href: '/admin/modules',
+        fn: () => $fetch('/api/modules/install/zip', payload)
+    })
+
+    uploading.value = false
+
+    router.push('/admin/modules')
 })
 </script>
 
@@ -89,12 +90,12 @@ const onSubmit = handleSubmit(async (_form) => {
     <AppLayout>
         <div class="space-y-6">
             <div>
-                <h1 class="text-2xl font-bold">
+                <PageTitle>
                     {{ $t('Install Module') }}
-                </h1>
-                <p class="text-muted-foreground">
+                </PageTitle>
+                <PageSubtitle>
                     {{ $t('Upload a ZIP file containing a module to install it') }}
-                </p>
+                </PageSubtitle>
             </div>
     
             <form @submit.prevent="onSubmit">

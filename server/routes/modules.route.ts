@@ -8,6 +8,7 @@ import { basePath, tmpPath } from '#server/utils/paths.ts'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
 import BaseException from '#server/exceptions/base.ts'
 import build from '#server/services/build.service.ts'
+import server from '#server/facades/server.facade.ts'
 import validator from '#shared/services/validator.service.ts'
 
 const router = root.use(authMiddleware)
@@ -93,6 +94,9 @@ router.post('/:id/uninstall', async ({ params, body }) => {
     await modules.uninstall(params.id, {
         rollback: options.rollback,
     })
+
+    await server.build()
+    await server.reload()
 
     return { success: true, }
 })
