@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import {
-    computed, defineAsyncComponent, ref, 
-    watch
+    computed, defineAsyncComponent, ref
 } from 'vue'
 import { useRoute } from 'vue-router'
 import Dashboard from '#client/layouts/AppLayout.vue'
@@ -46,6 +45,11 @@ const tabs = [
         name: 'migrations',
         label: $t('Migrations'),
         component: defineAsyncComponent(() => import('#client/components/ModuleMigrations.vue')),
+    },
+    {
+        name: 'upgrade',
+        label: $t('Upgrade'),
+        component: defineAsyncComponent(() => import('#client/components/ModuleUpgrade.vue')),
     },
 ]
 
@@ -94,6 +98,7 @@ const component = computed(() => {
                             'border-primary text-primary': t.name === tab,
                             'text-muted-foreground': t.name !== tab
                         }"
+                        @click="tab = t.name"
                     >
                         {{ t.label }}
                     </Button>
@@ -104,6 +109,7 @@ const component = computed(() => {
                         :is="component"
                         v-if="component"
                         :id="item.id"
+                        :module="item"
                     />
                     <template #fallback>
                         <div class="flex items-center justify-center h-full">

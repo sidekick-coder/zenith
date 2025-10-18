@@ -305,7 +305,7 @@ export class ModulesService {
         logger.info(`Module '${moduleName}' installed successfully`)
     }
 
-    public async installFromZip(zipPath: string, id: string) {
+    public async installFromZip(id: string, zipPath: string) {
         const modulesPath = basePath('modules')
         const moduleDir = path.join(modulesPath, id)
         const tempDir = tmpPath(id + '_unzipped')
@@ -356,6 +356,58 @@ export class ModulesService {
         })
 
         logger.info(`'${moduleName}' uninstalled successfully`)
+    }
+
+    public async upgradeFromZip(id: string, zipPath: string) {
+        const mod = await this.findOrFail(id)
+        const moduleDir = mod.makePath()
+        const backupDir = tmpPath(`${id}_backup`)
+        const tempDir = tmpPath(`${id}_upgrade`)
+
+        if (!fs.existsSync(moduleDir)) {
+            throw new Error(`Module '${id}' does not exist`)
+        }
+
+        if (fs.existsSync(backupDir)) {
+            fs.rmSync(backupDir, { 
+                recursive: true,
+                force: true 
+            })
+        }
+
+        if (fs.existsSync(tempDir)) {
+            fs.rmSync(tempDir, { 
+                recursive: true,
+                force: true 
+            })
+        }
+
+        // Backup current module
+        fs.renameSync(moduleDir, backupDir)
+
+        const directory = await unzipper.Open.file(zipPath)
+
+        await directory.extract({ path: tempDir })
+
+        let targetDir = tempDir
+
+        // If the zip contains a single root folder, use it
+        const entries = fs.readdirSync(tempDir)
+        
+        if (entries.length === 1) {
+            targetDir = path.join(tempDir, entries[0])
+        }
+
+        // Move extracted files to module directory
+        fs.renameSync(targetDir, moduleDir)
+
+        // Remove backup
+        fs.rmSync(backupDir, { 
+            recursive: true,
+            force: true 
+        })
+
+        logger.info(`Module '${id}' upgraded successfully from zip`)
     }
 }
 

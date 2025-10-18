@@ -7,7 +7,6 @@ import modules from '#server/services/modules.service.ts'
 import { basePath, tmpPath } from '#server/utils/paths.ts'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
 import BaseException from '#server/exceptions/base.ts'
-import build from '#server/services/build.service.ts'
 import server from '#server/facades/server.facade.ts'
 import validator from '#shared/services/validator.service.ts'
 
@@ -19,8 +18,14 @@ router.get('/', () => {
     return modules.list()
 })
 
-router.get('/:id', ({ params }) => {
-    return modules.find(params.id)
+router.get('/:id', async ({ params }) => {
+    const mod = await modules.find(params.id)
+
+    if (!mod) {
+        throw new BaseException('Module not found', 404)
+    }
+
+    return mod
 })
 
 
@@ -41,9 +46,9 @@ router.get('/:id/migrations', async ({ params }) => {
 router.post('/:id/toggle', async ({ params }) => {
     await modules.toggle(params.id)
 
-    await build.build()
+    await server.build()
 
-    await build.reloadServer()
+    await server.reload()
 })
 
 router.post('/:id/migrate', async ({ params }) => {
@@ -108,6 +113,40 @@ router.post('/:id/uninstall', async ({ params, body }) => {
     return { success: true, }
 })
 
+router.post('/:id/upgrade', async ({ upload, params }) => {
+    const mod = await modules.find(params.id)
+    
+    if (!mod) {
+        throw new BaseException('Module not found', 404)
+    }
+
+    if (mod.enabled) {
+        throw new BaseException('Module is enabled, disable it before upgrading')
+    }
+
+    const file = await upload.single('file')
+
+    if (!file) {
+        throw new BaseException('No file provided')
+    }
+
+    validator.validate(file, v => v.object({
+        mimetype: v.picklist(['application/zip', 'application/x-zip-compressed', 'multipart/x-zip']),
+    }))
+
+    const filename = tmpPath(mod.id + 'upgrade' + '.zip')
+
+    await fs.promises.writeFile(filename, file.buffer)
+
+    const [error] = await tryCatch(() => modules.upgradeFromZip(mod.id, filename))
+
+    if (error) {
+        throw new BaseException(`Failed to install module: ${error.message}`)
+    }
+
+    return { success: true, }
+})
+
 router.post('/install/zip', async ({ upload, query }) => {
     const file = await upload.single('file')
 
@@ -119,20 +158,13 @@ router.post('/install/zip', async ({ upload, query }) => {
         mimetype: v.picklist(['application/zip', 'application/x-zip-compressed', 'multipart/x-zip']),
     }))
 
-    const modulesPath = path.join(basePath(), 'modules')
-    
-    // Ensure modules directory exists
-    if (!fs.existsSync(modulesPath)) {
-        fs.mkdirSync(modulesPath, { recursive: true })
-    }
-
-    const id = query.id || path.basename(file.originalname, path.extname(file.originalname))
+    const id = query.id as string || path.basename(file.originalname, path.extname(file.originalname))
 
     const filename = tmpPath(id + '.zip')
 
     await fs.promises.writeFile(filename, file.buffer)
 
-    const [error] = await tryCatch(() => modules.installFromZip(filename, id))
+    const [error] = await tryCatch(() => modules.installFromZip(id, filename))
 
     if (error) {
         throw new BaseException(`Failed to install module: ${error.message}`)

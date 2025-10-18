@@ -9,6 +9,10 @@ import AlertButton from './AlertButton.vue'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
 import { $t } from '#shared/lang.ts'
 
+defineOptions({
+    inheritAttrs: false,
+})
+
 const props = defineProps<{ id: string }>()
 
 interface Migration {
