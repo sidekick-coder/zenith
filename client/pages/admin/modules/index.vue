@@ -24,6 +24,7 @@ import PageSubtitle from '#client/components/PageSubtitle.vue'
 import DialogForm from '#client/components/DialogForm.vue'
 import schemas from '#shared/validators/index.ts'
 import DataTable, { defineColumns } from '#client/components/DataTable.vue'
+import { $server } from '#client/utils/server.ts'
 
 const items = ref<any[]>([])
 const columns = defineColumns<any>([
@@ -63,22 +64,9 @@ const toggling = ref(false)
 async function toggle(item: any) {
     toggling.value = true
 
-    // Prevent full reload in development mode
-    if (import.meta.hot) {
-        import.meta.hot.on('vite:beforeFullReload', () => {
-            throw '(skipping full reload)'
-        })
-        import.meta.hot.on('vite:beforeUpdate', () => {
-            throw '(skipping full reload)'
-        })
-    }
-
-    await tryCatch(() => $fetch(`/api/modules/${item.id}/toggle`, { method: 'POST', }))
-
-    setTimeout(() => {
-        toggling.value = false
-        load()
-    }, 1000)
+    await $server.reloadAfter(async () => {
+        await $fetch(`/api/modules/${item.id}/toggle`, { method: 'POST', })
+    })
 }
 </script>
 <template>
