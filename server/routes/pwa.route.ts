@@ -2,8 +2,6 @@ import config from '#server/facades/config.facade.ts'
 import rootRouter from '#server/facades/router.facade.ts'
 import validator from '#shared/services/validator.service.ts'
 import authMiddleware from '#server/middlewares/auth.middleware.ts'
-import server from '#server/facades/server.facade.ts'
-import drive from '#server/facades/drive.facade.ts'
 import schemas from '#shared/validators/index.ts'
 
 const router = rootRouter.prefix('/api/pwa')
@@ -19,6 +17,7 @@ async function generateManifestFromConfig() {
 
     // Process icons with file URLs
     const icons = []
+
     for (const icon of pwaSettings.icons || []) {
         icons.push({
             src: `/api/files/${icon.fileId}/stream`,
@@ -49,19 +48,16 @@ async function generateManifestFromConfig() {
 
     // Process screenshots with file URLs
     const screenshots = []
-    if (pwaSettings.screenshots && Array.isArray(pwaSettings.screenshots)) {
-        for (const screenshot of pwaSettings.screenshots) {
-            const processedScreenshot = { ...screenshot }
-            if (screenshot.fileId) {
-                processedScreenshot.src = await drive.url(screenshot.fileId)
-            }
-            if (!processedScreenshot.src) {
-                processedScreenshot.src = screenshot.src || '/pwa-screenshot-01.png'
-            }
-            screenshots.push(processedScreenshot)
-        }
-    } else {
-        // Default screenshots
+    
+    for (const screenshot of pwaSettings.screenshots || []) {
+        screenshots.push({
+            src: `/api/files/${screenshot.fileId}/stream`,
+            form_factor: screenshot.formFactor,
+            sizes: screenshot.sizes
+        })
+    }
+
+    if (screenshots.length === 0) {
         screenshots.push(
             { 
                 src: '/pwa-screenshot-01.png', 

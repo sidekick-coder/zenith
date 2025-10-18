@@ -324,54 +324,74 @@ onMounted(() => {
                             {{ $t('No screenshots configured. Add screenshots for your PWA.') }}
                         </div>
 
-                        <div 
-                            v-for="(screenshot, index) in screenshots" 
-                            :key="index" 
-                            class="border rounded-lg p-4 space-y-4"
-                        >
-                            <div class="flex items-center justify-between">
-                                <h4 class="font-medium">
-                                    {{ $t('Screenshot :0', [index + 1]) }}
-                                </h4>
-                                <Button
-                                    type="button"
-                                    variant="outline"
-                                    size="sm"
-                                    :disabled="loading || saving"
-                                    @click="removeScreenshot(index)"
-                                >
-                                    <Icon 
-                                        name="Trash2" 
-                                        class="size-4" 
-                                    />
-                                </Button>
-                            </div>
+                        <div class="flex flex-wrap [&>*]:p-2 -mx-2 -mt-2">
+                            <div
+                                v-for="(screenshot, index) in screenshots" 
+                                :key="index" 
+                                class="w-full xl:w-2/12"
+                            >
+                                <div class="border rounded-lg p-4">
+                                    <div class="flex items-center justify-between">
+                                        <h4 class="font-medium">
+                                            {{ $t('Screenshot :0', [index + 1]) }}
+                                        </h4>
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            size="sm"
+                                            :disabled="loading || saving"
+                                            @click="removeScreenshot(index)"
+                                        >
+                                            <Icon 
+                                                name="Trash2" 
+                                                class="size-4" 
+                                            />
+                                        </Button>
+                                    </div>
 
-                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                                <FormTextField
-                                    :name="`screenshots.${index}.src`"
-                                    :label="$t('Source URL')"
-                                    :disabled="loading || saving"
-                                    :placeholder="$t('Enter screenshot URL')"
-                                />
-                                <FormTextField
-                                    :name="`screenshots.${index}.fileId`"
-                                    :label="$t('File ID')"
-                                    :disabled="loading || saving"
-                                    :placeholder="$t('Enter file ID')"
-                                />
-                                <FormTextField
-                                    :name="`screenshots.${index}.formFactor`"
-                                    :label="$t('Form Factor')"
-                                    :disabled="loading || saving"
-                                    :placeholder="$t('e.g., wide, narrow')"
-                                />
-                                <FormTextField
-                                    :name="`screenshots.${index}.sizes`"
-                                    :label="$t('Sizes')"
-                                    :disabled="loading || saving"
-                                    :placeholder="$t('e.g., 1280x720')"
-                                />
+                                    <div class="flex flex-col gap-y-4">
+                                        <FormFilePicker
+                                            :name="`screenshots.${index}.fileId`"
+                                            :label="$t('File ID')"
+                                            :disabled="loading || saving"
+                                            :placeholder="$t('Enter file ID')"
+                                            accept="image/*"
+                                        >
+                                            <template #preview="{ value }">
+                                                <div class="border rounded-lg bg-muted/50 p-4 flex items-center justify-center">
+                                                    <Image
+                                                        v-if="value"
+                                                        :src="`/api/files/${value}/stream`"
+                                                        class="rounded-lg size-32 object-cover"
+                                                    />
+                                                    <div
+                                                        v-else
+                                                        class="flex items-center justify-center p-8 text-muted-foreground"
+                                                    >
+                                                        <Icon 
+                                                            name="File" 
+                                                            class="size-12"
+                                                        />
+                                                    </div>
+                                                </div>
+                                            </template>
+                                        </FormFilePicker>
+
+                                        <FormTextField
+                                            :name="`screenshots.${index}.formFactor`"
+                                            :label="$t('Form Factor')"
+                                            :disabled="loading || saving"
+                                            :placeholder="$t('e.g., wide, narrow')"
+                                        />
+                                        
+                                        <FormTextField
+                                            :name="`screenshots.${index}.sizes`"
+                                            :label="$t('Sizes')"
+                                            :disabled="loading || saving"
+                                            :placeholder="$t('e.g., 1280x720')"
+                                        />
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </CardContent>
