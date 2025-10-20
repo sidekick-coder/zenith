@@ -12,6 +12,7 @@ const router = rootRouter.use(authMiddleware)
 
 router.get('/', async ({ params, acl, query }) => {
     const userId = validator.validate(params.userId, schemas.query.number)
+    
     const user = await User.findOneOrFail({
         query: q => q.where('id', '=', userId)
             .where(undeleted)
