@@ -80,7 +80,7 @@ export default class AuthService {
         return hasher.hash(password)
     }
 
-    async authenticate(tokenValue?: string) {
+    async authenticate(tokenValue?: string | null) {
         if (!tokenValue) {
             return null
         }

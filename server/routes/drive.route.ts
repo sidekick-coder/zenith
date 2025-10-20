@@ -11,48 +11,57 @@ const router = rootRouter.use(authMiddleware)
     .prefix('/api/drives')
     .group()
 
-router.get('/', async () => {
+router.get('/', async ({ acl }) => {
+    acl.authorize('read', 'Drive')
+
     const drives = drive.listDrives()
 
     return { items: drives }
 })
 
-router.get('/:id', async ({ params }) => {
+router.get('/:id', async ({ params, acl }) => {
     const drives = drive.listDrives()
     const driveData = drives.find(d => d.id === params.id)
     
     if (!driveData) {
         throw new Error('Drive not found')
     }
+
+    acl.authorize('read', 'Drive', driveData)
     
     return driveData
 })
 
-router.post('/generate-defaults', async () => {
+router.post('/generate-defaults', async ({ acl }) => {
+    acl.authorize('create', 'Drive')
+
     await drive.createDefaultDrives()
 
     return { message: 'Default drives created' }
 })
 
-router.get('/:id/files', async ({ params, query }) => {
+router.get('/:id/files', async ({ params, query, acl }) => {
     const current = drive.use(params.id)
+
+    acl.authorize('read', 'Drive', current)
 
     return current.list(query.folder as string)
 })
 
-router.get('/:id/stream/:basename', async ({ params, query, response }) => {
+router.get('/:id/stream/:basename', async ({ params, query, response, acl }) => {
     const current = drive.use(params.id)
 
     const filename = query.filename ? decodeURIComponent(query.filename as string) : undefined
     const basename = params.basename
     const key = query.key ? decodeURIComponent(query.key as string) : undefined
 
+
     if (!filename) {
         throw new BaseException('No filename provided', 400)
     }
 
     if (!key) {
-        throw new BaseException('No key provided', 400)
+        acl.authorize('read', 'Drive', current)
     }
 
     const decrypted = encrypt.decrypt(key as string) 
@@ -87,22 +96,21 @@ router.get('/:id/stream/:basename', async ({ params, query, response }) => {
     response.status(200).send(data)
 })
 
-router.post('/:id/upload', async (ctx) => {
-    const current = drive.use(ctx.params.id)
-    const file = await ctx.file('file')
+router.post('/:id/upload', async ({ acl, params, query, upload }) => {
+    const current = drive.use(params.id)
+
+    acl.authorize('create', 'Drive', current)
+
+    const file = await upload.single('file')
 
     if (!file) {
         throw new BaseException('No file provided')
     }
 
-    let filename = ctx.query.filename || undefined
+    let filename = query.filename as string || undefined
 
     if (!filename) {
         filename = randomUUID() + '.' + mime.getExtension(file.mimetype)
-    }
-
-    if (ctx.query.directory) {
-        filename = join(ctx.query.directory, filename)
     }
 
     const entity = await current.write(filename, file.buffer)

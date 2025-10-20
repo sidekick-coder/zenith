@@ -58,34 +58,33 @@ router.post('/', async ({ body, acl }) => {
     return new Role(row)
 })
 
-router.patch('/:id', async ({ params, body }) => {
+router.patch('/:id', async ({ params, body, acl }) => {
+    const id = validator.validate(params.id, schemas.query.number)
+
     const payload = validator.validate(body, (v) => v.object({
         name: v.optional(v.pipe(v.string(), v.minLength(3))),
         description: v.optional(v.string()),
     }))
 
-    const row = await db.updateTable('roles')
-        .set(payload)
-        .where('id', '=', Number(params.id))
-        .returningAll()
-        .executeTakeFirst()
+    const role = await Role.findOrFail(id)
 
-    if (!row) {
-        throw new BaseException('Failed to update role', 500)
-    }
+    acl.authorize('update', role)
 
-    return new Role(row)
+    await Role.updateById(id, payload)
+
+    role.merge(payload)
+
+    return role
 })
 
-router.delete('/:id', async ({ params }) => {
-    const row = await db.deleteFrom('roles')
-        .where('id', '=', Number(params.id))
-        .returningAll()
-        .executeTakeFirst()
+router.delete('/:id', async ({ params, acl }) => {
+    const id = validator.validate(params.id, schemas.query.number)
+    
+    const role = await Role.findOrFail(id)
 
-    if (!row) {
-        throw new BaseException('Failed to delete role', 500)
-    }
+    acl.authorize('delete', role)
 
-    return new Role(row)
+    await role.softDelete()
+
+    return role
 })

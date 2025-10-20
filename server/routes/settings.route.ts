@@ -6,14 +6,14 @@ const group = router.use(authMiddleware)
     .prefix('/api/settings')
     .group()
 
-group.get('/site', async () => {
-    const site = config.get('site', {})
+group.get('/site', async ({ acl }) => {
+    acl.authorize('read', 'Config', { key: 'site' })
 
-    return site
+    return config.get('site', {})
 })
 
-group.put('/site', async (req) => {
-    const { body } = req
+group.put('/site', async ({ acl, body }) => {
+    acl.authorize('update', 'Config', { key: 'site' })
 
     config.set('site', body)
 

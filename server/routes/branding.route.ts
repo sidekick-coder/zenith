@@ -10,7 +10,7 @@ const router = rootRouter.prefix('/api/branding')
     .use(authMiddleware)
     .group()
 
-router.get('/', async () => {
+router.get('/', async ({ acl }) => {
     const branding = config.get('branding', {})
 
     if (branding.logoFileId) {
@@ -20,7 +20,10 @@ router.get('/', async () => {
     return branding
 })
 
-router.put('/', async ({ body }) => {
+router.put('/', async ({ body, acl }) => {
+
+    acl.authorize('update', 'branding')
+
     const payload = validator.validate(body, schemas.branding.update)
 
     config.set('branding', payload)

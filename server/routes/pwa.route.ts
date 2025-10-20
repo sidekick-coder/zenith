@@ -85,11 +85,15 @@ async function generateManifestFromConfig() {
 }
 
 // API endpoints for PWA settings management
-router.get('/', async () => {
+router.get('/', async ({ acl }) => {
+    acl.authorize('read', 'Config', { key: 'pwa' })
+
     return config.get('pwa', {})
 })
 
-router.put('/', async ({ body }) => {
+router.put('/', async ({ body, acl }) => {
+    acl.authorize('update', 'Config', { key: 'pwa' })
+
     const payload = validator.validate(body, schemas.pwa.update)
 
     config.set('pwa', payload)

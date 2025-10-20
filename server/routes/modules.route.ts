@@ -14,11 +14,15 @@ const router = root.use(authMiddleware)
     .prefix('/api/modules')
     .group()
 
-router.get('/', () => {
+router.get('/', ({ acl }) => {
+    acl.authorize('read', 'Module')
+
     return modules.list()
 })
 
-router.get('/:id', async ({ params }) => {
+router.get('/:id', async ({ params, acl }) => {
+    acl.authorize('read', 'Module')
+
     const mod = await modules.find(params.id)
 
     if (!mod) {
@@ -29,7 +33,9 @@ router.get('/:id', async ({ params }) => {
 })
 
 
-router.get('/:id/migrations', async ({ params }) => {
+router.get('/:id/migrations', async ({ params, acl }) => {
+    acl.authorize('read', 'Module')
+
     const all = await migrator.list()
 
     const migrations = all
@@ -43,7 +49,9 @@ router.get('/:id/migrations', async ({ params }) => {
     return migrations
 })
 
-router.post('/:id/toggle', async ({ params }) => {
+router.post('/:id/toggle', async ({ params, acl }) => {
+    acl.authorize('update', 'Module')
+
     await modules.toggle(params.id)
 
     await server.build()
@@ -51,7 +59,9 @@ router.post('/:id/toggle', async ({ params }) => {
     await server.reload()
 })
 
-router.post('/:id/migrate', async ({ params }) => {
+router.post('/:id/migrate', async ({ params, acl }) => {
+    acl.authorize('update', 'Module')
+
     const items = await migrator.migrateByModule(params.id)
 
     const itemWithError = items.find(i => i.error)
@@ -63,7 +73,9 @@ router.post('/:id/migrate', async ({ params }) => {
     return { success: true, }
 })
 
-router.post('/:id/rollback', async ({ params }) => {
+router.post('/:id/rollback', async ({ params, acl }) => {
+    acl.authorize('update', 'Module')
+
     const items = await migrator.rollback({
         module: params.id,
     })
@@ -77,7 +89,9 @@ router.post('/:id/rollback', async ({ params }) => {
     return { success: true, }
 })
 
-router.post('/:id/fresh', async ({ params }) => {
+router.post('/:id/fresh', async ({ params, acl }) => {
+    acl.authorize('update', 'Module')
+
     const items = await migrator.fresh({
         module: params.id,
     })
@@ -91,7 +105,9 @@ router.post('/:id/fresh', async ({ params }) => {
     return items
 })
 
-router.post('/:id/uninstall', async ({ params, body }) => {
+router.post('/:id/uninstall', async ({ params, body, acl }) => {
+    acl.authorize('delete', 'Module')
+
     const mod = await modules.find(params.id)
 
     if (!mod) {
@@ -113,7 +129,9 @@ router.post('/:id/uninstall', async ({ params, body }) => {
     return { success: true, }
 })
 
-router.post('/:id/upgrade', async ({ upload, params }) => {
+router.post('/:id/upgrade', async ({ upload, params, acl }) => {
+    acl.authorize('update', 'Module')
+
     const mod = await modules.find(params.id)
     
     if (!mod) {
@@ -147,7 +165,9 @@ router.post('/:id/upgrade', async ({ upload, params }) => {
     return { success: true, }
 })
 
-router.post('/install/zip', async ({ upload, query }) => {
+router.post('/install/zip', async ({ upload, query, acl }) => {
+    acl.authorize('create', 'Module')
+
     const file = await upload.single('file')
 
     if (!file) {

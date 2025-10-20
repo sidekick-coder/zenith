@@ -99,12 +99,14 @@ router.put('/:id/password', async ({ params, acl, body }) => {
     return { success: true }
 })
 
-router.delete('/:id', async ({ params }) => {
-    const user = await userRepository.softDelete(Number(params.id))
+router.delete('/:id', async ({ params, acl }) => {
+    const id = validator.validate(params.id, schemas.query.number)
 
-    if (!user) {
-        throw new BaseException('User not found', 404)
-    }
+    const user = await User.findOrFail(id)
 
-    return { message: 'User deleted successfully' }
+    acl.authorize('delete', user)
+
+    await user.softDelete()
+
+    return user
 })

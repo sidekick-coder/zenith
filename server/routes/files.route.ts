@@ -65,7 +65,7 @@ rootRouter
         const id = validator.validate(params.id, schemas.query.number)
 
         const file = await File.findOneOrFail({
-            query: qb => qb.selectAll().where('id', '=', Number(params.id)),
+            query: qb => qb.selectAll().where('id', '=', id),
         })
 
         if (!file) {
