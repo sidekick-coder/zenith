@@ -10,6 +10,8 @@ export async function up(db: Kysely<any>): Promise<void> {
         .addColumn('mimetype', 'varchar(255)', col => col.notNull())
         .addColumn('client_name', 'varchar(255)', col => col.notNull())
         .addColumn('filename', 'text', col => col.notNull())
+        .addColumn('origin', 'varchar(255)')
+        .addColumn('purpose', 'varchar(255)')
         .addTimestampColumns()
         .addSoftDeleteColumn()
         .execute()

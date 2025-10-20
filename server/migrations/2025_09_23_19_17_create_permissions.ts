@@ -1,5 +1,4 @@
 import { Kysely } from 'kysely'
-import { addTimestampColumns, addSoftDeleteColumn } from '#server/queries/index.ts'
 
 export async function up(db: Kysely<any>): Promise<void> {
     await db.schema.createTable('permissions')

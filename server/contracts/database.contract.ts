@@ -74,6 +74,13 @@ export interface FileMetaTable extends TimestampTable, SoftDeleteTable {
   value: string | null
 }
 
+export interface UploadSessionTable extends TimestampTable, SoftDeleteTable {
+  id: Generated<number>
+  purpose: string
+  mime_types: string
+  max_size: number
+}
+
 export interface Database  {
   users: UserTable
   user_metas: UserMetaTable
@@ -81,6 +88,7 @@ export interface Database  {
   migrations: MigrationsTable
   files: FileTable
   files_metas: FileMetaTable
+  upload_sessions: UploadSessionTable
   
   roles: RoleTable
   user_roles: UserRoleTable
