@@ -7,14 +7,23 @@ import db from '#server/facades/db.facade.ts'
 program.command('migration:status')
     .helpGroup('migration')
     .option('-m, --module <module>', 'Filter by module')
+    .option('-r, --root ', 'Run only root migrations')
     .action(async (options) => {
         await db.load()
         
-        let items = await migrator.list()
+        const items = await migrator.list(options)
 
-        if (options.module) {
-            items = items.filter(i => i.module === options.module)
-        }
+        // sort by root then modules 
+        items.sort((a, b) => {
+            if (a.module === b.module) {
+                return a.name.localeCompare(b.name)
+            }
+
+            if (!a.module) return -1
+            if (!b.module) return 1
+
+            return a.module.localeCompare(b.module)
+        })
 
         cli.ui.table(items, [
             {
