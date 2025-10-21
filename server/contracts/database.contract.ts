@@ -64,7 +64,8 @@ export interface FileTable extends TimestampTable, SoftDeleteTable {
   mimetype: string
   client_name: string
   filename: string
-  private: boolean
+  purpose: string
+  public: boolean
 }
 
 export interface FileMetaTable extends TimestampTable, SoftDeleteTable {

@@ -5,9 +5,10 @@ export default class File extends compose(BaseEntity, Timestamp, SoftDelete) {
     public id: number
     public drive: string
     public mimetype: string
+    public purpose: string
     public client_name: string
     public filename: string
-    public private: boolean
+    public public: boolean
 
     // dynamic
     public url?: string

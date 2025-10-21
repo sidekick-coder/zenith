@@ -7,6 +7,7 @@ import db from '#server/facades/db.facade.ts'
 import Pagination from '#shared/entities/pagination.entity.ts'
 
 export interface PaginateOptions<T extends keyof Database> {
+    debug?: boolean
     page?: number
     limit?: number
     serialize?: (row: Selectable<Database[T]>) => any
@@ -26,19 +27,33 @@ export async function paginate<T extends keyof Database, O extends PaginateOptio
     const items = await list(table, { 
         serialize: options?.serialize,  
         query: () => {
-            const query: any = options?.query 
-                ? options.query(db.selectFrom(table)) 
-                : db.selectFrom(table).selectAll()
+            let query: any = db.selectFrom(table).selectAll()
 
-            return query.limit(limit).offset(offset)
+            if (options?.query) {
+                query = options.query(db.selectFrom(table))
+            }
+
+            query = query.limit(limit).offset(offset)
+
+            if (options?.debug) {
+                console.log(query.compile())
+            }
+
+            return query
         }
     })
 
     const total = await count(table, {
         query: () => {
-            const query: any = options?.query 
-                ? options.query(db.selectFrom(table)) 
-                : db.selectFrom(table).selectAll()
+            let query: any = db.selectFrom(table).selectAll()
+
+            if (options?.query) {
+                query = options.query(db.selectFrom(table))
+            }
+
+            if (options?.debug) {
+                console.log(query.compile())
+            }
 
             return query
         }

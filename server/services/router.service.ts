@@ -186,6 +186,13 @@ export default class Router<C = {}> {
                 const paramName = routeSegment.slice(1) // Remove the ':' prefix
                 params[paramName] = requestSegment
             }
+            
+            if (routeSegment === '*') {
+                // Capture all remaining segments as a single path
+                const remainingSegments = requestSegments.slice(i)
+                params['*'] = remainingSegments.join('/')
+                break
+            }
         }
 
         return params
@@ -217,15 +224,20 @@ export default class Router<C = {}> {
         const routeSegments = routePath.split('/').filter(Boolean)
         const requestSegments = requestPath.split('/').filter(Boolean)
 
-        // Different number of segments means no match
-        if (routeSegments.length !== requestSegments.length) {
-            return false
-        }
-
         // Check each segment
         for (let i = 0; i < routeSegments.length; i++) {
             const routeSegment = routeSegments[i]
             const requestSegment = requestSegments[i]
+
+            // If route segment is a wildcard (*), it matches everything from this point
+            if (routeSegment === '*') {
+                return true
+            }
+
+            // If we've run out of request segments but still have route segments, no match
+            if (i >= requestSegments.length) {
+                return false
+            }
 
             // If route segment is a parameter (starts with :), it matches any value
             if (routeSegment.startsWith(':')) {
@@ -236,6 +248,11 @@ export default class Router<C = {}> {
             if (routeSegment !== requestSegment) {
                 return false
             }
+        }
+
+        // If we have more request segments than route segments (and no wildcard), no match
+        if (requestSegments.length > routeSegments.length) {
+            return false
         }
 
         return true

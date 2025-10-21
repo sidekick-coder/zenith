@@ -7,6 +7,10 @@ export default class UploadSession extends compose(BaseEntity, Timestamp, SoftDe
     public mime_types: string
     public max_size: number
 
+    // dynamic 
+    public upload_url?: string
+    public create_file_url?: string
+
     public getParsedMimeTypes(): string[] {
         return this.mime_types.split(',').map(type => type.trim())
     }

@@ -110,38 +110,16 @@ export default class DriveService {
      * @param options 
      * @returns string
      */
-    public async url(payload: File['id'] | File | DriveEntry | string, options: DriveUrlOptions = {}): Promise<string> {        
-        if (payload instanceof File) {
-            const drive = this.get(payload.drive)
+    public async url(filename: string, options: DriveUrlOptions = {}): Promise<string> {        
+        if (!this.current) throw new BaseException('No drive selected')
 
-            return drive.url(payload.filename, options)
-        }
+        return this.current.url(filename, options)
+    }
 
-        if (payload instanceof DriveEntry) {
-            const drive = this.get(this.selected)
+    public async uploadUrl(filename: string, options: DriveUrlOptions = {}): Promise<string> {        
+        if (!this.current) throw new BaseException('No drive selected')
 
-            return drive.url(payload.path, options)
-        }
-
-        if (typeof payload === 'string') {
-            const drive = this.get(this.selected)
-
-            return drive.url(payload, options)
-        }
-
-        if (typeof payload === 'number') {
-            const file = await File.findOneOrFail({
-                query: qb => qb.selectAll()
-                    .where('id', '=', payload)
-                    .where(undeleted),
-            })
-
-            const drive = this.get(file.drive)
-
-            return drive.url(file.filename, options)
-        }
-
-        throw new BaseException('Invalid payload')
+        return this.current.uploadUrl(filename, options)
     }
 
     /**

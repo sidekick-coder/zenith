@@ -49,7 +49,7 @@ router.post('/database', async ({ body }) => {
 
     const [error] = await tryCatch(async () => {
         await db.load('default')
-        await migrator.migrateFolder(serverPath('migrations'))
+        await migrator.latest({ root: true })
     })
 
     if (error) {

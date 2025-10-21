@@ -6,6 +6,7 @@ import drive from '#server/facades/drive.facade.ts'
 import rootRouter from '#server/facades/router.facade.ts'
 import authMiddleware from '#server/middlewares/auth.middleware.ts'
 import encrypt from '#server/facades/encrypt.facade.ts'
+import validator from '#shared/services/validator.service.ts'
 
 const router = rootRouter.use(authMiddleware)
     .prefix('/api/drives')
@@ -48,58 +49,58 @@ router.get('/:id/files', async ({ params, query, acl }) => {
     return current.list(query.folder as string)
 })
 
-router.get('/:id/stream/:basename', async ({ params, query, response, acl }) => {
+router.get('/:id/stream/*', async ({ params, query, response, acl }) => {    
+    const filename = validator.validate(params['*'], v => v.string())
+    const basename = filename.split('/').pop() || 'file'
     const current = drive.use(params.id)
+    
+    const key = validator.validate(query.key, v => v.optional(v.string()))
 
-    const filename = query.filename ? decodeURIComponent(query.filename as string) : undefined
-    const basename = params.basename
-    const key = query.key ? decodeURIComponent(query.key as string) : undefined
-
-
-    if (!filename) {
-        throw new BaseException('No filename provided', 400)
+    if (key) {
+        encrypt.verifyUrl(key)
     }
 
     if (!key) {
-        acl.authorize('read', 'Drive', current)
+        acl.authorize('read', 'DriveEntry', { filename })
     }
 
-    const decrypted = encrypt.decrypt(key as string) 
-
-    if (!decrypted) {
-        throw new BaseException('Invalid key', 400)
-    }
-
-    const dataKey = JSON.parse(decrypted) as { filename: string, expireAt: number }
-
-    if (dataKey.filename !== filename) {
-        throw new BaseException('Invalid key', 400)
-    }
-
-    if (dataKey.expireAt < Date.now()) {
-        throw new BaseException('Key has expired', 400)
-    }
-
-    const entry = await current.find(filename as string)
+    const entry = await current.find(filename)
 
     if (entry.type !== 'file') {
         throw new BaseException('Not a file', 400)
     }
 
-    const data = await current.read(filename as string)
-    const mimetype = mime.getType(basename as string) || 'application/octet-stream'
+    const data = await current.read(filename)
+    const mimetype = mime.getType(basename) || 'application/octet-stream'
+
+    const stream = await current.readStream(filename, data)
 
     response.set('Content-Type', mimetype || 'application/octet-stream')
-    response.set('Content-Length', String(data.length))
     response.set('Content-Disposition', `inline; filename="${basename}"`)
 
-    response.status(200).send(data)
+    stream.pipe(response)
+
+    return new Promise<void>((resolve, reject) => {
+        // Optional: Handle when the stream finishes
+        stream.on('error', reject)
+        stream.on('end', resolve)
+
+    })
 })
 
-router.post('/:id/upload', async ({ acl, params, query, upload }) => {
+router.post('/:id/upload/*', async ({ acl, params, query, upload }) => {
+    const filename = validator.validate(params['*'], v => v.string())
     const current = drive.use(params.id)
+    
+    const key = validator.validate(query.key, v => v.optional(v.string()))
 
-    acl.authorize('create', 'Drive', current)
+    if (key) {
+        encrypt.verifyUrl(key)
+    }
+
+    if (!key) {
+        acl.authorize('create', 'DriveEntry', { filename })
+    }
 
     const file = await upload.single('file')
 
@@ -107,18 +108,9 @@ router.post('/:id/upload', async ({ acl, params, query, upload }) => {
         throw new BaseException('No file provided')
     }
 
-    let filename = query.filename as string || undefined
-
-    if (!filename) {
-        filename = randomUUID() + '.' + mime.getExtension(file.mimetype)
-    }
-
     const entity = await current.write(filename, file.buffer)
 
-    return {
-        data: entity,
-        message: 'File uploaded successfully'
-    }
+    return entity
 })
 
 

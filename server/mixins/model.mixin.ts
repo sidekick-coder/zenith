@@ -48,9 +48,7 @@ export function Model<Table extends keyof Database>(table: Table, primaryKey: ke
                 const constructor = this as any
 
                 const pagination = await queries.paginate(table, {
-                    page: o?.page,
-                    limit: o?.limit,
-                    query: o?.query,
+                    ...o,
                     serialize: row => constructor.serialize(row),
                 })
 

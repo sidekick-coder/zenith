@@ -15,6 +15,11 @@ export interface Migration {
     down: (db: any) => Promise<void>;
 }
 
+export interface ListFilters {
+    root?: boolean;
+    module?: string;
+}
+
 interface MigrationResult {
     filename: string;
     module: string | null;
@@ -34,13 +39,14 @@ export default class MigratorService {
             .execute()
     }
 
-    public async list(): Promise<Migration[]> {
+    public async list(filters?: ListFilters): Promise<Migration[]> {
         await this.ensureMigrationsTable()
 
         const allMigrations: Migration[] = []
 
         // Load root migrations
         const rootFolder = basePath('server', 'migrations')
+
         if (fs.existsSync(rootFolder)) {
             const entries = await fs.promises.readdir(rootFolder)
             
@@ -70,6 +76,7 @@ export default class MigratorService {
 
         // Load module migrations
         const mods = await modules.list()
+
         for (const mod of mods) {
             const migrationPath = mod.makePath('server', 'migrations')
             if (!fs.existsSync(migrationPath)) continue
@@ -112,10 +119,20 @@ export default class MigratorService {
         // Mark executed migrations
         const executedMap = new Map(executedMigrations.map(m => [m.name, m.executed_at]))
         
-        return allMigrations.map(migration => ({
+        let migrations = allMigrations.map(migration => ({
             ...migration,
             executedAt: executedMap.get(migration.name) || null
         }))
+        
+        if (filters?.root) {
+            migrations = migrations.filter(m => m.module === null)
+        }
+
+        if (filters?.module) {
+            migrations = migrations.filter(m => m.module === filters.module)
+        }
+
+        return migrations
     }
 
     public async migrateFile(fileName: string): Promise<MigrationResult> {
@@ -292,14 +309,10 @@ export default class MigratorService {
         return this.rollbackFolder(mod.makePath('server', 'migrations'))
     }
 
-    public async up(steps: number = 1, filters: { module?: string } = {}): Promise<MigrationResult[]> {
+    public async up(steps: number = 1, filters: ListFilters = {}): Promise<MigrationResult[]> {
         await this.ensureMigrationsTable()
         
-        let migrations = await this.list()
-
-        if (filters.module) {
-            migrations = migrations.filter(m => m.module === filters.module)
-        }
+        const migrations = await this.list(filters)
 
         const pendingMigrations = migrations
             .filter(m => !m.executedAt)
@@ -325,14 +338,10 @@ export default class MigratorService {
         return results
     }
 
-    public async down(steps: number = 1, filters: { module?: string } = {}): Promise<MigrationResult[]> {
+    public async down(steps: number = 1, filters: ListFilters = {}): Promise<MigrationResult[]> {
         await this.ensureMigrationsTable()
         
-        let migrations = await this.list()
-
-        if (filters.module) {
-            migrations = migrations.filter(m => m.module === filters.module)
-        }
+        const migrations = await this.list(filters)
         
         const executedMigrations = migrations
             .filter(m => m.executedAt)
@@ -358,14 +367,10 @@ export default class MigratorService {
         return results
     }
 
-    public async latest(filters: { module?: string } = {}): Promise<MigrationResult[]> {
+    public async latest(filters: ListFilters = {}): Promise<MigrationResult[]> {
         await this.ensureMigrationsTable()
         
-        let migrations = await this.list()
-
-        if (filters.module) {
-            migrations = migrations.filter(m => m.module === filters.module)
-        }
+        const migrations = await this.list(filters)
 
         const pendingMigrations = migrations
             .filter(m => !m.executedAt)
@@ -389,15 +394,11 @@ export default class MigratorService {
 
         return results
     }
-    
-    public async rollback(filters: { module?: string } = {}): Promise<MigrationResult[]> {
+
+    public async rollback(filters: ListFilters = {}): Promise<MigrationResult[]> {
         await this.ensureMigrationsTable()
         
-        let migrations = await this.list()
-
-        if (filters.module) {
-            migrations = migrations.filter(m => m.module === filters.module)
-        }
+        const migrations = await this.list(filters)
 
         const executedMigrations = migrations
             .filter(m => m.executedAt)
@@ -423,7 +424,7 @@ export default class MigratorService {
         return results
     }
 
-    public async fresh(filters: { module?: string } = {}): Promise<MigrationResult[]> {
+    public async fresh(filters: ListFilters = {}): Promise<MigrationResult[]> {
         const downResults = await this.rollback(filters)
         
         if (downResults.some(r => r.result === 'failed')) {
@@ -435,8 +436,8 @@ export default class MigratorService {
         return upResults
     }
 
-    public async latestOrFail(): Promise<MigrationResult[]> {
-        const results = await this.latest()
+    public async latestOrFail(filters: ListFilters = {}): Promise<MigrationResult[]> {
+        const results = await this.latest(filters)
         
         if (results.some(r => r.result === 'failed')) {
             const error = new Error('Failed to run all migrations')

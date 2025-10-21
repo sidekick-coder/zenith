@@ -1,8 +1,7 @@
-import { createUser } from '#server/queries/index.ts'
+import { createUser, undeleted } from '#server/queries/index.ts'
 import BaseException from '#server/exceptions/base.ts'
 import rootRouter from '#server/facades/router.facade.ts'
 import authMiddleware from '#server/middlewares/auth.middleware.ts'
-import userRepository from '#server/repositories/user.repository.ts'
 import validator from '#shared/services/validator.service.ts'
 import { $t } from '#shared/lang.ts' 
 import schemas from '#shared/validators/index.ts'
@@ -18,6 +17,7 @@ router.get('/', async ({ acl, query }) => {
     const payload = validator.validate(query, schemas.pagination.schema)
 
     return User.paginate({
+        query: q => q.selectAll().where(undeleted),
         page: payload.page,
         limit: payload.limit,
     })

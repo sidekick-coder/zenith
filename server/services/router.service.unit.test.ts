@@ -4,7 +4,7 @@ import {
     expect,
     vi 
 } from 'vitest'
-import Router from './router.ts'
+import Router from './router.service.ts'
 
 describe('Router', () => {
     it('should add GET route and resolve it', () => {
@@ -56,5 +56,50 @@ describe('Router', () => {
         const router = new Router()
         const match = router.matchPath('/user/:id', '/profile/123')
         expect(match).toBe(false)
+    })
+
+    it('should match path with wildcard spread parameter', () => {
+        const router = new Router()
+        const match = router.matchPath('/files/*', '/files/documents/folder/file.txt')
+        expect(match).toBe(true)
+    })
+
+    it('should extract spread parameter from wildcard route', () => {
+        const router = new Router()
+        const params = router.extractParams('/files/*', '/files/documents/folder/file.txt')
+        expect(params).toEqual({ '*': 'documents/folder/file.txt' })
+    })
+
+    it('should match wildcard at root level', () => {
+        const router = new Router()
+        const match = router.matchPath('*', '/any/path/here')
+        expect(match).toBe(true)
+    })
+
+    it('should extract root level wildcard parameter', () => {
+        const router = new Router()
+        const params = router.extractParams('*', '/any/path/here')
+        expect(params).toEqual({ '*': 'any/path/here' })
+    })
+
+    it('should match empty path with wildcard', () => {
+        const router = new Router()
+        const match = router.matchPath('*', '/')
+        expect(match).toBe(true)
+    })
+
+    it('should extract empty wildcard parameter', () => {
+        const router = new Router()
+        const params = router.extractParams('*', '/')
+        expect(params).toEqual({ '*': '' })
+    })
+
+    it('should add and resolve wildcard route', () => {
+        const router = new Router()
+        const handler = vi.fn()
+        router.get('/files/*', handler)
+        const route = router.resolve('GET', '/files/documents/test.pdf')
+        expect(route).toBeTruthy()
+        expect(route?.handler).toBe(handler)
     })
 })

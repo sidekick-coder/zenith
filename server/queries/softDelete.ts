@@ -29,7 +29,7 @@ export function whereNotDeleted<QB extends WhereCapable<QB>>(qb: QB): QB {
 }
 
 export function undeleted (qb: ExpressionBuilder<any, any>) {
-    return qb.eb('deleted_at', 'is', null)
+    return qb.eb(qb.ref('deleted_at'), 'is', null)
 }
 
 undeleted.column = (col: string) => {

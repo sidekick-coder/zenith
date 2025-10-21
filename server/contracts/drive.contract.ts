@@ -17,5 +17,6 @@ export default interface DriveContract {
     write(filename: string, data: Uint8Array): Promise<void>;
     delete(filename: string): Promise<void>;
     url(filename: string, options?: DriveUrlOptions): Promise<string>;
+    uploadUrl(filename: string, options?: DriveUrlOptions): Promise<string>;
     readStream(filename: string): Promise<ReadStream>;
 }

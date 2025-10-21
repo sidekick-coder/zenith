@@ -34,4 +34,8 @@ export default class File extends composeWith(
     public readStream() {
         return drive.use(this.drive).readStream(this.filename)
     }
+
+    public async loadUrl() {
+        this.url = await drive.use(this.drive).url(this.filename)
+    }
 }

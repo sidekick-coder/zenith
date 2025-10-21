@@ -1,10 +1,17 @@
 import crypto from 'crypto'
+import ms from 'ms'
 import config from '#server/facades/config.facade.ts'
+import env from '#server/env.ts'
+
+interface URLOptions {
+    data?: any;
+    expires?: ms.StringValue;
+}
 
 export default class EncryptService {
     public static readonly DI_KEY = 'encrypt'
     private readonly algorithm = 'aes-256-cbc'
-    private key: Buffer
+    private key: Buffer | null = null
 
     public load(key: string) {
         this.key = crypto.scryptSync(key, 'salt', 32)
@@ -39,5 +46,35 @@ export default class EncryptService {
         decrypted += decipher.final('utf8')
 
         return decrypted
+    }
+
+    public url(path: string, options?: URLOptions): string {
+        const expires = ms(options?.expires || '30m') as number
+        const expireAt = Date.now() + expires
+
+        const payload = {
+            data: options?.data || {},
+            expireAt
+        }
+
+        const key = this.encrypt(JSON.stringify(payload))
+
+        const url = new URL(path, env.APP_URL)
+
+        url.searchParams.append('key', encodeURIComponent(key))
+
+        return url.toString()
+    }
+
+    public verifyUrl(encryptedKey: string): any {
+        const decryptedData = this.decrypt(decodeURIComponent(encryptedKey))
+        
+        const payload = JSON.parse(decryptedData)
+
+        if (payload.expireAt && Date.now() > payload.expireAt) {
+            throw new Error('URL has expired')
+        }
+
+        return payload.data
     }
 }

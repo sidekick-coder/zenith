@@ -1,10 +1,11 @@
 import { exists } from './exists.ts'
+import { create } from './create.ts'
+import { undeleted } from './softDelete.ts'
 import BaseException from '#server/exceptions/base.ts'
 import db from '#server/facades/db.facade.ts'
 import hasher from '#server/facades/hasher.facade.ts'
 import emmitter from '#server/facades/emmitter.facade.ts'
 import User from '#server/entities/user.entity.ts'
-import { create } from './create.ts'
 
 export interface UserPayload {
     name: string
@@ -16,6 +17,7 @@ export interface UserPayload {
 function userExists(email: string, username: string) {
     return exists('users', {
         query: q => q.selectAll()
+            .where(undeleted)
             .where(eb => eb.or([
                 eb('email', '=', email),
                 eb('username', '=', username)

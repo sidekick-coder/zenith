@@ -69,12 +69,14 @@ export default class FilesystemDrive implements DriveContract {
     }
 
     async find(filename: string): Promise<DriveEntity> {
-        const entries = await this.list(path.dirname(filename))
+        const filepath = filename.startsWith('/') ? filename : '/' + filename
 
-        const entry = entries.find(e => e.path === filename)
+        const entries = await this.list(path.dirname(filepath))
+
+        const entry = entries.find(e => e.path === filepath)
 
         if (!entry) {
-            throw new Error(`File "${filename}" not found`)
+            throw new Error(`File "${filepath}" not found`)
         }
 
         return entry
@@ -120,22 +122,16 @@ export default class FilesystemDrive implements DriveContract {
     }
 
     public url: DriveContract['url'] = async (filename, options) => {
-        const expires = ms(options?.expires || '30m') // milliseconds
-        
-        const expireAt = Date.now() + expires
+        const path = filename.startsWith('/') ? filename : `/${filename}`
 
-        const data = {
-            filename: `/${filename}`,
-            expireAt
-        }
+        return encrypt.url(`/api/drives/${this.id}/stream${path}`, {
+            expires: options?.expires || '30m'
+        })
+    }
 
-        const key = encrypt.encrypt(JSON.stringify(data))
-        const basename = path.basename(filename)
-        const params = new URLSearchParams()
-
-        params.append('filename', encodeURIComponent(data.filename))
-        params.append('key', encodeURIComponent(key))
-
-        return `/api/drives/${this.id}/stream/${basename}?${params.toString()}`
+    public uploadUrl: DriveContract['uploadUrl'] = async (filename, options) => {
+        return encrypt.url(`/api/drives/${this.id}/upload/${filename}`, {
+            expires: options?.expires || '30m'
+        })
     }
 }

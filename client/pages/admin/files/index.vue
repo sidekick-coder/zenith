@@ -37,9 +37,14 @@ const columns = defineColumns<File>([
         label: $t('Preview'),
     },
     {
-        id: 'client_name',
-        label: $t('Name'),
-        field: 'client_name',
+        id: 'filename',
+        label: $t('Filename'),
+        field: 'filename',
+    },
+    {
+        id: 'purpose',
+        label: $t('Purpose'),
+        field: 'purpose',
     },
     {
         id: 'mimetype',
@@ -142,6 +147,13 @@ async function destroy(id: number) {
             fetch="/api/files"
             row-key="id"
         >
+            <template #row-filename="{ row }">
+                <div>{{ row.client_name }}</div>
+                <div class="text-xs text-muted-foreground">
+                    {{ row.filename }}
+                </div>
+            </template>
+
             <template #row-preview="{ row }">
                 <Image
                     v-if="row.isImage() && row.url"
