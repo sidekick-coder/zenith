@@ -1,6 +1,6 @@
 import { Kysely } from 'kysely'
 
-const table = 'file_file_upload_sessions'
+const table = 'file_upload_sessions'
 
 export async function up(db: Kysely<any>): Promise<void> {
     await db.schema.createTable(table)

@@ -11,7 +11,7 @@ import * as connection from './connection.validator.ts'
 import * as modules from './modules.validator.ts'
 import * as branding from './branding.validator.ts'
 import * as pwa from './pwa.validator.ts'
-import * as uploadSession from './uploadSession.validator.ts'
+import * as fileUploadSession from './fileUploadSession.validator.ts'
 
 const schemas = {
     pagination,
@@ -23,11 +23,11 @@ const schemas = {
     user,
     userMeta,
     fileMeta,
+    fileUploadSession,
     connection,
     modules,
     branding,
     pwa,
-    uploadSession,
 }
 
 export default schemas

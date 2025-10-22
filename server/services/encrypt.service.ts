@@ -6,6 +6,7 @@ import env from '#server/env.ts'
 interface URLOptions {
     data?: any;
     expires?: ms.StringValue;
+    expireAt?: number | Date;
 }
 
 export default class EncryptService {
@@ -49,8 +50,21 @@ export default class EncryptService {
     }
 
     public url(path: string, options?: URLOptions): string {
-        const expires = ms(options?.expires || '30m') as number
-        const expireAt = Date.now() + expires
+        let expireAt = options?.expireAt
+        
+        if (options?.expires) {
+            const expires = ms(options.expires) as number
+
+            expireAt = Date.now() + expires
+        }
+
+        if (!expireAt) {
+            expireAt = Date.now() + ms('15 minutes')
+        }
+
+        if (expireAt instanceof Date) {
+            expireAt = expireAt.getTime()
+        }
 
         const payload = {
             data: options?.data || {},

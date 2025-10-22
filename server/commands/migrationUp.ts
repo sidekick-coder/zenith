@@ -7,9 +7,11 @@ program.command('migration:up')
     .description('Run pending migrations')
     .option('-s, --step <number>', 'Number of migrations to run', Number)
     .option('-m, --module <string>', 'Filter by module name')
-    .action(cli.with(['db'], async (options: { step?: number, module?: string }) => {
+    .option('-r, --root ', 'Run migration on root database')
+    .action(cli.with(['db'], async (options: { step?: number, module?: string, root?: boolean }) => {
         const results = await migrator.up(options.step, { 
-            module: options.module
+            module: options.module,
+            root: !!options.root
         })
 
         if (results.length === 0) {

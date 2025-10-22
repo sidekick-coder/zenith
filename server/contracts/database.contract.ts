@@ -75,11 +75,12 @@ export interface FileMetaTable extends TimestampTable, SoftDeleteTable {
   value: string | null
 }
 
-export interface UploadSessionTable extends TimestampTable, SoftDeleteTable {
+export interface UploadSessionTable {
   id: Generated<number>
   purpose: string
   mime_types: string
   max_size: number
+  expires_at: string
 }
 
 export interface Database  {

@@ -78,7 +78,7 @@ async function createSession(file: File){
         ext: ext
     })
 
-    return await $fetch<UploadSession>('/api/upload-sessions', {
+    return await $fetch<UploadSession>('/api/file-upload-sessions', {
         method: 'POST',
         data: {
             filename: filename,
