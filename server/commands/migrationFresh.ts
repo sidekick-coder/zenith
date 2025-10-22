@@ -6,9 +6,11 @@ program.command('migration:fresh')
     .helpGroup('migration')
     .description('Rollback all migrations and re-run them')
     .option('-m, --module <string>', 'Filter by module name')
-    .action(cli.with(['db'], async (options: { module?: string }) => {
+    .option('-r, --root', 'Run migrations only for the root application')
+    .action(cli.with(['db'], async (options: { module?: string, root?: boolean }) => {
         const results = await migrator.fresh({
-            module: options.module
+            module: options.module,
+            root: !!options.root
         })
 
         if (!results.length) {
