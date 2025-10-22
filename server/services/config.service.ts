@@ -1,15 +1,15 @@
 
 import fs from 'fs'
 import path from 'path'
-import set from 'lodash/set.js'
+import { set } from 'lodash-es'
 import chokidar from 'chokidar'
-import ConfigService from '#shared/services/config.service.ts'
+import Base from '#shared/services/config.service.ts'
 import { configPath } from '#server/utils/paths.ts'
 import { importGlob } from '#server/utils/importAll.ts'
 import { flatten } from '#shared/utils/flatten.ts'
 import env from '#server/env.ts'
 
-export default class ServiceConfigService extends ConfigService {
+export default class ConfigService extends Base {
     private configDir: string
 
     constructor(configDir?: string) {
@@ -53,41 +53,11 @@ export default class ServiceConfigService extends ConfigService {
     }
 
     public get(fullKey: string, defaultValue: any = null): any {
-        // Check if there are nested keys (keys that start with fullKey + '.')
-        const hasNestedKeys = Array.from(this.entries.keys()).some(key => 
-            key.startsWith(fullKey + '.')
-        )
-        
-        if (hasNestedKeys) {
-            // Collect all entries that start with this key
-            const result: Record<string, any> = {}
-
-            for (const entry of this.entries.values()) {
-                const { key, value } = entry
-
-                if (key.startsWith(fullKey + '.') || key === fullKey) {
-                    set(result, key.replace(fullKey + '.', ''), value)
-                }
-            }
-
-            return result || defaultValue
-        }
-
-        const entry = this.entries.get(fullKey)
-        
-        if (!entry) {
-            return defaultValue
-        }
-
-        return entry.value
+        return super.get(fullKey, defaultValue)
     }
 
     public set(fullKey: string, value: any): void {
-        this.entries.set(fullKey, {
-            key: fullKey,
-            source: 'runtime',
-            value
-        })
+        super.set(fullKey, value)
 
         const { filename, key } = this.parseKey(fullKey)
         
@@ -101,6 +71,24 @@ export default class ServiceConfigService extends ConfigService {
             set(values, key, value)
         }
         
+        const filePath = path.join(this.configDir, `${filename}.json`)
+
+        if (!fs.existsSync(path.dirname(filePath))) {
+            fs.mkdirSync(path.dirname(filePath), { recursive: true })
+        }
+
+        fs.writeFileSync(filePath, JSON.stringify(values, null, 2))
+    }
+
+    public unset(fullKey: string): void {
+        super.unset(fullKey)
+
+        const { filename, key } = this.parseKey(fullKey)
+        
+        const values = this.get(filename)
+
+        set(values, key, undefined)
+
         const filePath = path.join(this.configDir, `${filename}.json`)
 
         if (!fs.existsSync(path.dirname(filePath))) {

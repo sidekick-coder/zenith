@@ -54,4 +54,8 @@ export default class ConfigService {
             value
         })
     }
+
+    public unset(fullKey: string): void {
+        this.entries.delete(fullKey)
+    }
 }
