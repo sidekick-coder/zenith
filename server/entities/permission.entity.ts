@@ -4,5 +4,4 @@ import { composeWith } from '#shared/utils/compose.ts'
 
 export default class Permission extends composeWith(Base, Model('permissions')) {
     
-
 }

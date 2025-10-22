@@ -2,6 +2,7 @@ import fs from 'fs'
 import { program } from 'commander'
 import { basePath, serverPath } from '#server/utils/paths.ts'
 import db from '#server/facades/db.facade.ts'
+import cli from '#server/services/cli.service.ts'
 
 async function runSeed(seedPath: string, seedName: string, moduleName?: string): Promise<void> {
     const moduleInfo = moduleName ? ` (module: ${moduleName})` : ''
@@ -50,7 +51,7 @@ program.command('seed:run')
     .description('Run database seed files')
     .argument('<seedName>', 'Name of the seed file to run')
     .option('-m, --module <moduleName>', 'Run seed only from specific module')
-    .action(async (seedName, options) => {
+    .action(cli.with(['db'], async (seedName, options) => {
         const { module: moduleName } = options
         
         const seedPath = findSeedPath(seedName, moduleName)
@@ -62,4 +63,4 @@ program.command('seed:run')
         }
 
         await runSeed(seedPath, seedName, moduleName)
-    })
+    }))

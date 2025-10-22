@@ -40,11 +40,11 @@ export function BaseEntity<TBase extends Constructor>(Base: TBase) {
 
             let payload = { ...data }
             
-            if (typeof contructor.parse === 'function') {
+            if (typeof contructor?.parse === 'function') {
                 payload = (contructor as any).parse(data)
             }
             
-            if (typeof (this as any).parse === 'function') {
+            if (typeof (this as any)?.parse === 'function') {
                 payload = (this as any).parse(data)
             }
 

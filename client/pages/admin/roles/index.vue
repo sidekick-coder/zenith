@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { watch, ref } from 'vue'
+import { ref } from 'vue'
 import { toast } from 'vue-sonner'
 import { useRouter } from 'vue-router'
+import type { ComponentExposed } from 'vue-component-type-helpers'
 import DataTable, { defineColumns } from '#client/components/DataTable.vue'
 import { $t } from '#shared/lang.ts'
 import AppLayout from '#client/layouts/AppLayout.vue'
@@ -18,7 +19,7 @@ const router = useRouter()
 const items = ref<Role[]>([])
 const loading = ref(false)
 const saving = ref(false)
-const page = ref(1)
+const tableRef = ref<ComponentExposed<typeof DataTable>>()
 const deletingItems = ref<number[]>([])
 
 const columns = defineColumns([
@@ -41,29 +42,9 @@ const columns = defineColumns([
     { id: 'actions' }
 ])
 
-async function load(){
-    loading.value = true 
-
-    const [error, response] = await tryCatch(() => $fetch<{ data: Role[] }>('/api/roles', {
-        method: 'GET',
-        query: {
-            page: page.value,
-            limit: 20,
-        },
-    }))
-
-    if (error) {
-        loading.value = false
-        return
-    }
-
-    items.value = response.data || []
-
-    setTimeout(() => {
-        loading.value = false
-    }, 500)
+async function load() {
+    await tableRef.value?.load()
 }
-
 async function create() {
     saving.value = true
 
@@ -98,12 +79,10 @@ async function destroy(id: number) {
     setTimeout(() => {
         toast.success($t('Deleted successfully.'))
         deletingItems.value = []
-        items.value = items.value.filter(i => i.id !== id)
+        load()
     }, 1000)
 
 }
-
-watch(page, load, { immediate: true })
 </script>
 <template>
     <AppLayout>
@@ -122,10 +101,10 @@ watch(page, load, { immediate: true })
         </div>
 
         <DataTable 
-            :rows="items"
-            :page="page"
+            ref="tableRef"
+            v-model:loading="loading"
             :columns="columns"
-            :loading="loading"
+            fetch="/api/roles"
         >
             <template #row-actions="{ row }">
                 <div class="flex items-center gap-2 justify-end">

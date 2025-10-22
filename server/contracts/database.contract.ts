@@ -34,6 +34,7 @@ export interface TokenTable extends TimestampTable {
 export interface RoleTable {
   id: Generated<number>
   name: string
+  description: string | null
 }
 
 export interface UserRoleTable {

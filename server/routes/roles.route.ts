@@ -1,5 +1,6 @@
 import BaseException from '#server/exceptions/base.ts'
 import db from '#server/facades/db.facade.ts'
+import { undeleted } from '#server/queries/index.ts'
 import rootRouter from '#server/facades/router.facade.ts'
 import authMiddleware from '#server/middlewares/auth.middleware.ts'
 import Role from '#server/entities/role.entity.ts'
@@ -16,7 +17,8 @@ router.get('/', async ({ acl, query }) => {
 
     const { page, limit } = validator.validate(query, schemas.pagination.schema)
 
-    return Role.paginate({ 
+    return Role.paginate({
+        query: (qb) => qb.selectAll().where(undeleted),
         page, 
         limit
     })
