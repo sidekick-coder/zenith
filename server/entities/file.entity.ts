@@ -9,7 +9,7 @@ export default class File extends composeWith(
     Base,
     Hooks,
     Model('files'),
-    Metadata('files_metas', 'file_id')
+    Metadata('file_metas', 'file_id')
 ) {
     public static boot(){
         this.on('serialized', async (file: File) => {

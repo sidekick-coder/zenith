@@ -4,7 +4,7 @@ import { composeWith } from '#shared/utils/compose.ts'
 
 export default class FileMeta extends composeWith(
     BaseMeta,
-    Model('files_metas')
+    Model('file_metas')
 ) {
 
 }

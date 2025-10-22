@@ -1,6 +1,6 @@
 import { Kysely } from 'kysely'
 
-const table = 'upload_sessions'
+const table = 'file_file_upload_sessions'
 
 export async function up(db: Kysely<any>): Promise<void> {
     await db.schema.createTable(table)
@@ -8,8 +8,7 @@ export async function up(db: Kysely<any>): Promise<void> {
         .addColumn('purpose', 'varchar(255)', col => col.notNull())
         .addColumn('mime_types', 'text', col => col.notNull())
         .addColumn('max_size', 'integer', col => col.notNull())
-        .addTimestampColumns()
-        .addSoftDeleteColumn()
+        .addColumn('expires_at', 'timestamp', col => col.notNull())
         .execute()
 }
 

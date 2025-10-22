@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto'
-import UploadSession from '#server/entities/uploadSession.entity.ts'
+import UploadSession from '#server/entities/fileUploadSession.entity.ts'
 import rootRouter from '#server/facades/router.facade.ts'
 import authMiddleware from '#server/middlewares/auth.middleware.ts'
 import { undeleted } from '#server/queries/index.ts'

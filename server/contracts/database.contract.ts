@@ -88,8 +88,8 @@ export interface Database  {
   tokens: TokenTable
   migrations: MigrationsTable
   files: FileTable
-  files_metas: FileMetaTable
-  upload_sessions: UploadSessionTable
+  file_metas: FileMetaTable
+  file_upload_sessions: UploadSessionTable
   
   roles: RoleTable
   user_roles: UserRoleTable

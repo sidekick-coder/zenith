@@ -7,7 +7,7 @@ import { $file } from '#client/utils/file.ts'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
 import Button from '#client/components/Button.vue'
 import Icon from '#client/components/Icon.vue'
-import type UploadSession from '#shared/entities/uploadSession.entity.ts'
+import type UploadSession from '#shared/entities/fileUploadSession.entity.ts'
 
 const props = defineProps({
     label: {
