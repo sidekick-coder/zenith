@@ -184,11 +184,37 @@ router.post('/install/zip', async ({ upload, query, acl }) => {
 
     await fs.promises.writeFile(filename, file.buffer)
 
-    const [error] = await tryCatch(() => modules.installFromZip(id, filename))
+    const [error] = await tryCatch(() => modules.installer.fromZip({ 
+        id,
+        filename 
+    }))
 
     if (error) {
         throw new BaseException(`Failed to install module: ${error.message}`)
     }
+
+    await modules.prepare(id)
+
+    return { success: true, }
+})
+
+router.post('/install/git', async ({ body, acl }) => {
+    acl.authorize('create', 'Module')
+
+    const options = validator.validate(body, v => v.object({
+        id: v.string(),
+        repository: v.string(),
+        branch: v.optional(v.string()),
+        key: v.optional(v.string()),
+    }))
+
+    const [error] = await tryCatch(() => modules.installer.fromGit(options))
+
+    if (error) {
+        throw new BaseException(`Failed to install module: ${error.message}`)
+    }
+
+    await modules.prepare(options.id)
 
     return { success: true, }
 })

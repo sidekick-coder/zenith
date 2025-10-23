@@ -3,6 +3,7 @@ import path from 'path'
 import { spawn } from 'child_process'
 import unzipper from 'unzipper'
 import rootLogger from '../facades/logger.facade.ts'
+import ModuleInstallerService from './moduleInstaller.service.ts'
 import config from '#server/facades/config.facade.ts'
 import {
     basePath,
@@ -55,6 +56,16 @@ interface ListOptions {
 }
 
 export class ModulesService {
+    public installer = new ModuleInstallerService()
+
+    constructor(
+        installer?: ModuleInstallerService
+    ) {
+        if (installer) {
+            this.installer = installer
+        }
+    }
+
     public async list(options: ListOptions = {}) {
         const modulesPath = basePath('modules')
         const moduleNames = fs.readdirSync(modulesPath, { withFileTypes: true })
@@ -241,99 +252,6 @@ export class ModulesService {
         }
 
         logger.info(`Symlinks prepared for module '${moduleName}'`)
-    }
-
-    public async install(githubRepo: string, options: InstallOptions = {}) {
-        // Extract module name from owner/repo format
-        const parts = githubRepo.split('/')
-        
-        if (parts.length !== 2) {
-            throw new Error('Invalid GitHub repository format. Use "owner/repo" format.')
-        }
-
-        const [_owner, moduleName] = parts
-        const modulesDir = basePath('modules')
-        const moduleDir = path.join(modulesDir, moduleName)
-
-        // Check if module already exists
-        if (fs.existsSync(moduleDir)) {
-            throw new Error(`Module '${moduleName}' already exists`)
-        }
-
-        // Ensure modules directory exists
-        if (!fs.existsSync(modulesDir)) {
-            fs.mkdirSync(modulesDir, { recursive: true })
-        }
-
-        logger.info(`Installing module from GitHub repository: ${githubRepo}`)
-
-        const gitUrl = `https://github.com/${githubRepo}.git`
-
-        // Clone the repository
-        const [cloneError] = await tryCatch(() => executeCommand('git', ['clone', gitUrl, moduleDir]))
-        
-        if (cloneError) {
-            logger.error(`Failed to clone repository: ${cloneError.message}`)
-
-            throw new Error(`Failed to clone repository: ${cloneError.message}`)
-        }
-
-        logger.info(`Module '${moduleName}' cloned successfully`)
-
-        // Install dependencies if package.json exists and npm option is enabled
-        if (options.npm && fs.existsSync(path.join(moduleDir, 'package.json'))) {
-            
-            logger.info('npm install')
-
-            await executeCommand('npm', ['install'], { cwd: moduleDir })
-        }
-
-        // Prepare symlinks for the module
-        await this.prepare(moduleName)
-
-        // Enable the module by default after installation if enable option is not false
-        if (options.enable) {
-            await this.enable(moduleName)
-        }
-
-        if (options.migrate) {
-            const result = await migrator.migrateByModule(moduleName)
-
-            logger.info(`Migrations for module '${moduleName}' completed successfully`, result)
-        }
-
-        logger.info(`Module '${moduleName}' installed successfully`)
-    }
-
-    public async installFromZip(id: string, zipPath: string) {
-        const modulesPath = basePath('modules')
-        const moduleDir = path.join(modulesPath, id)
-        const tempDir = tmpPath(id + '_unzipped')
-
-        // Check if module already exists
-        if (fs.existsSync(moduleDir)) {
-            throw new Error(`Module '${id}' already exists`)
-        }
-
-        const directory = await unzipper.Open.file(zipPath)
-
-        await directory.extract({ path: tempDir })
-
-        let targetDir = tempDir
-
-        // If the zip contains a single root folder, use it
-        const entries = fs.readdirSync(tempDir)
-        
-        if (entries.length === 1) {
-            targetDir = path.join(tempDir, entries[0])
-        }
-
-        // Move extracted files to module directory
-        fs.renameSync(targetDir, moduleDir)
-
-        await this.prepare(id)
-
-        logger.info(`Module '${id}' installed successfully from zip`)
     }
 
     public async uninstall(moduleName: string, options: UninstallOptions = {}) {
