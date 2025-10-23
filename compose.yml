@@ -1,0 +1,10 @@
+# sample of how to run Zenith with Docker Compose
+services:
+    app:
+        image: zzhenryquezz/zenith:tag
+        restart: unless-stopped
+        ports:
+            - 3000:3000
+        volumes:
+            - .volumes/app/modules:/app/modules
+            - .volumes/app/storage:/app/storage
