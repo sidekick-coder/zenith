@@ -96,7 +96,6 @@ watch(() => props.fetch, fetchOptions, { immediate: true })
             <Select
                 v-model="modelValue"
                 :disabled="disabled"
-                class="h-10"
             >
                 <SelectTrigger
                     :class="variant === 'horizontal' ? 'rounded-l-none flex-1' : 'w-full'"

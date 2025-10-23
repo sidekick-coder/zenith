@@ -31,9 +31,9 @@ const props = defineProps({
         type: String,
         required: true,
     },
-    filename: {
+    folder: {
         type: String,
-        required: true,
+        default: null,
     },
     maxSize: {
         type: Number,
@@ -63,22 +63,11 @@ const loading = defineModel<boolean>('loading', {
 })
 
 async function createSession(file: File){
-    let filename = props.filename
-
-    const templateFn = template(filename, {
-        interpolate: /\{([\s\S]+?)\}/g,
-    })
-    
-    const ext = file.name.split('.').pop() || ''
-
-    filename = templateFn({ 
-        ext: ext
-    })
-
     return await $fetch<UploadSession>('/api/file-upload-sessions', {
         method: 'POST',
         data: {
-            filename: filename,
+            public: props.public,
+            folder: props.folder,
             client_name: file.name,
             purpose: props.purpose,
             mime_types: props.mimetypes,

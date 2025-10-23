@@ -2,10 +2,10 @@ import validator from '#shared/services/validator.service.ts'
 
 const schema = validator.create(v => v.object({
     purpose: v.string(),
-    drive: v.optional(v.string()),
-    filename: v.string(),
+    drive: v.nullish(v.string()),
+    folder: v.nullish(v.string()),
     client_name: v.string(),
-    public: v.optional(v.boolean()),
+    public: v.nullish(v.boolean()),
     mime_types: v.string(),
     max_size: v.number()
 }))

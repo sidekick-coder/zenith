@@ -75,7 +75,7 @@ const visiblePages = computed(() => {
                     :label="$t('Rows per page')"
                     :options="limitOptions"
                     variant="horizontal"
-                    label-class="min-w-auto text-xs sm:text-sm"
+                    label-class="min-w-auto text-xs"
                 />
             </div>
             <div class="flex items-center space-x-2 sm:space-x-2">

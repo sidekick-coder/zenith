@@ -99,7 +99,9 @@ router.post('/:id/upload/*', async ({ acl, params, query, upload }) => {
     if (key) {
         const data = encrypt.verifyUrl(key)
 
-        if (data.mime_types && data.mime_types.length > 0) {
+        console.log(data, mimeType)
+
+        if (data.mime_types?.length) {
             if (!data.mime_types.includes(mimeType)) {
                 throw new BaseException('MIME type not allowed', 403)
             }
