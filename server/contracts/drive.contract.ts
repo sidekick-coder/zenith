@@ -6,6 +6,12 @@ export interface DriveUrlOptions {
     expires?: ms.StringValue; // ms format, e.g. '1h', '30m', '15s'
 }
 
+export interface DriveUploadUrlOptions {
+    expires?: ms.StringValue; // ms format, e.g. '1h', '30m', '15s'
+    mime_types?: string[];
+    max_size?: number;
+}
+
 export default interface DriveContract {
     id: string;
     name: string;
@@ -17,6 +23,6 @@ export default interface DriveContract {
     write(filename: string, data: Uint8Array): Promise<void>;
     delete(filename: string): Promise<void>;
     url(filename: string, options?: DriveUrlOptions): Promise<string>;
-    uploadUrl(filename: string, options?: DriveUrlOptions): Promise<string>;
+    uploadUrl(filename: string, options?: DriveUploadUrlOptions): Promise<string>;
     readStream(filename: string): Promise<ReadStream>;
 }

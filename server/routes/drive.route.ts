@@ -91,18 +91,28 @@ router.get('/:id/stream/*', async ({ params, query, response, acl }) => {
 router.post('/:id/upload/*', async ({ acl, params, query, upload }) => {
     const filename = validator.validate(params['*'], v => v.string())
     const current = drive.use(params.id)
+    const file = await upload.single('file')
     
     const key = validator.validate(query.key, v => v.optional(v.string()))
+    const mimeType = mime.getType(filename) || 'application/octet-stream'
 
     if (key) {
-        encrypt.verifyUrl(key)
+        const data = encrypt.verifyUrl(key)
+
+        if (data.mime_types && data.mime_types.length > 0) {
+            if (!data.mime_types.includes(mimeType)) {
+                throw new BaseException('MIME type not allowed', 403)
+            }
+        }
+
+        if (data.max_size && upload.size > data.max_size) {
+            throw new BaseException('File size exceeds the maximum allowed', 403)
+        }
     }
 
     if (!key) {
         acl.authorize('create', 'DriveEntry', { filename })
     }
-
-    const file = await upload.single('file')
 
     if (!file) {
         throw new BaseException('No file provided')

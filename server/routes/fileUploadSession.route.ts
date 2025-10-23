@@ -24,7 +24,12 @@ router.post('/', async ({ acl, body }) => {
         expires_at: normalizers.datetime.toDb(new Date(expireAt))!,
     })
 
-    session.upload_url = await drive.uploadUrl(payload.filename)
+    session.upload_url = await drive.uploadUrl(payload.filename, {
+        expireAt: new Date(expireAt),
+        mime_types: payload.mime_types,
+        max_size: payload.max_size,
+    })
+
     session.create_file_url = encrypt.url('/api/files', {
         expireAt: new Date(expireAt),
         data: {

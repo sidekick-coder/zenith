@@ -129,7 +129,11 @@ export default class FilesystemDrive implements DriveContract {
 
     public uploadUrl: DriveContract['uploadUrl'] = async (filename, options) => {
         return encrypt.url(`/api/drives/${this.id}/upload/${filename}`, {
-            expires: options?.expires || '30m'
+            expires: options?.expires || '30m',
+            data: {
+                mime_types: options?.mime_types,
+                max_size: options?.max_size,
+            }
         })
     }
 }
