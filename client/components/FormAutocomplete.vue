@@ -219,6 +219,7 @@ if (props.fetch) {
                 <ComboboxList
                     align="start"
                     class="w-md"
+                    @focus-outside.prevent
                 >
                     <div class="relative w-full items-center">
                         <ComboboxInput
