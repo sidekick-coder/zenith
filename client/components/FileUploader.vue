@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { template } from 'lodash-es'
 import { $t } from '#shared/lang.ts'
 import { $fetch } from '#client/utils/fetcher.ts'
@@ -38,7 +38,7 @@ const props = defineProps({
     maxSize: {
         type: Number,
         default: 10 * 1024 * 1024, // 10MB default
-    },
+    },    
     mimetypes: {
         type: String,
         default: '*/*',
@@ -60,6 +60,18 @@ const fileUrl = defineModel<string | undefined | null>('fileUrl', {
 const loading = defineModel<boolean>('loading', {
     type: Boolean,
     default: false,
+})
+
+const hasPermission = computed(() => {
+    const data = {
+        purpose: props.purpose,
+        folder: props.folder,
+        max_size: props.maxSize,
+        mime_types: props.mimetypes,
+    }
+
+    // console.log(data)
+    return $acl.can('create', 'FileUploadSession', data)
 })
 
 async function createSession(file: File){
@@ -97,7 +109,7 @@ async function createServerFile(url: string) {
 async function execute() {
     const file = await $file.pick({
         multiple: false,
-        // accept: props.mimetypes,
+        accept: props.mimetypes,
     })
     
     if (!file) return false
@@ -133,10 +145,7 @@ async function handle() {
 
 <template>
     <slot
-        v-if="$acl.can('create', 'FileUploadSession', {
-            purpose: props.purpose,
-            mime_types: props.mimetypes,
-        })"
+        v-if="hasPermission"
         :handle="handle"
         :loading="loading"
     >
