@@ -113,7 +113,7 @@ async function main() {
     })
 
     app.listen(3000, () => {
-        logger.info('server started at http://localhost:3000', {
+        logger.info(`server started at ${env.APP_URL}`, {
             label: 'server',
             pid: process.pid,
             env: env.NODE_ENV,
@@ -129,5 +129,5 @@ main().catch((err) => {
 })
 
 process.on('unhandledRejection', (err) => {
-  console.error('Unhandled rejection:', err);
+    console.error('Unhandled rejection:', err)
 })

@@ -29,26 +29,23 @@ const { handleSubmit } = useForm({
     validationSchema: toTypedSchema(schema),
 })
 
-const onSubmit = handleSubmit(async (form) => {
+const onSubmit = handleSubmit(async (data) => {
     installing.value = true
 
     const payload = {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            id: form.id,
-            repository: form.repository,
-            branch: form.branch || undefined,
-            key: form.key || undefined,
-        }),
+        data
     }
 
-    await $server.reloadAfter({
+    const sucess = await $server.reloadAfter({
         href: '/admin/modules',
         fn: () => $fetch('/api/modules/install/git', payload)
     })
+
+    if (!sucess) {
+        installing.value = false
+        return
+    }
 
     installing.value = false
 

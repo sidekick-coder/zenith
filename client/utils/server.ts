@@ -34,17 +34,25 @@ async function reloadAfter({ fn, href }: ReloadOptions) {
         import.meta.hot.on('vite:beforeUpdate', kill)
     }
 
-    await tryCatch(() => fn())
+    const [error] = await tryCatch(() => fn())
+
+    if (error) {
+        import.meta.hot?.off('vite:beforeFullReload', kill)
+        import.meta.hot?.off('vite:beforeUpdate', kill)
+        return false
+    }
+
     await waitTillOnline()
     
     await new Promise(resolve => setTimeout(resolve, 5000))
 
     if (href) {
         window.location.href = href
-        return
+        return true
     }
 
     window.location.reload()
+    return true
 }
 
 export const $server = {
