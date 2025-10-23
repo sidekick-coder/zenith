@@ -19,4 +19,20 @@ export default class Role extends composeWith(Base, Model('roles')) {
 
         return permission
     }
+
+    public static async findByName(name: string) {
+        return this.findOne({
+            query: (qb) => qb.where('name', '=', name)
+        })
+    }
+
+    public static async findByNameOrFail(name: string) {
+        const role = await this.findByName(name)
+        
+        if (!role) {
+            throw new Error(`Role with name "${name}" not found`)
+        }
+
+        return role
+    }
 }

@@ -1,15 +1,18 @@
 import { defineAbility, subject as createSubject } from '@casl/ability'
-import type Permission from './permission.entity'
+import Permission from './permission.entity.ts'
 
 export default class Acl {
     public ability: ReturnType<typeof defineAbility>
     public permissions: Permission[]
 
     constructor(permissions: Permission[]) {
-        this.permissions = permissions
+        const perms = permissions.map((permission) => Permission.from(permission))
+
+        this.permissions = perms
+        
         this.ability = defineAbility((can) => {
-            permissions.forEach((permission) => {
-                can(permission.action, permission.subject, permission.conditions)
+            perms.forEach((permission) => {
+                can(permission.action, permission.subject, permission.parsedConditions)
             })
         })
     }

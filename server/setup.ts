@@ -14,6 +14,4 @@ export default defineServerSetup(({ assets }) => {
             ${vars}
         }`
     })
-
-    console.log(vars)
 })

@@ -11,6 +11,8 @@ import { clientPath, storagePath } from '#server/utils/paths.ts'
 import router from '#server/facades/router.facade.ts'
 import auth from '#server/facades/auth.facade.ts'
 import assets from '#server/facades/assets.facade.ts'
+import type User from '#server/entities/user.entity.ts'
+import Permission from '#server/entities/permission.entity.ts'
 
 const isProduction = env.NODE_ENV === 'production'
 
@@ -30,10 +32,11 @@ export class ViteServer {
                 : (await this.vite!.ssrLoadModule('/client/entry-server.ts')).render
 
                 
-            const state: Record<string, any> = {
-                'auth:user': null,
+            const state = {
+                'auth:user': null as User | null,
                 'config': env.CLIENT_CONFIG || {},
                 'setup': config.get('setup') || {},
+                'permissions': [] as Permission[],
             }
 
             state.config.site = config.get('site', {})
@@ -41,6 +44,16 @@ export class ViteServer {
 
             if (state.setup.user) {
                 state['auth:user'] = await auth.authenticate(_request.cookies['Authorization'] || '')
+            }
+
+            if (state['auth:user']) {
+                const permissions = Permission.applyContext(state['auth:user'].permissions, {
+                    auth: {
+                        user: state['auth:user']
+                    },
+                })
+
+                state['permissions'] = permissions
             }
 
             const rendered = await render({

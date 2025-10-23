@@ -85,8 +85,6 @@ export default class FilesystemDrive implements DriveContract {
     async mkdir(filename: string): Promise<void> {
         const dirPath = join(this.path, filename)
 
-        console.log(dirPath)
-
         await fs.promises.mkdir(dirPath, { recursive: true })
     }
 

@@ -7,6 +7,7 @@ import BaseUser from '#shared/entities/user.entity.ts'
 import { composeWith } from '#shared/utils/compose.ts'
 import { Hooks } from '#server/mixins/hooks.mixin.ts'
 import hasher from '#server/facades/hasher.facade.ts'
+import { firstOrCreate } from '#server/queries/firstOrCreate.ts'
 
 export default class User extends composeWith(BaseUser, Hooks, Model('users')) {
 
@@ -18,14 +19,9 @@ export default class User extends composeWith(BaseUser, Hooks, Model('users')) {
         })
 
         this.on('beforeUpdate', async (user: User) => {
-            console.log('User beforeUpdate hook', user.password)
             if (user.password) {
                 user.password = await hasher.hash(user.password)
             }
-
-            console.log('User after processing password', user.password)
-
-
         })
     }
 
@@ -127,6 +123,16 @@ export default class User extends composeWith(BaseUser, Hooks, Model('users')) {
             user_id: this.id,
             name,
             value
+        })
+    }
+
+    public async addRole(role: Role) {
+        await firstOrCreate('user_roles', {
+            select: q => q.where('user_id', '=', this.id).where('role_id', '=', role.id),
+            values: {
+                user_id: this.id,
+                role_id: role.id
+            }
         })
     }
 

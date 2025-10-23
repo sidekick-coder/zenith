@@ -5,13 +5,26 @@ import type {
 } from '#server/contracts/router.contract.ts'
 
 import Acl from '#server/entities/acl.entity.ts'
+import Permission from '#server/entities/permission.entity.ts'
+import type User from '#server/entities/user.entity.ts'
 
 export type AuthorizationContext = MiddlewareHandleResult<[AuthorizationMiddleware]>
 
 export class AuthorizationMiddleware implements Middleware {
     public async handle(ctx: AuthSilenceMiddlewareContext){
+        let user: any | null = null
 
-        const permissions = ctx.user?.permissions || []
+        if (ctx.user) {
+            user = {
+                id: ctx.user.id,
+                name: ctx.user.name,
+                email: ctx.user.email,
+            }
+        }
+
+        const permissions = Permission.applyContext(ctx.user?.permissions, {
+            auth: { user },
+        })
 
         const acl = new Acl(permissions)
         

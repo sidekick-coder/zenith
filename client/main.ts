@@ -10,6 +10,7 @@ import { logger } from './utils/logger'
 import config from './facades/config.facade'
 import di from './utils/di'
 import { $auth } from './composables/useAuth'
+import { $acl } from './composables/useAcl'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
 
 export async function createApp() {
@@ -18,8 +19,10 @@ export async function createApp() {
     const router = createRouter()
 
     const user = di.get<any>('auth:user', undefined)
+    const permissions = di.get<any[]>('permissions', [])
 
     $auth.load({ user })
+    $acl.load(permissions)
 
     app.config.globalProperties.$t = $t
 

@@ -72,8 +72,6 @@ export async function update<T extends keyof Database, O extends UpdateOptions<T
         values
     }
 
-    console.log(parsedOptions)
-
     if (db.driver === 'mysql') {
         return updateMysql(table, parsedOptions)
     }

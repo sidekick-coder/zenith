@@ -1,7 +1,7 @@
 import { BaseEntity } from '#shared/mixins/index.ts'
 import { compose } from '#shared/utils/compose.ts'
+import { tryCatch } from '#shared/utils/tryCatch.ts'
 
-type Payload = Partial<Omit<Permission, 'editable' | 'conditions'>> & { conditions?: string | null | Record<string, any> }
 export default class Permission extends compose(BaseEntity) {
     public id: number
     public name: string
@@ -9,27 +9,19 @@ export default class Permission extends compose(BaseEntity) {
     public origin: string
     public subject: string
     public action: string
-    public conditions: Record<string, any> | null = null
-
-    public static parse(data: any){
-        if (data.conditions) {
-            data.conditions = typeof data.conditions === 'string' ? JSON.parse(data.conditions) : data.conditions
-        }
-    }
-
-    // constructor(data: Payload) {
-    //     Object.assign(this, data)
-
-    //     if (this.conditions) {
-    //         this.conditions = typeof data.conditions === 'string' ? JSON.parse(data.conditions) : data.conditions
-    //     }
-    // }
-
-    // public static from(row: Payload) {
-    //     return new Permission(row)
-    // }
+    public conditions: string | null = null
 
     public get editable() {
         return this.origin === 'custom'
+    }
+
+    public get parsedConditions() {
+        if (!this.conditions) {
+            return {}
+        }
+
+        const [error, json] = tryCatch.sync(() => JSON.parse(this.conditions!))
+
+        return error ? {} : json
     }
 }

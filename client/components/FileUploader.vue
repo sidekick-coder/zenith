@@ -8,6 +8,7 @@ import { tryCatch } from '#shared/utils/tryCatch.ts'
 import Button from '#client/components/Button.vue'
 import Icon from '#client/components/Icon.vue'
 import type UploadSession from '#shared/entities/fileUploadSession.entity.ts'
+import { $acl } from '#client/composables/useAcl.ts'
 
 const props = defineProps({
     label: {
@@ -17,10 +18,6 @@ const props = defineProps({
     hint: {
         type: String,
         default: '',
-    },
-    accept: {
-        type: String,
-        default: '*/*',
     },
     disabled: {
         type: Boolean,
@@ -111,10 +108,10 @@ async function createServerFile(url: string) {
 async function execute() {
     const file = await $file.pick({
         multiple: false,
-        accept: props.accept,
+        // accept: props.mimetypes,
     })
     
-    if (!file) return
+    if (!file) return false
 
     const session = await createSession(file)
 
@@ -124,14 +121,16 @@ async function execute() {
 
     fileId.value = response.id
     fileUrl.value = response.url
+
+    return true
 }
 
 async function handle() {
     loading.value = true
     
-    const [error] = await tryCatch(() => execute())
+    const [error, response] = await tryCatch(() => execute())
 
-    if (error) {
+    if (error || !response) {
         loading.value = false
         return
     }
@@ -145,6 +144,10 @@ async function handle() {
 
 <template>
     <slot
+        v-if="$acl.can('create', 'FileUploadSession', {
+            purpose: props.purpose,
+            mime_types: props.mimetypes,
+        })"
         :handle="handle"
         :loading="loading"
     >
@@ -162,4 +165,13 @@ async function handle() {
             {{ $t('Upload') }}
         </Button>
     </slot>
+    <Button
+        v-else
+        type="button"
+        variant="outline"
+        disabled
+        class="text-xs text-red-600 mt-1 block"
+    >
+        {{ $t('Missing permissions for file upload') }}
+    </Button>
 </template>
