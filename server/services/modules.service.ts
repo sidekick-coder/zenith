@@ -1,52 +1,18 @@
 import fs from 'fs'
 import path from 'path'
-import { spawn } from 'child_process'
-import unzipper from 'unzipper'
 import rootLogger from '../facades/logger.facade.ts'
 import ModuleInstallerService from './moduleInstaller.service.ts'
+import ModuleUpgraderService from './moduleUpgrader.service.ts'
 import config from '#server/facades/config.facade.ts'
 import {
     basePath,
-    storagePath,
-    tmpPath
+    storagePath
 } from '#server/utils/paths.ts'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
 import migrator from '#server/facades/migrator.facade.ts'
 import Module from '#server/entities/module.entity.ts'
 
 const logger = rootLogger.child({ label: 'modules' })
-
-/**
- * Execute a shell command and return a promise
- */
-function executeCommand(command: string, args: string[], options: { cwd?: string } = {}): Promise<void> {
-    return new Promise((resolve, reject) => {
-        const child = spawn(command, args, {
-            cwd: options.cwd || process.cwd(),
-            stdio: 'inherit',
-            shell: true,
-        })
-
-        child.on('close', (code) => {
-            if (code === 0) {
-                resolve()
-            } else {
-                reject(new Error(`Command failed with exit code ${code}`))
-            }
-        })
-
-        child.on('error', (error) => {
-            reject(error)
-        })
-    })
-}
-
-interface InstallOptions {
-    enable?: boolean
-    migrate?: boolean
-    seeds?: boolean
-    npm?: boolean
-}
 
 interface UninstallOptions {
     rollback?: boolean
@@ -57,12 +23,18 @@ interface ListOptions {
 
 export class ModulesService {
     public installer = new ModuleInstallerService()
+    public upgrader = new ModuleUpgraderService()
 
     constructor(
-        installer?: ModuleInstallerService
+        installer?: ModuleInstallerService,
+        upgrader?: ModuleUpgraderService
     ) {
         if (installer) {
             this.installer = installer
+        }
+        
+        if (upgrader) {
+            this.upgrader = upgrader
         }
     }
 
@@ -277,56 +249,29 @@ export class ModulesService {
     }
 
     public async upgradeFromZip(id: string, zipPath: string) {
-        const mod = await this.findOrFail(id)
-        const moduleDir = mod.makePath()
-        const backupDir = tmpPath(`${id}_backup`)
-        const tempDir = tmpPath(`${id}_upgrade`)
-
-        if (!fs.existsSync(moduleDir)) {
-            throw new Error(`Module '${id}' does not exist`)
-        }
-
-        if (fs.existsSync(backupDir)) {
-            fs.rmSync(backupDir, { 
-                recursive: true,
-                force: true 
-            })
-        }
-
-        if (fs.existsSync(tempDir)) {
-            fs.rmSync(tempDir, { 
-                recursive: true,
-                force: true 
-            })
-        }
-
-        // Backup current module
-        fs.renameSync(moduleDir, backupDir)
-
-        const directory = await unzipper.Open.file(zipPath)
-
-        await directory.extract({ path: tempDir })
-
-        let targetDir = tempDir
-
-        // If the zip contains a single root folder, use it
-        const entries = fs.readdirSync(tempDir)
+        await this.findOrFail(id) // Validate module exists
         
-        if (entries.length === 1) {
-            targetDir = path.join(tempDir, entries[0])
-        }
-
-        // Move extracted files to module directory
-        fs.renameSync(targetDir, moduleDir)
-
-        // Remove backup
-        fs.rmSync(backupDir, { 
-            recursive: true,
-            force: true 
+        await this.upgrader.fromZip({
+            id,
+            filename: zipPath
         })
 
         logger.info(`Module '${id}' upgraded successfully from zip`)
     }
+
+    public async upgradeFromGit(id: string, repository: string, options: { branch?: string, key?: string } = {}) {
+        await this.findOrFail(id) // Validate module exists
+        
+        await this.upgrader.fromGit({
+            id,
+            repository,
+            branch: options.branch,
+            key: options.key
+        })
+
+        logger.info(`Module '${id}' upgraded successfully from git repository '${repository}'`)
+    }
+
 }
 
 const modules = new ModulesService()

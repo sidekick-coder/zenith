@@ -14,6 +14,7 @@ import CardTitle from '#client/components/ui/card/CardTitle.vue'
 import { $t } from '#shared/lang.ts'
 import { $fetch } from '#client/utils/fetcher.ts'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
+import { CardFooter } from '#client/components/ui/card/index.ts'
 
 const route = useRoute()
 const id = computed(() => route.params.id as string)
@@ -45,11 +46,6 @@ const tabs = [
         name: 'migrations',
         label: $t('Migrations'),
         component: defineAsyncComponent(() => import('#client/components/ModuleMigrations.vue')),
-    },
-    {
-        name: 'upgrade',
-        label: $t('Upgrade'),
-        component: defineAsyncComponent(() => import('#client/components/ModuleUpgrade.vue')),
     },
 ]
 
@@ -86,6 +82,16 @@ const component = computed(() => {
                         {{ item.description || $t('No description available') }}
                     </CardDescription>
                 </CardHeader>
+
+                <CardFooter>
+                    <Button 
+                        :to="`/admin/modules/${item.id}/upgrade`"
+                        variant="outline"
+                        class="w-full" 
+                    >
+                        {{ $t('Upgrade Module') }}
+                    </Button>
+                </CardFooter>
             </Card>
             <div class="flex-1 flex flex-col">
                 <div class="border-b">

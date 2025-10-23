@@ -165,6 +165,81 @@ router.post('/:id/upgrade', async ({ upload, params, acl }) => {
     return { success: true, }
 })
 
+router.post('/upgrade/zip', async ({ upload, body, acl }) => {
+    acl.authorize('update', 'Module')
+
+    const file = await upload.single('file')
+
+    if (!file) {
+        throw new BaseException('No file provided')
+    }
+
+    validator.validate(file, v => v.object({
+        mimetype: v.picklist(['application/zip', 'application/x-zip-compressed', 'multipart/x-zip']),
+    }))
+
+    const options = validator.validate(body, v => v.object({
+        id: v.string(),
+    }))
+
+    const mod = await modules.find(options.id)
+    
+    if (!mod) {
+        throw new BaseException('Module not found', 404)
+    }
+
+    if (mod.enabled) {
+        throw new BaseException('Module is enabled, disable it before upgrading')
+    }
+
+    const filename = tmpPath(options.id + '_upgrade_' + Date.now() + '.zip')
+
+    await fs.promises.writeFile(filename, file.buffer)
+
+    const [error] = await tryCatch(() => modules.upgradeFromZip(options.id, filename))
+
+    if (error) {
+        throw new BaseException(`Failed to upgrade module: ${error.message}`)
+    }
+
+    // Clean up temporary file
+    fs.unlinkSync(filename)
+
+    return { success: true }
+})
+
+router.post('/upgrade/git', async ({ body, acl }) => {
+    acl.authorize('update', 'Module')
+
+    const options = validator.validate(body, v => v.object({
+        id: v.string(),
+        repository: v.string(),
+        branch: v.optional(v.string()),
+        key: v.optional(v.string()),
+    }))
+
+    const mod = await modules.find(options.id)
+    
+    if (!mod) {
+        throw new BaseException('Module not found', 404)
+    }
+
+    if (mod.enabled) {
+        throw new BaseException('Module is enabled, disable it before upgrading')
+    }
+
+    const [error] = await tryCatch(() => modules.upgradeFromGit(options.id, options.repository, {
+        branch: options.branch,
+        key: options.key
+    }))
+
+    if (error) {
+        throw new BaseException(`Failed to upgrade module: ${error.message}`)
+    }
+
+    return { success: true }
+})
+
 router.post('/install/zip', async ({ upload, query, acl }) => {
     acl.authorize('create', 'Module')
 

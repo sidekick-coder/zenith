@@ -124,16 +124,6 @@ export default class ModuleInstallerService {
             })
         }
 
-        // Remove .git directory from cloned repository
-        const gitDir = path.join(moduleDir, '.git')
-
-        if (fs.existsSync(gitDir)) {
-            fs.rmSync(gitDir, {
-                recursive: true,
-                force: true
-            })
-        }
-
         this.logger.info(`Module '${id}' installed successfully from git repository '${repository}'`)
     }
 }
