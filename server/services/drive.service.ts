@@ -16,6 +16,11 @@ interface CreateFileOptions {
     filename?: string
 }
 
+interface ValidateUploadOptions {
+    mime_types: string
+    maxSize?: number
+}
+
 export default class DriveService {
     private drives: Map<string, DriveContract> = new Map()
     public selected?: string
@@ -292,5 +297,28 @@ export default class DriveService {
         })
 
         this.load()
+    }
+
+    public validateUpload(file: { mimetype: string, size: number }, options: ValidateUploadOptions) {
+        console.log('Validating upload', file, options)
+        const allowedTypes = options.mime_types.split(',').map(t => t.trim())
+
+        const isAllowed = allowedTypes.some(allowedType => {
+            if (!allowedType.endsWith('/*')) {
+                return allowedType === file.mimetype
+            }
+            
+            const baseType = allowedType.slice(0, -2)
+
+            return file.mimetype.startsWith(baseType + '/')
+        })
+
+        if (!isAllowed) {
+            throw new BaseException('MIME type not allowed', 403)
+        }
+
+        if (options.maxSize && file.size > options.maxSize) {
+            throw new BaseException('File size exceeds the maximum allowed', 403)
+        }
     }
 }

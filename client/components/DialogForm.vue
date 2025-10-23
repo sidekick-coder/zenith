@@ -1,6 +1,6 @@
 <script lang="ts">
 export interface FormField {
-    component: 'text-field' | 'textarea' | 'select' | 'autocomplete' | 'switch'
+    component: 'text-field' | 'textarea' | 'select' | 'autocomplete' | 'switch' | 'image-upload'
     [key: string]: any
 }
 
@@ -21,6 +21,7 @@ import FormSelect from './FormSelect.vue'
 import FormAutocomplete from './FormAutocomplete.vue'
 import ClientOnly from './ClientOnly.vue'
 import FormSwitch from './FormSwitch.vue'
+import FormImageUploader from './FormImageUploader.vue'
 import { $t } from '#shared/lang.ts'
 import FormTextField from '#client/components/FormTextField.vue'
 import { $fetch } from '#client/utils/fetcher.ts'
@@ -202,6 +203,12 @@ watch(open, () => {
 
                         <FormSwitch
                             v-else-if="field.component === 'switch'"
+                            :name="field.name"
+                            v-bind="field.props"
+                        />
+
+                        <FormImageUploader
+                            v-else-if="field.component === 'image-upload'"
                             :name="field.name"
                             v-bind="field.props"
                         />
