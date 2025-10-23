@@ -26,6 +26,7 @@ dist-ssr
 *:Zone.Identifier
 
 *.runtime
+*.volumes
 client/dist-client
 client/dist-server
 
