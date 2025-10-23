@@ -3,7 +3,8 @@ import { toast } from 'vue-sonner'
 import {
     ref,
     toValue,
-    computed
+    computed,
+    onMounted
 } from 'vue'
 import { useRoute } from 'vue-router'
 import AppLayoutSidebarGroup from './AppLayoutSidebarGroup.vue'
@@ -34,6 +35,7 @@ import { useMenu } from '#client/composables/useMenu.ts'
 import type { MenuItem } from '#client/composables/useMenu.ts'
 import Icon from '#client/components/Icon.vue'
 import config from '#client/facades/config.facade.ts'
+import { $acl } from '#client/composables/useAcl.ts'
 
 export interface BreadcrumbItem {
     label: string;
@@ -43,6 +45,7 @@ export interface BreadcrumbItem {
 </script>
 <script setup lang="ts">
 const open = ref( true)
+const loading = ref(true)
 const route = useRoute()
 
 defineProps({
@@ -164,10 +167,22 @@ async function onLogout() {
 
     window.location.href = '/'
 }
+
+onMounted(() => {
+    if ($acl.cannot('read', 'AdminDashboard')) {
+        window.location.href = '/404'
+        return
+    }
+
+    loading.value = false
+})
 </script>
 
 <template>
-    <SidebarProvider v-model:open="open">
+    <SidebarProvider
+        v-if="!loading"
+        v-model:open="open"
+    >
         <Sidebar
             collapsible="icon"
             variant="inset"
