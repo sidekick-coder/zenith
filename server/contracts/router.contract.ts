@@ -41,5 +41,5 @@ export type MiddlewareHandleResult<T extends readonly Middleware[] = readonly Mi
 
 
 export interface Handler<T = Record<string, any>> {
-    (ctx: T & HttpContextBase): Promise<any> | any;
+    (ctx: HttpContextBase & T): Promise<any> | any;
 }

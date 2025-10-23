@@ -8,8 +8,14 @@ import { composeWith } from '#shared/utils/compose.ts'
 import { Hooks } from '#server/mixins/hooks.mixin.ts'
 import hasher from '#server/facades/hasher.facade.ts'
 import { firstOrCreate } from '#server/queries/firstOrCreate.ts'
+import { Metadata } from '#server/mixins/metadata.mixin.ts'
 
-export default class User extends composeWith(BaseUser, Hooks, Model('users')) {
+export default class User extends composeWith(
+    BaseUser,
+    Hooks,
+    Model('users'),
+    Metadata('user_metas', 'user_id')
+) {
 
     public static boot(){
         this.on('beforeInsert', async (user: User) => {

@@ -6,7 +6,9 @@ import type { Constructor } from '#shared/utils/compose.ts'
 export function Metadata<Table extends keyof Database>(metasTable: Table, foreignKey: keyof Database[Table]) {
     return function MetadataExtend<TBase extends Constructor>(Base: TBase) {
         return class extends Base {
-            public async get<T = any>(name: string): Promise<T | undefined> {
+            public async get<T = any>(name: string): Promise<T | undefined>
+            public async get<T = any>(name: string, defaultValue: T): Promise<T>
+            public async get<T = any>(name: string, defaultValue?: T): Promise<T | undefined> {
                 const constructor = this.constructor as any
 
                 const table = constructor.__model?.table
@@ -26,13 +28,17 @@ export function Metadata<Table extends keyof Database>(metasTable: Table, foreig
 
                 const row = await query.executeTakeFirst() 
 
+                if (!row || !row.value) {
+                    return defaultValue
+                }
+
                 let value = row?.value
 
                 if (typeof value === 'string' && value.startsWith('json:')) {
                     value = JSON.parse(value.slice(5))
                 }
 
-                return value
+                return value as T
             }
 
             public async set(name: string, value: any): Promise<void> {
