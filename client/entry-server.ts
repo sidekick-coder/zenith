@@ -7,6 +7,7 @@ import di from './utils/di'
 import { createServerFetcher } from './utils/fetcher'
 import type { Logger } from './utils/logger'
 import config from './facades/config.facade'
+import { listSetupFiles } from './utils/listSetupFiles'
 import { flatten } from '#shared/utils/flatten.ts'
 
 interface RenderContext {
@@ -19,8 +20,10 @@ interface RenderContext {
 
 
 export async function importDynamicModule(modulePath: string) {
-    if (!fs.existsSync(modulePath)) throw new Error(`Module not found: ${modulePath}`)
+    if (!fs.existsSync(modulePath)) return null
+
     const fileUrl = pathToFileURL(modulePath).href
+
     return await import(/* @vite-ignore */ fileUrl + `?t=${Date.now()}`) // bust cache
 }
 
@@ -33,20 +36,7 @@ export async function render(context: RenderContext) {
     
     di.set('fetcher', createServerFetcher(serverRouter, context.cookies))
     di.set('logger', context.logger)
-
-    const modulesEnabled: string[] = context.state['modules:enabled'] || [] 
-
-    const clientSetup: any = {}
-
-    for (const m of modulesEnabled) {
-        const filename = path.resolve(`modules/${m}/client/setup.client.js`)
-        
-        const mod = await importDynamicModule(filename)
-
-        clientSetup[filename] = mod.default
-    }
-
-    di.set('client:setups', clientSetup)
+    di.set('isServer', true)
 
     for (const [key, value] of Object.entries(flatten(context.state.config || {}))) {
         config.entries.set(key, {

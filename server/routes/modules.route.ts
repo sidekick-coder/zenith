@@ -294,8 +294,9 @@ router.post('/install/git', async ({ body, acl }) => {
     return { success: true, }
 })
 
-root.get('/static/modules/:id/*', async ({ params, response }) => {
+root.get('/static/modules/:id/:context/*', async ({ params, response }) => {
     const moduleId = params.id
+    const context = validator.validate(params.context, v => v.picklist(['client', 'shared']))
     const assetPath = validator.validate(params['*'], v => v.string())
     const basename = path.basename(assetPath)
     
@@ -304,8 +305,8 @@ root.get('/static/modules/:id/*', async ({ params, response }) => {
     if (!mod) {
         throw new BaseException('Module not found', 404)
     }
-    
-    const fullPath = path.join(mod.makePath('client'), assetPath)
+
+    const fullPath = mod.makePath(context, assetPath)
 
     if (!fs.existsSync(fullPath)) {
         throw new BaseException('Asset not found', 404)

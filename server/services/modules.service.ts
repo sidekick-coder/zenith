@@ -60,6 +60,10 @@ export class ModulesService {
             items = items.filter(mod => mod.enabled)
         }
 
+        for (const mod of items) {
+            await mod.load()
+        }
+
         return items
     }
 

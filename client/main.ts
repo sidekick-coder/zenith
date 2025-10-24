@@ -11,6 +11,7 @@ import config from './facades/config.facade'
 import di from './utils/di'
 import { $auth } from './composables/useAuth'
 import { $acl } from './composables/useAcl'
+import { listSetupFiles } from './utils/listSetupFiles'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
 
 export async function createApp() {
@@ -33,20 +34,21 @@ export async function createApp() {
         menu 
     })
 
-    const files = di.get<Record<string, ClientSetup>>('client:setups', {})
+    const files = await listSetupFiles()
 
-    console.log('client setups', Object.keys(files))
+    console.log('client setups', files)
 
     // const files = import.meta.glob<{ default: ClientSetup }>('../storage/runtime/client/*.setup.ts', { eager: true })
 
     for await (const [filename, mod] of Object.entries(files)) {
-        const [error] = await tryCatch(() => mod.setup({
+        console.log(mod)
+        const [error] = await tryCatch(() => mod.default.setup({
             router,
             menu 
         }))
 
         if (error) {
-            logger.error(`setup file error ${filename}:`)
+            logger.error(`setup file error ${filename}:`, error)
             continue
         }
 

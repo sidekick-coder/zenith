@@ -39,6 +39,8 @@ export class ViteServer {
                 'setup': config.get('setup') || {},
                 'permissions': [] as Permission[],
                 'modules:enabled': [] as string[],
+                'client:setups:client': [] as string[],
+                'client:setups:server': [] as string[],
             }
 
             const mods = await modules.list({
@@ -46,6 +48,16 @@ export class ViteServer {
             })
 
             state['modules:enabled'] = mods.map(m => m.name)
+
+            state['client:setups:client'] = mods
+                .flatMap(m => m.files)
+                .filter(f => f.type === 'setup:client' && f.context === 'client')
+                .map(f => f.src)
+
+            state['client:setups:server'] = mods
+                .flatMap(m => m.files)
+                .filter(f => f.type === 'setup:client' && f.context === 'server')
+                .map(f => f.src)
 
             state.config.site = config.get('site', {})
             state.config.branding = config.get('branding', {})
