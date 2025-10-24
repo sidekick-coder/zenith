@@ -1,7 +1,7 @@
 # sample of how to run Zenith with Docker Compose
 services:
     app:
-        image: zzhenryquezz/zenith:0.0.1
+        image: zzhenryquezz/zenith:0.0.3
         restart: unless-stopped
         ports:
             - 3003:3000
