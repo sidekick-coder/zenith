@@ -71,7 +71,9 @@ async function toggle(item: any) {
         return
     }
 
-    window.location.reload()
+    setTimeout(() => {
+        window.location.reload()
+    }, 800)
 }
 
 async function uninstall(id: string, data: any) {
