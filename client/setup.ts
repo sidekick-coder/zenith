@@ -73,7 +73,7 @@ export default defineClientSetup(({ menu, router }) => {
         id: 'modules',
         label: $t('Modules'),
         to: '/admin/modules',
-        icon: 'PuzzleIcon',
+        icon: 'Puzzle',
         group: $t('Settings'),
     })
     
@@ -88,7 +88,7 @@ export default defineClientSetup(({ menu, router }) => {
     menu.add({
         id: 'branding',
         label: $t('Branding'),
-        icon: 'PaletteIcon',
+        icon: 'Palette',
         group: $t('Settings'),
         to: '/admin/settings/branding'
     })

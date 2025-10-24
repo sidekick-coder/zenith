@@ -31,12 +31,18 @@ export default class ServerService {
     public async build() {        
         await viteBuild({
             build: {
+                sourcemap: false,
                 ssr: 'client/entry-server.ts',
                 outDir: storagePath('tmp/dist/server'),
             }
         })
 
-        await viteBuild({ build: { outDir: storagePath('tmp/dist/client') } })
+        await viteBuild({ 
+            build: { 
+                sourcemap: false,
+                outDir: storagePath('tmp/dist/client')
+            } 
+        })
 
         if (fs.existsSync(storagePath('dist'))) {
             await fs.promises.rm(storagePath('dist'), { recursive: true })

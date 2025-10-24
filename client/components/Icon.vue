@@ -1,40 +1,24 @@
 <script setup lang="ts">
-import * as icons from 'lucide-vue-next'
+import { Icon } from '@iconify/vue'
 import { computed } from 'vue'
-import { cn } from '#client/lib/utils'
+import { kebabCase } from 'lodash-es'
 
-interface Props {
-    name: string;
-    class?: any;
-    size?: number | string;
-    color?: string;
-    strokeWidth?: number | string;
-}
-
-const props = withDefaults(defineProps<Props>(), {
-    class: '',
-    size: 16,
-    strokeWidth: 2,
-    color: 'currentColor',
+const props = defineProps({
+    name: {
+        type: String,
+        required: true,
+    },
 })
 
-const className = computed(() => cn('h-4 w-4', props.class))
+const iconName = computed(() => {
+    if (props.name.includes(':')) {
+        return props.name
+    }
 
-const icon = computed(() => {
-    if (!props.name) return null
-
-    const iconName = props.name.charAt(0).toUpperCase() + props.name.slice(1)
-    
-    return (icons as Record<string, any>)[iconName]
+    return `lucide:${kebabCase(props.name)}`
 })
 </script>
 
 <template>
-    <component
-        :is="icon"
-        :class="className"
-        :size="size"
-        :stroke-width="strokeWidth"
-        :color="color"
-    />
+    <Icon :icon="iconName" />
 </template>

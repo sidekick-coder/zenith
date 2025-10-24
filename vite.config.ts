@@ -26,7 +26,10 @@ export default defineConfig({
             '#server/services': '/services',
         },
     },
-    build: { rollupOptions: { input: { app: 'client/index.html', }, }, },
+    build: { 
+        sourcemap: false,
+        rollupOptions: { input: { app: 'client/index.html', }, }, 
+    },
     server: {
         watch: {
             ignored: [
