@@ -2,7 +2,7 @@ import { program } from 'commander'
 import modules from '#server/services/modules.service.ts'
 import env from '#server/env.ts'
 import config from '#server/facades/config.facade.ts'
-import build from '#server/services/build.service.ts'
+import build from '#server/facades/server.facade.ts'
 
 program.command('module:disable')
     .helpGroup('module')

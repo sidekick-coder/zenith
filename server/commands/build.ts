@@ -1,5 +1,5 @@
 import { program } from 'commander'
-import build from '#server/services/build.service.ts'
+import build from '#server/facades/server.facade.ts'
 
 program.command('build')
     .action(async () => {

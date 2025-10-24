@@ -1,6 +1,6 @@
 import { program } from 'commander'
 import modules from '#server/services/modules.service.ts'
-import build from '#server/services/build.service.ts'
+import build from '#server/facades/server.facade.ts'
 import config from '#server/facades/config.facade.ts'
 
 program.command('module:enable')

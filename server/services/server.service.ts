@@ -32,6 +32,7 @@ export default class ServerService {
         await viteBuild({
             build: {
                 sourcemap: false,
+                minify: false,
                 ssr: 'client/entry-server.ts',
                 outDir: storagePath('tmp/dist/server'),
             }
@@ -40,6 +41,8 @@ export default class ServerService {
         await viteBuild({ 
             build: { 
                 sourcemap: false,
+                minify: false,
+                cssCodeSplit: false,
                 outDir: storagePath('tmp/dist/client')
             } 
         })
