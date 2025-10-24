@@ -33,10 +33,14 @@ export async function createApp() {
         menu 
     })
 
-    const files = import.meta.glob<{ default: ClientSetup }>('../storage/runtime/client/*.setup.ts', { eager: true })
+    const files = di.get<Record<string, ClientSetup>>('client:setups', {})
+
+    console.log('client setups', Object.keys(files))
+
+    // const files = import.meta.glob<{ default: ClientSetup }>('../storage/runtime/client/*.setup.ts', { eager: true })
 
     for await (const [filename, mod] of Object.entries(files)) {
-        const [error] = await tryCatch(() => mod.default.setup({
+        const [error] = await tryCatch(() => mod.setup({
             router,
             menu 
         }))

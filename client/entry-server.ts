@@ -1,3 +1,6 @@
+import { pathToFileURL } from 'url'
+import fs from 'fs'
+import path from 'path'
 import { renderToString } from 'vue/server-renderer'
 import { createApp } from './main'
 import di from './utils/di'
@@ -14,6 +17,14 @@ interface RenderContext {
     logger: Logger
 }
 
+
+export async function importDynamicModule(modulePath: string) {
+    if (!fs.existsSync(modulePath)) throw new Error(`Module not found: ${modulePath}`)
+    const fileUrl = pathToFileURL(modulePath).href
+    return await import(/* @vite-ignore */ fileUrl + `?t=${Date.now()}`) // bust cache
+}
+
+
 export async function render(context: RenderContext) {
     const url = context.url
     const serverRouter = context.router
@@ -22,6 +33,20 @@ export async function render(context: RenderContext) {
     
     di.set('fetcher', createServerFetcher(serverRouter, context.cookies))
     di.set('logger', context.logger)
+
+    const modulesEnabled: string[] = context.state['modules:enabled'] || [] 
+
+    const clientSetup: any = {}
+
+    for (const m of modulesEnabled) {
+        const filename = path.resolve(`modules/${m}/client/setup.client.js`)
+        
+        const mod = await importDynamicModule(filename)
+
+        clientSetup[filename] = mod.default
+    }
+
+    di.set('client:setups', clientSetup)
 
     for (const [key, value] of Object.entries(flatten(context.state.config || {}))) {
         config.entries.set(key, {

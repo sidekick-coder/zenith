@@ -5,6 +5,7 @@ import type { ViteDevServer } from 'vite'
 import express from 'express'
 import type { Request, Response } from 'express'
 import env from '../env.ts'
+import modules from './modules.service.ts'
 import config from '#server/facades/config.facade.ts'
 import rootLogger from '#server/facades/logger.facade.ts'
 import { clientPath, storagePath } from '#server/utils/paths.ts'
@@ -37,7 +38,14 @@ export class ViteServer {
                 'config': env.CLIENT_CONFIG || {},
                 'setup': config.get('setup') || {},
                 'permissions': [] as Permission[],
+                'modules:enabled': [] as string[],
             }
+
+            const mods = await modules.list({
+                enabled: true
+            })
+
+            state['modules:enabled'] = mods.map(m => m.name)
 
             state.config.site = config.get('site', {})
             state.config.branding = config.get('branding', {})

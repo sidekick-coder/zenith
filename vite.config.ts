@@ -24,11 +24,14 @@ export default defineConfig({
             '#router': '/router',
             '#server/facades': '/facades',
             '#server/services': '/services',
+            vue: 'vue/dist/vue.esm-bundler.js'
         },
     },
-    build: { 
-        sourcemap: false,
+    build: {
         rollupOptions: { input: { app: 'client/index.html', }, }, 
+        sourcemap: false,     // skip source maps
+        minify: false,        // skip minification
+        cssCodeSplit: false,  // single CSS chunk
     },
     server: {
         watch: {

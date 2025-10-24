@@ -1,5 +1,6 @@
 import path from 'path'
 import fs from 'fs'
+import mime from 'mime'
 import migrator from '#server/facades/migrator.facade.ts'
 import root from '#server/facades/router.facade.ts'
 import authMiddleware from '#server/middlewares/auth.middleware.ts'
@@ -7,7 +8,6 @@ import modules from '#server/services/modules.service.ts'
 import { basePath, tmpPath } from '#server/utils/paths.ts'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
 import BaseException from '#server/exceptions/base.ts'
-import server from '#server/facades/server.facade.ts'
 import validator from '#shared/services/validator.service.ts'
 
 const router = root.use(authMiddleware)
@@ -54,9 +54,9 @@ router.post('/:id/toggle', async ({ params, acl }) => {
 
     await modules.toggle(params.id)
 
-    await server.build()
+    // await server.build()
 
-    await server.reload()
+    // await server.reload()
 })
 
 router.post('/:id/migrate', async ({ params, acl }) => {
@@ -292,5 +292,36 @@ router.post('/install/git', async ({ body, acl }) => {
     await modules.prepare(options.id)
 
     return { success: true, }
+})
+
+root.get('/static/modules/:id/*', async ({ params, response }) => {
+    const moduleId = params.id
+    const assetPath = validator.validate(params['*'], v => v.string())
+    const basename = path.basename(assetPath)
+    
+    const mod = await modules.find(moduleId)
+    
+    if (!mod) {
+        throw new BaseException('Module not found', 404)
+    }
+    
+    const fullPath = path.join(mod.makePath('client'), assetPath)
+
+    if (!fs.existsSync(fullPath)) {
+        throw new BaseException('Asset not found', 404)
+    }
+    
+    const stats = fs.statSync(fullPath)
+    
+    if (!stats.isFile()) {
+        throw new BaseException('Not a file', 400)
+    }
+    
+    const mimetype = mime.getType(basename) || 'application/octet-stream'
+    const data = fs.readFileSync(fullPath)
+    
+    response.set('Content-Type', mimetype)
+    response.set('Content-Disposition', `inline; filename="${basename}"`)
+    response.send(data)
 })
 

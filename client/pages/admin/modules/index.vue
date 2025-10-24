@@ -64,9 +64,14 @@ const toggling = ref(false)
 async function toggle(item: any) {
     toggling.value = true
 
-    await $server.reloadAfter({
-        fn: async () => $fetch(`/api/modules/${item.id}/toggle`, { method: 'POST', })
-    })
+    const [error] = await $fetch.try(`/api/modules/${item.id}/toggle`, { method: 'POST', })
+
+    if (error) {
+        toggling.value = false
+        return
+    }
+
+    window.location.reload()
 }
 
 async function uninstall(id: string, data: any) {
