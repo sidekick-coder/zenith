@@ -17,7 +17,7 @@ import Permission from '#server/entities/permission.entity.ts'
 
 const isProduction = env.NODE_ENV === 'production'
 
-const logger = rootLogger.child({ label: 'vite.service' })
+const logger = rootLogger.child({ label: 'vite' })
 
 export class ViteServer {
     private vite: ViteDevServer | undefined
@@ -80,7 +80,7 @@ export class ViteServer {
                 url,
                 router,
                 state,
-                logger,
+                logger: rootLogger.child({ label: 'ssr' }),
                 cookies: _request.cookies || {},
             })
 
@@ -88,8 +88,18 @@ export class ViteServer {
             const body = rendered.html ?? ''
 
             // inject assets from assets facade
-            const assetStyles = this.getAssetsHtml()
-            head += assetStyles
+            head += this.getAssetsHtml()
+
+            // importmeta
+            head += `
+                <script type="importmap">
+                    {
+                        "imports": {
+                            "vue": "/static/vendor/vue/dist/vue.esm-browser.js"
+                        }
+                    }
+                </script>
+            `
 
             // only inject styles in development mode
             if (!isProduction) {
@@ -141,6 +151,12 @@ export class ViteServer {
             this.vite = await createViteServer({
                 server: { middlewareMode: true },
                 appType: 'custom',
+                publicDir: 'client/public',
+                resolve: {
+                    alias: {
+                        'vue': 'vue/dist/vue.esm-bundler.js',
+                    }
+                }
             })
 
             app.use(this.vite.middlewares)

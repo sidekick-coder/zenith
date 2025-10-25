@@ -6,7 +6,7 @@ import { tryCatch } from '#shared/utils/tryCatch.ts'
 import Routine from '#server/entities/routine.entity.ts'
 import BaseException from '#server/exceptions/base.ts'
 
-const logger = rootLogger.child({ label: 'scheduler.service' })
+const logger = rootLogger.child({ label: 'scheduler' })
 
 export default class ScheduleService {
     private routines: Routine[] = []

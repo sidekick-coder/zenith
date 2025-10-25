@@ -1,3 +1,5 @@
+import chokidar from 'chokidar'
+import type { FSWatcher } from 'chokidar'
 import modules from './modules.service.ts'
 import db from '#server/facades/db.facade.ts'
 import assets from '#server/facades/assets.facade.ts'
@@ -5,19 +7,22 @@ import router from '#server/facades/router.facade.ts'
 import scheduler from '#server/facades/scheduler.facade.ts'
 import emmitter from '#server/facades/emmitter.facade.ts'
 import logger from '#server/facades/logger.facade.ts'
-import { serverPath } from '#server/utils/paths.ts'
+import { serverPath, configPath } from '#server/utils/paths.ts'
 import type { ServerSetup, SetupServerParams } from '#server/utils/defineServerSetup.ts'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
 import drive from '#server/facades/drive.facade.ts'
 import setup from '#server/setup.ts'
 
-export class BootService {
+export default class ServerBooterService {
     public logger = logger.child({ label: 'boot' })
+    public watcher: FSWatcher | null = null
 
     public async root(){
         await router.loadDirectory(serverPath('routes'))
         await scheduler.loadDirectory(serverPath('routines'))
     }
+
+   
 
     public async setup() {
 
@@ -74,8 +79,34 @@ export class BootService {
 
         scheduler.startAll()
     }
+
+    public watch() {
+        if (this.watcher) {
+            return this.watcher
+        }
+        
+        const entries = [
+            configPath('modules.json')
+        ]
+
+        this.watcher = chokidar.watch(entries, {
+            persistent: true,
+            ignoreInitial: true
+        })
+
+        this.watcher.on('change', async (filename) => {
+            this.logger.info('file changed, rebooting server...', {
+                filename
+            })
+
+            await this.boot()
+        })
+
+        return this.watcher
+    }
+
+    public async bootAndWatch() {
+        await this.boot()
+        this.watch()
+    }
 }
-
-const bootService = new BootService()
-
-export default bootService

@@ -3,11 +3,9 @@ import path from 'path'
 import rootLogger from '../facades/logger.facade.ts'
 import ModuleInstallerService from './moduleInstaller.service.ts'
 import ModuleUpgraderService from './moduleUpgrader.service.ts'
+import ModuleBuilderService from './moduleBuilder.service.ts'
 import config from '#server/facades/config.facade.ts'
-import {
-    basePath,
-    storagePath
-} from '#server/utils/paths.ts'
+import { basePath } from '#server/utils/paths.ts'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
 import migrator from '#server/facades/migrator.facade.ts'
 import Module from '#server/entities/module.entity.ts'
@@ -24,6 +22,7 @@ interface ListOptions {
 export class ModulesService {
     public installer = new ModuleInstallerService()
     public upgrader = new ModuleUpgraderService()
+    public builder = new ModuleBuilderService()
 
     constructor(
         installer?: ModuleInstallerService,
@@ -85,59 +84,6 @@ export class ModulesService {
         return mod
     }
 
-    private async createModuleRuntimeFiles(mod: Module) {
-        if (fs.existsSync(mod.makePath('server', 'setup.server.ts'))) {
-            const filename = storagePath('runtime', 'server', `${mod.id}.setup.ts`)
-
-            const content = [
-                `import setup from '#modules/${mod.id}/server/setup.server.ts'`,
-                `export const name = '${mod.id}.setup'`,
-                'export default setup;',
-            ].join('\n')
-
-            if (!fs.existsSync(path.dirname(filename))) {
-                fs.mkdirSync(path.dirname(filename), { recursive: true })
-            }
-
-            fs.writeFileSync(filename, content, 'utf-8')
-
-            logger.debug('created server runtime file', { filename, })
-        }
-
-        if (fs.existsSync(mod.makePath('client', 'setup.client.ts'))) {
-            const filename = storagePath('runtime', 'client', `${mod.id}.setup.ts`)
-            
-            const content = [
-                `import setup from '#modules/${mod.id}/client/setup.client.ts'`,
-                `export const name = '${mod.id}.setup'`,
-                'export default setup;',
-            ].join('\n')
-
-            if (!fs.existsSync(path.dirname(filename))) {
-                fs.mkdirSync(path.dirname(filename), { recursive: true })
-            }
-
-            fs.writeFileSync(filename, content, 'utf-8')
-
-            logger.debug('created client runtime file', { filename, })
-        }
-    }
-
-    private async removeModuleRuntimeFiles(mod: Module) {
-        const serverFile = storagePath('runtime', 'server', `${mod.id}.setup.ts`)
-        const clientFile = storagePath('runtime', 'client', `${mod.id}.setup.ts`)
-
-        if (fs.existsSync(serverFile)) {
-            fs.unlinkSync(serverFile)
-            logger.debug('removed server runtime file', { filename: serverFile, })
-        }
-
-        if (fs.existsSync(clientFile)) {
-            fs.unlinkSync(clientFile)
-            logger.debug('removed client runtime file', { filename: clientFile, })
-        }
-    }
-
     public async enable(moduleName: string) {
         const mod = await this.find(moduleName)
 
@@ -149,8 +95,6 @@ export class ModulesService {
             logger.debug(`Module ${moduleName} is already enabled`)
             return
         }
-
-        await this.createModuleRuntimeFiles(mod)
 
         config.set(`modules.enabled.${moduleName}`, true)
 
@@ -164,8 +108,6 @@ export class ModulesService {
             logger.info(`Module ${moduleName} is already disabled`)
             return
         }
-
-        await this.removeModuleRuntimeFiles(mod)
 
         config.set(`modules.enabled.${moduleName}`, false)
 
@@ -250,30 +192,6 @@ export class ModulesService {
         })
 
         logger.info(`'${moduleName}' uninstalled successfully`)
-    }
-
-    public async upgradeFromZip(id: string, zipPath: string) {
-        await this.findOrFail(id) // Validate module exists
-        
-        await this.upgrader.fromZip({
-            id,
-            filename: zipPath
-        })
-
-        logger.info(`Module '${id}' upgraded successfully from zip`)
-    }
-
-    public async upgradeFromGit(id: string, repository: string, options: { branch?: string, key?: string } = {}) {
-        await this.findOrFail(id) // Validate module exists
-        
-        await this.upgrader.fromGit({
-            id,
-            repository,
-            branch: options.branch,
-            key: options.key
-        })
-
-        logger.info(`Module '${id}' upgraded successfully from git repository '${repository}'`)
     }
 
 }

@@ -1,9 +1,7 @@
 import { createSSRApp } from 'vue'
-import './style.css'
 import { $t } from '../shared/lang'
 import App from './App.vue'
 import { createRouter } from './router'
-import type { ClientSetup } from './utils/defineClientSetup'
 import { useMenu } from './composables/useMenu'
 import setup from './setup'
 import { logger } from './utils/logger'
@@ -13,6 +11,9 @@ import { $auth } from './composables/useAuth'
 import { $acl } from './composables/useAcl'
 import { listSetupFiles } from './utils/listSetupFiles'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
+
+import './style.css'
+import './imports'
 
 export async function createApp() {
     const app = createSSRApp(App)
@@ -36,12 +37,7 @@ export async function createApp() {
 
     const files = await listSetupFiles()
 
-    console.log('client setups', files)
-
-    // const files = import.meta.glob<{ default: ClientSetup }>('../storage/runtime/client/*.setup.ts', { eager: true })
-
     for await (const [filename, mod] of Object.entries(files)) {
-        console.log(mod)
         const [error] = await tryCatch(() => mod.default.setup({
             router,
             menu 

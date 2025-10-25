@@ -11,7 +11,7 @@ import errorService from '#server/services/error.service.ts'
 import bootService from '#server/services/boot.service.ts'
 import config from '#server/facades/config.facade.ts'
 import env from '#server/env.ts'
-import build from '#server/facades/server.facade.ts'
+import server from '#server/facades/server.facade.ts'
 import CookieService from '#server/services/cookie.service.ts'
 import encrypt from '#server/facades/encrypt.facade.ts'
 import drive from '#server/facades/drive.facade.ts'
@@ -89,7 +89,7 @@ async function main() {
 
     drive.load()
     
-    build.watch()
+    await server.booter.bootAndWatch()
 
     app.use('*all', (req, res) => {
         const url = new URL(req.originalUrl, `http://${req.headers.host}`)

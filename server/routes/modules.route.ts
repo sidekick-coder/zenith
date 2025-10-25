@@ -296,7 +296,7 @@ router.post('/install/git', async ({ body, acl }) => {
 
 root.get('/static/modules/:id/:context/*', async ({ params, response }) => {
     const moduleId = params.id
-    const context = validator.validate(params.context, v => v.picklist(['client', 'shared']))
+    const context = validator.validate(params.context, v => v.picklist(['client', 'shared', 'dist']))
     const assetPath = validator.validate(params['*'], v => v.string())
     const basename = path.basename(assetPath)
     

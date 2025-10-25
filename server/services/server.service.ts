@@ -1,10 +1,13 @@
 import fs from 'fs'
-import { build as viteBuild } from 'vite'
+import { mergeConfig, build as viteBuild } from 'vite'
 import chokidar from 'chokidar'
 import { logger } from '#server/facades/logger.facade.ts'
-import { storagePath } from '#server/utils/paths.ts'
+import { basePath, storagePath, tmpPath } from '#server/utils/paths.ts'
+import ServerBooterService from '#modules/artlyze/root/server/services/serverBooter.service.ts'
 
 export default class ServerService {
+    public booter = new ServerBooterService()
+
     public reload(){
         logger.info('reload server')
 
@@ -28,30 +31,40 @@ export default class ServerService {
         return watcher
     }
 
-    public async build() {        
-        await viteBuild({
-            build: {
-                sourcemap: false,
-                minify: false,
-                ssr: 'client/entry-server.ts',
-                outDir: storagePath('tmp/dist/server'),
-            }
-        })
-
-        await viteBuild({ 
-            build: { 
-                sourcemap: false,
-                minify: false,
-                cssCodeSplit: false,
-                outDir: storagePath('tmp/dist/client')
-            } 
-        })
-
-        if (fs.existsSync(storagePath('dist'))) {
-            await fs.promises.rm(storagePath('dist'), { recursive: true })
+    public async build() {
+        
+        const common = {
+            publicDir: 'client/public',
+            resolve: { 
+                alias: {
+                    '#client': basePath('client'),
+                    '#shared': basePath('shared'),
+                }
+            },
         }
 
-        await fs.promises.rename(storagePath('tmp/dist'), storagePath('dist'))
+        await viteBuild(mergeConfig(common, {
+            publicDir: 'client/public',
+            build: {
+                ssr: 'client/entry-server.ts',
+                outDir: tmpPath('dist/server'),
+            },
+        }))
+
+        await viteBuild(mergeConfig(common, { 
+            build: {
+                outDir: tmpPath('dist/client'),
+                rollupOptions: { 
+                    input: { app: 'client/index.html', },
+                },
+            },
+        }))
+
+        if (fs.existsSync(basePath('dist'))) {
+            await fs.promises.rm(basePath('dist'), { recursive: true })
+        }
+
+        await fs.promises.rename(basePath('tmp/dist'), basePath('dist'))
 
         logger.info('build completed')
     }

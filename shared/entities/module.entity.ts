@@ -2,8 +2,8 @@ import { BaseEntity } from '#shared/mixins/index.ts'
 import { compose } from '#shared/utils/compose.ts'
 
 interface ModuleFile {
-    type: 'setup:client'
-    context: 'server' | 'client'
+    type: 'setup:client' | 'setup:server'
+    context?: 'server' | 'client'
     src: string
 }
 

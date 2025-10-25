@@ -81,17 +81,17 @@ export function formatLog(data: any) {
     return result.trim()
 }
 
-function filter(labels: string[] = []) {
-    return format(info => {
-        if (labels.length === 0) {
+function filter() {
+    return format((info: any) => {
+        if (!info.label) {
             return info
         }
 
-        if (info.label && labels.includes(info.label)) {
-            return info
+        if (env.LOG_LABEL_EXCLUDE?.includes(info.label)) {
+            return false
         }
 
-        return false
+        return info
         
     })
 }
@@ -99,7 +99,7 @@ function filter(labels: string[] = []) {
 const transports: winston.transport[] = [
     new winston.transports.Console({
         format: format.combine(
-            filter(env.LOG_LABEL_FILTER)(),
+            filter()(),
             format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss', }),
             format.printf(formatLog)
         ),

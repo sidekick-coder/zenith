@@ -1,13 +1,11 @@
 import { pathToFileURL } from 'url'
 import fs from 'fs'
-import path from 'path'
 import { renderToString } from 'vue/server-renderer'
 import { createApp } from './main'
 import di from './utils/di'
 import { createServerFetcher } from './utils/fetcher'
 import type { Logger } from './utils/logger'
 import config from './facades/config.facade'
-import { listSetupFiles } from './utils/listSetupFiles'
 import { flatten } from '#shared/utils/flatten.ts'
 
 interface RenderContext {

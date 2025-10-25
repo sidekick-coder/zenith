@@ -169,10 +169,10 @@ async function onLogout() {
 }
 
 onMounted(() => {
-    if ($acl.cannot('read', 'AdminDashboard')) {
-        window.location.href = '/404'
-        return
-    }
+    // if ($acl.cannot('read', 'AdminDashboard')) {
+    //     window.location.href = '/404'
+    //     return
+    // }
 
     loading.value = false
 })

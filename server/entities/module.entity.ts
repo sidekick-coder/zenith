@@ -11,40 +11,60 @@ export default class Module extends composeWith(Base) {
     }
 
     public staticPath(...parts: string[]) {
-        return join('/static', 'modules', this.name, 'client', ...parts)
+        return join('/static', 'modules', this.name, ...parts)
+    }
+
+    public loadFilesDevMode(){
+        if (fs.existsSync(this.makePath('client/setup.client.ts'))) {
+            this.files.push({
+                type: 'setup:client',
+                context: 'server',
+                src: join('/modules', this.id, 'client/setup.client.ts'),
+            })
+
+            this.files.push({
+                type: 'setup:client',
+                context: 'client',
+                src: this.staticPath('client/setup.client.ts'),
+            })
+        }
+    }
+
+    public loadFileProdMode(){
+        if (fs.existsSync(this.makePath('server/setup.server.ts'))) {
+            this.files.push({
+                type: 'setup:server',
+                src: this.makePath('server/setup.server.ts'),
+            })
+        }
+
+        if (fs.existsSync(this.makePath('dist/client/setup.client.js'))) {
+            this.files.push({
+                type: 'setup:client',
+                context: 'client',
+                src: this.staticPath('dist/client/setup.client.js'),
+            })
+
+            this.files.push({
+                type: 'setup:client',
+                context: 'server',
+                src: this.makePath('dist/server/setup.client.js'),
+            })
+        }
     }
 
     public load(){
         this.files = []
 
-        if (env.isDevelopment && fs.existsSync(this.makePath('client', 'setup.client.ts'))) {
-            this.files.push({
-                type: 'setup:client',
-                context: 'server',
-                src: join('/modules', this.id, 'client', 'setup.client.ts'),
-            })
+        this.loadFileProdMode()
 
-            this.files.push({
-                type: 'setup:client',
-                context: 'client',
-                src: this.staticPath('setup.client.ts'),
-            })
+        // if (env.isDevelopment) {
+        //     this.loadFileDevMode()
+        // }
 
-            return
-        }
-
-        if (fs.existsSync(this.makePath('client', 'setup.client.js'))) {
-            this.files.push({
-                type: 'setup:client',
-                context: 'server',
-                src: join('/modules', this.id, 'client', 'setup.client.js'),
-            })
-
-            this.files.push({
-                type: 'setup:client',
-                context: 'client',
-                src: this.staticPath('setup.client.js'),
-            })
-        }
+        // if (env.isProduction) {
+        //     this.loadFileProdMode()
+        // }
+       
     }
 }

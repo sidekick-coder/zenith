@@ -45,6 +45,7 @@
         "date-fns": "^4.1.0",
         "embla-carousel-vue": "^8.6.0",
         "express": "^5.1.0",
+        "fast-glob": "^2.0.1",
         "kysely": "^0.28.2",
         "lodash": "^4.17.21",
         "lodash-es": "^4.17.21",

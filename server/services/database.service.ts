@@ -2,12 +2,12 @@ import { MysqlDialect, PostgresDialect, SqliteDialect } from 'kysely'
 import type { Dialect, KyselyConfig, } from 'kysely'
 import { Kysely } from 'kysely'
 import SQLite from 'better-sqlite3'
+import { createPool } from 'mysql2'
+import { Pool } from 'pg'
 import rootLogger from '../facades/logger.facade.ts'
 import type { Database } from '../contracts/database.contract.ts'
 import config from '#server/facades/config.facade.ts'
 import di from '#server/facades/di.facade.ts'
-import { createPool } from 'mysql2'
-import { Pool } from 'pg'
 import { basePath } from '#server/utils/paths.ts'
 import validator from '#shared/services/validator.service.ts'
 import schemas from '#shared/validators/index.ts'
@@ -34,7 +34,7 @@ export default class DatabaseService extends Kysely<Database> {
     public createConnection(driver: 'sqlite' | 'mysql' | 'postgresql', options: any) {
         const connection: any = { driver }
 
-         if (driver === 'sqlite') {
+        if (driver === 'sqlite') {
             let database = options.database || 'storage/database.sqlite'
             database = database.startsWith('/') ? database : basePath(database)
             connection.database = database
@@ -70,7 +70,7 @@ export default class DatabaseService extends Kysely<Database> {
             const pool = createPool(validator.validate(connection, schemas.connection.mysql))
 
             try {
-                const conn = await pool.promise().getConnection();
+                const conn = await pool.promise().getConnection()
 
                 conn.release()
             } catch (error) {
@@ -118,6 +118,10 @@ export default class DatabaseService extends Kysely<Database> {
 
         if (!connection) {
             logger.warn(`Database connection "${name}" not found. Using in-memory database.`)
+            return
+        }
+
+        if (this.configConnectionName === name && this.configConnection === connection.database) {
             return
         }
 
