@@ -41,6 +41,8 @@ export default class ServerBooterService {
             enabled: true
         })
 
+        console.log('Loaded modules for setup:', mods.map(m => m.id))
+
         const files = mods.flatMap(m => m.files).filter(f => f.type === 'setup:server')
 
         for await (const f of files) {

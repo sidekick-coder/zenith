@@ -307,6 +307,7 @@ export default class Router<C = {}> {
     public clear() {
         logger.debug('clear', { count: this.routes.length })
         this.routes = []
+        this.groups = []
     }
 
     public list() {

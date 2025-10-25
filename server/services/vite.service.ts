@@ -7,8 +7,8 @@ import type { Request, Response } from 'express'
 import env from '../env.ts'
 import modules from './modules.service.ts'
 import config from '#server/facades/config.facade.ts'
-import rootLogger from '#server/facades/logger.facade.ts'
-import { clientPath, storagePath } from '#server/utils/paths.ts'
+import logger from '#server/facades/logger.facade.ts'
+import { basePath, clientPath, storagePath } from '#server/utils/paths.ts'
 import router from '#server/facades/router.facade.ts'
 import auth from '#server/facades/auth.facade.ts'
 import assets from '#server/facades/assets.facade.ts'
@@ -17,20 +17,20 @@ import Permission from '#server/entities/permission.entity.ts'
 
 const isProduction = env.NODE_ENV === 'production'
 
-const logger = rootLogger.child({ label: 'vite' })
-
 export class ViteServer {
+    private logger = logger.child({ label: 'vite' })
     private vite: ViteDevServer | undefined
 
     public async render(url: string, _request: Request, response: Response) {
         try {
             const template = isProduction 
-                ? fs.readFileSync(storagePath('dist', 'client', 'client', 'index.html'), 'utf-8')
+                ? fs.readFileSync(basePath('client-dist', 'client', 'client', 'index.html'), 'utf-8')
                 : await this.vite!.transformIndexHtml(url, fs.readFileSync(clientPath('index.html'), 'utf-8'))
 
             const render = isProduction
-                ? (await import(storagePath('dist', 'server', 'entry-server.js'))).render
+                ? (await import(basePath('client-dist', 'server', 'entry-server.js'))).render
                 : (await this.vite!.ssrLoadModule('/client/entry-server.ts')).render
+
 
                 
             const state = {
@@ -80,7 +80,7 @@ export class ViteServer {
                 url,
                 router,
                 state,
-                logger: rootLogger.child({ label: 'ssr' }),
+                logger: logger.child({ label: 'ssr' }),
                 cookies: _request.cookies || {},
             })
 
@@ -89,17 +89,6 @@ export class ViteServer {
 
             // inject assets from assets facade
             head += this.getAssetsHtml()
-
-            // importmeta
-            head += `
-                <script type="importmap">
-                    {
-                        "imports": {
-                            "vue": "/static/vendor/vue/dist/vue.esm-browser.js"
-                        }
-                    }
-                </script>
-            `
 
             // only inject styles in development mode
             if (!isProduction) {
@@ -116,13 +105,10 @@ export class ViteServer {
             response.status(200).set({ 'Content-Type': 'text/html' })
                 .end(html)
         } catch (e) {
-            logger.error('Error during Vite SSR render', {
-                error: e,
-                label: 'vite' 
-            })
+            this.logger.error('Error during Vite SSR render', e)
             const error = e as Error
             this.vite?.ssrFixStacktrace(error)
-            console.log(error.stack)
+            console.error(error.stack)
             response.status(500).end(error.stack)
         }
     }
@@ -163,7 +149,7 @@ export class ViteServer {
         }
 
         if (isProduction) {
-            app.use(express.static(storagePath('dist', 'client')))
+            app.use(express.static(basePath('client-dist', 'client')))
         }
     }
 }

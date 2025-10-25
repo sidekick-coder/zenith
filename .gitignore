@@ -27,18 +27,12 @@ dist-ssr
 
 *.runtime
 *.volumes
-client/dist-client
-client/dist-server
-
 .env 
-
-
 database.sqlite
 config/*
 !config/.gitkeep
-
 modules/*
 !modules/.gitkeep
-
 storage/*
 !storage/.gitkeep
+client-dist
