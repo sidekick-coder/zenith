@@ -11,7 +11,7 @@ globalThis.imports = {
 }
 
 // Handle #client and #shared imports
-for (const [path, mod] of Object.entries(import.meta.glob('./{utils,components}/**/*.ts', { eager: true }))) {
+for (const [path, mod] of Object.entries(import.meta.glob('./{utils,guards,facades,composables,components}/**/*.ts', { eager: true }))) {
     const id = path.replace('./', '#client/')
 
     globalThis.imports[id] = mod

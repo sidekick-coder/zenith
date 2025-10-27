@@ -31,22 +31,21 @@ export async function importClient(filename: string) {
 }
 
 export async function getDevelopmentSetupFiles() {
-    return {}
-    // if (import.meta.env.PROD) {
-    //     return {}
-    // }
+    if (import.meta.env.PROD) {
+        return {}
+    }
     
-    // const result = {} as Record<string, any>
+    const result = {} as Record<string, any>
 
-    // const modules = import.meta.glob('/modules/*/client/setup.client.{ts,js}')
+    const modules = import.meta.glob('/modules/*/client/setup.client.{ts,js}')
 
 
-    // for (const [path, importFn] of Object.entries(modules)) {                
-    //     result[path] = importFn
-    //     result[`/static${path}`] = importFn
-    // }
+    for (const [path, importFn] of Object.entries(modules)) {                
+        result[path] = importFn
+        result[`/static${path}`] = importFn
+    }
 
-    // return result
+    return result
 }
 
 export async function listSetupFiles() {
@@ -60,10 +59,10 @@ export async function listSetupFiles() {
     for await (const f of files) {
         const devImport = imports[f]
 
-        if (devImport) {
-            result[f] = await devImport()
-            continue
-        }
+        // if (devImport) {
+        //     result[f] = await devImport()
+        //     continue
+        // }
 
         const mod = await importFn(f)
 

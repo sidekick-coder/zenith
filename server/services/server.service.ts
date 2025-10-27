@@ -3,7 +3,7 @@ import { mergeConfig, build as viteBuild } from 'vite'
 import chokidar from 'chokidar'
 import { logger } from '#server/facades/logger.facade.ts'
 import { basePath, storagePath } from '#server/utils/paths.ts'
-import ServerBooterService from '#modules/artlyze/root/server/services/serverBooter.service.ts'
+import ServerBooterService from '#server/services/serverBooter.service.ts'
 
 export default class ServerService {
     public booter = new ServerBooterService()
