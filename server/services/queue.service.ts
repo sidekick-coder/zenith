@@ -1,29 +1,75 @@
+import { randomUUID } from 'crypto'
 import logger from '../facades/logger.facade.ts'
-import QueueJob from '#server/entities/queueJob.entity.ts'
+import Job from '#server/entities/job.entity.ts'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
+import { basePath } from '#server/utils/paths.ts'
+import { importAll } from '#server/utils/importAll.ts'
+import type { Constructor } from '#shared/utils/compose.ts'
 
 export default class QueueService {
     public logger = logger.child({ label: 'queue' })
-    public jobs: QueueJob[] = []
+    public jobs: Job[] = []
+    public jobConstructors = new Map<string, typeof Job>()
     public intervalId: NodeJS.Timeout | null = null
+    public dirs = [basePath('server', 'jobs')]
 
     public get started() {
         return this.intervalId !== null
     }
 
-    public add(job: QueueJob) {
-        this.logger.debug('add job', job)
+    public async add(key: string, data: any) {
+        const job = await Job.create({
+            id: randomUUID(),
+            queue_id: key,
+            status: 'pending',
+            data,
+        })
 
-        this.jobs.push(job)
+        this.logger.info('adding job to queue', { job })
     }
 
-    public async process(job: QueueJob) {
-        this.logger.debug('process job', job)
-        job.status = 'in_progress'
+    public async process(payload: Job) {
+        const jobConstructor = this.jobConstructors.get(payload.queue_id)
 
-        const [error, result] = await tryCatch(() => job.handle(job.data))
+        if (!jobConstructor) {
+            this.logger.error(`no job constructor found for queueId ${payload.queue_id}, skipping job ${payload.id}`)
+            return
+        }
 
-        job.status = error ? 'failed' : 'completed'
+        const job = new jobConstructor() 
+
+        job.id = payload.id
+        job.queue_id = payload.queue_id
+        job.status = payload.status
+        job.data = payload.data
+        job.created_at = payload.created_at
+        job.updated_at = payload.updated_at
+
+        const [errorData, json] = tryCatch.sync(() => job.data ? JSON.parse(job.data) : {})
+
+        if (errorData) {
+            this.logger.error('failed to parse job data', { 
+                job,
+                error: errorData,
+            })
+            await Job.updateById(job.id, { 
+                status: 'failed',
+                error: 'Invalid job data' 
+            })
+            return
+        }
+
+        this.logger.debug('process job', { job })
+
+        await Job.updateById(job.id, { status: 'in_progress' })
+
+        const [error, result] = await tryCatch(() => job.handle(json))
+
+        await Job.updateById(job.id, {
+            status: error ? 'failed' : 'completed',
+            result: result ? JSON.stringify(result) : null,
+            error: error ? JSON.stringify(error) : null,
+        })
 
         if (error) {
             (error as any).job = job
@@ -62,8 +108,10 @@ export default class QueueService {
 
             running = true
 
-            const pendingJobs = this.jobs.filter(job => job.status === 'pending')
-    
+            const pendingJobs = await Job.list({
+                query: q => q.selectAll().where('status', '=', 'pending')
+            })
+
             for await (const job of pendingJobs) {
                 await this.process(job)
             }
@@ -73,5 +121,61 @@ export default class QueueService {
         }
 
         this.intervalId = setInterval(cb, 5000)
+    }
+
+    public async load(){
+        this.jobs = [] // reset jobs
+
+        // load constructors
+        const constructors = {} as Record<string, any>
+
+        for await (const dir of this.dirs) {
+            const files = await importAll(dir)
+
+            Object.assign(constructors, files)
+        }
+
+        for (const [filename, mod] of Object.entries(constructors)) {
+            const constructor = mod.default as Constructor<typeof Job> & { queueId?: string }
+
+            let queueId = 'default'
+
+            if (constructor.name) {
+                queueId = constructor.name
+            }
+
+            if (constructor.queueId) {
+                queueId = constructor.queueId
+            }
+
+            this.jobConstructors.set(queueId, constructor as any)
+
+            this.logger.debug('registered job constructor', { 
+                filename, 
+                queueId 
+            })
+        }
+
+        const all = await Job.list({
+            query: q => q.selectAll().where('status', '=', 'pending')
+        })
+
+        for (const j of all) {
+            const jobConstructor = this.jobConstructors.get(j.queue_id)
+
+            if (!jobConstructor) {
+                this.logger.warn(`no job constructor found for queueId ${j.queue_id}, skipping job ${j.id}`)
+                return
+            }
+
+        }
+
+        this.logger.info(`loaded ${all.length} pending jobs`)
+    }
+
+    public async loadAndStart() {
+        await this.load()
+
+        this.start()
     }
 }

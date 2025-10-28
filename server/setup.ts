@@ -2,7 +2,7 @@ import config from './facades/config.facade.ts'
 import LongJob from './jobs/long.job.ts'
 import { defineServerSetup } from '#server/utils/defineServerSetup.ts'
 
-export default defineServerSetup(({ assets }) => {
+export default defineServerSetup(async ({ assets }) => {
     let vars = ''
     const branding = config.get('branding', {})
 
@@ -15,6 +15,4 @@ export default defineServerSetup(({ assets }) => {
             ${vars}
         }`
     })
-
-    LongJob.dispatch({ some: 'data' })
 })

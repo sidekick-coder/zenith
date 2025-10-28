@@ -1,12 +1,12 @@
-import QueueJob from '#server/entities/queueJob.entity.ts'
+import Job from '#server/entities/job.entity.ts'
 
-export default class LongJob extends QueueJob {
-    public async handle(_data: any) {
-        console.log(`Starting long job ${this.id} in queue ${this.queueId}`)
+export default class LongJob extends Job {
+    public async handle(data: any) {
+        console.log('start', data)
 
         await new Promise((resolve) => setTimeout(resolve, 10000))
 
-        console.log(`Completed long job ${this.id} in queue ${this.queueId}`)
+        console.log('end')
 
     }
 }

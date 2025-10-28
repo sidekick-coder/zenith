@@ -23,8 +23,6 @@ export default class ServerBooterService {
         await scheduler.loadDirectory(serverPath('routines'))
     }
 
-   
-
     public async setup() {
 
         const ctx: SetupServerParams = {
@@ -65,17 +63,19 @@ export default class ServerBooterService {
         router.clear()
         emmitter.clear()
         queue.stop()
-        await scheduler.clear()
 
+        await scheduler.clear()
+        
         // start 
         await drive.load()
         await db.load()
-
+        
         // boot
         await this.root()
         await this.setup()
-
+        
         // start processing
+        await queue.loadAndStart()
         scheduler.startAll()
         queue.start()
     }

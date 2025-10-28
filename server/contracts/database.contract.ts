@@ -84,6 +84,15 @@ export interface UploadSessionTable {
   expires_at: string
 }
 
+export interface JobTable extends TimestampTable {
+  id: string
+  queue_id: string
+  status: 'pending' | 'in_progress' | 'completed' | 'failed'
+  data: string | null
+  result: string | null
+  error: string | null
+}
+
 export interface Database  {
   users: UserTable
   user_metas: UserMetaTable
@@ -98,6 +107,8 @@ export interface Database  {
 
   permissions: PermissionTable
   permissions_assignments: PermissionAssignmentTable
+
+  jobs: JobTable
 }
 
 export {}
