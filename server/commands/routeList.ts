@@ -1,12 +1,12 @@
 import { program } from 'commander'
 import Table from 'cli-table3'
 import router from '#server/facades/router.facade.ts'
-import bootService from '#server/services/boot.service.ts'
+import server from '#server/facades/server.facade.ts'
 
 program.command('route:list')
     .action(async () => {
-        await bootService.root()
-        await bootService.setup()
+        await server.booter.root()
+        await server.booter.setup()
 
         const routes = router.list()
 

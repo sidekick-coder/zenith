@@ -11,6 +11,7 @@ import { serverPath, configPath } from '#server/utils/paths.ts'
 import type { ServerSetup, SetupServerParams } from '#server/utils/defineServerSetup.ts'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
 import drive from '#server/facades/drive.facade.ts'
+import queue from '#server/facades/queue.facade.ts'
 import setup from '#server/setup.ts'
 
 export default class ServerBooterService {
@@ -30,7 +31,8 @@ export default class ServerBooterService {
             router,
             scheduler,
             emmitter,
-            assets
+            assets,
+            queue
         }
 
         await setup.setup(ctx)
@@ -40,8 +42,6 @@ export default class ServerBooterService {
         const mods = await modules.list({
             enabled: true
         })
-
-        console.log('Loaded modules for setup:', mods.map(m => m.id))
 
         const files = mods.flatMap(m => m.files).filter(f => f.type === 'setup:server')
 
@@ -61,25 +61,23 @@ export default class ServerBooterService {
     }
 
     public async boot() {
-        if (router.list().length > 0) {
-            router.clear()
-        }
+        // stop & clear
+        router.clear()
+        emmitter.clear()
+        queue.stop()
+        await scheduler.clear()
 
-        if (scheduler.list().length > 0) {
-            await scheduler.clear()
-        }
-
-        if (emmitter.hasHandlers()) {
-            emmitter.clear()
-        }
-
+        // start 
         await drive.load()
         await db.load()
 
+        // boot
         await this.root()
         await this.setup()
 
+        // start processing
         scheduler.startAll()
+        queue.start()
     }
 
     public watch() {

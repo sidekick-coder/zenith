@@ -8,7 +8,6 @@ import router from '#server/facades/router.facade.ts'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
 import type { HttpContext } from '#server/contracts/router.contract.ts'
 import errorService from '#server/services/error.service.ts'
-import bootService from '#server/services/boot.service.ts'
 import config from '#server/facades/config.facade.ts'
 import env from '#server/env.ts'
 import server from '#server/facades/server.facade.ts'
@@ -119,7 +118,6 @@ async function main() {
             env: env.NODE_ENV,
         })
 
-        bootService.boot()
     })
 }
 
