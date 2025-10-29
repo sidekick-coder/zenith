@@ -14,8 +14,31 @@ export default class Module extends composeWith(Base) {
         return join('/static', 'modules', this.name, ...parts)
     }
 
-    public loadFilesDevMode(){
-        if (fs.existsSync(this.makePath('client/setup.client.ts'))) {
+    private loadServerFiles(){
+        if (fs.existsSync(this.makePath('server/setup.server.ts'))) {
+            this.files.push({
+                type: 'setup:server',
+                src: this.makePath('server/setup.server.ts'),
+            })
+        }
+    }
+
+    private loadClientFiles(){
+        if (env.isProduction && fs.existsSync(this.makePath('dist/client/setup.client.js'))) {
+            this.files.push({
+                type: 'setup:client',
+                context: 'client',
+                src: this.staticPath('dist/client/setup.client.js'),
+            })
+
+            this.files.push({
+                type: 'setup:client',
+                context: 'server',
+                src: this.makePath('dist/server/setup.client.js'),
+            })
+        }
+
+        if (env.isDevelopment && fs.existsSync(this.makePath('client/setup.client.ts'))) {
             this.files.push({
                 type: 'setup:client',
                 context: 'server',
@@ -30,41 +53,10 @@ export default class Module extends composeWith(Base) {
         }
     }
 
-    public loadFileProdMode(){
-        if (fs.existsSync(this.makePath('server/setup.server.ts'))) {
-            this.files.push({
-                type: 'setup:server',
-                src: this.makePath('server/setup.server.ts'),
-            })
-        }
-
-        if (fs.existsSync(this.makePath('dist/client/setup.client.js'))) {
-            this.files.push({
-                type: 'setup:client',
-                context: 'client',
-                src: this.staticPath('dist/client/setup.client.js'),
-            })
-
-            this.files.push({
-                type: 'setup:client',
-                context: 'server',
-                src: this.makePath('dist/server/setup.client.js'),
-            })
-        }
-    }
-
     public load(){
         this.files = []
 
-        this.loadFileProdMode()
-
-        // if (env.isDevelopment) {
-        //     this.loadFileDevMode()
-        // }
-
-        // if (env.isProduction) {
-        //     this.loadFileProdMode()
-        // }
-       
+        this.loadServerFiles()
+        this.loadClientFiles()
     }
 }

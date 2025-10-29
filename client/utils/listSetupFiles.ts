@@ -59,10 +59,10 @@ export async function listSetupFiles() {
     for await (const f of files) {
         const devImport = imports[f]
 
-        // if (devImport) {
-        //     result[f] = await devImport()
-        //     continue
-        // }
+        if (devImport) {
+            result[f] = await devImport()
+            continue
+        }
 
         const mod = await importFn(f)
 
