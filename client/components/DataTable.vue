@@ -20,6 +20,7 @@ import { cn } from '#client/lib/utils.ts'
 import type Pagination from '#shared/entities/pagination.entity.ts'
 import { $fetch } from '#client/utils/fetcher.ts'
 import { useBreakpoints } from '#client/composables/useBreakpoint.ts'
+import { tryCatch } from '#shared/utils/tryCatch.ts'
 
 export interface DataTableFetchParams {
     page: number
@@ -264,14 +265,18 @@ async function load(){
     let response: Pagination | null = null
 
     if (typeof props.fetch === 'function') {
-        response = await props.fetch({
+        const callback = props.fetch as DataTableFetchCallback
+        
+        const [error, result] = await tryCatch(() => callback({
             page: page.value,
             limit: limit.value,
-        })
+        }))
+
+        response = result
     }
 
     if (typeof props.fetch === 'string') {
-        response = await $fetch<Pagination>(props.fetch, {
+        const [error, result] = await $fetch.try<Pagination>(props.fetch, {
             method: 'GET',
             query: {
                 page: page.value,
@@ -279,6 +284,8 @@ async function load(){
                 ...props.query,
             }
         })
+
+        response = result
     }
 
     if (!response) {

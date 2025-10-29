@@ -15,13 +15,22 @@ export const boolean = () => validator.create(v => v.pipe(
 export const date = () => validator.create(v => v.pipe(
     v.union([v.string(), v.date()]),
     v.transform(v => v instanceof Date ? v : new Date(v)),
-    v.transform(v => format(v, 'yyyy-MM-dd')),
+    v.transform(v => v ? format(v, 'yyyy-MM-dd') : v),
 ))
 
 export const datetime = () => validator.create(v => v.pipe(
     v.union([v.string(), v.date()]),
-    v.transform(v => v instanceof Date ? v : new Date(v)),
-    v.transform(v => format(v, 'yyyy-MM-dd HH:mm'))
+    v.transform(v => {
+        if (!v) return v
+
+        if (v === 'null') return null
+
+        if (typeof v === 'string') {
+            v = new Date(v)
+        }
+
+        return format(v, 'yyyy-MM-dd HH:mm')
+    }),
 ))
 
 export const array = () => validator
