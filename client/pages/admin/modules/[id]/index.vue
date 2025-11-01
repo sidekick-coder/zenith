@@ -3,9 +3,11 @@ import {
     computed, defineAsyncComponent, ref
 } from 'vue'
 import { useRoute } from 'vue-router'
+import { toast } from 'vue-sonner'
 import Dashboard from '#client/layouts/AppLayout.vue'
 import Icon from '#client/components/Icon.vue'
 import Button from '#client/components/Button.vue'
+import AlertButton from '#client/components/AlertButton.vue'
 import Card from '#client/components/ui/card/Card.vue'
 import CardDescription from '#client/components/ui/card/CardDescription.vue'
 import CardHeader from '#client/components/ui/card/CardHeader.vue'
@@ -40,6 +42,9 @@ async function load(){
 await load()
 
 const tab = ref('migrations')
+const isInstalling = ref(false)
+const isSeeding = ref(false)
+const isBuilding = ref(false)
 
 const tabs = [
     {
@@ -59,6 +64,74 @@ const component = computed(() => {
     return activeTab ? activeTab.component : null
 })
 
+async function installDependencies() {
+    if (isInstalling.value) {
+        return
+    }
+    
+    isInstalling.value = true
+    
+    const [error] = await tryCatch(() => $fetch(`/api/modules/${id.value}/install-dependencies`, { 
+        method: 'POST' 
+    }))
+    
+    if (error) {
+        console.error('Failed to install dependencies:', error)
+        return
+    }
+    
+    setTimeout(() => {
+        isInstalling.value = false
+        toast.success($t('Module dependencies installed'))
+    }, 500)
+
+}
+
+async function runSeeds() {
+    if (isSeeding.value) {
+        return
+    }
+    
+    isSeeding.value = true
+    
+    const [error] = await tryCatch(() => $fetch(`/api/modules/${id.value}/seed`, { 
+        method: 'POST' 
+    }))
+    
+    if (error) {
+        console.error('Failed to run seeds:', error)
+        return
+    }
+    
+    setTimeout(() => {
+        isSeeding.value = false
+        toast.success($t('Module seeds run completed'))
+    }, 500)
+}
+
+async function buildModule() {
+    if (isBuilding.value) {
+        return
+    }
+    
+    isBuilding.value = true
+    
+    const [error] = await $fetch.try(`/api/modules/${id.value}/build`, { 
+        method: 'POST' 
+    })
+    
+    if (error) {
+        console.error('Failed to build module:', error)
+        return
+    }
+
+    setTimeout(() => {
+        isBuilding.value = false
+        toast.success($t('Module builded'))
+    }, 500)
+    
+}
+
 
 </script>
 <template>
@@ -69,7 +142,7 @@ const component = computed(() => {
                     <div class="flex justify-center items-center">
                         <div class=" bg-primary text-white rounded-md size-18 flex items-center justify-center mb-2">
                             <Icon
-                                name="PuzzleIcon"
+                                name="Puzzle"
                                 class="size-10"
                             />
                         </div>
@@ -83,14 +156,58 @@ const component = computed(() => {
                     </CardDescription>
                 </CardHeader>
 
-                <CardFooter>
+                <CardFooter class="flex flex-col gap-3">
                     <Button 
                         :to="`/admin/modules/${item.id}/upgrade`"
                         variant="outline"
                         class="w-full" 
                     >
-                        {{ $t('Upgrade Module') }}
+                        {{ $t('Upgrade') }}
                     </Button>
+                    
+                    <Button 
+                        variant="outline"
+                        class="w-full"
+                        :disabled="isInstalling"
+                        @click="installDependencies"
+                    >
+                        <Icon
+                            v-if="isInstalling"
+                            name="LoaderCircle"
+                            class="size-4 mr-2 animate-spin"
+                        />
+                        {{ $t('Install Dependencies') }}
+                    </Button>
+                    
+                    <Button 
+                        variant="outline"
+                        class="w-full"
+                        :disabled="isSeeding"
+                        @click="runSeeds"
+                    >
+                        <Icon
+                            v-if="isSeeding"
+                            name="LoaderCircle"
+                            class="size-4 mr-2 animate-spin"
+                        />
+                        {{ $t('Run Seeds') }}
+                    </Button>
+                    
+                    <AlertButton 
+                        variant="destructive"
+                        class="w-full"
+                        :disabled="isBuilding"
+                        :title="$t('Build Module')"
+                        :description="$t('Building a module is an expensive operation that may take several minutes and consume significant system resources. Are you sure you want to proceed?')"
+                        @confirm="buildModule"
+                    >
+                        <Icon
+                            v-if="isBuilding"
+                            name="LoaderCircle"
+                            class="size-4 mr-2 animate-spin"
+                        />
+                        {{ $t('Build Module') }}
+                    </AlertButton>
                 </CardFooter>
             </Card>
             <div class="flex-1 flex flex-col">

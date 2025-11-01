@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import Button from './Button.vue'
+import ClientOnly from './ClientOnly.vue'
 import {
     AlertDialog,
     AlertDialogAction,
@@ -12,7 +13,6 @@ import {
     AlertDialogTrigger,
 } from '#client/components/ui/alert-dialog'
 import { $t } from '#shared/lang.ts'
-import ClientOnly from './ClientOnly.vue';
 
 defineOptions({ inheritAttrs: false })
 
@@ -41,7 +41,7 @@ const emit = defineEmits<{
             </Button>
         </template>
         <AlertDialog>
-            <AlertDialogTrigger>
+            <AlertDialogTrigger as-child>
                 <Button v-bind="$attrs">
                     <slot />
                 </Button>

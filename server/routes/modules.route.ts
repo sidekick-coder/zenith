@@ -105,6 +105,48 @@ router.post('/:id/fresh', async ({ params, acl }) => {
     return items
 })
 
+router.post('/:id/install-dependencies', async ({ params, acl }) => {
+    acl.authorize('update', 'Module')
+
+    const mod = await modules.find(params.id)
+
+    if (!mod) {
+        throw new BaseException('Module not found', 404)
+    }
+
+    await modules.installDependencies(params.id)
+
+    return { success: true }
+})
+
+router.post('/:id/seed', async ({ params, acl }) => {
+    acl.authorize('update', 'Module')
+
+    const mod = await modules.find(params.id)
+
+    if (!mod) {
+        throw new BaseException('Module not found', 404)
+    }
+
+    await modules.runSeeds(params.id)
+
+    return { success: true }
+})
+
+router.post('/:id/build', async ({ params, acl }) => {
+    acl.authorize('update', 'Module')
+
+    const mod = await modules.find(params.id)
+
+    if (!mod) {
+        throw new BaseException('Module not found', 404)
+    }
+
+    await modules.builder.build(params.id)
+
+    return { success: true }
+})
+
 router.post('/:id/uninstall', async ({ params, body, acl }) => {
     acl.authorize('delete', 'Module')
 
