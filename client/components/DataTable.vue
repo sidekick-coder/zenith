@@ -64,8 +64,12 @@ const props = defineProps({
         default: '',
     },
     rowClass: {
-        type: String,
+        type: [String, Function] as PropType<string | ((row: T) => any)>,
         default: '',
+    },
+    rowStyle: {
+        type: [Object, Function] as PropType<Record<string, any> | ((row: T) => Record<string, any>)>,
+        default: () => ({}),
     },
     rowKey: {
         type: [String, Function] as PropType<string | ((row: T) => string | number)>,
@@ -87,6 +91,10 @@ const props = defineProps({
         type: Function as PropType<(rows: T[]) => T[]>,
         default: null,
     },
+    filter: {
+        type: Function as PropType<(row: T) => boolean>,
+        default: () => true,
+    }
 })
 
 const emit = defineEmits<{
@@ -151,6 +159,30 @@ function findValue(row: any, column: DataTableColumn) {
     }
 
     return ''
+}
+
+function findRowClass(row: T) {
+    if (typeof props.rowClass === 'function') {
+        return props.rowClass(row)
+    }
+
+    if (typeof props.rowClass === 'string') {
+        return props.rowClass
+    }
+
+    return ''
+}
+
+function findRowStyle(row: T) {
+    if (typeof props.rowStyle === 'function') {
+        return props.rowStyle(row)
+    }
+
+    if (typeof props.rowStyle === 'object') {
+        return props.rowStyle
+    }
+
+    return {}
 }
 
 function isSelected(row: any) {
@@ -393,10 +425,11 @@ defineExpose({
             </TableRow>
 
             <TableRow
-                v-for="row in rows"
+                v-for="row in rows.filter(filter)"
                 :key="row.id"
                 :data-state="isSelected(row) ? 'selected' : undefined"
-                :class="cn('hover:bg-muted/20 ', props.rowClass)"
+                :class="cn('hover:bg-muted/20 ', findRowClass(row))"
+                :style="findRowStyle(row)"
                 @click="onClick(row)"
                 @dblclick="emit('dblclick:row', row.original)"
             >
@@ -518,7 +551,6 @@ defineExpose({
     </div>
 
     <DataTablePagination
-        v-if="totalPages > 1"
         v-model:page="page"
         v-model:limit="limit"
         v-model:total="total"

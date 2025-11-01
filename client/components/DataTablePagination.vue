@@ -28,7 +28,7 @@ const limit = defineModel('limit', {
 const limitOptions = defineModel('limitOptions', {
     type: Array as () => number[],
     required: false,
-    default: () => [10, 20, 30, 40, 50],
+    default: () => [10, 20, 30, 40, 50, 100],
 })
 
 const visiblePages = computed(() => {
