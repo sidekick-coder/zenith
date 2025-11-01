@@ -1,5 +1,5 @@
 <script lang="ts">
-import { watch  } from 'vue'
+import { computed, watch  } from 'vue'
 import type { PropType } from 'vue'
 import { get } from 'lodash-es'
 import Checkbox from './ui/checkbox/Checkbox.vue'
@@ -94,7 +94,11 @@ const props = defineProps({
     filter: {
         type: Function as PropType<(row: T) => boolean>,
         default: () => true,
-    }
+    },
+    noMobile: {
+        type: Boolean,
+        default: false,
+    },
 })
 
 const emit = defineEmits<{
@@ -134,7 +138,13 @@ const breakpoint = defineModel<'sm' | 'md' | 'lg' | 'xl' | '2xl'>('breakpoint', 
 
 const breakpoints = useBreakpoints()
 
-const shouldBreak = breakpoints.smaller(breakpoint)
+const isBreak = breakpoints.smaller(breakpoint)
+
+const shouldBreak = computed(() => {
+    if (props.noMobile) return false
+    
+    return isBreak.value
+})
 
 function findKey(row: any) {
     if (typeof props.rowKey === 'function') {
