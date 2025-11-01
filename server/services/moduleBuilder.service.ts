@@ -1,6 +1,4 @@
 import path from 'path'
-import fs from 'fs/promises'
-import fg from 'fast-glob'
 import { mergeConfig, build as viteBuild  } from 'vite'
 import type { UserConfig } from 'vite'
 import { createFilter } from '@rollup/pluginutils'
