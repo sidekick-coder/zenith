@@ -82,7 +82,11 @@ const props = defineProps({
     serialize: {
         type: Function as PropType<(row: any) => T>,
         default: (row: any) => row as T,
-    }
+    },
+    refine: {
+        type: Function as PropType<(rows: T[]) => T[]>,
+        default: null,
+    },
 })
 
 const emit = defineEmits<{
@@ -298,7 +302,11 @@ async function load(){
         }
     }
 
-    const items = Array.isArray(response.items) ? response.items : []
+    let items = Array.isArray(response.items) ? response.items : []
+
+    if (props.refine) {
+        items = props.refine(items as any[])
+    }
 
     rows.value = items.map(i => props.serialize(i))
     total.value = response.total || 0
