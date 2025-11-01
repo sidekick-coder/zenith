@@ -2,7 +2,7 @@
 set -e
 
 # List of required directories in the storage folder
-REQUIRED_DIRS="/app/storage/logs /app/storage/config /app/storage/tmp /app/storage/backups /app/storage/uploads"
+REQUIRED_DIRS="/app/storage/logs /app/storage/config /app/storage/tmp"
 
 # Ensure each required directory exists
 for dir in $REQUIRED_DIRS; do
@@ -10,11 +10,6 @@ for dir in $REQUIRED_DIRS; do
     mkdir -p "$dir"
   fi
 done
-
-# Check if dist directory exists, if not run build
-if [ ! -d "/app/storage/dist" ]; then
-  node arte build
-fi
 
 # If COMMANDS env var is set, execute each line as a command
 if [ -n "$COMMANDS" ]; then

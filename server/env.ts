@@ -22,7 +22,7 @@ const boolean = v.pipe(
 )
 
 const base = v.object({
-    APP_URL: v.string(), // use to mount upload/stream urls
+    APP_URL: v.optional(v.string(), 'http://localhost:3000'),
     ZARTE: v.optional(boolean, 'false'),
     NODE_ENV: v.optional(v.union([v.literal('development'), v.literal('production'), v.literal('test')]), 'development'),
     LOG_LEVEL: v.optional(v.picklist(['error', 'warn', 'info', 'debug']), 'info'),
