@@ -171,42 +171,6 @@ router.post('/:id/uninstall', async ({ params, body, acl }) => {
     return { success: true, }
 })
 
-router.post('/:id/upgrade', async ({ upload, params, acl }) => {
-    acl.authorize('update', 'Module')
-
-    const mod = await modules.find(params.id)
-    
-    if (!mod) {
-        throw new BaseException('Module not found', 404)
-    }
-
-    if (mod.enabled) {
-        throw new BaseException('Module is enabled, disable it before upgrading')
-    }
-
-    const file = await upload.single('file')
-
-    if (!file) {
-        throw new BaseException('No file provided')
-    }
-
-    validator.validate(file, v => v.object({
-        mimetype: v.picklist(['application/zip', 'application/x-zip-compressed', 'multipart/x-zip']),
-    }))
-
-    const filename = tmpPath(mod.id + 'upgrade' + '.zip')
-
-    await fs.promises.writeFile(filename, file.buffer)
-
-    const [error] = await tryCatch(() => modules.upgradeFromZip(mod.id, filename))
-
-    if (error) {
-        throw new BaseException(`Failed to install module: ${error.message}`)
-    }
-
-    return { success: true, }
-})
-
 router.post('/upgrade/zip', async ({ upload, body, acl }) => {
     acl.authorize('update', 'Module')
 
@@ -238,7 +202,10 @@ router.post('/upgrade/zip', async ({ upload, body, acl }) => {
 
     await fs.promises.writeFile(filename, file.buffer)
 
-    const [error] = await tryCatch(() => modules.upgradeFromZip(options.id, filename))
+    const [error] = await tryCatch(() => modules.upgrader.fromZip({
+        id: options.id,
+        filename,
+    }))
 
     if (error) {
         throw new BaseException(`Failed to upgrade module: ${error.message}`)
@@ -270,7 +237,9 @@ router.post('/upgrade/git', async ({ body, acl }) => {
         throw new BaseException('Module is enabled, disable it before upgrading')
     }
 
-    const [error] = await tryCatch(() => modules.upgradeFromGit(options.id, options.repository, {
+    const [error] = await tryCatch(() => modules.upgrader.fromGit({
+        id: options.id,
+        repository: options.repository,
         branch: options.branch,
         key: options.key
     }))
