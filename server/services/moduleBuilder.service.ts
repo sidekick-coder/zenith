@@ -38,7 +38,6 @@ function customImportReplacer() {
 
             for (const node of importNodes) {
                 const importSource = node.source.value
-                let accessor = null as string | null
                 
                 // Check if it's a direct external module (like 'vue') or one of your aliases
                 const isExternalModule = modulesToReplace.includes(importSource)
@@ -51,24 +50,13 @@ function customImportReplacer() {
                 const isAliasPath = importSource.startsWith('#client') || importSource.startsWith('#shared')
                     
                 if (isExternalModule || isExternalModuleSubpath || isAliasPath) {
-                        
-                    // 1. Determine the Global Accessor
-                    if ((isExternalModule || isExternalModuleSubpath) && !isAliasPath) {
-                        // Use globalThis.imports for all external modules and their subpaths
-                        accessor = `globalThis.imports["${importSource}"]` as string
-                    } else if (isAliasPath) {
-                        // Example: '#client/components/FormTextField.vue'
-                        accessor = `globalThis.imports["${importSource}"]` as string
-                    } else {
-                        // Fallback for unmapped externals
-                        continue 
-                    }
+                    // Use importSource directly as the ID for globalThis.importAsync
 
-                    // 2. Handle different types of imports
+                    // Handle different types of imports
                     if (node.specifiers.length === 0) {
                         // Side-effect import: import 'module'
                         // For side-effect imports, we just need to execute the module
-                        const replacement = `${accessor};`
+                        const replacement = `await globalThis.importAsync("${importSource}");`
                         s.overwrite(node.start, node.end, replacement)
                         hasChanges = true
                     } else {
@@ -80,13 +68,14 @@ function customImportReplacer() {
                             if (spec.type === 'ImportSpecifier') {
                                 // import { imported as local } from 'module'
                                 const importedName = spec.imported.name
-                                replacement = `const { ${importedName}: ${localName} } = ${accessor};`
+                                replacement = `const { ${importedName}: ${localName} } = await globalThis.importAsync("${importSource}");`
                             } else if (spec.type === 'ImportDefaultSpecifier') {
                                 // import local from 'module'
-                                replacement = `const ${localName} = ${accessor}.default || ${accessor};`
+                                const moduleVarName = `__module__${localName}__`
+                                replacement = `const ${moduleVarName} = await globalThis.importAsync("${importSource}"); const ${localName} = ${moduleVarName}.default || ${moduleVarName};`
                             } else if (spec.type === 'ImportNamespaceSpecifier') {
                                 // import * as local from 'module'
-                                replacement = `const ${localName} = ${accessor};`
+                                replacement = `const ${localName} = await globalThis.importAsync("${importSource}");`
                             }
                             return replacement
                         }).filter(Boolean)

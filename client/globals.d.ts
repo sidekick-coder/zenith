@@ -3,6 +3,7 @@ export {}
 
 declare global {
     var imports: Record<string, any>
+    var importAsync: (id: string) => Promise<any>
 }
 
 declare module 'vue' {
