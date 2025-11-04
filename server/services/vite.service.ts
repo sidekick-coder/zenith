@@ -121,7 +121,7 @@ export class ViteServer {
         
         for (const [name, asset] of Object.entries(allAssets)) {
             if (asset.src) {
-                html += `<link rel="stylesheet" href="${asset.src}">`
+                html += `<link data-asset="${name}" rel="stylesheet" href="${asset.src}">`
             }
             
             if (asset.content) {

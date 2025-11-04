@@ -37,6 +37,13 @@ export default class Module extends composeWith(Base) {
                 src: this.makePath('dist/server/setup.client.js'),
             })
         }
+        
+        if (env.isProduction && fs.existsSync(this.makePath('dist/client/styles.css'))) {
+            this.files.push({
+                type: 'asset',
+                src: this.staticPath('dist/client/styles.css'),
+            })
+        }
 
         if (env.isDevelopment && fs.existsSync(this.makePath('client/setup.client.ts'))) {
             this.files.push({

@@ -2,7 +2,7 @@ import { BaseEntity } from '#shared/mixins/index.ts'
 import { compose } from '#shared/utils/compose.ts'
 
 interface ModuleFile {
-    type: 'setup:client' | 'setup:server'
+    type: 'setup:client' | 'setup:server' | 'asset'
     context?: 'server' | 'client'
     src: string
 }

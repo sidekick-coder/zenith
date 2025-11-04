@@ -139,6 +139,15 @@ export default class ModuleBuilderService {
             build: {
                 outDir: outDirServer,
                 rollupOptions: {
+                    output: {
+                        assetFileNames: (assetInfo: any) => {
+                            if (assetInfo.name.endsWith('.css')) {
+                                return 'styles.css'
+                            }
+
+                            return assetInfo.name
+                        },
+                    },
                     external: (id: string) => {
                         // Check exact match
                         if (this.externals.includes(id)) {

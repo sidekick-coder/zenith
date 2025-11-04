@@ -8,6 +8,10 @@ import type { Logger } from './utils/logger'
 import config from './facades/config.facade'
 import { flatten } from '#shared/utils/flatten.ts'
 
+if (import.meta.env.SSR) {
+    globalThis.imports['vue/server-renderer'] = () => import('vue/server-renderer')
+}
+
 interface RenderContext {
     url: string;
     router: any;
