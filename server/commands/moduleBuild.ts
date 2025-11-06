@@ -4,8 +4,8 @@ import cli from '#server/services/cli.service.ts'
 
 program.command('module:build')
     .helpGroup('module')
+    .option('-p, --prepare <prepare>', 'Prepare the module before building', false)
     .argument('<module>', 'Module to build')
-    .option('--prepare', 'Prepare the module before building', false)
     .action(cli.with(['config'], async (name, options) => {
         if (options.prepare) {
             await modules.prepare(name)
