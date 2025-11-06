@@ -26,7 +26,11 @@ for await (const name of moduleNames) {
     }
     
     if (fs.existsSync(`${modulesPath}/${name}/server/commands`)) {
-        await importAll(`${modulesPath}/${name}/server/commands`)
+        try {
+            await importAll(`${modulesPath}/${name}/server/commands`)            
+        } catch (error) {
+            console.error(`Error loading commands for module ${name}:`, error)
+        }
     }
 }
 

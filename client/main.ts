@@ -12,8 +12,13 @@ import { $acl } from './composables/useAcl'
 import { listSetupFiles } from './utils/listSetupFiles'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
 
-import './style.css'
 import './imports'
+
+import './assets/styles.css'
+
+if (import.meta.env.DEV) {
+    await import('./assets/modules.css')
+}
 
 export async function createApp() {
     const app = createSSRApp(App)

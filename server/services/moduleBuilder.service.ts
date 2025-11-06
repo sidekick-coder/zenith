@@ -4,6 +4,8 @@ import type { UserConfig } from 'vite'
 import { createFilter } from '@rollup/pluginutils'
 import MagicString from 'magic-string'
 import * as acorn from 'acorn' 
+import vue from '@vitejs/plugin-vue'
+import tailwindcss from '@tailwindcss/vite'
 import rootLogger from '../facades/logger.facade.ts'
 import shell from './shell.service.ts'
 import { basePath } from '#server/utils/paths.ts'
@@ -134,6 +136,8 @@ export default class ModuleBuilderService {
         const common: UserConfig =  {
             publicDir: path.join(moduleDir, 'client/public'),
             plugins: [
+                tailwindcss(),
+                vue(), 
                 customImportReplacer(),
             ],
             build: {
@@ -142,6 +146,7 @@ export default class ModuleBuilderService {
                     output: {
                         assetFileNames: (assetInfo: any) => {
                             if (assetInfo.name.endsWith('.css')) {
+                                console.log(assetInfo)
                                 return 'styles.css'
                             }
 

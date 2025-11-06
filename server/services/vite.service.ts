@@ -98,9 +98,14 @@ export class ViteServer {
             // state
             head += `<script>window.__INITIAL_STATE__ = ${JSON.stringify(state)}</script>`
 
-            const html = template
-                .replace('<!--app-head-->', head)
-                .replace('<!--app-html-->', body)
+            // Replace app-html first
+            let html = template.replace('<!--app-html-->', body)
+            
+            // Find the last script or link tag in head and insert our head content after it
+            const headEndIndex = html.indexOf('</head>')
+            if (headEndIndex !== -1) {
+                html = html.slice(0, headEndIndex) + head + '\n  ' + html.slice(headEndIndex)
+            }
 
             response.status(200).set({ 'Content-Type': 'text/html' })
                 .end(html)

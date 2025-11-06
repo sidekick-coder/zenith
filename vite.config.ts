@@ -14,7 +14,10 @@ viteLogger.error = (msg, opts) => childLogger.debug(msg, opts)
 export default defineConfig({
     clearScreen: false,
     customLogger: viteLogger,
-    plugins: [vue(), tailwindcss()],
+    // plugins: [
+    //     vue(), 
+    //     tailwindcss()
+    // ],
     publicDir: 'client/public',
     server: {
         watch: {
