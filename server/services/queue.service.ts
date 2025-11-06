@@ -156,9 +156,15 @@ export default class QueueService {
             })
         }
 
-        const all = await Job.list({
+        const [error, all] = await tryCatch(async () => await Job.list({
             query: q => q.selectAll().where('status', '=', 'pending')
-        })
+        }))
+
+        if (error) {
+            this.logger.info('failed to load pending jobs skipping start')
+            this.logger.debug(error)
+            return
+        }
 
         for (const j of all) {
             const jobConstructor = this.jobConstructors.get(j.queue_id)

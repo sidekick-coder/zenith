@@ -8,7 +8,7 @@ import db from '#server/facades/db.facade.ts'
 import drive from '#server/facades/drive.facade.ts'
 import {  createUser } from '#server/queries/index.ts'
 import { createUserPermission } from '#server/queries/createUserPermission.ts'
-import { serverPath, generateKey } from '#server/utils/index.ts'
+import { generateKey } from '#server/utils/index.ts'
 
 const router = root.prefix('/api/setup').group()
 
