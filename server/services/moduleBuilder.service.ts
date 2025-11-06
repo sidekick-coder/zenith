@@ -142,7 +142,6 @@ export default class ModuleBuilderService {
                     output: {
                         assetFileNames: (assetInfo: any) => {
                             if (assetInfo.name.endsWith('.css')) {
-                                console.log(assetInfo)
                                 return 'styles.css'
                             }
 
