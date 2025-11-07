@@ -17,37 +17,47 @@ const isLoading = ref(false)
 const { handleSubmit } = useForm({
     validationSchema: toTypedSchema(
         v.object({
-            uuid: v.pipe(v.string()),
+            username: v.pipe(v.string(), v.minLength(3)),
+            email: v.pipe(v.string(), v.email()),
             password: v.pipe(v.string(), v.minLength(6)),
+            confirmPassword: v.pipe(v.string(), v.minLength(6)),
         })),
 })
 
 const onSubmit = handleSubmit(async (data) => {
+    if (data.password !== data.confirmPassword) {
+        toast.error($t('Passwords do not match'))
+        return
+    }
+
     isLoading.value = true
 
-    const [error] = await tryCatch(() => $fetch('/api/auth/login', {
+    const [error] = await tryCatch(() => $fetch('/api/auth/register', {
         method: 'POST',
-        data,
-    })
-    )
+        data: {
+            username: data.username,
+            email: data.email,
+            password: data.password,
+        },
+    }))
 
     if (error) {
         isLoading.value = false
         return
     }
 
-    toast.success('Logged in successfully!')
+    toast.success($t('Account created successfully!'))
 
     setTimeout(() => {
-        window.location.href = '/admin'
+        window.location.href = '/admin/auth/login'
     }, 500)
 })
 </script>
 
 <template>
     <AuthLayout
-        title="Log in to your account"
-        description="Enter your email and password below to log in"
+        :title="$t('Create your account')"
+        :description="$t('Enter your details below to create a new account')"
     >
         <form 
             class="flex flex-col gap-6"
@@ -55,42 +65,57 @@ const onSubmit = handleSubmit(async (data) => {
         >
             <div class="grid gap-6">
                 <FormTextField
-                    name="uuid"
-                    :label="$t('Email/Username')"
-                    placeholder="admin"
-                    autocomplete="email"
+                    name="username"
+                    :label="$t('Username')"
+                    :placeholder="$t('Enter your username')"
+                    autocomplete="username"
                     autofocus
+                />
+
+                <FormTextField
+                    name="email"
+                    type="email"
+                    :label="$t('Email')"
+                    :placeholder="$t('Enter your email')"
+                    autocomplete="email"
                 />
 
                 <FormTextField
                     name="password"
                     type="password"
-                    label="Password"
-                    placeholder="Password"
-                    autocomplete="current-password"
+                    :label="$t('Password')"
+                    :placeholder="$t('Enter your password')"
+                    autocomplete="new-password"
+                />
+
+                <FormTextField
+                    name="confirmPassword"
+                    type="password"
+                    :label="$t('Confirm Password')"
+                    :placeholder="$t('Confirm your password')"
+                    autocomplete="new-password"
                 />
 
                 <Button
                     type="submit"
                     class="mt-4 w-full"
                     :disabled="isLoading"
-                    :tabindex="4"
                 >
                     <LoaderCircle
                         v-if="isLoading"
                         class="mr-2 h-4 w-4 animate-spin"
                     />
-                    {{ $t('Log in') }}
+                    {{ $t('Create Account') }}
                 </Button>
             </div>
 
             <div class="text-center text-sm">
-                {{ $t("Don't have an account?") }}
+                {{ $t('Already have an account?') }}
                 <a 
-                    href="/admin/auth/register" 
+                    href="/admin/auth/login" 
                     class="underline"
                 >
-                    {{ $t('Sign up') }}
+                    {{ $t('Sign in') }}
                 </a>
             </div>
         </form>

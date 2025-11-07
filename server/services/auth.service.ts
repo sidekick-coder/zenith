@@ -8,6 +8,12 @@ export interface LoginCredentials {
     password: string
 }
 
+export interface RegisterCredentials {
+    username: string
+    email: string
+    password: string
+}
+
 export interface AuthResult {
     user: {
         id: number
@@ -112,6 +118,53 @@ export default class AuthService {
         await user.loadPermissions()
 
         return user
+    }
+
+    async register(credentials: RegisterCredentials): Promise<AuthResult> {
+        const { username, email, password } = credentials
+
+        // Check if user already exists
+        const existingUser = await db.selectFrom('users')
+            .selectAll()
+            .where((eb) => eb.or([
+                eb('email', '=', email),
+                eb('username', '=', username),
+            ]))
+            .where('deleted_at', 'is', null)
+            .executeTakeFirst()
+
+        if (existingUser) {
+            return {
+                user: null,
+                success: false,
+                message: 'User already exists with this email or username'
+            }
+        }
+
+        // Create new user
+        const newUser = await User.create({
+            username,
+            email,
+            password: await this.hashPassword(password)
+        })
+
+        // Create auth token for the new user
+        const token = await this.tokenService.createToken({
+            user_id: newUser.id!,
+            type: 'auth',
+            expires_in_hours: 24
+        })
+
+        return {
+            user: {
+                id: newUser.id!,
+                username: newUser.username,
+                email: newUser.email
+            },
+            token: token.token,
+            success: true,
+            message: 'Registration successful'
+        }
     }
 
     async logout(tokenValue: string): Promise<boolean> {
