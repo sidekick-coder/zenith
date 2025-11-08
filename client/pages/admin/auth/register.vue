@@ -49,7 +49,7 @@ const onSubmit = handleSubmit(async (data) => {
     toast.success($t('Account created successfully!'))
 
     setTimeout(() => {
-        window.location.href = '/admin/auth/login'
+        window.location.href = '/'
     }, 500)
 })
 </script>

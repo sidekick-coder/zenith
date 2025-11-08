@@ -1,15 +1,11 @@
 <script setup lang="ts">
+import config from '#client/facades/config.facade.ts'
 
-// import CLogoIcon from '@/components/CLogoIcon.vue'
-// import { Link, usePage } from '@inertiajs/vue3'
-
-// const page = usePage()
-const name = 'Sidekick Coder'
-const quote = {
-    author: 'Sidekick Coder Team',
-    title: 'Empowering Developers',
-    message: 'Build, test, and deploy your applications with ease.',
-}
+const authConfig = config.get('auth', {
+    title: 'Welcome',
+    quote: 'Your journey to productivity starts here.',
+    quoteAuthor: 'The Team',
+})
 
 defineProps<{
     title?: string;
@@ -22,7 +18,7 @@ defineProps<{
         <div class="relative hidden h-full flex-col bg-muted p-10 text-white dark:border-r lg:flex">
             <div class="absolute inset-0 bg-zinc-900" />
             <img
-                src="/login-bg.jpg"
+                :src="authConfig.image_id ? `/api/files/${authConfig.image_id}/stream` : '/login-bg.jpg'"
                 alt="Background Image"
                 class="absolute inset-0 h-full w-full object-cover opacity-50"
             >
@@ -30,19 +26,19 @@ defineProps<{
                 to="/"
                 class="relative z-20 flex items-center text-lg font-medium"
             >
-                {{ name }}
+                {{ authConfig.title }}
             </RouterLink>
 
             <div
-                v-if="quote"
+                v-if="authConfig.quote"
                 class="relative z-20 mt-auto"
             >
                 <blockquote class="space-y-2">
                     <p class="text-lg">
-                        &ldquo;{{ quote.message }}&rdquo;
+                        &ldquo;{{ authConfig.quote }}&rdquo;
                     </p>
                     <footer class="text-sm text-neutral-300">
-                        {{ quote.author }}
+                        {{ authConfig.quoteAuthor }}
                     </footer>
                 </blockquote>
             </div>

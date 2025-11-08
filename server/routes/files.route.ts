@@ -78,8 +78,8 @@ router.post('/upload', async ({ upload, query }) => {
     const entity = await currentDrive.createFile(file.buffer, file.originalname)
 
     if (query.public) {
-        await File.updateById(entity.id, { private: false })
-        entity.private = false
+        await File.updateById(entity.id, { public: true })
+        entity.public = false
     }
 
     return entity
@@ -88,8 +88,6 @@ router.post('/upload', async ({ upload, query }) => {
 
 router.get('/:id', async ({ acl, params }) => {
     const id = validator.validate(params.id, schemas.query.number)
-
-    console.log('Fetching file with ID:', id)  // Debug log
 
     const file = await File.find(id)
 
@@ -110,7 +108,7 @@ rootRouter
             throw new BaseException('File not found', 404)
         }
 
-        if (!file.private) {
+        if (!file.public) {
             acl.authorize('read', file)
         }
 

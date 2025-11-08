@@ -15,7 +15,7 @@ export function createGuestGuard(options: GuestGuardOptions) {
 }
 
 const guestGuard = createGuestGuard({
-    redirect: '/admin'
+    redirect: '/'
 })
 
 export default guestGuard

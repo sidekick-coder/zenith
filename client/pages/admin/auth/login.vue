@@ -11,6 +11,7 @@ import { Button } from '#client/components/ui/button'
 import FormTextField from '#client/components/FormTextField.vue'
 import AuthLayout from '#client/layouts/AuthLayout.vue'
 import { $t } from '#shared/lang.ts'
+import config from '#client/facades/config.facade.ts'
 
 const isLoading = ref(false)
 
@@ -39,7 +40,7 @@ const onSubmit = handleSubmit(async (data) => {
     toast.success('Logged in successfully!')
 
     setTimeout(() => {
-        window.location.href = '/admin'
+        window.location.href = '/'
     }, 500)
 })
 </script>
@@ -72,7 +73,7 @@ const onSubmit = handleSubmit(async (data) => {
 
                 <Button
                     type="submit"
-                    class="mt-4 w-full"
+                    class="w-full"
                     :disabled="isLoading"
                     :tabindex="4"
                 >
@@ -84,7 +85,10 @@ const onSubmit = handleSubmit(async (data) => {
                 </Button>
             </div>
 
-            <div class="text-center text-sm">
+            <div
+                v-if="config.get('auth.enableSignUp', false)"
+                class="text-center text-sm"
+            >
                 {{ $t("Don't have an account?") }}
                 <a 
                     href="/admin/auth/register" 

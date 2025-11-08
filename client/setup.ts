@@ -92,6 +92,14 @@ export default defineClientSetup(({ menu, router }) => {
         group: $t('Settings'),
         to: '/admin/settings/branding'
     })
+    
+    menu.add({
+        id: 'settings-auth',
+        label: $t('Auth'),
+        icon: 'Lock',
+        group: $t('Settings'),
+        to: '/admin/settings/auth'
+    })
 
     menu.add({
         id: 'pwa',

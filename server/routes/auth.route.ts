@@ -2,6 +2,7 @@ import router from '#server/facades/router.facade.ts'
 import auth from '#server/facades/auth.facade.ts'
 import BaseException from '#server/exceptions/base.ts'
 import validator from '#shared/services/validator.service.ts'
+import config from '#server/facades/config.facade.ts'
 
 router.post('/api/auth/login', async ({ body, cookie }) => {
     const token = cookie.get('Authorization')
@@ -31,6 +32,11 @@ router.post('/api/auth/login', async ({ body, cookie }) => {
 })
 
 router.post('/api/auth/register', async ({ body, cookie }) => {
+
+    if (!config.get('auth.enableSignUp', false)) {
+        throw new BaseException('Registration is disabled', 403)
+    }
+
     const token = cookie.get('Authorization')
     const user = await auth.authenticate(token)
 

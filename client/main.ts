@@ -61,7 +61,9 @@ export async function createApp() {
 
     hide.forEach(id => menu.remove(id))
     
-    const homeRoute = config.get('site.home_route_path', '/admin')
+    const homeRoute = config.get('site.home_route_path', '/hello')
+
+    console.log('homeRoute', homeRoute)
     
     const route = router.resolve(homeRoute)
     const record = route.matched[route.matched.length - 1]

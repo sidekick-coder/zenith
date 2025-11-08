@@ -61,6 +61,7 @@ export class ViteServer {
 
             state.config.site = config.get('site', {})
             state.config.branding = config.get('branding', {})
+            state.config.auth = config.get('auth', {})
 
             if (state.setup.user) {
                 state['auth:user'] = await auth.authenticate(_request.cookies['Authorization'] || '')
@@ -90,9 +91,9 @@ export class ViteServer {
             // inject assets from assets facade
             head += this.getAssetsHtml()
 
-            // only inject styles in development mode
+            // only inject styles in development mode, to prevent layout shifts
             if (!isProduction) {
-                head += '<link rel="stylesheet" href="/client/style.css">'
+                head += '<link rel="stylesheet" href="/client/assets/styles.css">'
             }
 
             // state

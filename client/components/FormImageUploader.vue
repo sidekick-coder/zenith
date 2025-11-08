@@ -37,6 +37,10 @@ defineProps({
         type: String,
         default: null,
     },
+    public: {
+        type: Boolean,
+        default: false,
+    },
     maxSize: {
         type: Number,
         default: 10 * 1024 * 1024, // 10MB default
@@ -100,23 +104,31 @@ function clearImage() {
                         :folder="folder"
                         :max-size="maxSize"
                         :disabled="disabled"
+                        :public="public"
                         mimetypes="image/*"
                         @update:file-id="setValue"
                     >
                         <template #default="{ handle, loading: uploading }">
-                            <Button
-                                type="button"
-                                variant="outline"
+                            <slot 
+                                :handle="handle"
                                 :loading="uploading"
-                                :disabled="disabled"
-                                @click="handle"
+                                :value="value"
+                                :set-value="setValue"
                             >
-                                <Icon
-                                    name="ImagePlus"
-                                    class="size-4 mr-2"
-                                />
-                                {{ fileUrl ? $t('Change image') : $t('Upload image') }}
-                            </Button>
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    :loading="uploading"
+                                    :disabled="disabled"
+                                    @click="handle"
+                                >
+                                    <Icon
+                                        name="ImagePlus"
+                                        class="size-4 mr-2"
+                                    />
+                                    {{ fileUrl ? $t('Change image') : $t('Upload image') }}
+                                </Button>
+                            </slot>
                         </template>
                     </FileUploader>
                 </div>
