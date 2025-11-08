@@ -158,14 +158,11 @@ async function uninstall(id: string, data: any) {
 
             <template #row-actions="{ row }">
                 <div class="flex justify-end gap-2">
-                    <Button
-                        v-if="row.enabled"
-                        :to="`/admin/modules/${row.id}`"
-                    >
+                    <Button :to="`/admin/modules/${row.id}`">
                         {{ $t('Configure') }}
                     </Button>
                     <DialogForm
-                        v-else
+                        v-if="!row.enabled"
                         :title="$t('Uninstall Module')"
                         :description="$t('Are you sure you want to uninstall the module {module}? This action cannot be undone.', { module: row.name })"
                         :submit-text="$t('Uninstall')"
