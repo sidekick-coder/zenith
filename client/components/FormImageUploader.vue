@@ -58,6 +58,7 @@ const fileUrl = defineModel<string | undefined | null>('fileUrl', {
 
 function clearImage() {
     fileUrl.value = null
+    
 }
 </script>
 
@@ -86,7 +87,10 @@ function clearImage() {
                             size="sm"
                             class="absolute top-2 right-2"
                             :disabled="disabled"
-                            @click="clearImage"
+                            @click="() => {
+                                clearImage()
+                                setValue(null)
+                            }"
                         >
                             <Icon
                                 name="X"

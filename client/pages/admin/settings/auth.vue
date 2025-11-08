@@ -22,7 +22,7 @@ import FormImageUploader from '#client/components/FormImageUploader.vue'
 const loading = ref(false)
 const saving = ref(false)
 
-const { handleSubmit, resetForm } = useForm({
+const { handleSubmit, values, resetForm } = useForm({
     name: 'auth-settings',
     validationSchema: toTypedSchema(schemas.auth.update), 
 })
@@ -48,6 +48,8 @@ async function load() {
 
 const onSubmit = handleSubmit(async (data) => {
     saving.value = true
+
+    console.log('Submitting data:', data)
 
     const [error] = await $fetch.try('/api/auth-settings', {
         method: 'PUT',
@@ -117,10 +119,11 @@ onMounted(() => {
                             name="image_id"
                             :label="$t('Image')"
                             purpose="AuthLayoutImage"
+                            :file-url="values.image_id ? `/api/files/${values.image_id}/stream` : undefined"
                             :public="true"
                             :disabled="loading || saving"
                         >
-                            <template #default="{ value, handle, setValue }">
+                            <!-- <template #default="{ value, handle, setValue }">
                                 <div 
                                     v-if="value" 
                                     class="border rounded-lg p-4 bg-muted/50"
@@ -171,7 +174,7 @@ onMounted(() => {
                                         {{ $t('Upload') }}
                                     </Button>
                                 </div>
-                            </template>
+                            </template> -->
                         </FormImageUploader>
 
                         <FormTextField
