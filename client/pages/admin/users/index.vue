@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { watch, ref } from 'vue'
 import { toast } from 'vue-sonner'
+import type { ComponentExposed } from 'vue-component-type-helpers'
 import DataTable, { defineColumns } from '#client/components/DataTable.vue'
 import { $t } from '#shared/lang.ts'
 import AppLayout from '#client/layouts/AppLayout.vue'
@@ -11,7 +12,6 @@ import ClientOnly from '#client/components/ClientOnly.vue'
 import Button from '#client/components/Button.vue'
 import Icon from '#client/components/Icon.vue'
 import AlertButton from '#client/components/AlertButton.vue'
-import type { ComponentExposed } from 'vue-component-type-helpers'
 
 const items = ref([])
 const page = ref(1)
