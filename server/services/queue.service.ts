@@ -17,6 +17,14 @@ export default class QueueService {
         return this.intervalId !== null
     }
 
+    public addDirectory(dir: string) {
+        if (this.dirs.includes(dir)) {
+            return
+        }
+        
+        this.dirs.push(dir)
+    }
+
     public async add(key: string, data: any) {
         const job = await Job.create({
             id: randomUUID(),
