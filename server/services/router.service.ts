@@ -1,14 +1,12 @@
 import fs from 'fs'
 import path from 'path'
 import { join } from 'path'
-import rootLogger from '../facades/logger.facade.ts'
+import logger from '../facades/logger.facade.ts'
 import Route from '../entities/route.entity.ts'
 import type {
     Handler, Middleware, MiddlewareHandleResult 
 } from '../contracts/router.contract.ts'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
-
-const logger = rootLogger.child({ label: 'router' })
 
 
 type RouteContext = 'global' | 'group' | 'route'
@@ -29,6 +27,7 @@ export default class Router<C = {}> {
     private groupPrefixes: string[] = []
 
     private groups: Router<any>[] = []
+    public logger = logger.child({ label: 'router' })
 
     public open(filename: string) {
         this.filename = filename
@@ -260,7 +259,7 @@ export default class Router<C = {}> {
 
     public async loadFile(filename: string) {
         if (!fs.existsSync(filename)) {
-            logger.warn(`File not found: ${filename}`)
+            this.logger.warn(`File not found: ${filename}`)
             return
         }
 
@@ -271,7 +270,7 @@ export default class Router<C = {}> {
         const [error] = await tryCatch(() => import(path))
 
         if (error) {
-            logger.error(`failed to load routes from ${filename}`, error)
+            this.logger.error(`failed to load routes from ${filename}`, error)
         }
 
         this.close()
@@ -286,12 +285,12 @@ export default class Router<C = {}> {
             this.routes = this.routes.filter(r => r !== route)
         }
 
-        logger.debug(`removed routes from ${filename}`)
+        this.logger.debug(`removed routes from ${filename}`)
     }
 
     public async loadDirectory(directory: string) {
         if (!fs.existsSync(directory)) {
-            logger.warn('directory not found', { directory })
+            this.logger.warn('directory not found', { directory })
             return
         }
 
@@ -301,11 +300,11 @@ export default class Router<C = {}> {
             await this.loadFile(path.join(directory, file))
         }
 
-        logger.debug('loaded directory', { files })
+        this.logger.debug('loaded directory', { files })
     }
 
     public clear() {
-        logger.debug('clear', { count: this.routes.length })
+        this.logger.debug('clear', { count: this.routes.length })
         this.routes = []
         this.groups = []
     }

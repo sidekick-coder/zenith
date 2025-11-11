@@ -97,7 +97,7 @@ async function main() {
         const route = router.resolve(method, url.pathname)
 
         if (route) {            
-            logger.debug(`${method.toUpperCase()} ${url.pathname}`)
+            router.logger.debug(`${method.toUpperCase()} ${url.pathname}`)
             return execute(url, req, res, route)
         }
 
