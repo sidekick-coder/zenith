@@ -36,6 +36,7 @@ import {
     DialogTrigger,
 } from '#client/components/ui/dialog'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
+import validator from '#shared/services/validator.service.ts'
 
 const props = defineProps({
     title: {
@@ -48,7 +49,7 @@ const props = defineProps({
     },
     schema: {
         type: Object as () => T,
-        required: true,
+        default: () => validator.create(v => v.record(v.string(), v.any())), // dummy schema to satisfy generic constraint
     },
     values: {
         type: Object as () => Partial<v.InferInput<T>>,
