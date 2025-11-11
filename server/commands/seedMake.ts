@@ -2,7 +2,7 @@ import fs from 'fs'
 import path from 'path'
 import { program } from 'commander'
 import { basePath } from '#server/utils/paths.ts'
-import template from '#server/services/template.service.ts'
+import template from '#server/facades/template.facade.ts'
 import modules from '#server/services/modules.service.ts'
 
 program.command('seed:make')

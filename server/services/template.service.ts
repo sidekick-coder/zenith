@@ -1,9 +1,10 @@
 import fs from 'fs'
 import _ from 'lodash'
+import Handlebars from 'handlebars'
 
-export class TemplateService {
+export default class TemplateService {
     public render(contents: string, data: Record<string, any>){
-        const compiled = _.template(contents)
+        const compiled = Handlebars.compile(contents)
 
         return compiled(data)
     }
@@ -18,7 +19,3 @@ export class TemplateService {
         return this.render(contents, data)
     }
 }
-
-const template = new TemplateService()
-
-export default template

@@ -1,7 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 import { program } from 'commander'
-import template from '#server/services/template.service.ts'
+import template from '#server/facades/template.facade.ts'
 import { basePath } from '#server/utils/paths.ts'
 
 async function copyTemplateDirectory(sourceDir: string, targetDir: string, templateData: Record<string, any>) {
