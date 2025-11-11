@@ -87,7 +87,7 @@ function filter() {
             return info
         }
 
-        if (env.LOG_LABEL_EXCLUDE?.includes(info.label)) {
+        if (info.level !== 'error' && env.LOG_LABEL_EXCLUDE?.includes(info.label)) {
             return false
         }
 
