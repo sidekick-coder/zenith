@@ -49,8 +49,6 @@ async function load() {
 const onSubmit = handleSubmit(async (data) => {
     saving.value = true
 
-    console.log('Submitting data:', data)
-
     const [error] = await $fetch.try('/api/auth-settings', {
         method: 'PUT',
         data,

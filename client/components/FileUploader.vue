@@ -70,7 +70,6 @@ const hasPermission = computed(() => {
         mime_types: props.mimetypes,
     }
 
-    // console.log(data)
     return $acl.can('create', 'FileUploadSession', data)
 })
 
