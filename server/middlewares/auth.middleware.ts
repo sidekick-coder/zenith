@@ -1,14 +1,16 @@
 import BaseException from '#server/exceptions/base.ts'
+import type User from '#server/entities/user.entity.ts'
 import auth from '#server/facades/auth.facade.ts'
 import type {
-    HttpContext, Middleware, 
-    MiddlewareHandleResult 
+    HttpContext, Middleware,
 } from '#server/contracts/router.contract.ts'
 
-export type AuthMiddlewareContext = MiddlewareHandleResult<[AuthMiddleware]>
+export type AuthMiddlewareContext = {
+    user: User
+}
 
 export class AuthMiddleware implements Middleware {
-    public async handle(ctx: HttpContext){
+    public async handle(ctx: HttpContext): Promise<AuthMiddlewareContext> {
         // Example authentication logic
         const token = ctx.cookie.get('Authorization')
 

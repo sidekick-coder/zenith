@@ -3,22 +3,22 @@ import type { HttpContext, Middleware, } from '#server/contracts/router.contract
 import type User from '#server/entities/user.entity.ts'
 
 export type AuthSilenceMiddlewareContext = {
-    user: null | User
+    user?: User
 }
 
 export class AuthSilenceMiddleware implements Middleware {
-    public async handle(ctx: HttpContext){
+    public async handle(ctx: HttpContext): Promise<AuthSilenceMiddlewareContext> {
         // Example authentication logic
         const token = ctx.cookie.get('Authorization')
 
         if (!token) {
-            return { user: null }
+            return { user: undefined }
         }
 
         const user = await auth.authenticate(token)
 
         if (!user) {
-            return { user: null }
+            return { user: undefined }
         }
 
         return { user }

@@ -42,7 +42,7 @@ export default class Router<C = {}> {
         this.filename = null
     }
 
-    public use(middleware: Middleware, context: RouteContext = 'route') {
+    public use<T extends Middleware>(middleware: T, context: RouteContext = 'route') {
         this.middlewares.push({
             middleware,
             context,
