@@ -10,7 +10,7 @@ export interface ListOptions<T extends keyof Database>  extends SerializeOptions
 }
 
 export async function list<T extends keyof Database, O extends ListOptions<T>>(table: T, options?: O) {
-    let query = options?.query as any 
+    let query = (options?.query || db.selectFrom(table).selectAll()) as any
 
     if (options?.query) {
         query = options.query(db.selectFrom(table)) 
