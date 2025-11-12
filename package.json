@@ -43,6 +43,7 @@
         "commander": "^14.0.0",
         "cookie-parser": "^1.4.7",
         "date-fns": "^4.1.0",
+        "echarts": "^6.0.0",
         "embla-carousel-vue": "^8.6.0",
         "express": "^5.1.0",
         "fast-glob": "^2.0.1",
