@@ -68,73 +68,72 @@ const visiblePages = computed(() => {
         <div class="flex-1 text-sm text-muted-foreground order-2 sm:order-1">
             {{ $t('Showing :0 of :1 rows', [limit, total]) }}
         </div>
-        <div class="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-6 lg:space-x-8 order-1 sm:order-2">
-            <div class="flex items-center space-x-2 sm:space-x-4">
-                <Select
-                    v-model="limit"
-                    :options="limitOptions"
-                    label-class="min-w-auto text-xs"
+        <div class="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-2 order-1 sm:order-2">
+            <Select
+                v-model="limit"
+                :options="limitOptions"
+                label-class="min-w-auto text-xs"
+                class="!h-8"
+            />
+            
+            
+            <Button
+                variant="outline"
+                class="w-8 h-8 p-0"
+                :disabled="page === 1"
+                @click="page = 1"
+            >
+                <span class="sr-only">{{ $t('Go to first page') }}</span>
+                <Icon
+                    name="ChevronsLeft"
+                    class="w-4 h-4"
                 />
-            </div>
-            <div class="flex items-center space-x-2 sm:space-x-2">
-                <Button
-                    variant="outline"
-                    class="w-8 h-8 p-0"
-                    :disabled="page === 1"
-                    @click="page = 1"
-                >
-                    <span class="sr-only">{{ $t('Go to first page') }}</span>
-                    <Icon
-                        name="ChevronsLeft"
-                        class="w-4 h-4"
-                    />
-                </Button>
-                <Button
-                    variant="outline"
-                    class="w-8 h-8 p-0"
-                    :disabled="page === 1"
-                    @click="page = page - 1"
-                >
-                    <span class="sr-only">{{ $t('Go to previous page') }}</span>
-                    <Icon
-                        name="ChevronLeft"
-                        class="w-3 h-3 sm:w-4 sm:h-4"
-                    />
-                </Button>
-                <Button
-                    v-for="pageNumber in visiblePages"
-                    :key="pageNumber"
-                    :variant="page === pageNumber ? 'default' : 'outline'"
-                    class="w-8 h-8 p-0"
-                    @click="page = pageNumber"
-                >
-                    {{ pageNumber }}
-                </Button>
-                <Button
-                    variant="outline"
-                    class="w-8 h-8 p-0"
-                    :disabled="page === totalPages"
-                    @click="page = page + 1"
-                >
-                    <span class="sr-only">{{ $t('Go to next page') }}</span>
-                    <Icon
-                        name="ChevronRight"
-                        class="w-3 h-3 sm:w-4 sm:h-4"
-                    />
-                </Button>
-                <Button
-                    variant="outline"
-                    class="w-8 h-8 p-0"
-                    :disabled="page === totalPages"
-                    @click="page = totalPages"
-                >
-                    <span class="sr-only">{{ $t('Go to last page') }}</span>
-                    <Icon
-                        name="ChevronsRight"
-                        class="w-4 h-4"
-                    />
-                </Button>
-            </div>
+            </Button>
+            <Button
+                variant="outline"
+                class="w-8 h-8 p-0"
+                :disabled="page === 1"
+                @click="page = page - 1"
+            >
+                <span class="sr-only">{{ $t('Go to previous page') }}</span>
+                <Icon
+                    name="ChevronLeft"
+                    class="w-3 h-3 sm:w-4 sm:h-4"
+                />
+            </Button>
+            <Button
+                v-for="pageNumber in visiblePages"
+                :key="pageNumber"
+                :variant="page === pageNumber ? 'default' : 'outline'"
+                class="w-8 h-8 p-0"
+                @click="page = pageNumber"
+            >
+                {{ pageNumber }}
+            </Button>
+            <Button
+                variant="outline"
+                class="w-8 h-8 p-0"
+                :disabled="page === totalPages"
+                @click="page = page + 1"
+            >
+                <span class="sr-only">{{ $t('Go to next page') }}</span>
+                <Icon
+                    name="ChevronRight"
+                    class="w-3 h-3 sm:w-4 sm:h-4"
+                />
+            </Button>
+            <Button
+                variant="outline"
+                class="w-8 h-8 p-0"
+                :disabled="page === totalPages"
+                @click="page = totalPages"
+            >
+                <span class="sr-only">{{ $t('Go to last page') }}</span>
+                <Icon
+                    name="ChevronsRight"
+                    class="w-4 h-4"
+                />
+            </Button>
         </div>
     </div>
 </template>

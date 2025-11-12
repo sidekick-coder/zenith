@@ -12,31 +12,49 @@ import {
 } from './ui/select'
 import Label from './ui/label/Label.vue'
 import { $fetch } from '#client/utils/fetcher.ts'
+import { cn } from '#client/lib/utils.ts'
 
-interface Props {
-    variant?: string
-    label?: string
-    placeholder?: string
-    disabled?: boolean
-    readonly?: boolean
-    labelKey?: string
-    valueKey?: string
-    fetch?: string
-    fetchKey?: string
-    labelClass?: string
-}
-
-const props = withDefaults(defineProps<Props>(), {
-    variant: 'default',
-    label: undefined,
-    placeholder: undefined,
-    disabled: false,
-    readonly: false,
-    labelKey: 'label',
-    valueKey: 'value',
-    labelClass: 'min-w-[132px]',
-    fetch: undefined,
-    fetchKey: undefined,
+const props = defineProps({
+    variant: {
+        type: String,
+        default: 'default',
+    },
+    label: {
+        type: String,
+        default: '',
+    },
+    placeholder: {
+        type: String,
+        default: '',
+    },
+    disabled: {
+        type: Boolean,
+        default: false,
+    },
+    readonly: {
+        type: Boolean,
+        default: false,
+    },
+    labelKey: {
+        type: String,
+        default: 'label',
+    },
+    valueKey: {
+        type: String,
+        default: 'value',
+    },
+    fetch: {
+        type: String,
+        default: '',
+    },
+    fetchKey: {
+        type: String,
+        default: '',
+    },
+    labelClass: {
+        type: String,
+        default: '',
+    },
 })
 
 const modelValue = defineModel<any>({ required: true })
@@ -98,8 +116,7 @@ watch(() => props.fetch, fetchOptions, { immediate: true })
                 :disabled="disabled"
             >
                 <SelectTrigger
-                    :class="variant === 'horizontal' ? 'rounded-l-none flex-1' : 'w-full'"
-                    class="!h-10"
+                    :class="cn('!h-10', variant === 'horizontal' ? 'rounded-l-none flex-1' : 'w-full', $attrs.class as any)"
                 >
                     <SelectValue :placeholder="placeholder" />
                 </SelectTrigger>
