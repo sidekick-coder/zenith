@@ -34,6 +34,10 @@ const props = defineProps({
         type: String,
         default: 'label',
     },
+    subtitleKey: {
+        type: String,
+        default: 'subtitle',
+    },
     valueKey: {
         type: String,
         default: 'value',
@@ -97,6 +101,10 @@ const search = defineModel('search', {
 
 function findLabel(option: any) {
     return option[props.labelKey] || option[props.valueKey] || option
+}
+
+function findSubtitle(option: any) {
+    return option[props.subtitleKey] || null
 }
 
 function findValue(option: any) {
@@ -191,13 +199,28 @@ if (props.fetch) {
                             class="justify-between w-full h-auto min-h-10"
                             :disabled="disabled"
                         >
-                            <slot
+                            <div
                                 v-if="selectedObject"
-                                name="label"
-                                :option="selectedObject"
+                                class="flex flex-col items-start text-left"
                             >
-                                {{ findLabel(selectedObject) }}
-                            </slot>
+                                <slot
+                                    name="label"
+                                    :option="selectedObject"
+                                >
+                                    {{ findLabel(selectedObject) }}
+                                </slot>
+                                <div
+                                    v-if="findSubtitle(selectedObject)"
+                                    class="text-sm text-muted-foreground"
+                                >
+                                    <slot
+                                        name="subtitle"
+                                        :option="selectedObject"
+                                    >
+                                        {{ findSubtitle(selectedObject) }}
+                                    </slot>
+                                </div>
+                            </div>
 
                             <div v-else>
                                 {{ placeholder }}
@@ -249,12 +272,25 @@ if (props.fetch) {
                             :value="findValue(o)"
                             @click="select(o)"
                         >
-                            <slot
-                                name="label"
-                                :option="o"
-                            >
-                                {{ findLabel(o) }}
-                            </slot>
+                            <div class="flex flex-col items-start flex-1">
+                                <slot
+                                    name="label"
+                                    :option="o"
+                                >
+                                    {{ findLabel(o) }}
+                                </slot>
+                                <div
+                                    v-if="findSubtitle(o)"
+                                    class="text-sm text-muted-foreground"
+                                >
+                                    <slot
+                                        name="subtitle"
+                                        :option="o"
+                                    >
+                                        {{ findSubtitle(o) }}
+                                    </slot>
+                                </div>
+                            </div>
 
                             <ComboboxItemIndicator>
                                 <Check :class="cn('ml-auto h-4 w-4')" />
