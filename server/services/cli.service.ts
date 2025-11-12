@@ -143,7 +143,7 @@ export class CLIService {
                 }
 
                 if (capabilities.includes('db')) {
-                    await db.load()
+                    await db.load(undefined, true)
                 }
 
                 if (capabilities.includes('drive')) {
