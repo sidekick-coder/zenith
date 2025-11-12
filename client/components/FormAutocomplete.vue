@@ -236,6 +236,7 @@ if (props.fetch) {
                                     >
                                         <Avatar class="size-6">
                                             <AvatarImage
+                                                v-if="findAvatar(selectedObject)"
                                                 :src="findAvatar(selectedObject)"
                                                 :alt="findLabel(selectedObject)"
                                             />
