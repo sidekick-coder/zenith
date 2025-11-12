@@ -33,7 +33,7 @@ export default class QueueService {
             data,
         })
 
-        this.logger.info('adding job to queue', { job })
+        this.logger.info('add job', { job })
     }
 
     public async process(payload: Job) {
@@ -67,7 +67,7 @@ export default class QueueService {
             return
         }
 
-        this.logger.debug('process job', { job })
+        this.logger.debug('job started', { job })
 
         await Job.updateById(job.id, { status: 'in_progress' })
 
