@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref  } from 'vue'
+import type { PropType } from 'vue'
+import { computed } from 'vue'
 import Button from '#client/components/Button.vue'
 import {
     Dialog,
@@ -11,6 +13,7 @@ import {
 } from '#client/components/ui/dialog'
 import Icon from '#client/components/Icon.vue'
 import { $t } from '#shared/lang'
+import { tryCatch } from '#shared/utils/tryCatch.ts'
 
 defineProps({
     title: {
@@ -26,8 +29,22 @@ defineProps({
 const dialog = ref(false)
 
 const model = defineModel({
-    type: Object as () => Record<string, any>,
+    type: [Object, String] as PropType<Record<string, any> | string>,
     required: true
+})
+
+const parsed = computed(() => {
+    if (typeof model.value === 'string') {
+        const [err, obj] = tryCatch.sync(() => JSON.parse(model.value as string))
+
+        if (err) {
+            return model
+        }
+
+        return obj
+    }
+
+    return model
 })
 </script>
 
@@ -54,7 +71,7 @@ const model = defineModel({
             </DialogHeader>
 
             <code class="block whitespace-pre-wrap bg-muted px-4 py-2 rounded-md">
-                <pre>{{ model }}</pre>
+                <pre>{{ parsed }}</pre>
             </code>
         </DialogContent>
     </Dialog>
