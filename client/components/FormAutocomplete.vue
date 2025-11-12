@@ -18,6 +18,9 @@ import {
 
 import { Combobox, ComboboxAnchor, ComboboxEmpty, ComboboxGroup, ComboboxInput, ComboboxItem, ComboboxItemIndicator, ComboboxList } from '#client/components/ui/combobox'
 import ComboboxTrigger from '#client/components/ui/combobox/ComboboxTrigger.vue'
+import { Avatar } from '#client/components/ui/avatar'
+import AvatarImage from '#client/components/ui/avatar/AvatarImage.vue'
+import AvatarFallback from '#client/components/ui/avatar/AvatarFallback.vue'
 import { $fetch } from '#client/utils/fetcher.ts'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
 
@@ -37,6 +40,10 @@ const props = defineProps({
     subtitleKey: {
         type: String,
         default: 'subtitle',
+    },
+    avatarKey: {
+        type: String,
+        default: 'avatar',
     },
     valueKey: {
         type: String,
@@ -105,6 +112,22 @@ function findLabel(option: any) {
 
 function findSubtitle(option: any) {
     return option[props.subtitleKey] || null
+}
+
+function findAvatar(option: any) {
+    return option[props.avatarKey] || null
+}
+
+function findAvatarInitial(option: any) {
+    const label = findLabel(option)
+    
+    if (label) {
+        return String(label)
+            .charAt(0)
+            .toUpperCase()
+    }
+
+    return 'A'
 }
 
 function findValue(option: any) {
@@ -201,24 +224,45 @@ if (props.fetch) {
                         >
                             <div
                                 v-if="selectedObject"
-                                class="flex flex-col items-start text-left"
+                                class="flex items-center gap-2 text-left"
                             >
-                                <slot
-                                    name="label"
-                                    :option="selectedObject"
-                                >
-                                    {{ findLabel(selectedObject) }}
-                                </slot>
                                 <div
-                                    v-if="findSubtitle(selectedObject)"
-                                    class="text-sm text-muted-foreground"
+                                    v-if="avatarKey"
+                                    class="flex-shrink-0"
                                 >
                                     <slot
-                                        name="subtitle"
+                                        name="avatar"
                                         :option="selectedObject"
                                     >
-                                        {{ findSubtitle(selectedObject) }}
+                                        <Avatar class="size-6">
+                                            <AvatarImage
+                                                :src="findAvatar(selectedObject)"
+                                                :alt="findLabel(selectedObject)"
+                                            />
+                                            <AvatarFallback>
+                                                {{ findAvatarInitial(selectedObject) }}
+                                            </AvatarFallback>
+                                        </Avatar>
                                     </slot>
+                                </div>
+                                <div class="flex flex-col items-start flex-1">
+                                    <slot
+                                        name="label"
+                                        :option="selectedObject"
+                                    >
+                                        {{ findLabel(selectedObject) }}
+                                    </slot>
+                                    <div
+                                        v-if="findSubtitle(selectedObject)"
+                                        class="text-sm text-muted-foreground"
+                                    >
+                                        <slot
+                                            name="subtitle"
+                                            :option="selectedObject"
+                                        >
+                                            {{ findSubtitle(selectedObject) }}
+                                        </slot>
+                                    </div>
                                 </div>
                             </div>
 
@@ -272,6 +316,26 @@ if (props.fetch) {
                             :value="findValue(o)"
                             @click="select(o)"
                         >
+                            <div
+                                v-if="avatarKey"
+                                class="flex-shrink-0 mr-2"
+                            >
+                                <slot
+                                    name="avatar"
+                                    :option="o"
+                                >
+                                    <Avatar class="size-6">
+                                        <AvatarImage
+                                            v-if="findAvatar(o)"
+                                            :src="findAvatar(o)"
+                                            :alt="findLabel(o)"
+                                        />
+                                        <AvatarFallback>
+                                            {{ findAvatarInitial(o) }}
+                                        </AvatarFallback>
+                                    </Avatar>
+                                </slot>
+                            </div>
                             <div class="flex flex-col items-start flex-1">
                                 <slot
                                     name="label"
