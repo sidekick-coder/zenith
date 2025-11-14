@@ -9,12 +9,12 @@ export default defineClientSetup(({ router, menu }) => {
             return records.map(r => {
 
                 if (r.path.startsWith('/admin')) {
-                    r.path = '/admin/<%= name %>/' + r.path.replace('/admin', '')
+                    r.path = '/admin/{{ name }}/' + r.path.replace('/admin', '')
                     r.beforeEnter = [authGuard]
                     return r
                 }
 
-                r.path = '/<%= name %>/' + r.path
+                r.path = '/{{ name }}/' + r.path
 
                 return r
             })
@@ -24,7 +24,7 @@ export default defineClientSetup(({ router, menu }) => {
     menu.add({
         id: 'app',
         label: 'App',
-        to: '/<%= name %>/home',
+        to: '/{{ name }}/home',
         icon: 'Home',
         group: 'Calory',
     })
