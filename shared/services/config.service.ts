@@ -30,7 +30,7 @@ export default class ConfigService {
             for (const entry of this.entries.values()) {
                 const { key, value } = entry
 
-                if (key.startsWith(fullKey + '.') || key === fullKey) {
+                if (key.startsWith(fullKey + '.')) {
                     set(result, key.replace(fullKey + '.', ''), value)
                 }
             }
