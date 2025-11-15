@@ -43,7 +43,7 @@ const props = defineProps({
     },
     avatarKey: {
         type: String,
-        default: 'avatar',
+        default: null,
     },
     valueKey: {
         type: String,
