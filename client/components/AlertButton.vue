@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ref } from 'vue'
 import Button from './Button.vue'
 import ClientOnly from './ClientOnly.vue'
 import {
@@ -13,10 +14,12 @@ import {
     AlertDialogTrigger,
 } from '#client/components/ui/alert-dialog'
 import { $t } from '#shared/lang.ts'
+import { $fetch } from '#client/utils/fetcher.ts'
+import { tryCatch } from '#shared/utils/tryCatch.ts'
 
 defineOptions({ inheritAttrs: false })
 
-defineProps({
+const props = defineProps({
     title: {
         type: String,
         default: $t('Are you sure?')
@@ -24,25 +27,77 @@ defineProps({
     description: {
         type: String,
         default: $t('This action cannot be undone.')
+    },
+    fetch: {
+        type: [String, Function],
+        required: false,
+        default: undefined
+    },
+    fetchMethod: {
+        type: String,
+        default: 'POST'
     }
 })
 
+const loading = ref(false)
+
 const emit = defineEmits<{
     confirm: []
+    fetched: [data: any]
 }>()
+
+async function doFetch() {
+    if (!props.fetch) return
+
+    loading.value = true
+
+    const [error, response] = await tryCatch(() => {
+        if (typeof props.fetch === 'string') {
+            return $fetch(props.fetch, { method: props.fetchMethod })
+        }
+
+        if (typeof props.fetch === 'function') {
+            return props.fetch()
+        }        
+    })
+
+    if (error) {
+        loading.value = false
+        return
+    }
+
+    setTimeout(() => {
+        loading.value = false
+        emit('fetched', response)
+    }, 500)
+}
+
+function onConfirm() {
+    if (props.fetch) {
+        return doFetch()
+    }
+
+    emit('confirm')
+}
 
 </script>
 
 <template>
     <ClientOnly>
         <template #fallback>
-            <Button v-bind="$attrs">
+            <Button
+                v-bind="$attrs"
+                :loading="loading"
+            >
                 <slot />
             </Button>
         </template>
         <AlertDialog>
             <AlertDialogTrigger as-child>
-                <Button v-bind="$attrs">
+                <Button
+                    v-bind="$attrs"
+                    :loading="loading"
+                >
                     <slot />
                 </Button>
             </AlertDialogTrigger>
@@ -54,8 +109,13 @@ const emit = defineEmits<{
                     </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                    <AlertDialogCancel>{{ $t('Cancel') }}</AlertDialogCancel>
-                    <AlertDialogAction @click="emit('confirm')">
+                    <AlertDialogCancel :disabled="loading">
+                        {{ $t('Cancel') }}
+                    </AlertDialogCancel>
+                    <AlertDialogAction
+                        :disabled="loading"
+                        @click="onConfirm"
+                    >
                         {{ $t('Confirm') }}
                     </AlertDialogAction>
                 </AlertDialogFooter>
