@@ -118,21 +118,22 @@ async function fresh() {
 
         <AlertButton
             :loading="executing"
+            :description="$t('This will drop all tables and recreate them. This can potentially lead to data loss')"
+            variant="outline"
+            @confirm="fresh"
+        >
+            Fresh
+        </AlertButton>
+        
+        <AlertButton
+            :loading="executing"
             :description="$t('This can potentially lead to data loss')"
-            variant="destructive"
+            variant="outline"
             @confirm="rollback"
         >
             Rollback
         </AlertButton>
         
-        <AlertButton
-            :loading="executing"
-            :description="$t('This will drop all tables and recreate them. This can potentially lead to data loss')"
-            variant="destructive"
-            @confirm="fresh"
-        >
-            Fresh
-        </AlertButton>
         
         <AlertButton
             :loading="executing"
