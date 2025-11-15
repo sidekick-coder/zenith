@@ -152,17 +152,44 @@ export class ModulesService {
             },
         ]
 
+        for (const dependency of Object.keys(mod.dependencies || {})) {
+            symlinks.push(
+                { 
+                    source: basePath('modules', dependency, 'server'), 
+                    target: path.join(rootDir, 'modules', dependency, 'server') 
+                },
+                {
+                    source: basePath('modules', dependency, 'shared'), 
+                    target: path.join(rootDir, 'modules', dependency, 'shared')
+                },
+                { 
+                    source: basePath('modules', dependency, 'client'), 
+                    target: path.join(rootDir, 'modules', dependency, 'client') 
+                },
+            )
+        }
+
+
+
         for (const { source, target } of symlinks) {
             if (fs.existsSync(target)) {
-                logger.debug(`Target directory '${target}' exist, skipping symlink`)
+                logger.debug(`Target directory '${path.relative(basePath(), target)}' exist, skipping symlink`)
                 continue
             }
 
             // Create symlink
-            const [symlinkError] = await tryCatch(() => fs.symlinkSync(source, target, 'dir'))
+            const [symlinkError] = await tryCatch(() => {
+                const dir = path.dirname(target)
+                
+                if (!fs.existsSync(dir)) {
+                    fs.mkdirSync(dir, { recursive: true })
+                }
+
+                fs.symlinkSync(source, target, 'dir')
+            })
             
             if (symlinkError) {
-                logger.error(`Failed to create symlink ${source} -> ${target}: ${symlinkError.message}`)
+                logger.error(`Failed to create symlink ${path.relative(basePath(), source)} -> ${path.relative(basePath(), target)}`)
                 throw new Error(`Failed to create symlink: ${symlinkError.message}`)
             }
 

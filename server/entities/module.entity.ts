@@ -14,6 +14,18 @@ export default class Module extends composeWith(Base) {
         return join('/static', 'modules', this.name, ...parts)
     }
 
+    public loadManifest(){
+        const manifestPath = this.makePath('module.json')
+        if (!fs.existsSync(manifestPath)) {
+            return
+        }
+
+        const content = fs.readFileSync(manifestPath, 'utf-8')
+        const json = JSON.parse(content)
+
+        this.dependencies = json.dependencies || {}        
+    }
+
     private loadServerFiles(){
         if (fs.existsSync(this.makePath('server/setup.server.ts'))) {
             this.files.push({
@@ -65,5 +77,6 @@ export default class Module extends composeWith(Base) {
 
         this.loadServerFiles()
         this.loadClientFiles()
+        this.loadManifest()
     }
 }
