@@ -89,7 +89,14 @@ const props = defineProps({
 
 // general
 const { setValue, value } = useField(props.name)
-const selectedObject = ref<any>(props.initialOption)
+const selectedObject = defineModel<any>('selectedObject', {
+    type: Object as PropType<T | null>,
+    // default: () => props.initialOption,
+})
+
+if (props.initialOption) {
+    selectedObject.value = props.initialOption
+}
 
 const options = defineModel('options', {
     type: Array as () => T[],
@@ -301,15 +308,16 @@ if (props.fetch) {
                     </ComboboxEmpty>
 
                     <ComboboxGroup>
-                        <ComboboxItem
-                            v-if="clearable"
-                            :value="null"
-                            @click="select(null)"
-                        >
-                            {{ $t('Clear selection') }}
-                        </ComboboxItem>
-                        
-                        <Separator />
+                        <template v-if="clearable">
+                            <ComboboxItem
+                                :value="null"
+                                @click="select(null)"
+                            >
+                                {{ $t('Clear selection') }}
+                            </ComboboxItem>
+                            
+                            <Separator />
+                        </template>
 
                         <ComboboxItem
                             v-for="o in options"
