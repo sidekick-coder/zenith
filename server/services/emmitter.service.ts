@@ -6,12 +6,24 @@ interface EmmitterHanlder {
     listener: Function
 }
 
+interface OnOptions {
+    unique?: boolean
+}
+
 export default class EmmitterService {
     private handlers: EmmitterHanlder[] = []
 
-    public on<K extends keyof Events>(event: K, listener: (args: Events[K]) => void): void
-    public on(event: string, listener: (args: any) => void): void
-    public on(event: string, listener: Function) {
+    public on<K extends keyof Events>(event: K, listener: (args: Events[K]) => void, options?: OnOptions): void
+    public on(event: string, listener: (args: any) => void, options?: OnOptions): void
+    public on(event: string, listener: Function, options?: OnOptions) {
+        if (options?.unique) {
+            const exists = this.handlers.some(h => h.event === event && h.listener === listener)
+            
+            if (exists) {
+                return
+            }
+        }
+
         this.handlers.push({
             event,
             listener 
