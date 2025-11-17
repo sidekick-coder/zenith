@@ -38,6 +38,9 @@
         "shared/**/*.ts",
         "modules/**/client/**/*.ts",
         "modules/**/client/**/*.js",
-        "modules/**/client/**/*.vue",
+        "modules/**/client/**/*.vue"
+    ],
+    "exclude": [
+        "modules/**/root"
     ]
 }

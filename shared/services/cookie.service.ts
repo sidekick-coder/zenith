@@ -9,7 +9,7 @@ export default class CookieService {
         return this.cookies[name] || defaultValue
     }
 
-    public set(_name: string, _value: string, options?: any) {
+    public set(_name: string, _value: string, _options?: any) {
         throw new Error('Not implemented: CookieService.set()')
     }
 }

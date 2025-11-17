@@ -40,9 +40,10 @@
     "index.ts",
     "arte",
     "server/**/*.ts",
-    "console/**/*.ts",
     "shared/**/*.ts",
-    "modules/**/server/**/**/*.ts",
-    "modules/**/shared/**/**/*.ts"
+    "modules/**/server/**/**/*.ts"
+  ],
+  "exclude": [
+    "modules/**/root"
   ]
 }

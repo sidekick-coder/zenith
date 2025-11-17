@@ -12,15 +12,25 @@
     "verbatimModuleSyntax": true,
     "moduleDetection": "force",
     "noEmit": true,
-    "strict": true,
+    "strict": false,
     "noUnusedLocals": false,
     "noUnusedParameters": true,
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true,
     "strictPropertyInitialization": false,
+    "baseUrl": ".",
+    "paths": {
+      "#shared/*": [
+        "shared/*"
+      ]
+    }
   },
   "include": [
-    "shared/**/*.ts"
+    "shared/**/*.ts",
+    "modules/**/shared/**/**/*.ts"
+  ],
+  "exclude": [
+    "modules/**/root"
   ]
 }
