@@ -94,7 +94,7 @@ const components = computed(() => {
     })
 })
 
-const { handleSubmit, errors, resetForm } = useForm({
+const { handleSubmit, errors, resetForm, setFieldValue } = useForm({
     validationSchema: toTypedSchema(props.schema as T),
     initialValues: props.values as v.InferInput<T>,
 })
@@ -152,6 +152,10 @@ watch(open, () => {
     resetForm({
         values: props.values as v.InferInput<T>,
     })
+})
+
+defineExpose({
+    setFieldValue,
 })
 </script>
 <template>
