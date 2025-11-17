@@ -39,7 +39,10 @@ const props = defineProps({
     }
 })
 
-const loading = ref(false)
+const loading = defineModel('loading', {
+    type: Boolean,
+    default: false
+})
 
 const emit = defineEmits<{
     confirm: []

@@ -53,58 +53,58 @@ async function load() {
 
 onMounted(load)
 
-const executing = ref(false)
+const operation = ref<'migrate' | 'rollback' | 'fresh'>()
 
 async function migrate() {
-    executing.value = true
+    operation.value = 'migrate'
 
     const [error] = await tryCatch(() => $fetch(`/api/modules/${props.id}/migrate`, { method: 'POST' }))
 
     if (error) {
-        executing.value = false
+        operation.value = undefined
         return
     }
 
     toast.success($t('Migrations applied successfully'))
 
     setTimeout(() => {
-        executing.value = false
+        operation.value = undefined
         load()
     }, 1000)
 }
 
 async function rollback() {
-    executing.value = true
+    operation.value = 'rollback'
 
     const [error] = await tryCatch(() => $fetch(`/api/modules/${props.id}/rollback`, { method: 'POST' }))
 
     if (error) {
-        executing.value = false
+        operation.value = undefined
         return
     }
 
     toast.success($t('Migrations rolled back successfully'))
 
     setTimeout(() => {
-        executing.value = false
+        operation.value = undefined
         load()
     }, 1000)
 }
 
 async function fresh() {
-    executing.value = true
+    operation.value = 'fresh'
 
     const [error] = await tryCatch(() => $fetch(`/api/modules/${props.id}/fresh`, { method: 'POST' }))
 
     if (error) {
-        executing.value = false
+        operation.value = undefined
         return
     }
 
     toast.success($t('Fresh migrations applied successfully'))
 
     setTimeout(() => {
-        executing.value = false
+        operation.value = undefined
         load()
     }, 1000)
 }
@@ -117,7 +117,8 @@ async function fresh() {
         </CardTitle>
 
         <AlertButton
-            :loading="executing"
+            :loading="operation === 'fresh'"
+            :disabled="!!operation"
             :description="$t('This will drop all tables and recreate them. This can potentially lead to data loss')"
             variant="outline"
             @confirm="fresh"
@@ -126,7 +127,8 @@ async function fresh() {
         </AlertButton>
         
         <AlertButton
-            :loading="executing"
+            :loading="operation === 'rollback'"
+            :disabled="!!operation"
             :description="$t('This can potentially lead to data loss')"
             variant="outline"
             @confirm="rollback"
@@ -136,7 +138,8 @@ async function fresh() {
         
         
         <AlertButton
-            :loading="executing"
+            :loading="operation === 'migrate'"
+            :disabled="!!operation"
             :description="$t('This will make changes in your database')"
             @confirm="migrate"
         >
