@@ -194,6 +194,7 @@ export function Model<Table extends keyof Database>(table: Table, primaryKey: ke
                 const constructor = this as any
 
                 return queries.firstOrCreate(table, {
+                    debug: o.debug,
                     select: o.select,
                     values: o.values,
                     serialize: row => constructor.serialize(row),
@@ -204,6 +205,7 @@ export function Model<Table extends keyof Database>(table: Table, primaryKey: ke
                 const constructor = this as any
                  
                 return queries.updateOrCreate(table, {
+                    debug: o.debug,
                     select: o.select,
                     update: o.update,
                     values: o.values,

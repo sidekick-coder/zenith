@@ -6,12 +6,14 @@ import type { Database } from '#server/contracts/database.contract.ts'
 import db from '#server/facades/db.facade.ts'
 
 export interface FirstOrCreateOptions<T extends keyof Database> extends SerializeOptions<T> {
+    debug?: boolean
     select?: (qb: SelectFrom<T>) => SelectFrom<T>
     values: Insertable<Database[T]> | Insertable<Database[T]>[]
 }
 
 export async function firstOrCreate<T extends keyof Database, O extends FirstOrCreateOptions<T>>(table: T, options?: O) {
     const items = await list(table, { 
+        debug: options?.debug,
         serialize: options?.serialize,  
         query: () => {
             const query: any = options?.select 
@@ -27,6 +29,7 @@ export async function firstOrCreate<T extends keyof Database, O extends FirstOrC
     }
 
     const created = await create(table, { 
+        debug: options?.debug,
         serialize: options?.serialize,
         values: options?.values as any
     })
