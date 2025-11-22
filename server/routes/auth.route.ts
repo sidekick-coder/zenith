@@ -23,10 +23,15 @@ router.post('/api/auth/login', async ({ body, cookie, response }) => {
         throw new BaseException(result.message, 401)
     }
 
-    cookie.set('Authorization', result.token!, {
+    const cookieAuthOptions = config.get('auth.cookie.options', {})
+
+    const options = {
         httpOnly: true,
         sameSite: true,
-    })
+        ...cookieAuthOptions
+    }
+
+    cookie.set('Authorization', result.token!, options)
 
     return result
 })

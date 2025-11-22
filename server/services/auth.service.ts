@@ -143,6 +143,7 @@ export default class AuthService {
 
         // Create new user
         const newUser = await User.create({
+            name: username,
             username,
             email,
             password: await this.hashPassword(password)
