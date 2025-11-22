@@ -4,8 +4,8 @@ import BaseException from '#server/exceptions/base.ts'
 import validator from '#shared/services/validator.service.ts'
 import config from '#server/facades/config.facade.ts'
 
-router.post('/api/auth/login', async ({ body, cookie, response }) => {
-    const token = cookie.get('Authorization') || response.headers['Authorization'] as string
+router.post('/api/auth/login', async ({ body, cookie }) => {
+    const token = cookie.get('Authorization')
     const user = await auth.authenticate(token)
 
     if (user) {
