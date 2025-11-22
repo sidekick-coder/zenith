@@ -11,6 +11,12 @@ export async function emitHook(constructor: any, event: string, ...args: any[]) 
 export function onHook(constructor: any, event: string, listener: (...args: any[]) => void) {
     const listeners = constructor.listeners || []
 
+    const exists = listeners.find((l: any) => l.event === event && l.listener === listener)
+
+    if (exists) {
+        return
+    }
+
     listeners.push({ 
         event,
         listener 
