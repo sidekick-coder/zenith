@@ -12,13 +12,15 @@ import PageTitle from '#client/components/PageTitle.vue'
 import PageSubtitle from '#client/components/PageSubtitle.vue'
 import schemas from '#shared/validators/index.ts'
 import Icon from '#client/components/Icon.vue'
-import { $server } from '#client/utils/server.ts'
 import FormTextField from '#client/components/FormTextField.vue'
-import FormFilePicker from '#client/components/FormFilePicker.vue'
-import Image from '#client/components/Image.vue'
+import FormImageUploader from '#client/components/FormImageUploader.vue'
 
 const loading = ref(false)
 const saving = ref(false)
+const iconUrls = ref<Record<number, string>>({})
+const iconLoadings = ref<Record<number, boolean>>({})
+const screenshotUrls = ref<Record<number, string>>({})
+const screenshotLoadings = ref<Record<number, boolean>>({})
 
 const { handleSubmit, resetForm, values, setFieldValue } = useForm({
     name: 'pwa-settings',
@@ -38,6 +40,22 @@ async function load() {
     resetForm({
         values: response
     })
+
+    if (response.icons) {
+        response.icons.forEach((icon: any, index: number) => {
+            if (icon.fileId) {
+                iconUrls.value[index] = `/api/files/${icon.fileId}/stream`
+            }
+        })
+    }
+
+    if (response.screenshots) {
+        response.screenshots.forEach((screenshot: any, index: number) => {
+            if (screenshot.fileId) {
+                screenshotUrls.value[index] = `/api/files/${screenshot.fileId}/stream`
+            }
+        })
+    }
     
     setTimeout(() => {
         loading.value = false
@@ -73,13 +91,18 @@ function addIcon() {
         type: 'image/png'
     }
     
+    const newIndex = currentIcons.length
     setFieldValue('icons', [...currentIcons, newIcon])
+    iconUrls.value[newIndex] = ''
+    iconLoadings.value[newIndex] = false
 }
 
 function removeIcon(index: number) {
     const currentIcons = values.icons || []
     const updatedIcons = currentIcons.filter((_, i) => i !== index)
     setFieldValue('icons', updatedIcons)
+    delete iconUrls.value[index]
+    delete iconLoadings.value[index]
 }
 
 function addScreenshot() {
@@ -91,13 +114,18 @@ function addScreenshot() {
         sizes: ''
     }
     
+    const newIndex = currentScreenshots.length
     setFieldValue('screenshots', [...currentScreenshots, newScreenshot])
+    screenshotUrls.value[newIndex] = ''
+    screenshotLoadings.value[newIndex] = false
 }
 
 function removeScreenshot(index: number) {
     const currentScreenshots = values.screenshots || []
     const updatedScreenshots = currentScreenshots.filter((_, i) => i !== index)
     setFieldValue('screenshots', updatedScreenshots)
+    delete screenshotUrls.value[index]
+    delete screenshotLoadings.value[index]
 }
 
 const icons = computed(() => values.icons || [])
@@ -249,32 +277,15 @@ onMounted(() => {
                                     </div>
         
                                     <div class="flex flex-col gap-y-4">
-                                        <FormFilePicker
+                                        <FormImageUploader
+                                            v-model:file-url="iconUrls[index]"
+                                            v-model:loading="iconLoadings[index]"
                                             :name="`icons.${index}.fileId`"
-                                            :label="$t('File ID')"
+                                            :label="$t('Icon Image')"
                                             :disabled="loading || saving"
-                                            :placeholder="$t('Enter file ID')"
-                                            accept="image/*"
-                                        >
-                                            <template #preview="{ value }">
-                                                <div class="border rounded-lg bg-muted/50 p-4 flex items-center justify-center">
-                                                    <Image
-                                                        v-if="value"
-                                                        :src="`/api/files/${value}/stream`"
-                                                        class="rounded-lg size-32 object-cover"
-                                                    />
-                                                    <div
-                                                        v-else
-                                                        class="flex items-center justify-center p-8 text-muted-foreground"
-                                                    >
-                                                        <Icon 
-                                                            name="File" 
-                                                            class="size-12"
-                                                        />
-                                                    </div>
-                                                </div>
-                                            </template>
-                                        </FormFilePicker>
+                                            purpose="pwa-icon"
+                                            :public="true"
+                                        />
 
                                         <FormTextField
                                             :name="`icons.${index}.sizes`"
@@ -350,32 +361,15 @@ onMounted(() => {
                                     </div>
 
                                     <div class="flex flex-col gap-y-4">
-                                        <FormFilePicker
+                                        <FormImageUploader
+                                            v-model:file-url="screenshotUrls[index]"
+                                            v-model:loading="screenshotLoadings[index]"
                                             :name="`screenshots.${index}.fileId`"
-                                            :label="$t('File ID')"
+                                            :label="$t('Screenshot Image')"
                                             :disabled="loading || saving"
-                                            :placeholder="$t('Enter file ID')"
-                                            accept="image/*"
-                                        >
-                                            <template #preview="{ value }">
-                                                <div class="border rounded-lg bg-muted/50 p-4 flex items-center justify-center">
-                                                    <Image
-                                                        v-if="value"
-                                                        :src="`/api/files/${value}/stream`"
-                                                        class="rounded-lg size-32 object-cover"
-                                                    />
-                                                    <div
-                                                        v-else
-                                                        class="flex items-center justify-center p-8 text-muted-foreground"
-                                                    >
-                                                        <Icon 
-                                                            name="File" 
-                                                            class="size-12"
-                                                        />
-                                                    </div>
-                                                </div>
-                                            </template>
-                                        </FormFilePicker>
+                                            purpose="pwa-screenshot"
+                                            :public="true"
+                                        />
 
                                         <FormTextField
                                             :name="`screenshots.${index}.formFactor`"

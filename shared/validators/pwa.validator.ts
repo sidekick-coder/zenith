@@ -9,12 +9,12 @@ export const schema = validator.create(v => v.object({
     backgroundColor: v.optional(v.string()),
     themeColor: v.optional(v.string()),
     icons: v.optional(v.array(v.object({
-        fileId: v.optional(v.string()),
+        fileId: v.nullish(v.union([v.string(), v.number()])),
         sizes: v.optional(v.string()),
         type: v.optional(v.string())
     }))),
     screenshots: v.optional(v.array(v.object({
-        fileId: v.optional(v.string()),
+        fileId: v.nullish(v.union([v.string(), v.number()])),
         formFactor: v.optional(v.string()),
         sizes: v.optional(v.string())
     })))
