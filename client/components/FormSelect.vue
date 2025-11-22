@@ -81,7 +81,18 @@ function findValue(option: any) {
 }
 
 function findFetchOptions(response: any){
-    return get(response, props.fetchKey)
+    const items =  get(response, props.fetchKey)
+
+    if (Array.isArray(items)) {
+        return items
+    }
+
+    console.warn('Fetched options is not an array:', { 
+        items,
+        response 
+    })
+
+    return []
 }
 
 async function fetchOptions() {
@@ -108,14 +119,14 @@ watch(() => props.fetch, fetchOptions, { immediate: true })
                     <SelectTrigger
                         v-if="readonly"
                         disabled
-                        class="w-full disabled:opacity-100"
+                        class="w-full disabled:opacity-100 min-h-10"
                     >
                         <select-value :placeholder="placeholder" />
                     </SelectTrigger>
                     
                     <select-trigger
                         v-else
-                        class="w-full"
+                        class="w-full min-h-10"
                         :disabled="disabled"
                     >
                         <select-value :placeholder="placeholder" />
@@ -123,7 +134,7 @@ watch(() => props.fetch, fetchOptions, { immediate: true })
                     <select-content>
                         <select-group>
                             <select-label v-if="!options.length">
-                                {{ $t('no_results') }}
+                                {{ $t('No items') }}
                             </select-label>
                             <select-item
                                 v-for="option in options"
