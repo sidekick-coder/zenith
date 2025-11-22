@@ -56,7 +56,7 @@ export function Model<Table extends keyof Database>(table: Table, primaryKey: ke
                     await emitHook(constructor, 'serialized', row)
                 }
 
-                await emitHook(constructor, 'paginated', pagination)
+                await emitHook(constructor, 'afterPaginate', pagination)
 
                 return pagination as any
             }
@@ -72,6 +72,8 @@ export function Model<Table extends keyof Database>(table: Table, primaryKey: ke
                 for await (const item of items) {
                     await emitHook(constructor, 'serialized', item)
                 }
+
+                await emitHook(constructor, 'afterList', items)
 
                 return items as any
             }
@@ -89,6 +91,8 @@ export function Model<Table extends keyof Database>(table: Table, primaryKey: ke
                     await emitHook(constructor, 'serialized', row)
                 }
 
+                await emitHook(constructor, 'afterFind', row)                
+
                 return row as any
             }
 
@@ -101,6 +105,7 @@ export function Model<Table extends keyof Database>(table: Table, primaryKey: ke
                 })
 
                 await emitHook(constructor, 'serialized', row)
+                await emitHook(constructor, 'afterFind', row)
 
                 return row as any
             }
@@ -113,7 +118,11 @@ export function Model<Table extends keyof Database>(table: Table, primaryKey: ke
                     where: (qb: any) => qb(primaryKey as string, '=', id)
                 }) as any
 
-                await emitHook(constructor, 'serialized', row)
+                if (row) {
+                    await emitHook(constructor, 'serialized', row)
+                    await emitHook(constructor, 'afterFind', row)
+                }
+
 
                 return row as any
             }
@@ -127,6 +136,7 @@ export function Model<Table extends keyof Database>(table: Table, primaryKey: ke
                 }) as any
 
                 await emitHook(constructor, 'serialized', row)
+                await emitHook(constructor, 'afterFind', row)
 
                 return row as any
             }
@@ -146,10 +156,16 @@ export function Model<Table extends keyof Database>(table: Table, primaryKey: ke
 
                 await emitHook(constructor, 'beforeCreate', values)
 
-                return queries.create(table, {
+                const row = await queries.create(table, {
                     serialize: row => constructor.serialize(row),
                     values: values,
                 }) as any
+
+                await emitHook(constructor, 'afterCreate', row)
+                await emitHook(constructor, 'serialized', row)
+                await emitHook(constructor, 'afterFind', row)
+
+                return row
             }
 
             public static async createMany<T>(this: new () => T, values: Array<ModelCreateOptions<Table>['values']>): Promise<T[]> {

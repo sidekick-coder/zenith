@@ -128,9 +128,6 @@ export default class FilesystemDrive implements DriveContract {
         
         const filePath = join(this.path, filename)
 
-        console.log(stream)
-
-
         return new Promise((resolve, reject) => {
             const writeStream = fs.createWriteStream(filePath)
 
