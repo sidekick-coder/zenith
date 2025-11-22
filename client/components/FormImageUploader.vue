@@ -72,32 +72,23 @@ function clearImage() {
             <FormControl>
                 <div class="flex flex-col items-baseline space-y-4">
                     <!-- Image Preview -->
-                    <div
-                        v-if="fileUrl"
-                        class="relative inline-block border rounded-lg overflow-hidden"
+                    <slot 
+                        name="preview"
+                        :value="value"
+                        :url="fileUrl"
+                        :set-value="setValue"
                     >
-                        <img
-                            :src="fileUrl"
-                            :alt="$t('Uploaded image')"
-                            class="max-w-xs max-h-48 object-cover"
+                        <div
+                            v-if="fileUrl"
+                            class="relative inline-block border rounded-lg overflow-hidden"
                         >
-                        <Button
-                            type="button"
-                            variant="destructive"
-                            size="sm"
-                            class="absolute top-2 right-2"
-                            :disabled="disabled"
-                            @click="() => {
-                                clearImage()
-                                setValue(null)
-                            }"
-                        >
-                            <Icon
-                                name="X"
-                                class="size-4"
-                            />
-                        </Button>
-                    </div>
+                            <img
+                                :src="fileUrl"
+                                :alt="$t('Uploaded image')"
+                                class="max-w-xs max-h-48 object-cover"
+                            >
+                        </div>
+                    </slot>
 
                     <!-- File Uploader -->
                     <FileUploader
@@ -119,19 +110,37 @@ function clearImage() {
                                 :value="value"
                                 :set-value="setValue"
                             >
-                                <Button
-                                    type="button"
-                                    variant="outline"
-                                    :loading="uploading"
-                                    :disabled="disabled"
-                                    @click="handle"
-                                >
-                                    <Icon
-                                        name="ImagePlus"
-                                        class="size-4 mr-2"
-                                    />
-                                    {{ fileUrl ? $t('Change image') : $t('Upload image') }}
-                                </Button>
+                                <div class="flex space-x-2">
+                                    <Button
+                                        v-if="value"
+                                        type="button"
+                                        variant="outline"
+                                        :disabled="disabled"
+                                        @click="() => {
+                                            clearImage()
+                                            setValue(null)
+                                        }"
+                                    >
+                                        <Icon
+                                            name="X"
+                                            class="size-4"
+                                        />
+                                        {{ $t('Remove') }}
+                                    </Button>
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        :loading="uploading"
+                                        :disabled="disabled"
+                                        @click="handle"
+                                    >
+                                        <Icon
+                                            name="ImagePlus"
+                                            class="size-4 mr-2"
+                                        />
+                                        {{ fileUrl ? $t('Change') : $t('Upload') }}
+                                    </Button>
+                                </div>
                             </slot>
                         </template>
                     </FileUploader>
