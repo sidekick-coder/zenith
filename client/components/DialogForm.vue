@@ -134,6 +134,7 @@ const onSubmit = handleSubmit(async (data) => {
 
     if (error) {
         loading.value = false
+        console.error(error)
         return
     }
     
