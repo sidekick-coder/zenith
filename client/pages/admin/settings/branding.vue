@@ -1,11 +1,9 @@
 <script setup lang="ts">
-import { onMounted, ref, computed } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/valibot'
-import { toast } from 'vue-sonner'
 import { $t } from '#shared/lang.ts'
 import { $fetch } from '#client/utils/fetcher.ts'
-import { tryCatch } from '#shared/utils/tryCatch.ts'
 import { Card, CardContent } from '#client/components/ui/card'
 import Button from '#client/components/Button.vue'
 import AppLayout from '#client/layouts/AppLayout.vue'
@@ -13,25 +11,18 @@ import PageTitle from '#client/components/PageTitle.vue'
 import PageSubtitle from '#client/components/PageSubtitle.vue'
 import schemas from '#shared/validators/index.ts'
 import Icon from '#client/components/Icon.vue'
-import Image from '#client/components/Image.vue'
 import { $server } from '#client/utils/server.ts'
-import { $file } from '#client/utils/file.ts'
 import FormTextField from '#client/components/FormTextField.vue'
+import FormImageUploader from '#client/components/FormImageUploader.vue'
 
 const loading = ref(false)
 const saving = ref(false)
-const uploading = ref(false)
+const logoUploading = ref(false)
+const logoUrl = ref<string | null>(null)
 
-const { handleSubmit, resetForm, values, setFieldValue } = useForm({
+const { handleSubmit, resetForm, values: _values, setFieldValue: _setFieldValue } = useForm({
     name: 'settings',
     validationSchema: toTypedSchema(schemas.branding.update), 
-})
-
-const logoImageUrl = computed(() => {
-    if (values.logoFileId) {
-        return `/api/files/${values.logoFileId}/stream`
-    }
-    return null
 })
 
 async function load() {
@@ -47,6 +38,10 @@ async function load() {
     resetForm({
         values: response
     })
+
+    if (response.logoFileId) {
+        logoUrl.value = `/api/files/${response.logoFileId}/stream`
+    }
     
     setTimeout(() => {
         loading.value = false
@@ -63,54 +58,6 @@ const onSubmit = handleSubmit(async (data) => {
         })
     })
 })
-
-async function uploadLogo() {
-    const file = await $file.pick({
-        multiple: false
-    })
-    
-    if (!file) {
-        return
-    }
-
-    uploading.value = true
-
-    const form = new FormData()
-    form.append('file', file)
-
-    const [error, response] = await tryCatch(() => $fetch('/api/files/upload', {
-        method: 'POST',
-        body: form,
-        query: {
-            public: true,
-        },
-    }))
-
-    if (error) {
-        uploading.value = false
-        return
-    }
-
-    await $fetch.try('/api/branding', {
-        method: 'PUT',
-        data: {
-            ...values,
-            logoFileId: String(response.id),
-        },
-    })
-    
-    
-    setTimeout(() => {
-        setFieldValue('logoFileId', response.id)
-        toast.success($t('Logo uploaded successfully.'))
-        uploading.value = false
-    }, 500)
-}
-
-async function removeLogo() {
-    setFieldValue('logoFileId', '')
-    toast.success($t('Logo removed successfully.'))
-}
 
 onMounted(() => {
     load()
@@ -152,81 +99,15 @@ onMounted(() => {
             <div class="space-y-6">
                 <Card>
                     <CardContent class="space-y-4">
-                        <div class="space-y-3">
-                            <h3 class="text-sm font-medium">
-                                {{ $t('Logo') }}
-                            </h3>
-                            
-                            <div 
-                                v-if="logoImageUrl" 
-                                class="space-y-3"
-                            >
-                                <div class="border rounded-lg p-4 bg-muted/50">
-                                    <Image
-                                        :src="logoImageUrl"
-                                        class="max-h-32 max-w-full object-contain mx-auto"
-                                        :alt="$t('Logo preview')"
-                                    />
-                                </div>
-                                <div class="flex gap-2">
-                                    <Button
-                                        type="button"
-                                        variant="outline"
-                                        size="sm"
-                                        :loading="uploading"
-                                        :disabled="loading || saving"
-                                        @click="uploadLogo"
-                                    >
-                                        <Icon 
-                                            name="Upload" 
-                                            class="size-4 mr-2" 
-                                        />
-                                        {{ $t('Replace') }}
-                                    </Button>
-                                    <Button
-                                        type="button"
-                                        variant="outline"
-                                        size="sm"
-                                        :disabled="loading || saving || uploading"
-                                        @click="removeLogo"
-                                    >
-                                        <Icon 
-                                            name="Trash2" 
-                                            class="size-4 mr-2" 
-                                        />
-                                        {{ $t('Remove') }}
-                                    </Button>
-                                </div>
-                            </div>
-                            
-                            <div 
-                                v-else 
-                                class="space-y-3"
-                            >
-                                <div class="border-2 border-dashed border-muted-foreground/25 rounded-lg p-8 text-center">
-                                    <Icon 
-                                        name="ImagePlus" 
-                                        class="size-12 mx-auto mb-3 text-muted-foreground" 
-                                    />
-                                    <p class="text-sm text-muted-foreground mb-4">
-                                        {{ $t('No logo uploaded') }}
-                                    </p>
-                                    <Button
-                                        type="button"
-                                        variant="outline"
-                                        :loading="uploading"
-                                        :disabled="loading || saving"
-                                        @click="uploadLogo"
-                                    >
-                                        <Icon 
-                                            name="Upload" 
-                                            class="size-4 mr-2" 
-                                        />
-                                        {{ $t('Upload Logo') }}
-                                    </Button>
-                                </div>
-                            </div>
-                        </div>
+                        <FormImageUploader
+                            v-model:file-url="logoUrl"
+                            v-model:loading="logoUploading"
+                            name="logoFileId"
+                            :label="$t('Logo')"
+                            :disabled="loading || saving"
+                            purpose="branding"
+                            :public="true"
+                        />
                     </CardContent>
                 </Card>
 

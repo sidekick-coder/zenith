@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import Image from './Image.vue'
 import {
     FormControl,
     FormDescription,
@@ -120,11 +121,11 @@ async function handlePasteFromClipboard() {
                             v-if="fileUrl"
                             class="relative inline-block border rounded-lg overflow-hidden"
                         >
-                            <img
+                            <Image
                                 :src="fileUrl"
                                 :alt="$t('Uploaded image')"
                                 class="max-w-xs max-h-48 object-cover"
-                            >
+                            />
                         </div>
                     </slot>
 
