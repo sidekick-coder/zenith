@@ -3,6 +3,10 @@ import Label from './ui/label/Label.vue'
 import { Input } from '#client/components/ui/input'
 
 defineProps({
+    id: {
+        type: String,
+        default: '',
+    },
     variant: {
         type: String,
         default: 'default',
@@ -78,6 +82,7 @@ const [model, modifiers] = defineModel<string | number>({
             <slot name="prepend" />
 
             <Input
+                :id
                 :model-value="model"
                 :type
                 :placeholder

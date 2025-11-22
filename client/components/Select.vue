@@ -15,6 +15,10 @@ import { $fetch } from '#client/utils/fetcher.ts'
 import { cn } from '#client/lib/utils.ts'
 
 const props = defineProps({
+    id: {
+        type: String,
+        default: '',
+    },
     variant: {
         type: String,
         default: 'default',
@@ -112,6 +116,7 @@ watch(() => props.fetch, fetchOptions, { immediate: true })
                 {{ label }}
             </Label>
             <Select
+                :id
                 v-model="modelValue"
                 :disabled="disabled"
             >
@@ -123,7 +128,7 @@ watch(() => props.fetch, fetchOptions, { immediate: true })
                 <SelectContent>
                     <SelectGroup>
                         <SelectLabel v-if="!options.length">
-                            {{ $t('no_results') }}
+                            {{ $t('No items') }}
                         </SelectLabel>
                         <SelectItem
                             v-for="option in options"
