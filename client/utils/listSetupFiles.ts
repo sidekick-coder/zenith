@@ -57,14 +57,18 @@ export async function listSetupFiles() {
     const result: Record<string, any> = {}
 
     for await (const f of files) {
-        const devImport = imports[f]
+        let importModFn = () => importFn(f)
 
-        if (devImport) {
-            result[f] = await devImport()
-            continue
+        if (imports[f]) {
+            importModFn = () => imports[f]()
         }
 
-        const mod = await importFn(f)
+        const [error, mod] = await tryCatch(() => importModFn())
+
+        if (error) {
+            console.error(`Error importing setup file ${f}:`, error)
+            continue
+        }
 
         if (mod) {
             result[f] = mod

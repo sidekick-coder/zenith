@@ -45,7 +45,12 @@ export default class ServerBooterService {
 
         for await (const f of files) {
             const filename = f.src
-            const mod = await import(f.src) as { default: ServerSetup }
+            const [errorImport, mod] = await tryCatch(() => import(f.src) as Promise<{ default: ServerSetup }>)
+
+            if (errorImport) {
+                this.logger.error('Error importing setup', errorImport)
+                continue
+            }
 
             const [error] = await tryCatch(() => mod.default.setup(ctx))
 

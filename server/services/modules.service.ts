@@ -87,6 +87,8 @@ export class ModulesService {
     public async enable(moduleName: string) {
         const mod = await this.find(moduleName)
 
+        await this.prepare(moduleName)
+
         if (!mod) {
             throw new Error(`Module ${moduleName} not found`)
         }
