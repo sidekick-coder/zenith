@@ -104,15 +104,7 @@ async function createServerFile(url: string) {
         method: 'POST',
     })
 }
-
-async function execute() {
-    const file = await $file.pick({
-        multiple: false,
-        accept: props.mimetypes,
-    })
-    
-    if (!file) return false
-
+async function executeFromFile(file: File) {
     const session = await createSession(file)
 
     await upload(file, session.upload_url!)
@@ -124,6 +116,21 @@ async function execute() {
 
     return true
 }
+
+async function execute() {
+    const file = await $file.pick({
+        multiple: false,
+        accept: props.mimetypes,
+    })
+    
+    if (file) {
+        return await executeFromFile(file)
+    }
+
+    return true
+}
+
+
 
 async function handle() {
     loading.value = true
@@ -140,6 +147,11 @@ async function handle() {
         loading.value = false
     }, 500)
 }
+
+defineExpose({
+    handle,
+    executeFromFile,
+})
 </script>
 
 <template>

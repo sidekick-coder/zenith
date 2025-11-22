@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ref } from 'vue'
 import {
     FormControl,
     FormDescription,
@@ -11,6 +12,7 @@ import FileUploader from '#client/components/FileUploader.vue'
 import Button from '#client/components/Button.vue'
 import Icon from '#client/components/Icon.vue'
 import { $t } from '#shared/lang.ts'
+import { tryCatch } from '#shared/utils/tryCatch.ts'
 
 defineProps({
     name: {
@@ -56,9 +58,45 @@ const fileUrl = defineModel<string | undefined | null>('fileUrl', {
     type: String,
 })
 
+const fileUploaderRef = ref<InstanceType<typeof FileUploader> | null>(null)
+
 function clearImage() {
     fileUrl.value = null
     
+}
+
+async function handlePasteFromClipboard() {
+    if (!fileUploaderRef.value) {
+        return
+    }
+
+    const clipboardItems = await navigator.clipboard.read()
+    
+    for (const item of clipboardItems) {
+        const imageType = item.types.find(type => type.startsWith('image/'))
+        
+        if (!imageType) {
+            continue
+        }
+        
+        const blob = await item.getType(imageType)
+        const file = new File([blob], `clipboard-image-${Date.now()}.png`, { type: imageType })
+        
+        loading.value = true
+        
+        const [error] = await tryCatch(() => fileUploaderRef.value!.executeFromFile(file))
+        
+        if (error) {
+            loading.value = false
+            return
+        }
+        
+        setTimeout(() => {
+            loading.value = false
+        }, 500)
+        
+        break
+    }
 }
 </script>
 
@@ -92,6 +130,7 @@ function clearImage() {
 
                     <!-- File Uploader -->
                     <FileUploader
+                        ref="fileUploaderRef"
                         v-model:file-url="fileUrl"
                         v-model:loading="loading"
                         :file-id="value"
@@ -135,10 +174,23 @@ function clearImage() {
                                         @click="handle"
                                     >
                                         <Icon
-                                            name="ImagePlus"
+                                            name="Upload"
                                             class="size-4 mr-2"
                                         />
-                                        {{ fileUrl ? $t('Change') : $t('Upload') }}
+                                        {{ $t('Upload') }}
+                                    </Button>
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        :loading="loading"
+                                        :disabled="disabled"
+                                        @click="handlePasteFromClipboard"
+                                    >
+                                        <Icon
+                                            name="Clipboard"
+                                            class="size-4 mr-2"
+                                        />
+                                        {{ $t('Paste') }}
                                     </Button>
                                 </div>
                             </slot>
