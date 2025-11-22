@@ -6,6 +6,7 @@ import express from 'express'
 import type { Request, Response } from 'express'
 import env from '../env.ts'
 import modules from './modules.service.ts'
+import CookieService from './cookie.service.ts'
 import config from '#server/facades/config.facade.ts'
 import logger from '#server/facades/logger.facade.ts'
 import { basePath, clientPath, storagePath } from '#server/utils/paths.ts'
@@ -30,7 +31,6 @@ export class ViteServer {
             const render = isProduction
                 ? (await import(basePath('client-dist', 'server', 'entry-server.js'))).render
                 : (await this.vite!.ssrLoadModule('/client/entry-server.ts')).render
-
 
                 
             const state = {
@@ -64,7 +64,9 @@ export class ViteServer {
             state.config.auth = config.get('auth', {})
 
             if (state.setup.user) {
-                state['auth:user'] = await auth.authenticate(_request.cookies['Authorization'] || '')
+                const token = new CookieService(_request, response).get('Authorization', '')
+                
+                state['auth:user'] = await auth.authenticate(token)
             }
 
             if (state['auth:user']) {
