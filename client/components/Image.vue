@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import DialogTitle from './ui/dialog/DialogTitle.vue'
+import DialogDescription from './ui/dialog/DialogDescription.vue'
 import {
     Dialog,
     DialogContent,
@@ -32,6 +34,12 @@ defineProps({
             class="sm:max-w-auto w-auto p-0 h-auto bg-transparent border-0 shadow-none focus:outline-none"
             hide-close
         >
+            <DialogTitle class="hidden">
+                {{ alt || $t('Image preview') }}
+            </DialogTitle>
+            <DialogDescription class="hidden">
+                {{ alt || $t('Image preview') }}
+            </DialogDescription>
             <img
                 :src="src"
                 :alt="alt"
