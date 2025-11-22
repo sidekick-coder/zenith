@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { template } from 'lodash-es'
 import { $t } from '#shared/lang.ts'
 import { $fetch } from '#client/utils/fetcher.ts'
 import { $file } from '#client/utils/file.ts'
@@ -9,6 +8,7 @@ import Button from '#client/components/Button.vue'
 import Icon from '#client/components/Icon.vue'
 import type UploadSession from '#shared/entities/fileUploadSession.entity.ts'
 import { $acl } from '#client/composables/useAcl.ts'
+import type ServerFile from '#shared/entities/file.entity.ts'
 
 const props = defineProps({
     label: {
@@ -46,7 +46,7 @@ const props = defineProps({
 })
 
 const emit = defineEmits<{
-    (e: 'uploaded'): void
+    (e: 'uploaded', response: ServerFile): void
 }>()
 
 const fileId = defineModel<number | undefined | null>('fileId', {
@@ -100,7 +100,7 @@ async function upload(file: File, url: string) {
 }
 
 async function createServerFile(url: string) {
-    return await $fetch(url, {
+    return await $fetch<ServerFile>(url, {
         method: 'POST',
     })
 }
@@ -114,7 +114,7 @@ async function executeFromFile(file: File) {
     fileId.value = response.id
     fileUrl.value = response.url
 
-    return true
+    return response
 }
 
 async function execute() {
@@ -126,8 +126,6 @@ async function execute() {
     if (file) {
         return await executeFromFile(file)
     }
-
-    return true
 }
 
 
@@ -143,7 +141,7 @@ async function handle() {
     }
 
     setTimeout(() => {
-        emit('uploaded')
+        emit('uploaded', response)
         loading.value = false
     }, 500)
 }
