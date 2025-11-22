@@ -5,6 +5,7 @@ import db from '#server/facades/db.facade.ts'
 import normalizers from '#server/normalizers/index.ts'
 
 export interface UpdateOptions<T extends keyof Database> extends SerializeOptions<T> {
+    debug?: boolean
     values: Updateable<Database[T]>
     normalize?: boolean | ((value: any) => any) // default true
     where?: (qb: ExpressionBuilder<Database, T>) => ExpressionWrapper<Database, T, any>
@@ -21,6 +22,10 @@ export async function updateDefault<T extends keyof Database, O extends UpdateOp
 
     if (options?.where) {
         query = query.where((eb: any) => options.where!(eb))
+    }
+
+    if (options?.debug) {
+        console.log(query.compile())
     }
 
     let rows: any[] = await query.set(values).returningAll()
@@ -47,6 +52,10 @@ export async function updateMysql<T extends keyof Database, O extends UpdateOpti
 
     if (options?.where) {
         selectQb.where((eb: any) => options.where!(eb))
+    }
+
+    if (options?.debug) {
+        console.log(selectQb.compile())
     }
 
     let rows: any[] = await selectQb.execute()

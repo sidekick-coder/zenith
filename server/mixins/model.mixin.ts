@@ -193,16 +193,18 @@ export function Model<Table extends keyof Database>(table: Table, primaryKey: ke
                 await emitHook(constructor, 'beforeUpdate', values, o.where)
 
                 return queries.update(table, {
+                    debug: o.debug,
                     where: o.where,
                     values: values,
                     serialize: row => constructor.serialize(row),
                 }) as any
             }
 
-            public static updateById<T>(this: new () => T, id: any, values: ModelUpdateOptions<Table>['values']): Promise<T> {
+            public static updateById<T>(this: new () => T, id: any, values: ModelUpdateOptions<Table>['values'], options?: { debug?: boolean }): Promise<T> {
                 const constructor = this as any
 
                 return constructor.update({
+                    debug: options?.debug,
                     where: (qb: any) => qb(primaryKey as string, '=', id),
                     values: values,
                 }) as any
