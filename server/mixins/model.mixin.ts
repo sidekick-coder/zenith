@@ -56,6 +56,8 @@ export function Model<Table extends keyof Database>(table: Table, primaryKey: ke
                     await emitHook(constructor, 'serialized', row)
                 }
 
+                await emitHook(constructor, 'paginated', pagination)
+
                 return pagination as any
             }
 
@@ -119,10 +121,14 @@ export function Model<Table extends keyof Database>(table: Table, primaryKey: ke
             public static async findOrFail<T>(this: new () => T, id: any): Promise<T> {
                 const constructor = this as any
 
-                return queries.findOneOrFail(table, {
+                const row = await queries.findOneOrFail(table, {
                     serialize: row => constructor.serialize(row),
                     where: (qb: any) => qb(primaryKey as string, '=', id)
                 }) as any
+
+                await emitHook(constructor, 'serialized', row)
+
+                return row as any
             }
 
             public static exists<T>(this: new () => T, o?: ModelListOptions<Table>): boolean {
