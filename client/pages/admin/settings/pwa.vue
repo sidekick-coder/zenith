@@ -255,7 +255,7 @@ onMounted(() => {
                             <div
                                 v-for="(icon, index) in icons" 
                                 :key="index" 
-                                class="w-full xl:w-2/12"
+                                class="w-full xl:w-3/12"
                             >
                                 <div class="border rounded-lg p-4">
                                     <div class="flex items-center justify-between">
