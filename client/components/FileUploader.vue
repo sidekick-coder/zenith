@@ -43,6 +43,10 @@ const props = defineProps({
         type: String,
         default: '*/*',
     },
+    multiple: {
+        type: Boolean,
+        default: false,
+    },
 })
 
 const emit = defineEmits<{
@@ -119,11 +123,26 @@ async function executeFromFile(file: File) {
 
 async function execute() {
     const file = await $file.pick({
-        multiple: false,
+        multiple: props.multiple,
         accept: props.mimetypes,
     })
     
-    if (file) {
+    if (!file) {
+        return
+    }
+
+    if (props.multiple && Array.isArray(file)) {
+        const results: ServerFile[] = []
+        
+        for (const f of file) {
+            const response = await executeFromFile(f)
+            results.push(response)
+        }
+        
+        return results
+    }
+    
+    if (!Array.isArray(file)) {
         return await executeFromFile(file)
     }
 }
@@ -141,7 +160,18 @@ async function handle() {
     }
 
     setTimeout(() => {
+        if (Array.isArray(response)) {
+            for (const res of response) {
+                emit('uploaded', res)
+            }
+            
+            loading.value = false
+
+            return
+        }
+
         emit('uploaded', response)
+        
         loading.value = false
     }, 500)
 }
