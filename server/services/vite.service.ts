@@ -1,4 +1,5 @@
 import fs from 'fs'
+import { request } from 'http'
 import type { Application } from 'express'
 import { createServer as createViteServer  } from 'vite'
 import type { ViteDevServer } from 'vite'
@@ -64,7 +65,10 @@ export class ViteServer {
             state.config.auth = config.get('auth', {})
 
             if (state.setup.user) {
-                const token = new CookieService(_request, response).get('Authorization', '')
+                const token = 
+                    new CookieService(_request, response).get('Authorization', '') 
+                    || _request.headers['authorization'] as string
+                    || ''
                 
                 state['auth:user'] = await auth.authenticate(token)
             }
