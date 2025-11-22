@@ -108,60 +108,64 @@ async function downloadStream(url: string) {
     }
 }
 
-router.post('/:id/upload/*', async ({ acl, params, query, upload }) => {
-    const filename = validator.validate(params['*'], v => v.string())
-    const current = drive.use(params.id)
-    const file = await upload.single('file')
-    const url = query.url as string | undefined
+rootRouter
+    .prefix('/api/drives')
+    .post('/:id/upload/*', async ({ acl, params, query, upload }) => {
+        const filename = validator.validate(params['*'], v => v.string())
+        const current = drive.use(params.id)
+        const file = await upload.single('file')
+        const url = query.url as string | undefined
     
-    const key = validator.validate(query.key, v => v.optional(v.string()))
+        const key = validator.validate(query.key, v => v.optional(v.string()))
     
-    if (!file && !url) {
+        if (!file && !url) {
+            throw new BaseException('No file or URL provided', 400)
+        }
+
+        if (!key) {
+            acl.authorize('create', 'DriveEntry', { filename })
+        }
+
+        if (file) {
+            if (key) {
+                const data = encrypt.verifyUrl(key)
+
+                current.validateUpload(data, {
+                    mimetype: mime.getType(file.originalname) || 'application/octet-stream',
+                    size: file.size
+                })
+            }
+
+            const stream = fs.createReadStream(file.path)
+        
+            await current.writeStream(filename, stream)
+
+            return { success: true }
+        
+        }
+
+        if (url) {
+
+            const remote = await downloadStream(url)
+
+            if (key) {
+                const data = encrypt.verifyUrl(key)
+
+                current.validateUpload(data,
+                    {
+                        mimetype: remote.contentType!,
+                        size: remote.size! 
+                    },
+                )
+            }
+
+            await current.writeStream(filename, Readable.fromWeb(remote.stream as any))
+
+            return { success: true }
+
+        }
+
         throw new BaseException('No file or URL provided', 400)
-    }
-
-    if (!key) {
-        acl.authorize('create', 'DriveEntry', { filename })
-    }
-
-    if (file) {
-        if (key) {
-            const data = encrypt.verifyUrl(key)
-
-            current.validateUpload(file, data)
-        }
-
-        const stream = fs.createReadStream(file.path)
-        
-        await current.writeStream(filename, stream)
-
-        return { success: true }
-        
-    }
-
-    if (url) {
-
-        const remote = await downloadStream(url)
-
-        if (key) {
-            const data = encrypt.verifyUrl(key)
-
-            current.validateUpload(
-                {
-                    mimetype: remote.contentType!,
-                    size: remote.size! 
-                },
-                data
-            )
-        }
-
-        await current.writeStream(filename, Readable.fromWeb(remote.stream as any))
-
-        return { success: true }
-
-    }
-
-    throw new BaseException('No file or URL provided', 400)
-})
+    })
 
 

@@ -204,7 +204,7 @@ export default class DriveService {
         this.load()
     }
 
-    public validateUpload(file: { mimetype: string, size: number }, options: ValidateUploadOptions) {
+    public validateUpload(options: ValidateUploadOptions, file: { mimetype: string, size: number },) {
         const allowedTypes = options.mime_types.split(',').map(t => t.trim())
 
         const isAllowed = allowedTypes.some(allowedType => {
