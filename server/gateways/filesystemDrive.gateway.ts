@@ -83,9 +83,15 @@ export default class FilesystemDrive implements DriveContract {
     }
 
     async mkdir(filename: string): Promise<void> {
-        const dirPath = join(this.path, filename)
+        console.log('Mkdir', filename)
 
-        await fs.promises.mkdir(dirPath, { recursive: true })
+        if (!(await this.exists(path.dirname(filename)))) {
+            await this.mkdir(path.dirname(filename))
+        }
+
+        const filepath = join(this.path, filename)
+
+        await fs.promises.mkdir(filepath, { recursive: true })
     }
 
     async read(filename: string): Promise<Uint8Array> {
@@ -105,12 +111,34 @@ export default class FilesystemDrive implements DriveContract {
     }
 
     async write(filename: string, data: Uint8Array): Promise<void> {
-        const filePath = join(this.path, filename)
-        const folder = path.dirname(filePath)
+        if (!await this.exists(path.dirname(filename))) {
+            await this.mkdir(path.dirname(filename))
+        }
 
-        await fs.promises.mkdir(folder, { recursive: true })
+        const filePath = join(this.path, filename)
+
 
         await fs.promises.writeFile(filePath, data)
+    }
+
+    async writeStream(filename: string, stream: NodeJS.ReadableStream): Promise<void> {
+        if (!await this.exists(path.dirname(filename))) {
+            await this.mkdir(path.dirname(filename))
+        }
+        
+        const filePath = join(this.path, filename)
+
+        console.log(stream)
+
+
+        return new Promise((resolve, reject) => {
+            const writeStream = fs.createWriteStream(filePath)
+
+            stream.pipe(writeStream)
+
+            writeStream.on('finish', resolve)
+            writeStream.on('error', reject)
+        })
     }
 
     async delete(filename: string): Promise<void> {

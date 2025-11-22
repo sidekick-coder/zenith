@@ -1,5 +1,5 @@
-import { randomUUID } from 'crypto'
-import { join } from 'path'
+import fs from 'fs'
+import { Readable } from 'stream'
 import mime from 'mime'
 import BaseException from '#server/exceptions/base.ts'
 import drive from '#server/facades/drive.facade.ts'
@@ -87,32 +87,81 @@ router.get('/:id/stream/*', async ({ params, query, response, acl }) => {
 
     })
 })
+async function downloadStream(url: string) {
+    const response = await fetch(url)
+
+    if (!response.ok)  throw new BaseException('Failed to download remote file')
+    if (!response.body) throw new BaseException('Remote file has no body')
+
+    const size = Number(response.headers.get('content-length')) || undefined
+    const contentType = response.headers.get('content-type') || 'application/octet-stream'
+
+    console.log({
+        size,
+        contentType
+    })
+
+    return {
+        stream: response.body as unknown as NodeJS.ReadableStream,
+        size,
+        contentType,
+    }
+}
 
 router.post('/:id/upload/*', async ({ acl, params, query, upload }) => {
     const filename = validator.validate(params['*'], v => v.string())
     const current = drive.use(params.id)
     const file = await upload.single('file')
+    const url = query.url as string | undefined
     
     const key = validator.validate(query.key, v => v.optional(v.string()))
     
-    if (!file) {
-        throw new BaseException('No file provided')
-    }
-
-    if (key) {
-        const data = encrypt.verifyUrl(key)
-
-        drive.validateUpload(file, data)
+    if (!file && !url) {
+        throw new BaseException('No file or URL provided', 400)
     }
 
     if (!key) {
         acl.authorize('create', 'DriveEntry', { filename })
     }
 
+    if (file) {
+        if (key) {
+            const data = encrypt.verifyUrl(key)
 
-    const entity = await current.write(filename, file.buffer)
+            current.validateUpload(file, data)
+        }
 
-    return entity
+        const stream = fs.createReadStream(file.path)
+        
+        await current.writeStream(filename, stream)
+
+        return { success: true }
+        
+    }
+
+    if (url) {
+
+        const remote = await downloadStream(url)
+
+        if (key) {
+            const data = encrypt.verifyUrl(key)
+
+            current.validateUpload(
+                {
+                    mimetype: remote.contentType!,
+                    size: remote.size! 
+                },
+                data
+            )
+        }
+
+        await current.writeStream(filename, Readable.fromWeb(remote.stream as any))
+
+        return { success: true }
+
+    }
+
+    throw new BaseException('No file or URL provided', 400)
 })
 
 

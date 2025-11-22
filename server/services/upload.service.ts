@@ -3,6 +3,8 @@ import type {
     Response,
 } from 'express'
 import multer from 'multer'
+import { tmpPath } from '../utils/index.ts'
+import { cuid } from '#server/utils/cuid.util.ts'
 
 export default class UploadService {
     private request: Request
@@ -12,7 +14,12 @@ export default class UploadService {
     constructor(request: Request, response: Response) {
         this.request = request
         this.response = response
-        this.upload = multer({ storage: multer.memoryStorage(), })
+        this.upload = multer({
+            storage: multer.diskStorage({
+                destination: tmpPath('uploads'),
+                filename: (_req, file, cb) => cb(null, cuid() + '-' + file.originalname)
+            })
+        })
     }
 
     public single(name: string){

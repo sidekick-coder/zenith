@@ -54,38 +54,6 @@ router.post('/', async ({ query }) => {
     return file
 })
 
-router.post('/upload', async ({ upload, query }) => {
-    const key = validator.validate(query.key, v => v.string())
-
-    const [error, data] = tryCatch.sync(() => JSON.parse(encrypt.decrypt(key)))
-
-    if (error) {
-        throw new BaseException('Invalid key')
-    }
-
-    const file = await upload.single('file')
-
-    if (!file) {
-        throw new BaseException('No file provided')
-    }
-
-    let currentDrive = drive
-
-    if (query.drive) {
-        currentDrive = drive.use(query.drive as string)
-    }
-
-    const entity = await currentDrive.createFile(file.buffer, file.originalname)
-
-    if (query.public) {
-        await File.updateById(entity.id, { public: true })
-        entity.public = false
-    }
-
-    return entity
-})
-
-
 router.get('/:id', async ({ acl, params }) => {
     const id = validator.validate(params.id, schemas.query.number)
 
@@ -131,3 +99,23 @@ rootRouter
 
         })
     })
+
+
+router.delete('/:id', async ({ params, acl }) => {
+    const id = validator.validate(params.id, schemas.query.number())
+
+    const file = await File.findOneOrFail({
+        query: q => q
+            .where('id', '=', id)
+            .where(undeleted)
+            .selectAll()
+    })
+
+    acl.authorize('delete', file)
+
+    await file.softDelete()
+
+    return {
+        success: true
+    }
+})

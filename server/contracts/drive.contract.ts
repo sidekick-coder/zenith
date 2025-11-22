@@ -21,6 +21,7 @@ export default interface DriveContract {
     exists(filename: string): Promise<boolean>;
     read(filename: string): Promise<Uint8Array>;
     write(filename: string, data: Uint8Array): Promise<void>;
+    writeStream(filename: string, stream: NodeJS.ReadableStream): Promise<void>;
     delete(filename: string): Promise<void>;
     url(filename: string, options?: DriveUrlOptions): Promise<string>;
     uploadUrl(filename: string, options?: DriveUploadUrlOptions): Promise<string>;

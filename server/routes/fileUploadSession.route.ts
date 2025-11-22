@@ -35,7 +35,7 @@ router.post('/', async ({ acl, body }) => {
     }
 
     session.upload_url = await drive.uploadUrl(filename, {
-        expireAt: new Date(expireAt),
+        expires: '15m',
         mime_types: payload.mime_types,
         max_size: payload.max_size,
     })
