@@ -1,6 +1,7 @@
 import express from 'express'
 import cookieParser from 'cookie-parser'
 import type { Request,  Response } from 'express'
+import cors from 'cors'
 import vite from './server/services/vite.service.ts'
 import logger from './server/facades/logger.facade.ts'
 import type Route from '#server/entities/route.entity.ts'
@@ -89,6 +90,15 @@ async function main() {
     drive.load()
     
     await server.booter.bootAndWatch()
+
+    const origins = config.get('cors.origins', '').split(',')
+        .map((o: string) => o.trim())
+        .filter((o: string) => o.length > 0)
+
+    app.use(cors({
+        credentials: true,
+        origin: origins.length > 0 ? origins : undefined,
+    }))
 
     app.use('*all', (req, res) => {
         const url = new URL(req.originalUrl, `http://${req.headers.host}`)
