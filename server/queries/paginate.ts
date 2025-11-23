@@ -33,7 +33,10 @@ export async function paginate<T extends keyof Database, O extends PaginateOptio
                 query = options.query(db.selectFrom(table))
             }
 
-            query = query.limit(limit).offset(offset)
+            if (limit > 0) {
+                query = query.limit(limit).offset(offset)
+            }
+
 
             if (options?.debug) {
                 console.log(query.compile())
