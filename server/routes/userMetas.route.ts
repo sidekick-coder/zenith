@@ -57,7 +57,7 @@ router.get('/:id', async ({ params, acl }) => {
     return userMeta
 })
 
-router.post('/', async ({ params, body, acl }) => {
+router.put('/', async ({ params, body, acl }) => {
     const userId = validator.validate(params.userId, schemas.query.number)
     
     const user = await User.findOneOrFail({
@@ -70,41 +70,9 @@ router.post('/', async ({ params, body, acl }) => {
 
     const payload = validator.validate(body, schemas.userMeta.create)
 
-    const userMeta = await UserMeta.create({
-        user_id: userId,
-        name: payload.name,
-        value: payload.value
-    })
+    await user.set(payload.name, payload.value)
 
-    return userMeta
-})
-
-router.put('/:id', async ({ params, body, acl }) => {
-    const userId = validator.validate(params.userId, schemas.query.number)
-    const metaId = validator.validate(params.id, schemas.query.number)
-
-    const user = await User.findOneOrFail({
-        query: q => q.where('id', '=', userId)
-            .where(undeleted)
-            .selectAll()
-    })
-
-    acl.authorize('update', user)
-
-    const userMeta = await UserMeta.findOneOrFail({
-        query: q => q.where('id', '=', metaId)
-            .where('user_id', '=', userId)
-            .where(undeleted)
-            .selectAll()
-    })
-
-    const payload = validator.validate(body, schemas.userMeta.update)
-
-    await UserMeta.updateById(metaId, payload)
-
-    userMeta.merge(payload)
-
-    return userMeta
+    return payload
 })
 
 router.delete('/:id', async ({ params, acl }) => {

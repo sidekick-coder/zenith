@@ -30,6 +30,22 @@ export default defineClientSetup(({ menu, router }) => {
     })
 
     menu.add({
+        id: 'account-profile',
+        label: $t('Profile'),
+        to: '/admin/account/profile',
+        icon: 'User',
+        group: $t('Account')
+    })
+
+    menu.add({
+        id: 'account-preferences',
+        label: $t('Preferences'),
+        to: '/admin/account/preferences',
+        icon: 'UserCog',
+        group: $t('Account')
+    })
+
+    menu.add({
         id: 'users',
         label: $t('Users'),
         to: '/admin/users',
