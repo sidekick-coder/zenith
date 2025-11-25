@@ -1,11 +1,10 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref,watch, computed } from 'vue'
 import { Popover, PopoverContent, PopoverTrigger } from '#client/components/ui/popover'
 import { Input } from '#client/components/ui/input'
 import TextField from '#client/components/TextField.vue'
 import ColorWheel from '#client/components/ColorWheel.vue'
-import { useColor, useHex, useRGB, useHSL   } from '#client/composables/useColor'
-import type { RGB, HSL } from '#client/composables/useColor'
+import { useColor } from '#client/composables/useColor'
 
 const props = defineProps({
     class: {
@@ -58,7 +57,6 @@ const props = defineProps({
 const open = ref(false)
 const color = defineModel({
     type: String,
-    default: '#ff0000',
 })
 
 const format = ref<'hex' | 'rgb' | 'hsl'>('hex')
@@ -102,6 +100,24 @@ const cycleFormat = () => {
     
     format.value = 'hex'
 }
+
+watch(format, (newFormat) => {
+    // Update colorInput when format changes
+    if (newFormat === 'hex') {
+        colorInput.value = hex.value
+        return
+    } 
+    
+    if (newFormat === 'rgb' && rgb.value) {
+        colorInput.value = `rgb(${rgb.value.r}, ${rgb.value.g}, ${rgb.value.b})`
+        return
+    }
+
+    if (newFormat === 'hsl' && hsl.value) {
+        colorInput.value = `hsl(${hsl.value.h}, ${hsl.value.s}%, ${hsl.value.l}%)`
+        return
+    }
+})
 
 </script>
 

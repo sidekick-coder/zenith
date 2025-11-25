@@ -15,6 +15,7 @@ import { $server } from '#client/utils/server.ts'
 import FormTextField from '#client/components/FormTextField.vue'
 import FormImageUploader from '#client/components/FormImageUploader.vue'
 import ColorPicker from '#client/components/ColorPicker.vue'
+import FormColorPicker from '#client/components/FormColorPicker.vue'
 
 const loading = ref(false)
 const saving = ref(false)
@@ -119,7 +120,12 @@ onMounted(() => {
                         </h3>
 
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
-                            <ColorPicker :label="$t('Background')" />
+                            <FormColorPicker
+                                name="cssVars.background"
+                                :label="$t('Background')" 
+                                :disabled="loading || saving"
+                            />
+                            
                             <FormTextField
                                 name="cssVars.background"
                                 :label="$t('Background')"
