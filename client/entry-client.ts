@@ -19,7 +19,7 @@ async function main(){
     di.set('logger', console) // Set a default logger, can be replaced with a proper logger later
     di.set('isServer', false)
 
-    for (const [key, value] of Object.entries(flatten(state.config || {}))) {
+    for (const [key, value] of Object.entries(state.config || {})) {
         config.entries.set(key, {
             key,
             value,

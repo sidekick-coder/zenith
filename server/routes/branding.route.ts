@@ -4,6 +4,7 @@ import authMiddleware from '#server/middlewares/auth.middleware.ts'
 import config from '#server/facades/config.facade.ts'
 import server from '#server/facades/server.facade.ts'
 import schemas from '#shared/validators/index.ts'
+import assets from '#server/facades/assets.facade.ts'
 
 const router = rootRouter.prefix('/api/branding')
     .use(authMiddleware)
@@ -26,10 +27,26 @@ router.put('/', async ({ body, acl }) => {
     const payload = validator.validate(body, schemas.branding.update)
 
     config.set('branding', payload)
+    
+    // console.log(config.entries.get('branding'))
 
-    await server.reload()
+    let vars = ''
+    const branding = {
+        ...config.get('branding', {}),
+        ...payload
+    }
 
-    return config.get('branding', {})
+    for (const [key, value] of Object.entries(branding?.cssVars || {})) {
+        vars += `--${key}: ${value};\n`
+    }
+
+    assets.set('branding', {
+        content: `body {
+            ${vars}
+        }`
+    })
+
+    return branding
 })
 
 export default router

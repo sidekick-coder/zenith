@@ -1,6 +1,5 @@
 import crypto from 'crypto'
 import ms from 'ms'
-import config from '#server/facades/config.facade.ts'
 import env from '#server/env.ts'
 
 interface URLOptions {
@@ -20,7 +19,7 @@ export default class EncryptService {
 
     public encrypt(text: string) {
         if (!this.key) {
-            throw new Error('Encryption key not set in configuration (app.key).')
+            throw new Error('Encryption key not set')
         }
 
         const iv = crypto.randomBytes(16)

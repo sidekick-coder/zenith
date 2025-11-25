@@ -81,7 +81,7 @@ async function main() {
     app.use(parser)
 
     await vite.init(app)
-    await config.loadAndWatch()
+    await config.load()
     
     if (config.has('app.key')) {
         encrypt.load(config.get('app.key'))

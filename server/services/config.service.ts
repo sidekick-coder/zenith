@@ -20,26 +20,14 @@ export default class ConfigService extends Base {
     public async load() {
         const files = await importGlob(configPath('*.json'))
 
-        const configs: Record<string, any> = {}
-
         for (const [filename, config] of Object.entries(files)) {
-            configs[path.basename(filename, '.json')] = config
-        }
+            const key = path.basename(filename, '.json')
 
-        for (const [key, value] of Object.entries(flatten(configs))) {
-            this.entries.set(key, {
-                key,
-                value,
-                source: 'file'
-            })
+            this.set(key, config)
         }
 
         for (const [key, value] of Object.entries(env.CONFIG || {})) {
-            this.entries.set(key, {
-                key,
-                value,
-                source: 'env'
-            })
+            this.set(key, value, 'env')
         }
     }
 
@@ -52,12 +40,8 @@ export default class ConfigService extends Base {
         }
     }
 
-    public get(fullKey: string, defaultValue: any = null): any {
-        return super.get(fullKey, defaultValue)
-    }
-
-    public set(fullKey: string, value: any): void {
-        super.set(fullKey, value)
+    public set(fullKey: string, value: any, source = 'runtime'): void {
+        super.set(fullKey, value, source)
 
         const { filename, key } = this.parseKey(fullKey)
         

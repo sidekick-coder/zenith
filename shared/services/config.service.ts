@@ -1,4 +1,4 @@
-import set from 'lodash/set.js'
+import { get, set } from 'lodash-es'
 
 interface Entry {
     key: string
@@ -13,45 +13,82 @@ export default class ConfigService {
         return Array.from(this.entries.values())
     }
 
-    public has(fullKey: string): boolean {
-        return this.entries.has(fullKey)
-    }
-
-    public get<T = any | undefined>(fullKey: string, defaultValue?: any): T {
-        // Check if there are nested keys (keys that start with fullKey + '.')
-        const hasNestedKeys = Array.from(this.entries.keys()).some(key => 
-            key.startsWith(fullKey + '.')
-        )
-        
-        if (hasNestedKeys) {
-            // Collect all entries that start with this key
-            const result: Record<string, any> = {}
-
-            for (const entry of this.entries.values()) {
-                const { key, value } = entry
-
-                if (key.startsWith(fullKey + '.')) {
-                    set(result, key.replace(fullKey + '.', ''), value)
-                }
-            }
-
-            return (result || defaultValue) as T
+    public has(key: string): boolean {
+        if (!key.includes('.')) {
+            return this.entries.has(key)
         }
 
-        const entry = this.entries.get(fullKey)
-        
-        if (!entry) {
+        const primary = key.split('.')[0]
+        const primaryEntry = this.entries.get(primary)
+
+        if (!primaryEntry) {
+            return false
+        }
+
+        const value = primaryEntry.value
+
+        if (typeof value !== 'object' || Array.isArray(value)) {
+            return false
+        }
+
+        const result = get(value, key.substring(primary.length + 1))
+
+        return result !== undefined
+    }
+
+    public get<T = any | undefined>(key: string, defaultValue?: any): T {
+
+        if (!key.includes('.')) {
+            const entry = this.entries.get(key)
+            
+            if (!entry) {
+                return defaultValue
+            }
+
+            return entry.value
+        }
+
+        const primary = key.split('.')[0]
+        const primaryEntry = this.entries.get(primary)
+
+        if (!primaryEntry) {
             return defaultValue
         }
 
-        return entry.value
+        const value = primaryEntry.value
+
+        if (typeof value !== 'object' || Array.isArray(value)) {
+            return defaultValue
+        }
+
+        const result = get(value, key.substring(primary.length + 1), defaultValue)
+
+        return result
     }
 
-    public set(fullKey: string, value: any): void {
-        this.entries.set(fullKey, {
-            key: fullKey,
-            source: 'runtime',
-            value
+    public set(key: string, value: any, source = 'runtime'): void {
+        if (!key.includes('.')) {
+            this.entries.set(key, {
+                key: key,
+                source: source,
+                value
+            })
+            return
+        }
+
+        const primary = key.split('.')[0]
+        let primaryValue = this.get(primary, {})
+
+        if (typeof primaryValue !== 'object' || Array.isArray(primaryValue)) {
+            primaryValue = {}
+        }
+
+        set(primaryValue, key.substring(primary.length + 1), value)
+
+        this.entries.set(primary, {
+            key: primary,
+            source: source,
+            value: primaryValue
         })
     }
 

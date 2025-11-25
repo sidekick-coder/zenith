@@ -13,6 +13,12 @@ export interface HSL {
     l: number
 }
 
+export interface OKLCH {
+    l: number
+    c: number
+    h: number
+}
+
 export function extracRGB(color: string): RGB {
     const rgbMatch = /rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*[\d.]+)?\)/.exec(color)
 
@@ -132,31 +138,172 @@ export function rgbToHex(r: number, g: number, b: number): string {
     return `#${toHex(r)}${toHex(g)}${toHex(b)}`
 }
 
+export function extractOKLCH(color: string): OKLCH {
+    const oklchMatch = /oklch\(([\d.]+)\s+([\d.]+)\s+([\d.]+)\)/.exec(color)
+
+    if (!oklchMatch) {
+        throw new Error('Invalid OKLCH color format: ' + color)
+    }
+
+    return {
+        l: parseFloat(oklchMatch[1]),
+        c: parseFloat(oklchMatch[2]),
+        h: parseFloat(oklchMatch[3])
+    }
+}
+
+export function oklchToRgb(color: string): RGB {
+    const oklch = extractOKLCH(color)
+    const { l, c, h } = oklch
+    
+    const hRad = (h * Math.PI) / 180
+    const a = c * Math.cos(hRad)
+    const b = c * Math.sin(hRad)
+    
+    const l_ = l + 0.3963377774 * a + 0.2158037573 * b
+    const m_ = l - 0.1055613458 * a - 0.0638541728 * b
+    const s_ = l - 0.0894841775 * a - 1.2914855480 * b
+    
+    const l3 = l_ * l_ * l_
+    const m3 = m_ * m_ * m_
+    const s3 = s_ * s_ * s_
+    
+    let r = +4.0767416621 * l3 - 3.3077115913 * m3 + 0.2309699292 * s3
+    let g = -1.2684380046 * l3 + 2.6097574011 * m3 - 0.3413193965 * s3
+    let blue = -0.0041960863 * l3 - 0.7034186147 * m3 + 1.7076147010 * s3
+    
+    const gammaCorrect = (val: number): number => {
+        if (val >= 0.0031308) {
+            return 1.055 * Math.pow(val, 1 / 2.4) - 0.055
+        }
+        
+        return 12.92 * val
+    }
+    
+    r = gammaCorrect(r)
+    g = gammaCorrect(g)
+    blue = gammaCorrect(blue)
+    
+    return {
+        r: Math.round(Math.max(0, Math.min(1, r)) * 255),
+        g: Math.round(Math.max(0, Math.min(1, g)) * 255),
+        b: Math.round(Math.max(0, Math.min(1, blue)) * 255)
+    }
+}
+
+export function rgbToOklch(r: number, g: number, b: number): OKLCH {
+    r = r / 255
+    g = g / 255
+    b = b / 255
+    
+    const gammaExpand = (val: number): number => {
+        if (val >= 0.04045) {
+            return Math.pow((val + 0.055) / 1.055, 2.4)
+        }
+        
+        return val / 12.92
+    }
+    
+    r = gammaExpand(r)
+    g = gammaExpand(g)
+    b = gammaExpand(b)
+    
+    const l = 0.4122214708 * r + 0.5363325363 * g + 0.0514459929 * b
+    const m = 0.2119034982 * r + 0.6806995451 * g + 0.1073969566 * b
+    const s = 0.0883024619 * r + 0.2817188376 * g + 0.6299787005 * b
+    
+    const l_ = Math.cbrt(l)
+    const m_ = Math.cbrt(m)
+    const s_ = Math.cbrt(s)
+    
+    const L = 0.2104542553 * l_ + 0.7936177850 * m_ - 0.0040720468 * s_
+    const a = 1.9779984951 * l_ - 2.4285922050 * m_ + 0.4505937099 * s_
+    const b_ = 0.0259040371 * l_ + 0.7827717662 * m_ - 0.8086757660 * s_
+    
+    const C = Math.sqrt(a * a + b_ * b_)
+    let H = Math.atan2(b_, a) * (180 / Math.PI)
+    
+    if (H < 0) {
+        H += 360
+    }
+    
+    return {
+        l: Math.round(L * 1000) / 1000,
+        c: Math.round(C * 1000) / 1000,
+        h: Math.round(H * 1000) / 1000
+    }
+}
+
 export function useColorType(payload?: MaybeRef<string | null | undefined>) {
     const color = isRef(payload) ? payload : ref<string | null | undefined>(toValue(payload))
     
-    return computed(() => {
-        if (!color.value) {
-            return null
-        }
-        // Determine color type logic here
-        if (color.value.startsWith('#')) {
-            return 'hex'
-        }
+    return computed<string | null>({
+        get() {
+            if (!color.value) {
+                return null
+            }
 
-        if (/^rgb/.test(color.value)) {
-            return 'rgb'
-        }
+            if (color.value.startsWith('#')) {
+                return 'hex'
+            }
 
-        if (/^hsla/.test(color.value)) {
-            return 'hsla'
-        }
+            if (/^rgb/.test(color.value)) {
+                return 'rgb'
+            }
 
-        if (/^hsl/.test(color.value)) {
-            return 'hsl'
-        }
+            if (/^oklch/.test(color.value)) {
+                return 'oklch'
+            }
 
-        return 'unknown'
+            if (/^hsla/.test(color.value)) {
+                return 'hsla'
+            }
+
+            if (/^hsl/.test(color.value)) {
+                return 'hsl'
+            }
+
+            return 'unknown'
+        },
+        set(type) {
+            if (!color.value || !type) {
+                return
+            }
+
+            const currentRgb = useRGB(color).value
+
+            if (!currentRgb) {
+                return
+            }
+
+            if (type === 'hex') {
+                color.value = rgbToHex(currentRgb.r, currentRgb.g, currentRgb.b)
+                return
+            }
+
+            if (type === 'rgb') {
+                color.value = `rgb(${currentRgb.r}, ${currentRgb.g}, ${currentRgb.b})`
+                return
+            }
+
+            if (type === 'hsl') {
+                const hsl = rgbToHsl(currentRgb.r, currentRgb.g, currentRgb.b)
+                color.value = `hsl(${hsl.h}, ${hsl.s}%, ${hsl.l}%)`
+                return
+            }
+
+            if (type === 'hsla') {
+                const hsl = rgbToHsl(currentRgb.r, currentRgb.g, currentRgb.b)
+                color.value = `hsla(${hsl.h}, ${hsl.s}%, ${hsl.l}%)`
+                return
+            }
+
+            if (type === 'oklch') {
+                const oklch = rgbToOklch(currentRgb.r, currentRgb.g, currentRgb.b)
+                color.value = `oklch(${oklch.l} ${oklch.c} ${oklch.h})`
+                return
+            }
+        }
     })
 }
 
@@ -181,6 +328,10 @@ export function useRGB(payload?: MaybeRef<string | null | undefined>) {
 
             if (type.value === 'hsl') {
                 return hslToRgb(color.value)
+            }
+
+            if (type.value === 'oklch') {
+                return oklchToRgb(color.value)
             }
 
             return null
@@ -234,6 +385,18 @@ export function useHSL(payload?: MaybeRef<string | null | undefined>) {
                 return
             }
 
+            if (type.value === 'rgb') {
+                const rgb = hslToRgb(`hsl(${value.h}, ${value.s}%, ${value.l}%)`)
+                color.value = `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`
+                return
+            }
+
+            if (type.value === 'oklch') {
+                const rgb = hslToRgb(`hsl(${value.h}, ${value.s}%, ${value.l}%)`)
+                const oklch = rgbToOklch(rgb.r, rgb.g, rgb.b)
+                color.value = `oklch(${oklch.l} ${oklch.c} ${oklch.h})`
+                return
+            }
         }
     })
 }
@@ -271,7 +434,39 @@ export function useColor(payload?: MaybeRef<string | null | undefined>) {
     const type = useColorType(color)
     const hex = useHex(color)
     const rgb = useRGB(color)
-    const hsl = useHSL(color)    
+    const hsl = useHSL(color)
+    
+    const oklch = computed<OKLCH | null>({
+        get() {
+            if (!rgb.value) {
+                return null
+            }
+
+            return rgbToOklch(rgb.value.r, rgb.value.g, rgb.value.b)
+        },
+        set(value) {
+            if (!value) {
+                return
+            }
+
+            if (type.value === 'oklch') {
+                color.value = `oklch(${value.l} ${value.c} ${value.h})`
+                return
+            }
+
+            const rgb = oklchToRgb(`oklch(${value.l} ${value.c} ${value.h})`)
+            
+            if (type.value === 'hex') {
+                color.value = rgbToHex(rgb.r, rgb.g, rgb.b)
+                return
+            }
+
+            if (type.value === 'rgb') {
+                color.value = `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`
+                return
+            }
+        }
+    })
 
     return {
         type,
@@ -279,5 +474,6 @@ export function useColor(payload?: MaybeRef<string | null | undefined>) {
         hex,
         rgb,
         hsl,
+        oklch,
     }
 }
