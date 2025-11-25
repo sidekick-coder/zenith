@@ -5,7 +5,7 @@ import { cn } from '#client/lib/utils'
 
 const props = defineProps<{
   defaultValue?: string | number
-  modelValue?: string | number
+  modelValue?: string | number | null
   class?: HTMLAttributes['class']
 }>()
 

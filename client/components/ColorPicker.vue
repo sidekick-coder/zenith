@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { Popover, PopoverContent, PopoverTrigger } from '#client/components/ui/popover'
 import { Input } from '#client/components/ui/input'
 import TextField from '#client/components/TextField.vue'
 import ColorWheel from '#client/components/ColorWheel.vue'
-import { useColor, useHex } from '#client/composables/useColor'
+import { useColor, useHex, useRGB, useHSL   } from '#client/composables/useColor'
+import type { RGB, HSL } from '#client/composables/useColor'
 
 const props = defineProps({
     class: {
@@ -60,7 +61,47 @@ const color = defineModel({
     default: '#ff0000',
 })
 
-const { hex } = useColor(color)
+const format = ref<'hex' | 'rgb' | 'hsl'>('hex')
+const { hex, rgb, hsl } = useColor(color)
+
+const colorInput = computed({
+    get() {
+        if (format.value === 'hex') {
+            return hex.value
+        }
+        
+        if (format.value === 'rgb' && rgb.value) {
+            return `rgb(${rgb.value.r}, ${rgb.value.g}, ${rgb.value.b})`
+        }
+        
+        if (format.value === 'hsl' && hsl.value) {
+            return `hsl(${hsl.value.h}, ${hsl.value.s}%, ${hsl.value.l}%)`
+        }
+        
+        return ''
+    },
+    set(value: string | null) {
+        if (!value) {
+            return
+        }
+        
+        color.value = value
+    }
+})
+
+const cycleFormat = () => {
+    if (format.value === 'hex') {
+        format.value = 'rgb'
+        return
+    }
+    
+    if (format.value === 'rgb') {
+        format.value = 'hsl'
+        return
+    }
+    
+    format.value = 'hex'
+}
 
 </script>
 
@@ -73,7 +114,7 @@ const { hex } = useColor(color)
                 :open="open"
             >
                 <TextField
-                    v-model="hex"
+                    v-model="color"
                     :label="label"
                     :variant="variant"
                     :placeholder="placeholder"
@@ -99,13 +140,26 @@ const { hex } = useColor(color)
             <div class="space-y-4">
                 <ColorWheel v-model="color" />
 
-                <!-- Hex Input -->
+                <!-- Color Format Input -->
                 <div class="space-y-2">
-                    <label class="text-sm font-medium">Hex</label>
+                    <div class="flex items-center justify-between">
+                        <label class="text-sm font-medium">Color</label>
+                        <button
+                            type="button"
+                            class="text-xs px-2 py-1 rounded bg-secondary hover:bg-secondary/80 font-medium uppercase"
+                            @click="cycleFormat"
+                        >
+                            {{ format }}
+                        </button>
+                    </div>
                     <Input
-                        v-model="hex"
-                        class="uppercase font-mono"
-                        placeholder="#000000"
+                        :model-value="colorInput"
+                        :class="{ 'uppercase': format === 'hex' }"
+                        class="font-mono"
+                        :placeholder="format === 'hex' ? '#000000' : format === 'rgb' ? 'rgb(0, 0, 0)' : 'hsl(0, 0%, 0%)'"
+                        @change="(e: any) => {
+                            colorInput = e.target.value
+                        }"
                     />
                 </div>
 
