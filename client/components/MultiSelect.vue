@@ -82,11 +82,15 @@ async function fetchOptions() {
     options.value = findFetchOptions(response)
 }
 
-function handleSelect(value: string) {
+function handleSelect(value: any) {
     const numValue = Number(value)
 
     if (!modelValue.value.includes(numValue)) {
         modelValue.value = [...modelValue.value, numValue]
+    }
+
+    if (modelValue.value.includes(numValue)) {
+        removeItem(numValue)
     }
 
     tempValue.value = null
@@ -94,11 +98,6 @@ function handleSelect(value: string) {
 
 function removeItem(value: number) {
     modelValue.value = modelValue.value.filter(v => v !== value)
-}
-
-function getOptionLabel(value: number) {
-    const option = options.value.find((opt: any) => findValue(opt) === value)
-    return option ? findLabel(option) : value
 }
 
 function isSelected(value: any) {
@@ -132,6 +131,7 @@ watch(() => props.fetch, fetchOptions, { immediate: true })
         <div class="flex flex-col gap-2">
             <Select
                 v-model="tempValue"
+                multiple
                 @update:model-value="handleSelect"
             >
                 <SelectTrigger
