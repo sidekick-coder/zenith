@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, watch, computed } from 'vue'
 import { get } from 'lodash-es'
-import { X } from 'lucide-vue-next'
-import { Badge } from './ui/badge'
+import { Check } from 'lucide-vue-next'
 import {
     Select,
     SelectContent,
@@ -102,6 +101,24 @@ function getOptionLabel(value: number) {
     return option ? findLabel(option) : value
 }
 
+function isSelected(value: any) {
+    return modelValue.value.includes(Number(value))
+}
+
+const isAllSelected = computed(() => {
+    if (options.value.length === 0) return false
+    return options.value.every((option: any) => modelValue.value.includes(Number(findValue(option))))
+})
+
+function toggleSelectAll() {
+    if (isAllSelected.value) {
+        modelValue.value = []
+        return
+    }
+    
+    modelValue.value = options.value.map((option: any) => Number(findValue(option)))
+}
+
 watch(() => props.fetch, fetchOptions, { immediate: true })
 </script>
 <template>
@@ -113,26 +130,6 @@ watch(() => props.fetch, fetchOptions, { immediate: true })
             {{ label }}
         </label>
         <div class="flex flex-col gap-2">
-            <div
-                v-if="modelValue.length > 0"
-                class="flex flex-wrap gap-2"
-            >
-                <Badge
-                    v-for="value in modelValue"
-                    :key="value"
-                    variant="secondary"
-                    class="flex items-center gap-1"
-                >
-                    {{ getOptionLabel(value) }}
-                    <button
-                        type="button"
-                        class="ml-1 rounded-full hover:bg-muted"
-                        @click="removeItem(value)"
-                    >
-                        <X class="size-3" />
-                    </button>
-                </Badge>
-            </div>
             <Select
                 v-model="tempValue"
                 @update:model-value="handleSelect"
@@ -141,19 +138,51 @@ watch(() => props.fetch, fetchOptions, { immediate: true })
                     class="w-full min-h-10"
                     :disabled="disabled"
                 >
-                    <select-value :placeholder="placeholder" />
+                    <div 
+                        v-if="modelValue.length > 0"
+                        class="flex items-center gap-2"
+                    >
+                        <span class="text-sm">{{ modelValue.length }} selected</span>
+                    </div>
+                    <select-value 
+                        v-if="modelValue.length === 0"
+                        :placeholder="placeholder" 
+                    />
                 </SelectTrigger>
                 <select-content>
                     <select-group>
                         <select-label v-if="!options.length">
                             {{ $t('No items') }}
                         </select-label>
+                        <div 
+                            v-if="options.length > 0"
+                            class="px-2 py-1.5 cursor-pointer hover:bg-accent text-sm font-medium border-b"
+                            @click="toggleSelectAll"
+                        >
+                            <div class="flex items-center gap-2">
+                                <Check 
+                                    v-if="isAllSelected"
+                                    class="size-4" 
+                                />
+                                <span :class="{ 'ml-6': !isAllSelected }">
+                                    {{ isAllSelected ? 'Unselect All' : 'Select All' }}
+                                </span>
+                            </div>
+                        </div>
                         <select-item
                             v-for="option in options"
                             :key="findValue(option)"
                             :value="String(findValue(option))"
                         >
-                            {{ findLabel(option) }}
+                            <div class="flex items-center gap-2">
+                                <Check 
+                                    v-if="isSelected(findValue(option))"
+                                    class="size-4" 
+                                />
+                                <span :class="{ 'ml-6': !isSelected(findValue(option)) }">
+                                    {{ findLabel(option) }}
+                                </span>
+                            </div>
                         </select-item>
                     </select-group>
                 </select-content>
