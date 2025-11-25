@@ -1,6 +1,6 @@
 <script lang="ts">
 export interface FormField {
-    component: 'text-field' | 'textarea' | 'select' | 'autocomplete' | 'switch' | 'image-upload'
+    component: 'text-field' | 'textarea' | 'select' | 'autocomplete' | 'switch' | 'image-upload' | 'color-picker'
     [key: string]: any
 }
 
@@ -22,6 +22,7 @@ import FormAutocomplete from './FormAutocomplete.vue'
 import ClientOnly from './ClientOnly.vue'
 import FormSwitch from './FormSwitch.vue'
 import FormImageUploader from './FormImageUploader.vue'
+import FormColorPicker from './FormColorPicker.vue'
 import { $t } from '#shared/lang.ts'
 import FormTextField from '#client/components/FormTextField.vue'
 import { $fetch } from '#client/utils/fetcher.ts'
@@ -215,6 +216,12 @@ defineExpose({
 
                         <FormImageUploader
                             v-else-if="field.component === 'image-upload'"
+                            :name="field.name"
+                            v-bind="field.props"
+                        />
+
+                        <FormColorPicker
+                            v-else-if="field.component === 'color-picker'"
                             :name="field.name"
                             v-bind="field.props"
                         />
