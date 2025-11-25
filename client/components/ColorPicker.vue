@@ -1,10 +1,34 @@
+<script lang="ts">
+export const defaultPresets = [
+    '#ef4444',
+    '#f97316',
+    '#f59e0b',
+    '#eab308',
+    '#84cc16',
+    '#22c55e',
+    '#10b981',
+    '#14b8a6',
+    '#06b6d4',
+    '#0ea5e9',
+    '#3b82f6',
+    '#6366f1',
+    '#8b5cf6',
+    '#a855f7',
+    '#d946ef',
+    '#ec4899',
+    '#f43f5e',
+    '#64748b',
+    '#000000',
+    '#ffffff'
+]
+</script>
 <script setup lang="ts">
 import { ref,watch, computed } from 'vue'
 import { Popover, PopoverContent, PopoverTrigger } from '#client/components/ui/popover'
 import { Input } from '#client/components/ui/input'
 import TextField from '#client/components/TextField.vue'
 import ColorWheel from '#client/components/ColorWheel.vue'
-import { useColor } from '#client/composables/useColor'
+import { useColor, useColorType } from '#client/composables/useColor'
 
 const props = defineProps({
     class: {
@@ -29,28 +53,7 @@ const props = defineProps({
     },
     presets: {
         type: Array as () => string[],
-        default: () => [
-            '#ef4444',
-            '#f97316',
-            '#f59e0b',
-            '#eab308',
-            '#84cc16',
-            '#22c55e',
-            '#10b981',
-            '#14b8a6',
-            '#06b6d4',
-            '#0ea5e9',
-            '#3b82f6',
-            '#6366f1',
-            '#8b5cf6',
-            '#a855f7',
-            '#d946ef',
-            '#ec4899',
-            '#f43f5e',
-            '#64748b',
-            '#000000',
-            '#ffffff'
-        ]
+        default: () => defaultPresets
     }
 })
 
@@ -59,8 +62,8 @@ const color = defineModel({
     type: String,
 })
 
-const format = ref<'hex' | 'rgb' | 'hsl'>('hex')
-const { hex, rgb, hsl } = useColor(color)
+const format = useColorType(color)
+const { hex, rgb, hsl, oklch } = useColor(color)
 
 const colorInput = computed({
     get() {
@@ -74,6 +77,10 @@ const colorInput = computed({
         
         if (format.value === 'hsl' && hsl.value) {
             return `hsl(${hsl.value.h}, ${hsl.value.s}%, ${hsl.value.l}%)`
+        }
+        
+        if (format.value === 'oklch' && oklch.value) {
+            return `oklch(${oklch.value.l} ${oklch.value.c} ${oklch.value.h})`
         }
         
         return ''
@@ -98,11 +105,15 @@ const cycleFormat = () => {
         return
     }
     
+    if (format.value === 'hsl') {
+        format.value = 'oklch'
+        return
+    }
+    
     format.value = 'hex'
 }
 
 watch(format, (newFormat) => {
-    // Update colorInput when format changes
     if (newFormat === 'hex') {
         colorInput.value = hex.value
         return
@@ -115,6 +126,11 @@ watch(format, (newFormat) => {
 
     if (newFormat === 'hsl' && hsl.value) {
         colorInput.value = `hsl(${hsl.value.h}, ${hsl.value.s}%, ${hsl.value.l}%)`
+        return
+    }
+    
+    if (newFormat === 'oklch' && oklch.value) {
+        colorInput.value = `oklch(${oklch.value.l} ${oklch.value.c} ${oklch.value.h})`
         return
     }
 })
@@ -172,7 +188,7 @@ watch(format, (newFormat) => {
                         :model-value="colorInput"
                         :class="{ 'uppercase': format === 'hex' }"
                         class="font-mono"
-                        :placeholder="format === 'hex' ? '#000000' : format === 'rgb' ? 'rgb(0, 0, 0)' : 'hsl(0, 0%, 0%)'"
+                        :placeholder="format === 'hex' ? '#000000' : format === 'rgb' ? 'rgb(0, 0, 0)' : format === 'hsl' ? 'hsl(0, 0%, 0%)' : 'oklch(0 0 0)'"
                         @change="(e: any) => {
                             colorInput = e.target.value
                         }"

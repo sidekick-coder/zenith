@@ -8,7 +8,7 @@ import {
     FormMessage,
 } from '#client/components/ui/form'
 
-import ColorPicker from '#client/components/ColorPicker.vue'
+import ColorPicker, { defaultPresets } from '#client/components/ColorPicker.vue'
 import TextField from '#client/components/TextField.vue'
 
 defineProps({
@@ -34,7 +34,7 @@ defineProps({
     },
     presets: {
         type: Array as () => string[],
-        default: null,
+        default: () => defaultPresets,
     },
 })
 </script>
