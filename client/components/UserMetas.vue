@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { watch, ref } from 'vue'
+import { ref } from 'vue'
 import { toast } from 'vue-sonner'
 import type { ComponentExposed } from 'vue-component-type-helpers'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from './ui/card'
@@ -126,11 +126,13 @@ async function destroy(id: UserMeta['id']) {
                         <DialogForm 
                             :title="$t('Edit')"
                             :description="$t('Update the details')"
-                            :fetch="`/api/users/${userId}/metas/${row.id}`"
+                            :fetch="`/api/users/${userId}/metas`"
                             :method="'PUT'"
                             :values="row"
                             :schema="schemas.userMeta.update"
-                            :fields="fields"
+                            :fields="{
+                                value: fields.value,
+                            }"
                             @submit="load"
                         >
                             <Button
