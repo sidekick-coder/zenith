@@ -217,7 +217,7 @@ onMounted(() => {
 
             <SidebarFooter>
                 <button
-                    class="w-full py-2 px-4 text-left hover:bg-gray-100 transition rounded flex items-center space-x-4"
+                    class="w-full py-2 px-4 text-left hover:bg-destructive transition rounded flex items-center space-x-4"
                     @click="onLogout"
                 >
                     <Icon
