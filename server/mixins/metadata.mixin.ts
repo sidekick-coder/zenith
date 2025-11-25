@@ -38,6 +38,10 @@ export function Metadata<Table extends keyof Database>(metasTable: Table, foreig
                     value = JSON.parse(value.slice(5))
                 }
 
+                if (typeof value === 'string' && value.startsWith('bool:')) {
+                    value = value.slice(5) === 'true'
+                }
+
                 return value as T
             }
 

@@ -1,5 +1,4 @@
 import fs from 'fs'
-import { request } from 'http'
 import type { Application } from 'express'
 import { createServer as createViteServer  } from 'vite'
 import type { ViteDevServer } from 'vite'
@@ -10,7 +9,7 @@ import modules from './modules.service.ts'
 import CookieService from './cookie.service.ts'
 import config from '#server/facades/config.facade.ts'
 import logger from '#server/facades/logger.facade.ts'
-import { basePath, clientPath, storagePath } from '#server/utils/paths.ts'
+import { basePath, clientPath } from '#server/utils/paths.ts'
 import router from '#server/facades/router.facade.ts'
 import auth from '#server/facades/auth.facade.ts'
 import assets from '#server/facades/assets.facade.ts'
@@ -42,6 +41,8 @@ export class ViteServer {
                 'modules:enabled': [] as string[],
                 'client:setups:client': [] as string[],
                 'client:setups:server': [] as string[],
+
+                'admin:ui:dark_mode': false,
             }
 
             const mods = await modules.list({
@@ -81,6 +82,7 @@ export class ViteServer {
                 })
 
                 state['permissions'] = permissions
+                state['admin:ui:dark_mode'] = (await state['auth:user'].get<boolean>('admin:ui:dark_mode', false))
             }
 
             const rendered = await render({
@@ -107,6 +109,11 @@ export class ViteServer {
 
             // Replace app-html first
             let html = template.replace('<!--app-html-->', body)
+            
+            // Add dark class to html tag if dark mode is enabled
+            if (state['admin:ui:dark_mode']) {
+                html = html.replace('<html', '<html class="dark"')
+            }
             
             // Find the last script or link tag in head and insert our head content after it
             const headEndIndex = html.indexOf('</head>')
