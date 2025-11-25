@@ -57,7 +57,7 @@ defineProps({
     },
 })
 
-const [model, modifiers] = defineModel<string | number>({
+const [model, modifiers] = defineModel<string | number | null>({
     default: '',
 })
 </script>
