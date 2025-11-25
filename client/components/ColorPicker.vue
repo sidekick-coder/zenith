@@ -165,7 +165,7 @@ const cycleFormat = () => {
 
                 <!-- Preset Colors -->
                 <div class="space-y-2">
-                    <label class="text-sm font-medium">Presets</label>
+                    <label class="text-sm font-medium mb-2 block">Presets</label>
                     <div class="grid grid-cols-10 gap-2">
                         <button
                             v-for="preset in presets"

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, watch } from 'vue'
+import { computed } from 'vue'
 import { useColor } from '#client/composables/useColor'
 
 const model = defineModel<string>({
@@ -17,15 +17,37 @@ const hue = computed(() => hsl.value?.h || 0)
 const saturation = computed(() => hsl.value?.s || 100)
 const lightness = computed(() => hsl.value?.l || 50)
 
+// Convert HSL to HSV for pointer position
+const hsvSaturation = computed(() => {
+    const s = saturation.value / 100
+    const l = lightness.value / 100
+    const v = l + s * Math.min(l, 1 - l)
+    return v === 0 ? 0 : 2 * (1 - l / v) * 100
+})
+
+const hsvValue = computed(() => {
+    const s = saturation.value / 100
+    const l = lightness.value / 100
+    return (l + s * Math.min(l, 1 - l)) * 100
+})
+
 function onClickWheel(e: MouseEvent) {
     const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
-    const s = ((e.clientX - rect.left) / rect.width) * 100
-    const l = 100 - ((e.clientY - rect.top) / rect.height) * 100
+    const x = (e.clientX - rect.left) / rect.width
+    const y = (e.clientY - rect.top) / rect.height
+    
+    // x = saturation, y = value (brightness in HSV)
+    const sv = x
+    const v = 1 - y
+    
+    // Convert HSV to HSL
+    const l = v * (1 - sv / 2)
+    const sl = l === 0 || l === 1 ? 0 : (v - l) / Math.min(l, 1 - l)
     
     hsl.value = {
         h: hsl.value?.h || 0,
-        s: parse(s, 0, 100),
-        l: parse(l, 0, 100)
+        s: parse(sl * 100, 0, 100),
+        l: parse(l * 100, 0, 100)
     }
 }
 
@@ -59,8 +81,8 @@ function onClickSlider(e: MouseEvent) {
                 <div
                     class="absolute w-4 h-4 border-2 border-white rounded-full shadow-lg -translate-x-1/2 -translate-y-1/2 pointer-events-none"
                     :style="{
-                        left: `${saturation}%`,
-                        top: `${100 - lightness}%`
+                        left: `${hsvSaturation}%`,
+                        top: `${100 - hsvValue}%`
                     }"
                 />
             </div>
@@ -68,7 +90,7 @@ function onClickSlider(e: MouseEvent) {
 
         <!-- Hue Slider -->
         <div class="space-y-2">
-            <label class="text-sm font-medium">Hue</label>
+            <label class="text-sm font-medium mb-2 block">Hue</label>
             <div class="relative h-3 rounded-md overflow-hidden cursor-pointer">
                 <div
                     class="absolute inset-0"
