@@ -2,22 +2,21 @@ import rootRouter from '#server/facades/router.facade.ts'
 import validator from '#shared/services/validator.service.ts'
 import authMiddleware from '#server/middlewares/auth.middleware.ts'
 import config from '#server/facades/config.facade.ts'
-import server from '#server/facades/server.facade.ts'
 import schemas from '#shared/validators/index.ts'
-import assets from '#server/facades/assets.facade.ts'
+import branding from '#server/facades/branding.facade.ts'
 
 const router = rootRouter.prefix('/api/branding')
     .use(authMiddleware)
     .group()
 
 router.get('/', async () => {
-    const branding = config.get('branding', {})
+    const data = config.get('branding', {})
 
-    if (branding.logoFileId) {
-        branding.logoUrl = `/api/files/${branding.logoFileId}/stream`
+    if (data.logoFileId) {
+        data.logoUrl = `/api/files/${data.logoFileId}/stream`
     }
 
-    return branding
+    return data
 })
 
 router.put('/', async ({ body, acl }) => {
@@ -28,25 +27,9 @@ router.put('/', async ({ body, acl }) => {
 
     config.set('branding', payload)
     
-    // console.log(config.entries.get('branding'))
+    await branding.load()
 
-    let vars = ''
-    const branding = {
-        ...config.get('branding', {}),
-        ...payload
-    }
-
-    for (const [key, value] of Object.entries(branding?.cssVars || {})) {
-        vars += `--${key}: ${value};\n`
-    }
-
-    assets.set('branding', {
-        content: `body {
-            ${vars}
-        }`
-    })
-
-    return branding
+    return payload
 })
 
 export default router
