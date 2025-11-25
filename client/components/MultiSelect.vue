@@ -50,7 +50,7 @@ const modelValue = defineModel({
 })
 
 const options = defineModel('options', {
-    type: Array,
+    type: Array as () => any[],
     default: () => [],
 })
 
@@ -164,9 +164,9 @@ watch(() => props.fetch, fetchOptions, { immediate: true })
                                     v-if="isAllSelected"
                                     class="size-4" 
                                 />
-                                <span :class="{ 'ml-6': !isAllSelected }">
+                                <div :class="{ 'ml-6': !isAllSelected }">
                                     {{ isAllSelected ? 'Unselect All' : 'Select All' }}
-                                </span>
+                                </div>
                             </div>
                         </div>
                         <select-item
@@ -175,13 +175,24 @@ watch(() => props.fetch, fetchOptions, { immediate: true })
                             :value="String(findValue(option))"
                         >
                             <div class="flex items-center gap-2">
-                                <Check 
-                                    v-if="isSelected(findValue(option))"
-                                    class="size-4" 
-                                />
-                                <span :class="{ 'ml-6': !isSelected(findValue(option)) }">
-                                    {{ findLabel(option) }}
-                                </span>
+                                <slot
+                                    name="option"
+                                    :selected="isSelected(findValue(option))"
+                                    :option="option"
+                                >
+                                    <Check 
+                                        v-if="isSelected(findValue(option))"
+                                        class="size-4" 
+                                    />
+                                    <div :class="{ 'ml-6': !isSelected(findValue(option)) }">
+                                        <slot
+                                            name="option-label"
+                                            :option="option"
+                                        >
+                                            {{ findLabel(option) }}
+                                        </slot>
+                                    </div>
+                                </slot>
                             </div>
                         </select-item>
                     </select-group>
