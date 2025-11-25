@@ -263,7 +263,7 @@ onMounted(() => {
                     </template>
                 </div>
             </header>
-            <div class="h-[calc(100dvh-5rem)] overflow-hidden">
+            <div>
                 <div
                     class="
                        dashboard-layout-content
