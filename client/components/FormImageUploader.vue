@@ -107,7 +107,9 @@ async function handlePasteFromClipboard() {
         :name
     >
         <FormItem>
-            <FormLabel>{{ label }}</FormLabel>
+            <FormLabel class="mb-2">
+                {{ label }}
+            </FormLabel>
             <FormControl>
                 <div class="flex flex-col items-baseline space-y-4">
                     <!-- Image Preview -->
