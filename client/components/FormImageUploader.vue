@@ -150,7 +150,7 @@ async function handlePasteFromClipboard() {
                                 :value="value"
                                 :set-value="setValue"
                             >
-                                <div class="flex space-x-2">
+                                <div class="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2 w-full">
                                     <Button
                                         v-if="value"
                                         type="button"

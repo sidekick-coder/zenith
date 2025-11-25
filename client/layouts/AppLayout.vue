@@ -237,30 +237,34 @@ onMounted(() => {
             >
                 <div class="flex items-center gap-2">
                     <SidebarTrigger class="-ml-1" />
-                    <template v-if="computedBreadcrumbs && computedBreadcrumbs.length > 0">
-                        <Breadcrumb>
-                            <BreadcrumbList>
-                                <template
-                                    v-for="(item, index) in computedBreadcrumbs"
-                                    :key="index"
-                                >
-                                    <BreadcrumbItem>
-                                        <template v-if="index === computedBreadcrumbs.length - 1">
-                                            <BreadcrumbPage>{{ item.label }}</BreadcrumbPage>
-                                        </template>
-                                        <template v-else>
-                                            <BreadcrumbLink as-child>
-                                                <RouterLink :to="item.to!">
-                                                    {{ item.label }}
-                                                </RouterLink>
-                                            </BreadcrumbLink>
-                                        </template>
-                                    </BreadcrumbItem>
-                                    <BreadcrumbSeparator v-if="index !== computedBreadcrumbs.length - 1" />
-                                </template>
-                            </BreadcrumbList>
-                        </Breadcrumb>
-                    </template>
+                    
+                    <Breadcrumb v-if="computedBreadcrumbs?.length">
+                        <BreadcrumbList class="md:hidden">
+                            <BreadcrumbItem>
+                                <BreadcrumbPage>{{ computedBreadcrumbs.at(-1)?.label }}</BreadcrumbPage>
+                            </BreadcrumbItem>
+                        </BreadcrumbList>
+                        <BreadcrumbList class="hidden md:flex">
+                            <template
+                                v-for="(item, index) in computedBreadcrumbs"
+                                :key="index"
+                            >
+                                <BreadcrumbItem>
+                                    <template v-if="index === computedBreadcrumbs.length - 1">
+                                        <BreadcrumbPage>{{ item.label }}</BreadcrumbPage>
+                                    </template>
+                                    <template v-else>
+                                        <BreadcrumbLink as-child>
+                                            <RouterLink :to="item.to!">
+                                                {{ item.label }}
+                                            </RouterLink>
+                                        </BreadcrumbLink>
+                                    </template>
+                                </BreadcrumbItem>
+                                <BreadcrumbSeparator v-if="index !== computedBreadcrumbs.length - 1" />
+                            </template>
+                        </BreadcrumbList>
+                    </Breadcrumb>
                 </div>
             </header>
             <div>
