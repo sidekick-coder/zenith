@@ -181,90 +181,90 @@ function toggleGroup(id: string) {
                         :hint="$t('Enable dark theme for the application')"
                         :disabled="loading || saving"
                     />
-                    <div class="flex [&>div]:px-2 flex-wrap md:flex-nowrap gap- -mx-2">
-                        <div class="w-full md:w-6/12">
-                            <Card class="mt-4 ">
-                                <CardHeader>
-                                    <CardTitle>{{ $t('Menus') }}</CardTitle>
-                                    <CardDescription>{{ $t('Toggle visibility for individual menus') }}</CardDescription>
-                                </CardHeader>
-                                <CardContent class="max-h-[500px] overflow-y-auto">
-                                    <div class="space-y-2">
-                                        <div
-                                            v-if="!menuItems.length"
-                                            class="text-sm text-muted-foreground"
-                                        >
-                                            {{ $t('No menus available') }}
-                                        </div>
-                                        <div
-                                            v-for="item in menuItems"
-                                            :key="item.id"
-                                            class="flex items-center justify-between py-2 border-b"
-                                        >
-                                            <div class="flex flex-col gap-y-3">
-                                                <div class="text-xs text-muted-foreground">
-                                                    {{ item.id }}
-                                                </div>
-                                                <div class="font-medium text-sm">
-                                                    {{ item.label }}
-                                                </div>
-                                            </div>
-                                            <Button
-                                                size="sm"
-                                                :variant="hiddenMenus.includes(item.id) ? 'destructive' : 'outline'"
-                                                @click.prevent="toggleMenu(item.id)"
-                                            >
-                                                <span v-if="hiddenMenus.includes(item.id)">{{ $t('Show') }}</span>
-                                                <span v-else>{{ $t('Hide') }}</span>
-                                            </Button>
-                                        </div>
-                                    </div>
-                                </CardContent>
-                            </Card>
-                        </div>
-                        <div class="w-full md:w-6/12">
-                            <Card class="mt-4">
-                                <CardHeader>
-                                    <CardTitle>{{ $t('Menu groups') }}</CardTitle>
-                                    <CardDescription>{{ $t('Toggle visibility for menu groups') }}</CardDescription>
-                                </CardHeader>
-                                <CardContent>
-                                    <div class="space-y-2">
-                                        <div
-                                            v-if="!menuGroups.length"
-                                            class="text-sm text-muted-foreground"
-                                        >
-                                            {{ $t('No menu groups available') }}
-                                        </div>
-                                        <div
-                                            v-for="group in menuGroups"
-                                            :key="group"
-                                            class="flex items-center justify-between py-2 border-b"
-                                        >
-                                            <div class="flex items-center gap-3">
-                                                <div class="font-medium">
-                                                    {{ group }}
-                                                </div>
-                                                <div class="text-xs text-muted-foreground">
-                                                    {{ menuItems.filter(i => i.group === group).length }} {{ $t('items') }}
-                                                </div>
-                                            </div>
-                                            <Button
-                                                size="sm"
-                                                :variant="hiddenMenuGroups.includes(group) ? 'destructive' : 'outline'"
-                                                @click.prevent="toggleGroup(group)"
-                                            >
-                                                <span v-if="hiddenMenuGroups.includes(group)">{{ $t('Show') }}</span>
-                                                <span v-else>{{ $t('Hide') }}</span>
-                                            </Button>
-                                        </div>
-                                    </div>
-                                </CardContent>
-                            </Card>
-                        </div>
-                    </div>
                 </CardContent>
             </Card>
+            <div class="flex [&>div]:px-2 flex-wrap md:flex-nowrap gap- -mx-2">
+                <div class="w-full md:w-6/12">
+                    <Card class="mt-4 ">
+                        <CardHeader>
+                            <CardTitle>{{ $t('Menus') }}</CardTitle>
+                            <CardDescription>{{ $t('Toggle visibility for individual menus') }}</CardDescription>
+                        </CardHeader>
+                        <CardContent class="max-h-[500px] overflow-y-auto">
+                            <div class="space-y-2">
+                                <div
+                                    v-if="!menuItems.length"
+                                    class="text-sm text-muted-foreground"
+                                >
+                                    {{ $t('No menus available') }}
+                                </div>
+                                <div
+                                    v-for="item in menuItems"
+                                    :key="item.id"
+                                    class="flex items-center justify-between py-2 border-b"
+                                >
+                                    <div class="flex flex-col gap-y-3">
+                                        <div class="text-xs text-muted-foreground">
+                                            {{ item.id }}
+                                        </div>
+                                        <div class="font-medium text-sm">
+                                            {{ item.label }}
+                                        </div>
+                                    </div>
+                                    <Button
+                                        size="sm"
+                                        :variant="hiddenMenus.includes(item.id) ? 'destructive' : 'outline'"
+                                        @click.prevent="toggleMenu(item.id)"
+                                    >
+                                        <span v-if="hiddenMenus.includes(item.id)">{{ $t('Show') }}</span>
+                                        <span v-else>{{ $t('Hide') }}</span>
+                                    </Button>
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
+                </div>
+                <div class="w-full md:w-6/12">
+                    <Card class="mt-4">
+                        <CardHeader>
+                            <CardTitle>{{ $t('Menu groups') }}</CardTitle>
+                            <CardDescription>{{ $t('Toggle visibility for menu groups') }}</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            <div class="space-y-2">
+                                <div
+                                    v-if="!menuGroups.length"
+                                    class="text-sm text-muted-foreground"
+                                >
+                                    {{ $t('No menu groups available') }}
+                                </div>
+                                <div
+                                    v-for="group in menuGroups"
+                                    :key="group"
+                                    class="flex items-center justify-between py-2 border-b"
+                                >
+                                    <div class="flex items-center gap-3">
+                                        <div class="font-medium">
+                                            {{ group }}
+                                        </div>
+                                        <div class="text-xs text-muted-foreground">
+                                            {{ menuItems.filter(i => i.group === group).length }} {{ $t('items') }}
+                                        </div>
+                                    </div>
+                                    <Button
+                                        size="sm"
+                                        :variant="hiddenMenuGroups.includes(group) ? 'destructive' : 'outline'"
+                                        @click.prevent="toggleGroup(group)"
+                                    >
+                                        <span v-if="hiddenMenuGroups.includes(group)">{{ $t('Show') }}</span>
+                                        <span v-else>{{ $t('Hide') }}</span>
+                                    </Button>
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
+                </div>
+            </div>
         </form>
     </AppLayout>
 </template>
