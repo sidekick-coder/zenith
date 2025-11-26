@@ -70,6 +70,14 @@ export default defineClientSetup(({ menu, router }) => {
     })
 
     menu.add({
+        id: 'auth-settings',
+        label: $t('Settings'),
+        icon: 'Lock',
+        group: $t('Auth'),
+        to: '/admin/settings/auth'
+    })
+
+    menu.add({
         id: 'drives',
         label: $t('Drives'),
         to: '/admin/drives',
@@ -94,10 +102,10 @@ export default defineClientSetup(({ menu, router }) => {
     })
     
     menu.add({
-        id: 'site',
-        label: $t('Site'),
+        id: 'system-routes',
+        label: $t('Routes'),
         icon: 'Settings',
-        group: $t('Settings'),
+        group: $t('System'),
         to: '/admin/settings/site'
     })
     
@@ -105,21 +113,15 @@ export default defineClientSetup(({ menu, router }) => {
         id: 'branding',
         label: $t('Branding'),
         icon: 'Palette',
-        group: $t('Settings'),
+        group: $t('System'),
         to: '/admin/settings/branding'
     })
     
-    menu.add({
-        id: 'settings-auth',
-        label: $t('Auth'),
-        icon: 'Lock',
-        group: $t('Settings'),
-        to: '/admin/settings/auth'
-    })
+
 
     menu.add({
         id: 'pwa',
-        group: $t('Settings'),
+        group: $t('System'),
         label: $t('PWA'),
         icon: 'Tablet',
         to: '/admin/settings/pwa'

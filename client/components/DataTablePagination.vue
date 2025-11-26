@@ -126,7 +126,7 @@ function createArray(from: number, to: number): number[] {
                             />
                         </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent>
+                    <DropdownMenuContent class="max-h-60 overflow-y-auto">
                         <DropdownMenuItem
                             v-for="p of createArray(1, Math.min(...visiblePages) - 1)"
                             :key="p"
@@ -159,7 +159,7 @@ function createArray(from: number, to: number): number[] {
                             />
                         </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent>
+                    <DropdownMenuContent class="max-h-60 overflow-y-auto">
                         <DropdownMenuItem
                             v-for="p of createArray(Math.max(...visiblePages) + 1, totalPages)"
                             :key="p"
