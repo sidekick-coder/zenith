@@ -134,15 +134,17 @@ interface GroupedMenu {
 const metas = di.get<Record<string, any>>('user:metas', {})
 const hideIds = metas['admin-ui:hide-menus'] || []
 const hideGroups = metas['admin-ui:hide-menu-groups'] || []
+const extras = metas['admin-ui:menu-extras'] || []
 
 // menu.removeMany(metas['admin-ui:hide-menus'] || [])
 // menu.removeManyGroup(metas['admin-ui:hide-menu-groups'] || [])
 
 const groups = computed(() => {
     const result = [] as GroupedMenu[]
+    const items = menu.value.concat(extras)
     
     // mount groups
-    for (const item of menu.value) {
+    for (const item of items) {
         const group = item.group || $t('General')
 
         if (hideIds.includes(item.id)) {
@@ -225,7 +227,7 @@ onMounted(() => {
                     :id="group.id"
                     :key="group.label"
                     :open
-                    :items="menu"
+                    :items="menu.concat(extras)"
                     class="py-0"
                     :label="group.label"
                 />
