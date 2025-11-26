@@ -304,6 +304,7 @@ const limit = defineModel('limit', {
 })
 
 async function load(){
+    if (!props.fetch) return
     if (loading.value) return
 
     loading.value = true 
