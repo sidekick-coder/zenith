@@ -309,6 +309,8 @@ async function load(){
 
     loading.value = true 
 
+    rows.value = []
+
     let response: Pagination | null = null
 
     if (typeof props.fetch === 'function') {

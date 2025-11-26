@@ -91,6 +91,8 @@ async function load() {
 
     loading.value = true 
 
+    items.value = []
+
     let response: Pagination | null = null
 
     if (typeof props.fetch === 'function') {
