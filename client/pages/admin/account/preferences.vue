@@ -16,12 +16,8 @@ import PageSubtitle from '#client/components/PageSubtitle.vue'
 import Icon from '#client/components/Icon.vue'
 import FormSwitch from '#client/components/FormSwitch.vue'
 import di from '#client/utils/di.ts'
-import { tryCatch } from '#shared/utils/tryCatch.ts'
 import { useMenu } from '#client/composables/useMenu.ts'
-import DataTable, { defineColumns } from '#client/components/DataTable.vue'
-import DialogForm, { defineFormFields } from '#client/components/DialogForm.vue'
-import AlertButton from '#client/components/AlertButton.vue'
-import { createId } from '#client/utils/createId.ts'
+import CustomMenuItems from '#client/components/CustomMenuItems.vue'
 
 const loading = ref(false)
 const saving = ref(false)
@@ -37,56 +33,7 @@ const menuGroups = computed(() => {
     return Array.from(new Set(groups))
 })
 
-const menuExtras = ref<Record<string, any>[]>([])
-
-const extrasColumns = defineColumns<Record<string, any>>([
-    { 
-        id: 'id',
-        label: $t('ID'),
-        field: 'id' 
-    },
-    { 
-        id: 'label',
-        label: $t('Label'),
-        field: 'label' 
-    },
-    {
-        id: 'group',
-        label: $t('Group'),
-        field: 'group'
-    },
-    {
-        id: 'to',
-        label: $t('URL'),
-        field: 'to'
-    },
-    { id: 'actions' },
-])
-
-const extrasFields = defineFormFields({
-    label: {
-        component: 'text-field',
-        label: $t('Label'),
-    },
-    icon: {
-        component: 'text-field',
-        label: $t('Icon'),
-    },
-    group: {
-        component: 'text-field',
-        label: $t('Group'),
-    },
-    to: {
-        component: 'text-field',
-        label: $t('URL'),
-    },
-})
-const extrasSchema = v.object({
-    label: v.string(),
-    icon: v.optional(v.string()),
-    group: v.optional(v.string()),
-    to: v.optional(v.string()),
-})
+// custom menu component manages its own extras
 
 const schema = toTypedSchema(v.object({
     darkMode: v.optional(v.boolean()),
@@ -124,82 +71,13 @@ async function load() {
 
     hiddenMenus.value = metas['admin-ui:hide-menus'] ? metas['admin-ui:hide-menus'] : []
     hiddenMenuGroups.value = metas['admin-ui:hide-menu-groups'] ? metas['admin-ui:hide-menu-groups'] : []
-    menuExtras.value = metas['admin-ui:menu-extras'] ? metas['admin-ui:menu-extras'] : []
     
     setTimeout(() => {
         loading.value = false
     }, 300)
 }
 
-async function persistExtras(extras: Record<string, any>[]) {
-    const json = JSON.stringify(extras)
-
-    const value = `json:${json}`
-
-    return $fetch(`/api/users/${$auth.user!.id}/metas`, {
-        method: 'PUT',
-        data: [
-            {
-                name: 'admin-ui:menu-extras',
-                value: value,
-            }
-        ],
-    })
-}
-
-async function addMenuExtra(data: Record<string, any>) {
-    data.id = createId()
-
-    const items = JSON.parse(JSON.stringify(menuExtras.value))
-
-    items.push(data)
-
-    const [error] = await tryCatch(() => persistExtras(items))
-    
-    if (error) {
-        return
-    }
-
-    menuExtras.value = items
-
-    toast.success($t('Added successfully.'))
-}
-
-async function updateMenuExtra(id: string, data: Record<string, any>) {
-    const items = JSON.parse(JSON.stringify(menuExtras.value))
-    
-    const item = items.find(i => i.id === id)
-
-    if (!item) {
-        toast.error($t('Menu extra not found'))
-        return
-    }
-    
-    Object.assign(item, data)
-    
-    const [error] = await tryCatch(() => persistExtras(items))
-    
-    if (error) {
-        toast.error($t('Could not update'))
-        return
-    }
-
-    menuExtras.value = items
-
-    toast.success($t('Updated successfully.'))
-}
-
-async function destroyExtra(id: string) {
-    const updated = menuExtras.value.filter(e => e.id !== id)
-    const [error] = await tryCatch(() => persistExtras(updated))
-    if (error) {
-        toast.error($t('Could not delete'))
-        return
-    }
-
-    menuExtras.value = updated
-    toast.success($t('Deleted successfully.'))
-}
+// custom menu persistence is handled in the component
 
 const onSubmit = handleSubmit(async (data) => {
     if (!$auth.user) {
@@ -390,65 +268,7 @@ function toggleGroup(id: string) {
                     </Card>
                 </div>
             </div>
-            <Card class="mt-4">
-                <CardHeader>
-                    <CardTitle>{{ $t('Custom menus') }}</CardTitle>
-                    <CardDescription>{{ $t('Manage additional custom menu entries') }}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <div class="flex mb-4">
-                        <div class="flex-1" />
-                        <div class="flex items-center gap-2">
-                            <DialogForm
-                                :fetch="addMenuExtra"
-                                :title="$t('Add new')"
-                                :description="$t('Create a custom menu entry')"
-                                :schema="extrasSchema"
-                                :fields="extrasFields"
-                            >
-                                <Button>
-                                    {{ $t('Add new') }}
-                                </Button>
-                            </DialogForm>
-                        </div>
-                    </div>
-
-                    <DataTable
-                        v-model:rows="menuExtras"
-                        :columns="extrasColumns"
-                        item-key="id"
-                    >
-                        <template #row-actions="{ row }">
-                            <div class="flex items-center gap-2 justify-end">
-                                <DialogForm
-                                    :fetch="data => updateMenuExtra(row.id, data)"
-                                    method="PUT"
-                                    :title="$t('Edit')"
-                                    :description="$t('Edit custom menu entry')"
-                                    :schema="extrasSchema"
-                                    :fields="extrasFields"
-                                    :values="row"
-                                >
-                                    <Button
-                                        size="icon"
-                                        variant="ghost"
-                                    >
-                                        <Icon name="Edit" />
-                                    </Button>
-                                </DialogForm>
-
-                                <AlertButton
-                                    variant="ghost"
-                                    size="sm"
-                                    @confirm="() => destroyExtra(row.id)"
-                                >
-                                    <Icon name="trash" />
-                                </AlertButton>
-                            </div>
-                        </template>
-                    </DataTable>
-                </CardContent>
-            </Card>
+            <CustomMenuItems />
         </form>
     </AppLayout>
 </template>
