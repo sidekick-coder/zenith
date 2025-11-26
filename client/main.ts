@@ -1,4 +1,6 @@
 import { createSSRApp } from 'vue'
+import Vue3TouchEvents from 'vue3-touch-events'
+import type { Vue3TouchEventsOptions } from 'vue3-touch-events'
 import { $t } from '../shared/lang'
 import App from './App.vue'
 import { createRouter } from './router'
@@ -20,6 +22,11 @@ export async function createApp() {
     const app = createSSRApp(App)
     const menu = useMenu()
     const router = createRouter()
+
+    // plugins 
+    app.use<Vue3TouchEventsOptions>(Vue3TouchEvents, {
+        disableClick: false,
+    })
 
     const user = di.get<any>('auth:user', undefined)
     const permissions = di.get<any[]>('permissions', [])

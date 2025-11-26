@@ -75,6 +75,7 @@
         "vue-component-type-helpers": "^3.0.8",
         "vue-router": "^4.6.3",
         "vue-sonner": "^2.0.8",
+        "vue3-touch-events": "^5.0.13",
         "winston": "^3.17.0",
         "zod": "^3.25.76"
     },
