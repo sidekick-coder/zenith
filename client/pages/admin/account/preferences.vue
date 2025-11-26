@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, computed } from 'vue'
 import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/valibot'
 import { toast } from 'vue-sonner'
@@ -7,7 +7,7 @@ import * as v from 'valibot'
 import { $t } from '#shared/lang.ts'
 import { $fetch } from '#client/utils/fetcher.ts'
 import { $auth } from '#client/composables/useAuth.ts'
-import FormTextarea from '#client/components/FormTextarea.vue'
+// FormTextarea removed: replaced by interactive menu lists
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '#client/components/ui/card'
 import Button from '#client/components/Button.vue'
 import AppLayout from '#client/layouts/AppLayout.vue'
@@ -16,9 +16,22 @@ import PageSubtitle from '#client/components/PageSubtitle.vue'
 import Icon from '#client/components/Icon.vue'
 import FormSwitch from '#client/components/FormSwitch.vue'
 import di from '#client/utils/di.ts'
+import { useMenu } from '#client/composables/useMenu.ts'
 
 const loading = ref(false)
 const saving = ref(false)
+
+const menu = useMenu()
+const menuItems = menu.items
+
+const hiddenMenus = ref<string[]>([])
+const hiddenMenuGroups = ref<string[]>([])
+
+const topLevelMenus = computed(() => menuItems.value.filter(i => !i.group))
+const menuGroups = computed(() => {
+    const groups = menuItems.value.map(i => i.group).filter(Boolean) as string[]
+    return Array.from(new Set(groups))
+})
 
 const schema = toTypedSchema(v.object({
     darkMode: v.optional(v.boolean()),
@@ -53,6 +66,9 @@ async function load() {
             hideMenuGroups: metas['admin-ui:hide-menu-groups'] ? metas['admin-ui:hide-menu-groups'].join(',') : '',
         }
     })
+
+    hiddenMenus.value = metas['admin-ui:hide-menus'] ? metas['admin-ui:hide-menus'] : []
+    hiddenMenuGroups.value = metas['admin-ui:hide-menu-groups'] ? metas['admin-ui:hide-menu-groups'] : []
     
     setTimeout(() => {
         loading.value = false
@@ -75,11 +91,11 @@ const onSubmit = handleSubmit(async (data) => {
             },
             {
                 name: 'admin-ui:hide-menus',
-                value: data.hideMenus ? `json:${JSON.stringify(data.hideMenus.split(',').map(s => s.trim()))}` : 'json:[]',
+                value: hiddenMenus.value.length ? `json:${JSON.stringify(hiddenMenus.value)}` : 'json:[]',
             },
             {
                 name: 'admin-ui:hide-menu-groups',
-                value: data.hideMenuGroups ? `json:${JSON.stringify(data.hideMenuGroups.split(',').map(s => s.trim()))}` : 'json:[]',
+                value: hiddenMenuGroups.value.length ? `json:${JSON.stringify(hiddenMenuGroups.value)}` : 'json:[]',
             }
         ],
     })
@@ -100,6 +116,24 @@ const onSubmit = handleSubmit(async (data) => {
 onMounted(() => {
     load()
 })
+
+function toggleMenu(id: string) {
+    const i = hiddenMenus.value.indexOf(id)
+    if (i === -1) {
+        hiddenMenus.value.push(id)
+        return
+    }
+    hiddenMenus.value.splice(i, 1)
+}
+
+function toggleGroup(id: string) {
+    const i = hiddenMenuGroups.value.indexOf(id)
+    if (i === -1) {
+        hiddenMenuGroups.value.push(id)
+        return
+    }
+    hiddenMenuGroups.value.splice(i, 1)
+}
 </script>
 
 <template>
@@ -134,6 +168,7 @@ onMounted(() => {
                 </div>
             </div>
 
+            
             <Card>
                 <CardHeader>
                     <CardTitle>{{ $t('Appearance') }}</CardTitle>
@@ -146,20 +181,88 @@ onMounted(() => {
                         :hint="$t('Enable dark theme for the application')"
                         :disabled="loading || saving"
                     />
-                    
-                    <FormTextarea
-                        name="hideMenus"
-                        :label="$t('Hidden menu ids')"
-                        :hint="$t('Comma-separated list of menu IDs you want to hide from your admin UI')"
-                        :rows="3"
-                    />
-
-                    <FormTextarea
-                        name="hideMenuGroups"
-                        :label="$t('Hidden menu group ids')"
-                        :hint="$t('Comma-separated list of menu group IDs you want to hide from your admin UI')"
-                        :rows="3"
-                    />
+                    <div class="flex [&>div]:px-2 flex-wrap md:flex-nowrap gap- -mx-2">
+                        <div class="w-full md:w-6/12">
+                            <Card class="mt-4 ">
+                                <CardHeader>
+                                    <CardTitle>{{ $t('Menus') }}</CardTitle>
+                                    <CardDescription>{{ $t('Toggle visibility for individual menus') }}</CardDescription>
+                                </CardHeader>
+                                <CardContent class="max-h-[500px] overflow-y-auto">
+                                    <div class="space-y-2">
+                                        <div
+                                            v-if="!menuItems.length"
+                                            class="text-sm text-muted-foreground"
+                                        >
+                                            {{ $t('No menus available') }}
+                                        </div>
+                                        <div
+                                            v-for="item in menuItems"
+                                            :key="item.id"
+                                            class="flex items-center justify-between py-2 border-b"
+                                        >
+                                            <div class="flex flex-col gap-y-3">
+                                                <div class="text-xs text-muted-foreground">
+                                                    {{ item.id }}
+                                                </div>
+                                                <div class="font-medium text-sm">
+                                                    {{ item.label }}
+                                                </div>
+                                            </div>
+                                            <Button
+                                                size="sm"
+                                                :variant="hiddenMenus.includes(item.id) ? 'destructive' : 'outline'"
+                                                @click.prevent="toggleMenu(item.id)"
+                                            >
+                                                <span v-if="hiddenMenus.includes(item.id)">{{ $t('Show') }}</span>
+                                                <span v-else>{{ $t('Hide') }}</span>
+                                            </Button>
+                                        </div>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        </div>
+                        <div class="w-full md:w-6/12">
+                            <Card class="mt-4">
+                                <CardHeader>
+                                    <CardTitle>{{ $t('Menu groups') }}</CardTitle>
+                                    <CardDescription>{{ $t('Toggle visibility for menu groups') }}</CardDescription>
+                                </CardHeader>
+                                <CardContent>
+                                    <div class="space-y-2">
+                                        <div
+                                            v-if="!menuGroups.length"
+                                            class="text-sm text-muted-foreground"
+                                        >
+                                            {{ $t('No menu groups available') }}
+                                        </div>
+                                        <div
+                                            v-for="group in menuGroups"
+                                            :key="group"
+                                            class="flex items-center justify-between py-2 border-b"
+                                        >
+                                            <div class="flex items-center gap-3">
+                                                <div class="font-medium">
+                                                    {{ group }}
+                                                </div>
+                                                <div class="text-xs text-muted-foreground">
+                                                    {{ menuItems.filter(i => i.group === group).length }} {{ $t('items') }}
+                                                </div>
+                                            </div>
+                                            <Button
+                                                size="sm"
+                                                :variant="hiddenMenuGroups.includes(group) ? 'destructive' : 'outline'"
+                                                @click.prevent="toggleGroup(group)"
+                                            >
+                                                <span v-if="hiddenMenuGroups.includes(group)">{{ $t('Show') }}</span>
+                                                <span v-else>{{ $t('Hide') }}</span>
+                                            </Button>
+                                        </div>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        </div>
+                    </div>
                 </CardContent>
             </Card>
         </form>

@@ -35,6 +35,7 @@ import { useMenu } from '#client/composables/useMenu.ts'
 import type { MenuItem } from '#client/composables/useMenu.ts'
 import Icon from '#client/components/Icon.vue'
 import config from '#client/facades/config.facade.ts'
+import di from '#client/utils/di.ts'
 
 export interface BreadcrumbItem {
     label: string;
@@ -130,12 +131,28 @@ interface GroupedMenu {
     items: MenuItem[];
 }
 
+const metas = di.get<Record<string, any>>('user:metas', {})
+const hideIds = metas['admin-ui:hide-menus'] || []
+const hideGroups = metas['admin-ui:hide-menu-groups'] || []
+
+// menu.removeMany(metas['admin-ui:hide-menus'] || [])
+// menu.removeManyGroup(metas['admin-ui:hide-menu-groups'] || [])
+
 const groups = computed(() => {
     const result = [] as GroupedMenu[]
     
     // mount groups
     for (const item of menu.value) {
         const group = item.group || $t('General')
+
+        if (hideIds.includes(item.id)) {
+            continue
+        }
+
+        if (hideGroups.includes(group)) {
+            continue
+        }
+
 
         let current = result.find(g => g.id === group)
 
