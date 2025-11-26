@@ -2,6 +2,8 @@
 import { computed } from 'vue'
 import Icon from './Icon.vue'
 import Select from './Select.vue'
+import DropdownMenu from './ui/dropdown-menu/DropdownMenu.vue'
+import { DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuItem } from './ui/dropdown-menu'
 import { Button } from '#client/components/ui/button'
 
 const page = defineModel('page', {
@@ -60,6 +62,16 @@ const visiblePages = computed(() => {
     return pages
 })
 
+function createArray(from: number, to: number): number[] {
+    const arr: number[] = []
+    
+    for (let i = from; i <= to; i++) {
+        arr.push(i)
+    }
+
+    return arr
+}
+
 
 </script>
 
@@ -101,6 +113,30 @@ const visiblePages = computed(() => {
                         class="w-3 h-3 sm:w-4 sm:h-4"
                     />
                 </Button>
+                <DropdownMenu v-if="!visiblePages.includes(1)">
+                    <DropdownMenuTrigger as-child>
+                        <Button
+                            variant="outline"
+                            class="w-8 h-8 p-0"
+                        >
+                            <span class="sr-only">{{ $t('More pages') }}</span>
+                            <Icon
+                                name="MoreHorizontal"
+                                class="w-3 h-3 sm:w-4 sm:h-4"
+                            />
+                        </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent>
+                        <DropdownMenuItem
+                            v-for="p of createArray(1, Math.min(...visiblePages) - 1)"
+                            :key="p"
+                            class="cursor-pointer"
+                            @click="page = p"
+                        >
+                            {{ p }}
+                        </DropdownMenuItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
                 <Button
                     v-for="pageNumber in visiblePages"
                     :key="pageNumber"
@@ -110,6 +146,30 @@ const visiblePages = computed(() => {
                 >
                     {{ pageNumber }}
                 </Button>
+                <DropdownMenu v-if="!visiblePages.includes(totalPages)">
+                    <DropdownMenuTrigger as-child>
+                        <Button
+                            variant="outline"
+                            class="w-8 h-8 p-0"
+                        >
+                            <span class="sr-only">{{ $t('More pages') }}</span>
+                            <Icon
+                                name="MoreHorizontal"
+                                class="w-3 h-3 sm:w-4 sm:h-4"
+                            />
+                        </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent>
+                        <DropdownMenuItem
+                            v-for="p of createArray(Math.max(...visiblePages) + 1, totalPages)"
+                            :key="p"
+                            class="cursor-pointer"
+                            @click="page = p"
+                        >
+                            {{ p }}
+                        </DropdownMenuItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
                 <Button
                     variant="outline"
                     class="w-8 h-8 p-0"
