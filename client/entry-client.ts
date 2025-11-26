@@ -1,7 +1,6 @@
 import { createApp } from './main'
 import di from './utils/di'
 import config from './facades/config.facade'
-import { flatten } from '#shared/utils/flatten.ts'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
 
 export async function importDynamicModule(modulePath: string) {

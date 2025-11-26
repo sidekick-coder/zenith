@@ -35,7 +35,6 @@ import { useMenu } from '#client/composables/useMenu.ts'
 import type { MenuItem } from '#client/composables/useMenu.ts'
 import Icon from '#client/components/Icon.vue'
 import config from '#client/facades/config.facade.ts'
-import { $acl } from '#client/composables/useAcl.ts'
 
 export interface BreadcrumbItem {
     label: string;

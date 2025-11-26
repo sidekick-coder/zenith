@@ -68,9 +68,26 @@ router.put('/', async ({ params, body, acl }) => {
 
     acl.authorize('update', user)
 
-    const payload = validator.validate(body, schemas.userMeta.create)
+    const payload = validator.validate(body, v => v.union([
+        schemas.userMeta.create,
+        v.array(schemas.userMeta.create)
+    ]))
 
-    await user.set(payload.name, payload.value)
+    const items = Array.isArray(payload) ? payload : [payload]
+
+    for await (const item of items) {
+        await UserMeta.updateOrCreate({
+            where: eb => eb.and({
+                user_id: userId,
+                name: item.name
+            }),
+            values: {
+                user_id: userId,
+                name: item.name,
+                value: item.value
+            }
+        })
+    }
 
     return payload
 })

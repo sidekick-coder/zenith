@@ -57,6 +57,12 @@ export async function createApp() {
 
     hide.forEach(id => menu.remove(id))
     
+    // also remove menu items the user has chosen to hide via user meta
+    const metas = di.get<Record<string, any>>('user:metas', {})
+
+    menu.removeMany(metas['admin-ui:hide-menus'] || [])
+    menu.removeManyGroup(metas['admin-ui:hide-menu-groups'] || [])
+    
     const homeRoute = config.get('site.home_route_path', '/hello')
     
     const route = router.resolve(homeRoute)

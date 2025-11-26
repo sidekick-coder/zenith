@@ -9,6 +9,7 @@ import { Hooks } from '#server/mixins/hooks.mixin.ts'
 import hasher from '#server/facades/hasher.facade.ts'
 import { firstOrCreate } from '#server/queries/firstOrCreate.ts'
 import { Metadata } from '#server/mixins/metadata.mixin.ts'
+import MetadataService from '#server/services/metadata.service.ts'
 
 export default class User extends composeWith(
     BaseUser,
@@ -16,6 +17,14 @@ export default class User extends composeWith(
     Model('users'),
     Metadata('user_metas', 'user_id')
 ) {
+
+    public get $metas(){
+        return new MetadataService({
+            foreignKey: 'user_id',
+            table: 'user_metas',
+            id: this.id
+        })
+    }
 
     public static boot(){
         this.on('beforeInsert', async (user: User) => {

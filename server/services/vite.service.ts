@@ -42,7 +42,7 @@ export class ViteServer {
                 'client:setups:client': [] as string[],
                 'client:setups:server': [] as string[],
 
-                'admin:ui:dark_mode': false,
+                'user:metas': {} as Record<string, any>,
             }
 
             const mods = await modules.list({
@@ -82,7 +82,7 @@ export class ViteServer {
                 })
 
                 state['permissions'] = permissions
-                state['admin:ui:dark_mode'] = (await state['auth:user'].get<boolean>('admin:ui:dark_mode', false))
+                state['user:metas'] = await state['auth:user'].$metas.all()
             }
 
             const rendered = await render({
@@ -111,7 +111,7 @@ export class ViteServer {
             let html = template.replace('<!--app-html-->', body)
             
             // Add dark class to html tag if dark mode is enabled
-            if (state['admin:ui:dark_mode']) {
+            if (state['user:metas']['admin-ui:dark_mode']) {
                 html = html.replace('<html', '<html class="dark"')
             }
             

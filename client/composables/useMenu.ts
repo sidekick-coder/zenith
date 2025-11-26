@@ -58,6 +58,19 @@ export function useMenu() {
         }
     }
 
+    function removeGroup(groupId: string) {
+        items.value = items.value.filter(i => i.group !== groupId)
+    }
+
+    function removeMany(itemIds: string[]) {
+        itemIds.forEach(id => remove(id))
+    }
+
+    function removeManyGroup(groupIds: string[]) {
+        console.log('removeManyGroup', groupIds)
+        groupIds.forEach(id => removeGroup(id))
+    }
+
     function clear() {
         items.value = []
     }
@@ -66,6 +79,9 @@ export function useMenu() {
         items,
         add,
         remove,
+        removeGroup,
+        removeMany,
+        removeManyGroup,
         clear
     }
 }
