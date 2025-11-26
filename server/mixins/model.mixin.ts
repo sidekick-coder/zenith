@@ -230,6 +230,7 @@ export function Model<Table extends keyof Database>(table: Table, primaryKey: ke
                  
                 return queries.updateOrCreate(table, {
                     debug: o.debug,
+                    where: o.where,
                     select: o.select,
                     update: o.update,
                     values: o.values,
