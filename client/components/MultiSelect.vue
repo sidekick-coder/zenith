@@ -16,7 +16,7 @@ import { $fetch } from '#client/utils/fetcher.ts'
 const props = defineProps({
     label: {
         type: String,
-        required: false
+        default: null,
     },
     placeholder: {
         type: String,
@@ -77,7 +77,11 @@ function findFetchOptions(response: any) {
 async function fetchOptions() {
     if (!props.fetch) return
 
-    const response = await $fetch(props.fetch)
+    const response = await $fetch(props.fetch, {
+        query: {
+            limit: 1000,
+        },
+    })
 
     options.value = findFetchOptions(response)
 }
@@ -149,7 +153,7 @@ watch(() => props.fetch, fetchOptions, { immediate: true })
                         :placeholder="placeholder" 
                     />
                 </SelectTrigger>
-                <select-content>
+                <select-content class="max-h-92 overflow-y-auto">
                     <select-group>
                         <select-label v-if="!options.length">
                             {{ $t('No items') }}
