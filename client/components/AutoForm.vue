@@ -19,24 +19,13 @@ import type { BaseSchema } from 'valibot'
 import FormTextarea from './FormTextarea.vue'
 import FormSelect from './FormSelect.vue'
 import FormAutocomplete from './FormAutocomplete.vue'
-import ClientOnly from './ClientOnly.vue'
 import FormSwitch from './FormSwitch.vue'
 import FormImageUploader from './FormImageUploader.vue'
 import FormColorPicker from './FormColorPicker.vue'
-import AutoForm from './AutoForm.vue'
 import { $t } from '#shared/lang.ts'
 import FormTextField from '#client/components/FormTextField.vue'
 import { $fetch } from '#client/utils/fetcher.ts'
 import Button from '#client/components/Button.vue'
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-} from '#client/components/ui/dialog'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
 import validator from '#shared/services/validator.service.ts'
 
@@ -162,41 +151,71 @@ defineExpose({
 })
 </script>
 <template>
-    <ClientOnly>
-        <template #fallback>
-            <slot />
-        </template>
-
-        <Dialog v-model:open="open">
-            <DialogTrigger v-if="$slots.default">
-                <slot />
-            </DialogTrigger>
+    <form
+        class="space-y-4 py-2"
+        @submit.prevent="onSubmit"
+    >
+        <template
+            v-for="field in components"
+            :key="field.name"
+        >
+            <FormTextField
+                v-if="field.component === 'text-field'"
+                :name="field.name"
+                v-bind="field.props"
+            />
     
-            <DialogContent>
-                <DialogHeader>
-                    <DialogTitle>{{ title }}</DialogTitle>
-                    <DialogDescription>{{ description }}</DialogDescription>
-                </DialogHeader>
-                <AutoForm 
-                    :schema="schema"
-                    :values="values"
-                    :fetch="fetch"
-                    :method="method"
-                    :fields="fields"
-                    :submit-text="submitText"
-                    @submit="$emit('submit', $event)"
-                >
-                    <DialogFooter>
-                        <Button
-                            type="submit"
-                            class="w-full"
-                            :loading
-                        >
-                            {{ submitText }}
-                        </Button>
-                    </DialogFooter>
-                </AutoForm>
-            </DialogContent>
-        </Dialog>
-    </ClientOnly>
+            <FormTextarea
+                v-else-if="field.component === 'textarea'"
+                :name="field.name"
+                v-bind="field.props"
+            />
+                        
+            <FormSelect
+                v-else-if="field.component === 'select'"
+                :name="field.name"
+                v-bind="field.props"
+            />
+    
+            <FormAutocomplete
+                v-else-if="field.component === 'autocomplete'"
+                :name="field.name"
+                v-bind="field.props"
+            />
+
+            <FormSwitch
+                v-else-if="field.component === 'switch'"
+                :name="field.name"
+                v-bind="field.props"
+            />
+
+            <FormImageUploader
+                v-else-if="field.component === 'image-upload'"
+                :name="field.name"
+                v-bind="field.props"
+            />
+
+            <FormColorPicker
+                v-else-if="field.component === 'color-picker'"
+                :name="field.name"
+                v-bind="field.props"
+            />
+    
+            <!-- Add other field types like select, checkbox, radio as needed -->
+        </template>
+    
+        <div
+            v-if="Object.keys(errorsWihoutFields).length"
+            class="mb-2 text-sm text-red-600"
+        >
+            <div
+                v-for="(message, field) in errorsWihoutFields"
+                :key="field"
+            >
+                {{ message }}
+            </div>
+        </div>
+
+        <slot />
+    </form>
 </template>
