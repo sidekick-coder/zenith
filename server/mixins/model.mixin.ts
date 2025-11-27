@@ -238,6 +238,12 @@ export function Model<Table extends keyof Database>(table: Table, primaryKey: ke
                 }) as any
             }
 
+            public static destroyById<T>(this: new () => T, id: any): void {
+                return queries.destroy(table, {
+                    query: (qb: any) => qb.where(primaryKey as string, '=', id)
+                }) as any
+            }
+
             public async save() {
                 await queries.update(table, {
                     where: (qb: any) => qb(primaryKey, '=', (this as any)[primaryKey]),

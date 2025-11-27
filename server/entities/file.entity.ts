@@ -38,4 +38,8 @@ export default class File extends composeWith(
     public async loadUrl() {
         this.url = await drive.use(this.drive).url(this.filename)
     }
+
+    public async deleteFromDrive() {
+        await drive.use(this.drive).delete(this.filename)
+    }
 }
