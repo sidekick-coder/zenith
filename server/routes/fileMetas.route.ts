@@ -108,10 +108,16 @@ router.post('/', async ({ params, body, acl }) => {
 
     const payload = validator.validate(body, schemas.fileMeta.create)
 
-    const fileMeta = await FileMeta.create({
-        file_id: fileId,
-        name: payload.name,
-        value: payload.value
+    const fileMeta = await FileMeta.updateOrCreate({
+        where: eb => eb.and({
+            file_id: fileId,
+            name: payload.name
+        }),
+        values: {
+            file_id: fileId,
+            name: payload.name,
+            value: payload.value
+        }
     })
 
     return fileMeta
