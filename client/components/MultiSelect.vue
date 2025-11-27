@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch, computed } from 'vue'
+import { ref, watch } from 'vue'
 import { get } from 'lodash-es'
 import { Check } from 'lucide-vue-next'
 import {
@@ -11,6 +11,8 @@ import {
     SelectTrigger,
     SelectValue,
 } from './ui/select'
+import Icon from './Icon.vue'
+import Button from './Button.vue'
 import { $fetch } from '#client/utils/fetcher.ts'
 
 const props = defineProps({
@@ -44,7 +46,7 @@ const props = defineProps({
     },
 })
 
-const modelValue = defineModel({
+const model = defineModel({
     type: Array as () => number[],
     default: () => [],
 })
@@ -89,11 +91,11 @@ async function fetchOptions() {
 function handleSelect(value: any) {
     const numValue = Number(value)
 
-    if (!modelValue.value.includes(numValue)) {
-        modelValue.value = [...modelValue.value, numValue]
+    if (!model.value.includes(numValue)) {
+        model.value = [...model.value, numValue]
     }
 
-    if (modelValue.value.includes(numValue)) {
+    if (model.value.includes(numValue)) {
         removeItem(numValue)
     }
 
@@ -101,25 +103,15 @@ function handleSelect(value: any) {
 }
 
 function removeItem(value: number) {
-    modelValue.value = modelValue.value.filter(v => v !== value)
+    model.value = model.value.filter(v => v !== value)
 }
 
 function isSelected(value: any) {
-    return modelValue.value.includes(Number(value))
+    return model.value.includes(Number(value))
 }
 
-const isAllSelected = computed(() => {
-    if (options.value.length === 0) return false
-    return options.value.every((option: any) => modelValue.value.includes(Number(findValue(option))))
-})
-
-function toggleSelectAll() {
-    if (isAllSelected.value) {
-        modelValue.value = []
-        return
-    }
-    
-    modelValue.value = options.value.map((option: any) => Number(findValue(option)))
+function selectAll() {    
+    model.value = options.value.map((option: any) => Number(findValue(option)))
 }
 
 watch(() => props.fetch, fetchOptions, { immediate: true })
@@ -143,14 +135,22 @@ watch(() => props.fetch, fetchOptions, { immediate: true })
                     :disabled="disabled"
                 >
                     <div 
-                        v-if="modelValue.length > 0"
+                        v-if="model.length > 0"
                         class="flex items-center gap-2"
                     >
-                        <span class="text-sm">{{ modelValue.length }} selected</span>
+                        <span class="text-sm">{{ model.length }} selected</span>
                     </div>
+
                     <select-value 
-                        v-if="modelValue.length === 0"
+                        v-if="model.length === 0"
                         :placeholder="placeholder" 
+                    />
+
+                    <Icon
+                        v-if="model.length > 0"
+                        name="x"
+                        class="size-4 ml-auto cursor-pointer hover:text-red-500"
+                        @click.stop.prevent="model = []"
                     />
                 </SelectTrigger>
                 <select-content class="max-h-92 overflow-y-auto">
@@ -158,21 +158,6 @@ watch(() => props.fetch, fetchOptions, { immediate: true })
                         <select-label v-if="!options.length">
                             {{ $t('No items') }}
                         </select-label>
-                        <div 
-                            v-if="options.length > 0"
-                            class="px-2 py-1.5 cursor-pointer hover:bg-accent text-sm font-medium border-b"
-                            @click="toggleSelectAll"
-                        >
-                            <div class="flex items-center gap-2">
-                                <Check 
-                                    v-if="isAllSelected"
-                                    class="size-4" 
-                                />
-                                <div :class="{ 'ml-6': !isAllSelected }">
-                                    {{ isAllSelected ? 'Unselect All' : 'Select All' }}
-                                </div>
-                            </div>
-                        </div>
                         <select-item
                             v-for="option in options"
                             :key="findValue(option)"
@@ -200,6 +185,25 @@ watch(() => props.fetch, fetchOptions, { immediate: true })
                             </div>
                         </select-item>
                     </select-group>
+
+                    <template #bottom>
+                        <div class="flex space-x-2 p-2 border-t justify-end">
+                            <Button
+                                variant="outline"
+                                :disabled="options.length === model.length"
+                                @click="selectAll"
+                            >
+                                {{ $t('All') }}
+                            </Button>
+                            <Button
+                                variant="outline"
+                                :disabled="model.length === 0"
+                                @click="model = []"
+                            >
+                                {{ $t('Clear') }}
+                            </Button>
+                        </div>
+                    </template>
                 </select-content>
             </Select>
         </div>
