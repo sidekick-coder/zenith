@@ -16,16 +16,9 @@ import { toTypedSchema } from '@vee-validate/valibot'
 import { computed, ref, watch  } from 'vue'
 import type { PropType } from 'vue'
 import type { BaseSchema } from 'valibot'
-import FormTextarea from './FormTextarea.vue'
-import FormSelect from './FormSelect.vue'
-import FormAutocomplete from './FormAutocomplete.vue'
 import ClientOnly from './ClientOnly.vue'
-import FormSwitch from './FormSwitch.vue'
-import FormImageUploader from './FormImageUploader.vue'
-import FormColorPicker from './FormColorPicker.vue'
-import AutoForm from './AutoForm.vue'
+import FormAutoFieldList from './FormAutoFieldList.vue'
 import { $t } from '#shared/lang.ts'
-import FormTextField from '#client/components/FormTextField.vue'
 import { $fetch } from '#client/utils/fetcher.ts'
 import Button from '#client/components/Button.vue'
 import {
@@ -177,15 +170,24 @@ defineExpose({
                     <DialogTitle>{{ title }}</DialogTitle>
                     <DialogDescription>{{ description }}</DialogDescription>
                 </DialogHeader>
-                <AutoForm 
-                    :schema="schema"
-                    :values="values"
-                    :fetch="fetch"
-                    :method="method"
-                    :fields="fields"
-                    :submit-text="submitText"
-                    @submit="$emit('submit', $event)"
+                <form
+                    class="space-y-4 py-2"
+                    @submit.prevent="onSubmit"
                 >
+                    <FormAutoFieldList :fields="fields" />
+    
+                    <div
+                        v-if="Object.keys(errorsWihoutFields).length"
+                        class="mb-2 text-sm text-red-600"
+                    >
+                        <div
+                            v-for="(message, field) in errorsWihoutFields"
+                            :key="field"
+                        >
+                            {{ message }}
+                        </div>
+                    </div>
+                    
                     <DialogFooter>
                         <Button
                             type="submit"
@@ -195,7 +197,7 @@ defineExpose({
                             {{ submitText }}
                         </Button>
                     </DialogFooter>
-                </AutoForm>
+                </form>
             </DialogContent>
         </Dialog>
     </ClientOnly>
