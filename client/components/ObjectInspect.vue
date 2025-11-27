@@ -14,6 +14,7 @@ import {
 import Icon from '#client/components/Icon.vue'
 import { $t } from '#shared/lang'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
+import { cn } from '#client/lib/utils.ts'
 
 defineProps({
     title: {
@@ -23,6 +24,10 @@ defineProps({
     description: {
         type: String,
         default: $t('Inspect the object data structure')
+    },
+    contentClass: {
+        type: String,
+        default: ''
     }
 })
 
@@ -60,7 +65,7 @@ const parsed = computed(() => {
                 </Button>
             </slot>
         </DialogTrigger>
-        <DialogContent class="sm:max-w-[500px] overflow-auto max-h-[80vh]">
+        <DialogContent :class="cn(`sm:max-w-[500px] overflow-auto max-h-[80vh]`, contentClass)">
             <DialogHeader>
                 <DialogTitle>
                     {{ title }}
