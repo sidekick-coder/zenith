@@ -7,6 +7,7 @@ import {
     onMounted
 } from 'vue'
 import { useRoute } from 'vue-router'
+import { truncate } from 'lodash-es'
 import AppLayoutSidebarGroup from './AppLayoutSidebarGroup.vue'
 import Logo from '#client/components/Logo.vue'
 import {
@@ -264,7 +265,7 @@ onMounted(() => {
                     <Breadcrumb v-if="computedBreadcrumbs?.length">
                         <BreadcrumbList class="md:hidden">
                             <BreadcrumbItem>
-                                <BreadcrumbPage>{{ computedBreadcrumbs.at(-1)?.label }}</BreadcrumbPage>
+                                <BreadcrumbPage>{{ truncate(computedBreadcrumbs.at(-1)?.label) }}</BreadcrumbPage>
                             </BreadcrumbItem>
                         </BreadcrumbList>
                         <BreadcrumbList class="hidden md:flex">
@@ -274,12 +275,12 @@ onMounted(() => {
                             >
                                 <BreadcrumbItem>
                                     <template v-if="index === computedBreadcrumbs.length - 1">
-                                        <BreadcrumbPage>{{ item.label }}</BreadcrumbPage>
+                                        <BreadcrumbPage>{{ truncate(item.label) }}</BreadcrumbPage>
                                     </template>
                                     <template v-else>
                                         <BreadcrumbLink as-child>
                                             <RouterLink :to="item.to!">
-                                                {{ item.label }}
+                                                {{ truncate(item.label) }}
                                             </RouterLink>
                                         </BreadcrumbLink>
                                     </template>
