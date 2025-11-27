@@ -3,6 +3,7 @@ import { defineClientSetup } from './utils/defineClientSetup'
 import authGuard from './guards/auth.guard'
 import guestGuard from './guards/guest.guard'
 import setupGuard from './guards/setup.guard'
+import { $auth } from './composables/useAuth'
 import { $t } from '#shared/lang.ts'
 
 export default defineClientSetup(({ menu, router }) => {
@@ -32,7 +33,7 @@ export default defineClientSetup(({ menu, router }) => {
     menu.add({
         id: 'account-profile',
         label: $t('Profile'),
-        to: '/admin/account/profile',
+        to: `/admin/users/${$auth.user?.id}`,
         icon: 'User',
         group: $t('Account')
     })
@@ -89,7 +90,7 @@ export default defineClientSetup(({ menu, router }) => {
         id: 'files',
         label: $t('Files'),
         to: '/admin/files',
-        icon: 'List',
+        icon: 'File',
         group: $t('Storage')
     })
 
@@ -116,8 +117,6 @@ export default defineClientSetup(({ menu, router }) => {
         group: $t('System'),
         to: '/admin/settings/branding'
     })
-    
-
 
     menu.add({
         id: 'pwa',
