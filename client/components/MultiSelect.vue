@@ -145,13 +145,6 @@ watch(() => props.fetch, fetchOptions, { immediate: true })
                         v-if="model.length === 0"
                         :placeholder="placeholder" 
                     />
-
-                    <Icon
-                        v-if="model.length > 0"
-                        name="x"
-                        class="size-4 ml-auto cursor-pointer hover:text-red-500"
-                        @click.stop.prevent="model = []"
-                    />
                 </SelectTrigger>
                 <select-content class="max-h-92 overflow-y-auto">
                     <select-group>
