@@ -7,7 +7,7 @@ import type { Database } from '#server/contracts/database.contract.ts'
 
 export interface UpdateOrCreateOptions<T extends keyof Database> extends SerializeOptions<T> {
     debug?: boolean
-    where: (qb: ExpressionBuilder<Database, T>) => ExpressionWrapper<Database, T, any>
+    where?: (qb: ExpressionBuilder<Database, T>) => ExpressionWrapper<Database, T, any>
     select?: (qb: SelectFrom<T>) => SelectFrom<T>
     update?: (qb: UpdateFrom<T>) => UpdateFrom<T>
     values: Insertable<Database[T]> | Insertable<Database[T]>[]
