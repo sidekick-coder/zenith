@@ -56,7 +56,7 @@ export const arrayNumber = () => validator
         }),
     ))
 
-export function object<const TEntries extends ObjectEntries>(entries: TEntries) {
+export const object = () => {
     return validator
         .create(v => v.pipe(
             v.union([v.string(), v.record(v.string(), v.any())]),
@@ -70,6 +70,5 @@ export function object<const TEntries extends ObjectEntries>(entries: TEntries) 
 
                 return result
             }),
-            vObject(entries)
         ))
 }
