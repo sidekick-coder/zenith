@@ -2,6 +2,7 @@
 import { computed, watch  } from 'vue'
 import type { PropType } from 'vue'
 import { get } from 'lodash-es'
+import { watchDebounced } from '@vueuse/core'
 import Checkbox from './ui/checkbox/Checkbox.vue'
 import DataTablePagination from './DataTablePagination.vue'
 import {
@@ -307,6 +308,11 @@ async function load(){
     if (!props.fetch) return
     if (loading.value) return
 
+    window.scrollTo({
+        top: 0, 
+        behavior: 'smooth' 
+    })
+
     loading.value = true 
 
     rows.value = []
@@ -359,21 +365,31 @@ async function load(){
     page.value = response.page || 1
     totalPages.value = response.total_pages || 1
 
+    
     setTimeout(() => {
         loading.value = false
     }, 800)
 }
 function reset() {
     page.value = 1
+
     load()
+
+    
 }
 
 watch([page, limit], load, { immediate: true })
+watchDebounced(() => props.query, reset, { 
+    deep: true,
+    debounce: 1000 
+})
+
 
 defineExpose({ 
     load,
     reset
 })
+
 </script>
 
 <template>

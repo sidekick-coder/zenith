@@ -89,9 +89,15 @@ const limit = defineModel('limit', {
 async function load() {
     if (loading.value) return
 
+    window.scrollTo({
+        top: 0, 
+        behavior: 'smooth' 
+    })
+
     loading.value = true 
 
     items.value = []
+
 
     let response: Pagination | null = null
 
@@ -130,6 +136,8 @@ async function load() {
     limit.value = response.per_page || 20
     page.value = response.page || 1
     totalPages.value = response.total_pages || 1
+
+    
 
     setTimeout(() => {
         loading.value = false
