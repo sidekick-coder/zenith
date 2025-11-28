@@ -537,9 +537,9 @@ defineExpose({
                         <div
                             v-for="c in columns"
                             :key="c.id"
-                            :class="cn('space-x-4 flex justify-between items-center border-b px-4 py-3 last:border-b-0', c.cardClass)"
+                            :class="cn('space-x-4 flex justify-between items-center  overflow-x-auto border-b px-4 py-3 last:border-b-0', c.cardClass)"
                         >
-                            <div class="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                            <div class="text-xs font-medium text-muted-foreground uppercase tracking-wide min-w-[40%]">
                                 <slot
                                     :name="`header-${c.id}`"
                                     :column="c"
@@ -552,7 +552,7 @@ defineExpose({
                                 :column="c"
                                 :row="row"
                             >
-                                <div class="text-sm font-medium truncate block max-w-[40%]">
+                                <div class="text-sm font-medium block ">
                                     {{ findValue(row, c) }}
                                 </div>
                             </slot>
