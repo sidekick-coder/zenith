@@ -48,7 +48,7 @@ export const addSoftDeleteColumn = (ctb: CreateTableBuilder<any, any>) => {
 }
 
 export async function softDelete<T extends keyof Database, O extends SoftDeleteOptions<T>>(table: T, options?: O): Promise<SoftDeleteResult<T, O>> {
-    let query = options?.query 
+    let query: any = options?.query 
         ? options.query(db.updateTable(table)) 
         : db.updateTable(table)
 

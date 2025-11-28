@@ -1,4 +1,8 @@
 import { format } from 'date-fns'
+import { get, set } from 'lodash-es'
+import { object as vObject  } from 'valibot'
+import type { ObjectEntries } from 'valibot'
+import qs from 'qs'
 import validator from '#shared/services/validator.service.ts'
 
 export const number = () => validator.create(v => v.pipe(
@@ -51,3 +55,21 @@ export const arrayNumber = () => validator
                 .map(Number)
         }),
     ))
+
+export function object<const TEntries extends ObjectEntries>(entries: TEntries) {
+    return validator
+        .create(v => v.pipe(
+            v.union([v.string(), v.record(v.string(), v.any())]),
+            v.transform(value => typeof value === 'string' ? qs.parse(value) : value),
+            v.transform(value => {
+                const result: Record<string, any> = {}
+                
+                for (const key in value) {
+                    set(result, key, get(value, key))
+                }
+
+                return result
+            }),
+            vObject(entries)
+        ))
+}

@@ -13,8 +13,10 @@ import * as branding from './branding.validator.ts'
 import * as pwa from './pwa.validator.ts'
 import * as fileUploadSession from './fileUploadSession.validator.ts'
 import * as auth from './auth.validator.ts'
+import * as metadata from './metadata.validator.ts'
 
 const schemas = {
+    metadata,
     pagination,
     permission,
     permissionAssignment,
