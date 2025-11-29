@@ -42,15 +42,21 @@ router.get('/', async ({ acl, query: routeQuery }) => {
         query = payload.metas.apply(query)
     }
 
-    const files = await File.paginate({
+    const pagination = await File.paginate({
         limit: payload.limit,
         page: payload.page,
         query:  () => query,
     })
 
-    await Promise.all(files.items.map(file => file.loadUrl()))
+    if (payload.include?.includes('metas')) {
+        await File.loadMetas(pagination.items)
+    }
 
-    return files
+    if (payload.include?.includes('url')) {
+        await File.loadUrls(pagination.items)
+    }
+
+    return pagination
 })
 
 router.post('/', async ({ query }) => {

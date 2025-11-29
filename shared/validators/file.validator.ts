@@ -7,19 +7,13 @@ export const filters = validator.create(v => v.pipe(
     url.object(),
     v.object({
         search: v.optional(v.string()),
-        purpose: v.optional(
-            v.pipe(
-                v.union([v.string(), v.array(v.string())]),
-                v.transform(v => typeof v === 'string' ? [v] : v)
-            )
-        ),
-        client_name: v.optional(
-            v.pipe(
-                v.union([v.string(), v.array(v.string())]),
-                v.transform(v => typeof v === 'string' ? [v] : v)
-            )
-        ),
-        metas: v.optional(metadata.query('file_metas', 'file_id'))
+        purpose: v.optional(url.array()),
+        client_name: v.optional(url.array()),
+        metas: v.optional(metadata.query('file_metas', 'file_id')),
+        include: v.optional(v.pipe(
+            url.array(),
+            v.array(v.picklist(['metas', 'url']))
+        ))
     })
 ))
 

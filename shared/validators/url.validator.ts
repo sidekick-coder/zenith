@@ -39,8 +39,8 @@ export const datetime = () => validator.create(v => v.pipe(
 
 export const array = () => validator
     .create(v => v.pipe(
-        v.string(),
-        v.transform(value => value.split(',').map(Boolean)),
+        v.union([v.string(), v.array(v.string())]),
+        v.transform(value => Array.isArray(value) ? value : value.split(',')),
     ))
 
 export const arrayNumber = () => validator

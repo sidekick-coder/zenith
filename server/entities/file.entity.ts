@@ -1,4 +1,5 @@
 import ms from 'ms'
+import FileMeta from './fileMeta.entity.ts'
 import { Model } from '#server/mixins/model.mixin.ts'
 import Base from '#shared/entities/file.entity.ts'
 import { composeWith } from '#shared/utils/compose.ts'
@@ -6,6 +7,7 @@ import { Metadata } from '#server/mixins/metadata.mixin.ts'
 import drive from '#server/facades/drive.facade.ts'
 import { Hooks } from '#server/mixins/hooks.mixin.ts'
 import type { DriveUrlOptions } from '#server/contracts/drive.contract.ts'
+import MetadataService from '#server/services/metadata.service.ts'
 
 interface URLCache {
     url: string
@@ -20,12 +22,6 @@ export default class File extends composeWith(
 ) {
 
     public static cache = new Map<string, URLCache>()
-
-    public static boot(){
-        this.on('serialized', async (file: File) => {
-            file.url = await drive.url(file.filename)
-        })
-    }
 
     public static async has(filename: string): Promise<boolean> {
         const exists = await this.exists({
@@ -69,6 +65,36 @@ export default class File extends composeWith(
         File.cache.set(this.filename, {
             url: this.url,
             expires
+        })
+    }
+    
+    public static async loadUrls(items: File[], options: DriveUrlOptions = {}) {
+        const now = Date.now()
+        for (const item of items) {
+
+            const cache = this.cache.get(item.filename)
+
+            if (cache && now < cache.expires) {
+                item.url = cache.url
+                continue
+            }
+
+
+            await item.loadUrl(options)
+        }
+    }
+
+    public static async loadMetas(items: File[]){
+        const ids = items.map(i => i.id)
+    
+        if (!ids.length) return
+    
+        const rows = await FileMeta.list({
+            query: q => q.selectAll().where('file_id', 'in', ids)
+        })
+    
+        items.forEach(f => {
+            f.metas = MetadataService.flatten(rows.filter(r => r.file_id === f.id))
         })
     }
 

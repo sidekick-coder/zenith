@@ -11,10 +11,7 @@ import Button from '#client/components/Button.vue'
 import Icon from '#client/components/Icon.vue'
 import AlertButton from '#client/components/AlertButton.vue'
 import File from '#shared/entities/file.entity.ts'
-import { createId } from '#client/utils/createId.ts'
 import DataTable from '#client/components/DataTable.vue'
-import ObjectInspect from '#client/components/ObjectInspect.vue'
-import { $auth } from '#client/composables/useAuth.ts'
 import { $acl } from '#client/composables/useAcl.ts'
 import { $file } from '#client/utils/file.ts'
 import Image from '#client/components/Image.vue'
@@ -58,6 +55,10 @@ const columns = defineColumns<File>([
     },
     { id: 'actions' }
 ])
+
+const query = ref({
+    include: ['metas', 'url'],
+})
 
 async function load() {
     await tableRef.value?.load()
@@ -144,6 +145,7 @@ async function destroy(id: number) {
             v-model:selected="selected"
             :columns="columns"
             :serialize="row => File.from(row)"
+            :query="query"
             fetch="/api/files"
             row-key="id"
         >
