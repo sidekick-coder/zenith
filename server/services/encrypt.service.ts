@@ -1,6 +1,8 @@
 import crypto from 'crypto'
 import ms from 'ms'
+import { format } from 'date-fns'
 import env from '#server/env.ts'
+import BaseException from '#server/exceptions/base.ts'
 
 interface URLOptions {
     data?: any;
@@ -67,7 +69,8 @@ export default class EncryptService {
 
         const payload = {
             data: options?.data || {},
-            expireAt
+            expireAt,
+            expireAtReadable: format(new Date(expireAt), 'yyyy-MM-dd HH:mm:ss')
         }
 
         const key = this.encrypt(JSON.stringify(payload))
@@ -85,7 +88,14 @@ export default class EncryptService {
         const payload = JSON.parse(decryptedData)
 
         if (payload.expireAt && Date.now() > payload.expireAt) {
-            throw new Error('URL has expired')
+            const error = new BaseException('URL has expired', 403)
+
+            Object.assign(error, {
+                expireAt: payload.expireAt,
+                expireAtReadable: payload.expireAtReadable
+            })
+            
+            throw error
         }
 
         return payload.data

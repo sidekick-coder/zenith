@@ -58,13 +58,13 @@ export default class File extends composeWith(
             options.expires = '1h'
         }
         
-        this.url = await drive.use(this.drive).url(this.filename)
+        this.url = await drive.use(this.drive).url(this.filename, options)
         
         if (!this.url) {
             return
         }
 
-        const expires = now + ms(options.expires)
+        const expires = now + ms(options.expires) - 1000 // 1 second early
 
         File.cache.set(this.filename, {
             url: this.url,
