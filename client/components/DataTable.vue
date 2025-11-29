@@ -100,6 +100,10 @@ const props = defineProps({
         type: Boolean,
         default: false,
     },
+    hidePagination: {
+        type: Boolean,
+        default: false,
+    },
 })
 
 const emit = defineEmits<{
@@ -579,6 +583,7 @@ defineExpose({
     </div>
 
     <DataTablePagination
+        v-if="!hidePagination"
         v-model:page="page"
         v-model:limit="limit"
         v-model:total="total"
