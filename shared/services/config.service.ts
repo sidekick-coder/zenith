@@ -1,4 +1,4 @@
-import { get, set } from 'lodash-es'
+import { get, set, unset } from 'lodash-es'
 
 interface Entry {
     key: string
@@ -92,7 +92,27 @@ export default class ConfigService {
         })
     }
 
-    public unset(fullKey: string): void {
-        this.entries.delete(fullKey)
+    public unset(key: string): void {
+        if (!key.includes('.')) {
+            this.entries.delete(key)
+            return
+        }
+
+        const primary = key.split('.')[0]
+        const primaryValue = this.get(primary, {})
+
+        if (!primaryValue) return
+
+        if (typeof primaryValue !== 'object' || Array.isArray(primaryValue)) {
+            return
+        }
+
+        unset(primaryValue, key.substring(primary.length + 1))
+
+        this.entries.set(primary, {
+            key: primary,
+            source: 'runtime',
+            value: primaryValue
+        })
     }
 }

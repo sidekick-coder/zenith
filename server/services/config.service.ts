@@ -6,7 +6,6 @@ import chokidar from 'chokidar'
 import Base from '#shared/services/config.service.ts'
 import { configPath } from '#server/utils/paths.ts'
 import { importGlob } from '#server/utils/importAll.ts'
-import { flatten } from '#shared/utils/flatten.ts'
 import env from '#server/env.ts'
 
 export default class ConfigService extends Base {
@@ -65,8 +64,6 @@ export default class ConfigService extends Base {
     }
 
     public unset(fullKey: string): void {
-        super.unset(fullKey)
-
         const { filename, key } = this.parseKey(fullKey)
         
         const values = this.get(filename)
@@ -80,6 +77,9 @@ export default class ConfigService extends Base {
         }
 
         fs.writeFileSync(filePath, JSON.stringify(values, null, 2))
+
+        super.unset(fullKey)
+
     }
 
     public watch() {
