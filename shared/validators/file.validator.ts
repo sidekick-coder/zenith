@@ -13,6 +13,12 @@ export const filters = validator.create(v => v.pipe(
                 v.transform(v => typeof v === 'string' ? [v] : v)
             )
         ),
+        client_name: v.optional(
+            v.pipe(
+                v.union([v.string(), v.array(v.string())]),
+                v.transform(v => typeof v === 'string' ? [v] : v)
+            )
+        ),
         metas: v.optional(metadata.query('file_metas', 'file_id'))
     })
 ))

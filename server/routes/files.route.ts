@@ -34,6 +34,10 @@ router.get('/', async ({ acl, query: routeQuery }) => {
         query = query.where('f.purpose', 'in', payload.purpose)
     }
 
+    if (payload.client_name?.length) {
+        query = query.where('f.client_name', 'in', payload.client_name)
+    }
+
     if (payload.metas) {
         query = payload.metas.apply(query)
     }
