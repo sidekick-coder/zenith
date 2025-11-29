@@ -145,8 +145,12 @@ async function load() {
 }
 
 function reset() {
+    if (page.value === 1) {
+        load()
+        return
+    }
+
     page.value = 1
-    load()
 }
 
 watch([page, limit], load, { immediate: true })

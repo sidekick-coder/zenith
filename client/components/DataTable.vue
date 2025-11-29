@@ -315,8 +315,6 @@ async function load(){
 
     loading.value = true 
 
-    rows.value = []
-
     let response: Pagination | null = null
 
     if (typeof props.fetch === 'function') {
@@ -371,11 +369,12 @@ async function load(){
     }, 800)
 }
 function reset() {
+    if (page.value === 1) {
+        load()
+        return
+    }
+
     page.value = 1
-
-    load()
-
-    
 }
 
 watch([page, limit], load, { immediate: true })
