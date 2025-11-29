@@ -25,7 +25,10 @@ program.command('sql:raw')
             .filter(s => s.trim().length > 0)
 
         for (const stmt of statements) {
-            logger.info('Executing query:', stmt)
+            const index = statements.indexOf(stmt) + 1
+            logger.info(`Executing statement ${index} of ${statements.length}`, {
+                statement: stmt.trim().slice(0, 100) + (stmt.length > 100 ? '...' : '')
+            })
 
             const [error, response] = await tryCatch(() => sql.raw(stmt).execute(db))
             
