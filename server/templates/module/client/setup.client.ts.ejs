@@ -2,6 +2,8 @@ import authGuard from '#client/guards/auth.guard.ts'
 import { createGuestGuard } from '#client/guards/guest.guard.ts'
 import { defineClientSetup } from '#client/utils/defineClientSetup.ts'
 
+import './assets/css/styles.css'
+
 export default defineClientSetup(({ router, menu }) => {
     router.auto(import.meta.glob<any>('./pages/**/*.vue'), {
         strip: ['pages'],
