@@ -49,44 +49,46 @@ router.get('/:id/files', async ({ params, query, acl }) => {
     return current.list(query.folder as string)
 })
 
-router.get('/:id/stream/*', async ({ params, query, response, acl }) => {    
-    const filename = validator.validate(params['*'], v => v.string())
-    const basename = filename.split('/').pop() || 'file'
-    const current = drive.use(params.id)
+rootRouter
+    .prefix('/api/drives')
+    .get('/:id/stream/*', async ({ params, query, response, acl }) => {    
+        const filename = validator.validate(params['*'], v => v.string())
+        const basename = filename.split('/').pop() || 'file'
+        const current = drive.use(params.id)
     
-    const key = validator.validate(query.key, v => v.optional(v.string()))
+        const key = validator.validate(query.key, v => v.optional(v.string()))
 
-    if (key) {
-        encrypt.verifyUrl(key)
-    }
+        if (key) {
+            encrypt.verifyUrl(key)
+        }
 
-    if (!key) {
-        acl.authorize('read', 'DriveEntry', { filename })
-    }
+        if (!key) {
+            acl.authorize('read', 'DriveEntry', { filename })
+        }
 
-    const entry = await current.find(filename)
+        const entry = await current.find(filename)
 
-    if (entry.type !== 'file') {
-        throw new BaseException('Not a file', 400)
-    }
+        if (entry.type !== 'file') {
+            throw new BaseException('Not a file', 400)
+        }
 
-    const data = await current.read(filename)
-    const mimetype = mime.getType(basename) || 'application/octet-stream'
+        const data = await current.read(filename)
+        const mimetype = mime.getType(basename) || 'application/octet-stream'
 
-    const stream = await current.readStream(filename, data)
+        const stream = await current.readStream(filename, data)
 
-    response.set('Content-Type', mimetype || 'application/octet-stream')
-    response.set('Content-Disposition', `inline; filename="${basename}"`)
+        response.set('Content-Type', mimetype || 'application/octet-stream')
+        response.set('Content-Disposition', `inline; filename="${basename}"`)
 
-    stream.pipe(response)
+        stream.pipe(response)
 
-    return new Promise<void>((resolve, reject) => {
+        return new Promise<void>((resolve, reject) => {
         // Optional: Handle when the stream finishes
-        stream.on('error', reject)
-        stream.on('end', resolve)
+            stream.on('error', reject)
+            stream.on('end', resolve)
 
+        })
     })
-})
 async function downloadStream(url: string) {
     const response = await fetch(url)
 
