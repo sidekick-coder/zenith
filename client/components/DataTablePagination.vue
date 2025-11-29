@@ -88,7 +88,20 @@ function createArray(from: number, to: number): number[] {
                 class="!h-8"
             />
 
-            <div class="flex items-center space-x-2">
+            <div class="flex  space-x-2">
+                <Button
+                    v-for="pageNumber in visiblePages"
+                    :key="pageNumber"
+                    :variant="page === pageNumber ? 'default' : 'outline'"
+                    class="w-8 h-8 p-0 sm:hidden"
+                    @click="page = pageNumber"
+                >
+                    {{ pageNumber }}
+                </Button>
+            </div>
+
+
+            <div class="flex items-center  space-x-2">
                 <Button
                     variant="outline"
                     class="w-8 h-8 p-0"
@@ -141,7 +154,7 @@ function createArray(from: number, to: number): number[] {
                     v-for="pageNumber in visiblePages"
                     :key="pageNumber"
                     :variant="page === pageNumber ? 'default' : 'outline'"
-                    class="w-8 h-8 p-0"
+                    class="w-8 h-8 p-0 hidden sm:flex"
                     @click="page = pageNumber"
                 >
                     {{ pageNumber }}
