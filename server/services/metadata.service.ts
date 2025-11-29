@@ -12,7 +12,7 @@ export default class MetadataService {
         this.foreignKey = payload.foreignKey
     }
 
-    public parse(value: any): any {
+    public static parse(value: any): any {
         if (typeof value === 'string' && value.startsWith('json:')) {
             return JSON.parse(value.slice(5))
         }
@@ -23,6 +23,17 @@ export default class MetadataService {
 
         return value
     }
+
+    public static flatten(items: Array<{ name: string; value: any }>): Record<string, any> {
+        const result: Record<string, any> = {}
+
+        for (const item of items) {
+            result[item.name] = MetadataService.parse(item.value)
+        }
+
+        return result
+    }
+    
 
     public async get<T = any>(name: string): Promise<T | undefined>
     public async get<T = any>(name: string, defaultValue: T): Promise<T>
@@ -41,7 +52,7 @@ export default class MetadataService {
             return defaultValue
         }
 
-        const value = this.parse(row.value)
+        const value = MetadataService.parse(row.value)
 
         return value as T
     }
@@ -83,7 +94,7 @@ export default class MetadataService {
 
         return rows.map((row: any) => ({
             name: row.name,
-            value: this.parse(row.value)
+            value: MetadataService.parse(row.value)
         }))
     }
 
