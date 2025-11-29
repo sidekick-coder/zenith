@@ -6,24 +6,42 @@ import authMiddleware from '#server/middlewares/auth.middleware.ts'
 import { undeleted } from '#server/queries/index.ts'
 import validator from '#shared/services/validator.service.ts'
 import schemas from '#shared/validators/index.ts'
-import drive from '#server/facades/drive.facade.ts'
 import encrypt from '#server/facades/encrypt.facade.ts'
-import { tryCatch } from '#shared/utils/tryCatch.ts'
+import db from '#server/facades/db.facade.ts'
 
 const router = rootRouter.use(authMiddleware)
     .prefix('/api/files')
     .group()
 
-router.get('/', async ({ acl, query }) => {
-    const payload = validator.validate(query, schemas.pagination.schema)
+router.get('/', async ({ acl, query: routeQuery }) => {
+    const payload = validator.validate(routeQuery, v => v.intersect([
+        schemas.pagination.schema,
+        schemas.file.filters
+    ]))
 
     acl.authorize('read', 'File')
+
+    let query = db.selectFrom('files as f')
+        .selectAll('f')
+        .where(undeleted)
+        .orderBy('created_at', 'desc')
+
+    if (payload.search) {
+        query = query.where('f.client_name', 'like', `%${payload.search}%`)
+    }
+
+    if (payload.purpose?.length) {
+        query = query.where('f.purpose', 'in', payload.purpose)
+    }
+
+    if (payload.metas) {
+        query = payload.metas.apply(query)
+    }
 
     const files = await File.paginate({
         limit: payload.limit,
         page: payload.page,
-        query: qb => qb.selectAll().where(undeleted)
-            .orderBy('created_at', 'desc'),
+        query:  () => query,
     })
 
     await Promise.all(files.items.map(file => file.loadUrl()))

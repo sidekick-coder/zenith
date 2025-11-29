@@ -1,5 +1,6 @@
 import validator from '#shared/services/validator.service.ts'
 import MetadataQueryService from '#server/services/metadataQuery.service.ts'
+import type { Database } from '#server/contracts/database.contract.ts'
 
 export const filter = validator.create(v => v.object({
     eq: v.optional(v.string()),
@@ -26,7 +27,7 @@ export const filter = validator.create(v => v.object({
     )),
 }))
 
-export const query = (table: string, foreignKey: string) => validator.create(v => v.pipe(
+export const query = <T extends keyof Database>(table: T, foreignKey: keyof Database[T]) => validator.create(v => v.pipe(
     v.record(v.string(), v.any()),
     v.transform((data) => {
         const result: Record<string, any> = {}

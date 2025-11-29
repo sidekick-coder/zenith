@@ -1,4 +1,4 @@
-import { number } from './query.validator.ts'
+import { number } from './url.validator.ts'
 import validator from '#shared/services/validator.service.ts'
 
 

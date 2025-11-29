@@ -1,4 +1,5 @@
 import type { ExpressionBuilder } from 'kysely'
+import type { Database } from '#server/contracts/database.contract'
 
 export interface Metadafilter {
     eq?: string,
@@ -23,13 +24,13 @@ export interface MetadataQueryPayload {
     [key: string]: string | Metadafilter
 }
 
-export default class MetadataQueryService {
+export default class MetadataQueryService<T extends keyof Database> {
     private payload: MetadataQueryPayload
-    private table: string
-    private foreignKey: string
+    private table: T
+    private foreignKey: keyof Database[T]
     private parentKey = 'id'
 
-    constructor(payload: MetadataQueryPayload, table: string, foreignKey: string, parentKey?: string) {
+    constructor(payload: MetadataQueryPayload, table: T, foreignKey: keyof Database[T], parentKey?: string) {
         this.payload = payload
         this.table = table
         this.foreignKey = foreignKey
