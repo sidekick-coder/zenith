@@ -59,6 +59,10 @@ const props = defineProps({
         type: String,
         default: '',
     },
+    clearable: {
+        type: Boolean,
+        default: false,
+    },
 })
 
 const modelValue = defineModel<any>({ required: true })

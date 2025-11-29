@@ -35,9 +35,11 @@ export default defineConfig({
         allowedHosts,
         watch: {
             ignored: [
+                '**/shared',
                 '**/server',
                 '**/storage',
                 '**/modules/**/server',
+                '**/shared/**/server',
             ]
         }
     }

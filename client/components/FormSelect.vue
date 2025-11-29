@@ -65,6 +65,10 @@ const props = defineProps({
         type: String,
         default: null,
     },
+    clearable: {
+        type: Boolean,
+        default: false,
+    },
 })
 
 const options = defineModel('options', {
@@ -107,7 +111,7 @@ watch(() => props.fetch, fetchOptions, { immediate: true })
 </script>
 <template>
     <FormField
-        v-slot="{ componentField }"
+        v-slot="{ componentField, setValue }"
         :name
         :disabled
         :readonly
@@ -136,6 +140,13 @@ watch(() => props.fetch, fetchOptions, { immediate: true })
                             <select-label v-if="!options.length">
                                 {{ $t('No items') }}
                             </select-label>
+                            <select-item
+                                v-if="clearable"
+                                :value="null"
+                                @click="setValue(null)"
+                            >
+                                {{ $t('None') }}
+                            </select-item>
                             <select-item
                                 v-for="option in options"
                                 :key="findValue(option)"
