@@ -39,7 +39,7 @@ defineProps({
                 <Textarea
                     class="min-h-20"
                     :rows="rows"
-                    v-bind="componentField"
+                    v-bind="{...$attrs, ...componentField}"
                 />
             </FormControl>
             <FormDescription v-if="hint">
