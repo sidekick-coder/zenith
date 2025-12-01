@@ -44,7 +44,7 @@ export default class ScheduleService {
         this.filename = null
 
         if (error) {
-            logger.error(`failed to load routes from ${filename}`, error)
+            logger.error(`failed to load routines from ${filename}`, error)
         }
 
         logger.debug('file loaded', { filename })

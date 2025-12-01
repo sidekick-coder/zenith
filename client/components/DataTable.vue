@@ -56,10 +56,6 @@ const props = defineProps({
         type: String as () => 'single' | 'multiple',
         default: null
     },
-    columns: {
-        type: Array as () => DataTableColumn<T>[],
-        required: true,
-    },
     class: {
         type: String,
         default: '',
@@ -119,7 +115,10 @@ interface Slots {
 
 defineSlots<Slots>()
 
-
+const columns = defineModel('columns', {
+    type: Array as PropType<DataTableColumn<T>[]>,
+    default: () => ([]),
+})
 
 const selected = defineModel('selected', {
     type: Array as () => T[],
@@ -329,6 +328,11 @@ async function load(){
             limit: limit.value,
         }))
 
+        if (error) {
+            loading.value = false
+            return
+        }
+
         response = result
     }
 
@@ -341,6 +345,11 @@ async function load(){
                 ...props.query,
             }
         })
+
+        if (error) {
+            loading.value = false
+            return
+        }
 
         response = result
     }
