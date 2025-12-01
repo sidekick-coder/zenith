@@ -126,4 +126,41 @@ export default class ModuleInstallerService {
 
         this.logger.info(`Module '${id}' installed successfully from git repository '${repository}'`)
     }
+
+    public async install(source: string, options: Partial<BaseOptions> = {}): Promise<void> {
+        let isGit = false
+        let isZip = false
+
+        if (source.startsWith('http://') || source.startsWith('https://')) {
+            isGit = true
+        }
+
+        if (source.endsWith('.git')) {
+            isGit = true
+        }
+
+        if (source.endsWith('.zip')) {
+            isZip = true
+        }
+        
+        if (isGit) {
+            const id = options.id || path.basename(source, '.git')
+
+            return this.fromGit({
+                id,
+                repository: source
+            })
+        }
+
+        if (isZip) {
+            const id = options.id || path.basename(source, '.zip')
+
+            return this.fromZip({
+                id,
+                filename: source
+            })
+        }
+
+        throw new Error('Unsupported module source format')
+    }
 }
