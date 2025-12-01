@@ -128,6 +128,8 @@ export class UI {
     
 }
 
+type Capability = 'config' | 'db' | 'drive' | 'encrypt' | 'all'
+
 export class CLIService {
     public ui: UI
 
@@ -135,22 +137,28 @@ export class CLIService {
         this.ui = new UI()
     }
 
-    public with(capabilities: ('config' | 'db' | 'drive' | 'encrypt' )[], fn: (...args: any[]) => Promise<any>) {
+    public with(capabilities: Capability | Capability[], fn: (...args: any[]) => Promise<any>) {
+        let caps = Array.isArray(capabilities) ? capabilities : [capabilities]
+
+        if (caps.includes('all')) {
+            caps = ['config', 'db', 'drive', 'encrypt']
+        }
+
         return async (...args: any[]) => {
             try {
-                if (capabilities.includes('config')) {
+                if (caps.includes('config')) {
                     await config.load()
                 }
 
-                if (capabilities.includes('db')) {
+                if (caps.includes('db')) {
                     await db.load(undefined, true)
                 }
 
-                if (capabilities.includes('drive')) {
+                if (caps.includes('drive')) {
                     await drive.load()
                 }
 
-                if (capabilities.includes('encrypt')) {
+                if (caps.includes('encrypt')) {
                     encrypt.load(config.get('app.key'))
                 }
 
