@@ -35,7 +35,7 @@ export function ConfigModelMixin(key: string) {
                 return items as any
             }
 
-            public static async find<T>(this: new () => T, id: string): Promise<T | null> {
+            public static async find<T>(this: new (...args: any[]) => T, id: string): Promise<T | null> {
                 const constructor = this as any as ConfigModel
 
                 const all = await constructor.list()
@@ -45,7 +45,7 @@ export function ConfigModelMixin(key: string) {
                 return (item || null) as any
             }
 
-            public static async findOrFail<T>(this: new () => T, id: string): Promise<T> {
+            public static async findOrFail<T>(this: new (...args: any[]) => T, id: string): Promise<T> {
                 const constructor = this as any as ConfigModel
 
                 const item = await constructor.find(id)
@@ -57,7 +57,7 @@ export function ConfigModelMixin(key: string) {
                 return item as any
             }
 
-            public static async create<T>(this: new () => T, item: T & { id: string }): Promise<void> {
+            public static async create<T>(this: new (...args: any[]) => T, item: T & { id: string }): Promise<void> {
                 const constructor = this as any as ConfigModel
 
                 const map = config.get<Record<string, any>>(key) || {}
@@ -75,7 +75,7 @@ export function ConfigModelMixin(key: string) {
                 return constructor.findOrFail(item.id) as any
             }
 
-            public static async update<T>(this: new () => T, id: string, data: T): Promise<void> {
+            public static async update<T>(this: new (...args: any[]) => T, id: string, data: T): Promise<void> {
                 const constructor = this as any as ConfigModel
 
                 const map = config.get<Record<string, any>>(key) || {}
@@ -93,7 +93,7 @@ export function ConfigModelMixin(key: string) {
                 return constructor.findOrFail(id) as any
             }
 
-            public static async destroy<T>(this: new () => T, id: string): Promise<void> {
+            public static async destroy<T>(this: new (...args: any[]) => T, id: string): Promise<void> {
 
                 const map = config.get<Record<string, any>>(key) || {}
 
