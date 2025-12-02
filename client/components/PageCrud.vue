@@ -55,6 +55,10 @@ async function load() {
     tableRef.value?.load()   
 }
 
+defineExpose({
+    load,
+})
+
 </script>
 
 <template>
@@ -106,6 +110,11 @@ async function load() {
         >
             <template #row-actions="{ row }">
                 <div class="flex items-center gap-2 justify-end">
+                    <slot
+                        name="prepend-actions"
+                        :row="row"
+                    />
+
                     <DialogForm 
                         :fetch="`${fetch}/${row.id}`"
                         method="PUT"
