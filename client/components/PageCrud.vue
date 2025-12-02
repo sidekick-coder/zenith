@@ -30,6 +30,10 @@ const props = defineProps({
         type: String,
         default: null
     },
+    actions: {
+        type: Array as PropType<Array<'create' | 'edit' | 'destroy'>> ,
+        default: () => ['edit', 'destroy'],
+    },
 })
 
 const loading = ref(false)
@@ -84,7 +88,7 @@ defineExpose({
                         :class="{ 'animate-spin': loading }"
                     />
                 </Button>
-                <ClientOnly>
+                <ClientOnly v-if="actions.includes('create')">
                     <DialogForm 
                         :fetch
                         :title="$t('Add new')"
@@ -128,6 +132,7 @@ defineExpose({
                     />
 
                     <DialogForm 
+                        v-if="actions.includes('edit')"
                         :fetch="`${fetch}/${row.id}`"
                         method="PUT"
                         :title="$t('Edit')"
@@ -145,6 +150,7 @@ defineExpose({
                     </DialogForm>
 
                     <AlertButton 
+                        v-if="actions.includes('destroy')"
                         variant="ghost"
                         size="sm"
                         :fetch="`${fetch}/${row.id}`"
