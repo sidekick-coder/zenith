@@ -62,7 +62,7 @@ const props = defineProps({
     },
     fetchKey: {
         type: String,
-        default: null,
+        default: 'items',
     },
     clearable: {
         type: Boolean,

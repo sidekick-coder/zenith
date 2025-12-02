@@ -4,7 +4,7 @@ import type { HttpContext } from '#server/contracts/router.contract.ts'
 import type { ConfigModel } from '#server/mixins/modelConfig.mixin.ts'
 
 
-export default class RouterResourceConfigService extends RouterResourceService {
+export default class RouterResourceConfig extends RouterResourceService {
     private model: ConfigModel
 
     constructor(model: ConfigModel, options: RouterResourceOptions = {}) {

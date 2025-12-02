@@ -1,3 +1,4 @@
+import { HooksStatic } from './hooks.mixin.ts'
 import type { Constructor } from '#shared/utils/compose.ts'
 import config from '#server/facades/config.facade.ts'
 import BaseException from '#server/exceptions/base.ts'
@@ -29,13 +30,15 @@ export default function ModelConfig(key: string, options: Options = {}) {
                 const items = []
 
                 for (const [id, k] of Object.entries(map)) {
-                    const item = constructor.serialize({ 
+                    const item = constructor.serialize({
                         ...k, 
                         id 
                     })
 
                     items.push(item)
                 }
+
+                await HooksStatic.emit(this, 'afterList', items)
 
                 return items as any
             }
@@ -46,6 +49,8 @@ export default function ModelConfig(key: string, options: Options = {}) {
                 const all = await constructor.list()
 
                 const item = all.find(i => (i as any).id === id)
+
+                await HooksStatic.emit(this, 'afterFind', item)
 
                 return (item || null) as any
             }
