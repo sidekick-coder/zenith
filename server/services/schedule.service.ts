@@ -128,12 +128,17 @@ export default class ScheduleService {
         this.logger.info(`${routine.id} routine stopped`)
     }
 
-    public async remove(id: Routine['id']) {
-        await this.stop(id)
+    public async remove(id: Routine['id'] | Routine['id'][]) {
+        const ids = Array.isArray(id) ? id : [id]
 
-        this.routines = this.routines.filter(r => r.id !== id)
+        for (const id of ids) {
+            await this.stop(id)
+        }
 
-        this.logger.info(`routine ${id} removed`)
+        this.routines = this.routines.filter(r => !ids.includes(r.id))
+        this.logger.info('routines removed', {
+            ids: ids
+        })
     }
 
     public async stopAll() {
