@@ -10,11 +10,8 @@ export function defineFormFields(field: Record<string, FormField>) {
 
 </script>
 <script lang="ts" setup generic="T extends BaseSchema<any, any, any>">
-import { useForm } from 'vee-validate'
 import * as v from 'valibot'
-import { toTypedSchema } from '@vee-validate/valibot'
-import { computed, ref, watch  } from 'vue'
-import type { PropType } from 'vue'
+import { computed  } from 'vue'
 import type { BaseSchema } from 'valibot'
 import FormTextarea from './FormTextarea.vue'
 import FormSelect from './FormSelect.vue'
@@ -22,12 +19,7 @@ import FormAutocomplete from './FormAutocomplete.vue'
 import FormSwitch from './FormSwitch.vue'
 import FormImageUploader from './FormImageUploader.vue'
 import FormColorPicker from './FormColorPicker.vue'
-import { $t } from '#shared/lang.ts'
 import FormTextField from '#client/components/FormTextField.vue'
-import { $fetch } from '#client/utils/fetcher.ts'
-import Button from '#client/components/Button.vue'
-import { tryCatch } from '#shared/utils/tryCatch.ts'
-import validator from '#shared/services/validator.service.ts'
 
 const props = defineProps({
     fields: {
@@ -94,6 +86,13 @@ const components = computed(() => {
             :name="field.name"
             v-bind="field.props"
         />
+
+        <div
+            v-else
+            class="text-destructive"
+        >
+            Unknow component {{ field.component }}
+        </div>
     
         <!-- Add other field types like select, checkbox, radio as needed -->
     </template>

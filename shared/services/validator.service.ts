@@ -63,13 +63,7 @@ export class ValidatorService {
     }
 
     public async validateAsync<T extends ValibotSchemaAsync>(payload: any, cb: ValidatorCallbackAsync<T> | T) {
-        let schema: T
-
-        if (typeof cb === 'function') {
-            schema = cb(v)
-        } else {
-            schema = cb
-        }
+        const schema: T = typeof cb === 'function' ? cb(v) : cb
 
         const { output, issues, success } = await v.safeParseAsync(schema, payload)
 
@@ -87,6 +81,14 @@ export class ValidatorService {
         }
 
         return output
+    }
+
+    public isValid<T extends ValibotSchema>(payload: any, cb: ValidatePayload<T>): boolean {
+        const schema: T = typeof cb === 'function' ? cb(v) : cb
+
+        const { success } = v.safeParse(schema, payload)
+
+        return success
     }
 }
 

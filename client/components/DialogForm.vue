@@ -77,18 +77,6 @@ const open = defineModel('open', {
     default: false,
 })
 
-const components = computed(() => {
-    return Object.entries(props.fields).map(([name, field]) => {
-        const { component, ...rest } = field
-
-        return {
-            component,
-            name,
-            props: rest
-        }
-    })
-})
-
 const { handleSubmit, errors, resetForm, setFieldValue } = useForm({
     validationSchema: toTypedSchema(props.schema as T),
     initialValues: props.values as v.InferInput<T>,

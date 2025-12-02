@@ -108,6 +108,18 @@ defineExpose({
             :serialize="serialize"
             :fetch="fetch"
         >
+            <template
+                v-for="c in columns.filter(c => c.id !== 'actions')"
+                #[`row-${c.id}`]="slotProps"
+                :key="c.id"
+            >
+                <slot
+                    :name="`row-${c.id}`"
+                    v-bind="slotProps"
+                />
+            </template>
+
+
             <template #row-actions="{ row }">
                 <div class="flex items-center gap-2 justify-end">
                     <slot
