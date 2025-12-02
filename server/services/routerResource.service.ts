@@ -49,6 +49,15 @@ const routes = [
         }
     },
     {
+        method: 'patch',
+        path: '/:id',
+        handler: 'update',
+        hooks: {
+            before: ['beforeUpdate', 'beforeSave'],
+            after:  ['afterUpdate', 'afterSave'],
+        }
+    },
+    {
         method: 'delete',
         path: '/:id',
         handler: 'destroy',

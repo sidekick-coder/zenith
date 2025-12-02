@@ -60,7 +60,7 @@ export default class ConfigService extends Base {
             fs.mkdirSync(path.dirname(filePath), { recursive: true })
         }
 
-        fs.writeFileSync(filePath, JSON.stringify(values, null, 2))
+        fs.writeFileSync(filePath, JSON.stringify(values, null, 4))
     }
 
     public unset(fullKey: string): void {
@@ -76,7 +76,7 @@ export default class ConfigService extends Base {
             fs.mkdirSync(path.dirname(filePath), { recursive: true })
         }
 
-        fs.writeFileSync(filePath, JSON.stringify(values, null, 2))
+        fs.writeFileSync(filePath, JSON.stringify(values, null, 4))
 
         super.unset(fullKey)
 
