@@ -13,9 +13,9 @@ export default class ShellService {
     /**
      * Execute a shell command and return a promise
      */
-    public async command(command: string, args: string[], options: CommandOptions = {}): Promise<void> {
+    public async command(bin: string, args: string[], options: CommandOptions = {}): Promise<void> {
         return new Promise((resolve, reject) => {
-            const child = spawn(command, args, {
+            const child = spawn(bin, args, {
                 cwd: options.cwd || process.cwd(),
                 stdio: options.silent ? 'pipe' : 'inherit',
                 shell: true,
@@ -28,7 +28,7 @@ export default class ShellService {
                 } else {
                     const errorMessage = `Command failed with exit code ${code}`
                     logger.error(errorMessage, { 
-                        command, 
+                        bin, 
                         args, 
                         code 
                     })
@@ -38,7 +38,7 @@ export default class ShellService {
 
             child.on('error', (error) => {
                 logger.error('Command execution error', { 
-                    command, 
+                    bin, 
                     args, 
                     error: error.message 
                 })
