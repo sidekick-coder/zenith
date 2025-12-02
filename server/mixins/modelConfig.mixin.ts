@@ -1,9 +1,14 @@
 import type { Constructor } from '#shared/utils/compose.ts'
 import config from '#server/facades/config.facade.ts'
+import BaseException from '#server/exceptions/base.ts'
 
-export type ConfigModel = ReturnType<ReturnType<typeof ConfigModelMixin>>
+export type ConfigModel = ReturnType<ReturnType<typeof ModelConfig>>
 
-export function ConfigModelMixin(key: string) {
+interface Options {
+    readonly?: boolean
+}
+
+export default function ModelConfig(key: string, options: Options = {}) {
     return function ConfigModelMixinExtend<TBase extends Constructor>(Base: TBase) {
         return class extends Base {
             public static __isConfigModel = true
@@ -58,6 +63,10 @@ export function ConfigModelMixin(key: string) {
             }
 
             public static async create<T>(this: new (...args: any[]) => T, item: T & { id: string }): Promise<void> {
+                if (options.readonly) {
+                    throw new BaseException('Readonly config model')
+                }
+
                 const constructor = this as any as ConfigModel
 
                 const map = config.get<Record<string, any>>(key) || {}
@@ -76,6 +85,10 @@ export function ConfigModelMixin(key: string) {
             }
 
             public static async update<T>(this: new (...args: any[]) => T, id: string, data: T): Promise<void> {
+                if (options.readonly) {
+                    throw new BaseException('Readonly config model')
+                }
+
                 const constructor = this as any as ConfigModel
 
                 const map = config.get<Record<string, any>>(key) || {}
@@ -84,9 +97,7 @@ export function ConfigModelMixin(key: string) {
                     throw new Error('Entity item not found')
                 }
 
-                map[id] = { ...data } as any
-
-                delete map[id].id
+                Object.assign(map[id], data)
 
                 await config.set(key, map)
 
@@ -94,6 +105,9 @@ export function ConfigModelMixin(key: string) {
             }
 
             public static async destroy<T>(this: new (...args: any[]) => T, id: string): Promise<void> {
+                if (options.readonly) {
+                    throw new BaseException('Readonly config model')
+                }
 
                 const map = config.get<Record<string, any>>(key) || {}
 

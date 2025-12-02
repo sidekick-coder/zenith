@@ -1,13 +1,14 @@
 import RouterResourceService from './routerResource.service.ts'
+import type { RouterResourceOptions } from './routerResource.service.ts'
 import type { HttpContext } from '#server/contracts/router.contract.ts'
-import type { ConfigModel } from '#server/mixins/configModel.mixin.ts'
-import { $t } from '#shared/lang.ts'
+import type { ConfigModel } from '#server/mixins/modelConfig.mixin.ts'
+
 
 export default class RouterResourceConfigService extends RouterResourceService {
     private model: ConfigModel
 
-    constructor(model: ConfigModel) {
-        super()
+    constructor(model: ConfigModel, options: RouterResourceOptions = {}) {
+        super(options)
 
         if (!model.__isConfigModel) {
             throw new Error('RouterResourceConfigService requires a ConfigModel')

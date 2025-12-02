@@ -1,9 +1,73 @@
 import type Router from './router.service.ts'
-import type { HttpContext } from '#server/contracts/router.contract.ts'
+import type { HttpContext, Middleware } from '#server/contracts/router.contract.ts'
 import { compose } from '#shared/utils/compose.ts'
 import { Hooks } from '#server/mixins/hooks.mixin.ts'
+import type Route from '#server/entities/route.entity.ts'
+
+export type ResourceMethod = 'index' | 'show' | 'store' | 'update' | 'destroy'
+
+export interface RouterResourceOptions {
+    middleware?: Partial<Record<ResourceMethod | 'all', Middleware>>
+    except?: ResourceMethod[]
+}
+
+const routes = [
+    {
+        method: 'get',
+        path: '/',
+        handler: 'index',
+        hooks: {
+            before: ['beforeIndex'],
+            after:  ['afterIndex'],
+        }
+    },
+    {
+        method: 'get',
+        path: '/:id',
+        handler: 'show',
+        hooks: {
+            before: ['beforeShow'],
+            after:  ['afterShow'],
+        }
+    },
+    {
+        method: 'post',
+        path: '/',
+        handler: 'store',
+        hooks: {
+            before: ['beforeStore', 'beforeSave'],
+            after:  ['afterStore', 'afterSave'],
+        }
+    },
+    {
+        method: 'put',
+        path: '/:id',
+        handler: 'update',
+        hooks: {
+            before: ['beforeUpdate', 'beforeSave'],
+            after:  ['afterUpdate', 'afterSave'],
+        }
+    },
+    {
+        method: 'delete',
+        path: '/:id',
+        handler: 'destroy',
+        hooks: {
+            before: ['beforeDestroy'],
+            after:  ['afterDestroy'],
+        }
+    },
+]
+
 
 export default class RouterResourceService extends compose(Hooks) {
+    private options: RouterResourceOptions
+
+    constructor(options: RouterResourceOptions = {}) {
+        super()
+        this.options = options
+    }
+
     public async index(ctx: HttpContext): Promise<any> {
         const error = new Error('Not implemented')
 
@@ -44,60 +108,54 @@ export default class RouterResourceService extends compose(Hooks) {
         throw error
     }
 
+    private wrap(
+        methodName: 'index' | 'show' | 'store' | 'update' | 'destroy',
+        before: string[],
+        after: string[],
+    ) {
+        return async (ctx: HttpContext) => {
+            await this.emit('beforeAll', ctx)
+
+            for (const hook of before) {
+                await this.emit(hook, ctx)
+            }
+
+            const result = await this[methodName](ctx)
+
+            for (const hook of after) {
+                await this.emit(hook, ctx, result)
+            }
+
+            return result
+        }
+    }
+
+
     public register(router: Router) {
-        router.get('/', async ctx => {
+        for (const route of routes) {
+            const method = route.method as Route['method']
+            const methodName = route.handler as ResourceMethod
             
-            await this.emit('beforeIndex', ctx)
+            if (this.options.except && this.options.except.includes(methodName)) {
+                continue
+            }
 
-            const result = await this.index(ctx)
+            if (this.options.middleware && this.options.middleware['all']) {
+                router.use(this.options.middleware['all'])
+            }
 
-            await this.emit('afterIndex', ctx, result)
+            if (this.options.middleware && this.options.middleware[methodName]) {
+                router.use(this.options.middleware[methodName])
+            }
 
-            return result
-        })
-
-        router.get('/:id', async ctx => {
-            await this.emit('beforeShow', ctx)
-
-            const result = await this.show(ctx)
-
-            await this.emit('afterShow', ctx, result)
-
-            return result
-        })
-
-        router.post('/', async ctx => {
-            await this.emit('beforeStore', ctx)
-            await this.emit('beforeSave', ctx)
-
-            const result = await this.store(ctx)
-
-            await this.emit('afterStore', ctx, result)
-            await this.emit('afterSave', ctx, result)
-
-            return result
-        })
-
-        router.put('/:id', async ctx => {
-            await this.emit('beforeUpdate', ctx)
-            await this.emit('beforeSave', ctx)
-
-            const result = await this.update(ctx)
-
-            await this.emit('afterUpdate', ctx, result)
-            await this.emit('afterSave', ctx, result)
-
-            return result
-        })
-
-        router.delete('/:id', async ctx => {
-            await this.emit('beforeDestroy', ctx)
-
-            const result = await this.destroy(ctx)
-
-            await this.emit('afterDestroy', ctx, result)
-
-            return result
-        })
+            router[method](
+                route.path,
+                this.wrap(
+                    route.handler as any,
+                    route.hooks?.before || [],
+                    route.hooks?.after || [],
+                )
+            )
+        }
     }
 }

@@ -10,6 +10,30 @@ import type User from '#server/entities/user.entity.ts'
 
 export type AuthorizationContext = MiddlewareHandleResult<[AuthorizationMiddleware]>
 
+export interface AuthorizePermissionPayload {
+    action: string
+    resource: string
+    conditions?: Record<string, any>
+}
+
+export class AuthorizePermission implements Middleware {
+    private permissions: AuthorizePermissionPayload[]
+
+    constructor(payload: AuthorizePermissionPayload | AuthorizePermissionPayload[]) {
+        this.permissions = Array.isArray(payload) ? payload : [payload]
+    }
+
+    public async handle(ctx: AuthorizationContext) {
+        for (const p of this.permissions) {
+            ctx.acl.authorize(
+                p.action,
+                p.resource,
+                p.conditions || {},
+            )
+        }
+    }
+}
+
 export class AuthorizationMiddleware implements Middleware {
     public async handle(ctx: AuthSilenceMiddlewareContext){
         let user: any | null = null
@@ -29,6 +53,10 @@ export class AuthorizationMiddleware implements Middleware {
         const acl = new Acl(permissions)
         
         return { acl }
+    }
+
+    public static create(payload: AuthorizePermissionPayload | AuthorizePermissionPayload[]) {
+        return new AuthorizePermission(payload)
     }
 }
 
