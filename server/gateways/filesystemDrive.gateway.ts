@@ -83,8 +83,6 @@ export default class FilesystemDrive implements DriveContract {
     }
 
     async mkdir(filename: string): Promise<void> {
-        console.log('Mkdir', filename)
-
         if (!(await this.exists(path.dirname(filename)))) {
             await this.mkdir(path.dirname(filename))
         }

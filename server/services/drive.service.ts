@@ -94,8 +94,18 @@ export default class DriveService {
         return this.current.readStream(filename)
     }
 
-    public write(filename: string, data: Uint8Array): Promise<void> {
+    public write(filename: string, payload: Uint8Array | string | Record<string, unknown> ): Promise<void> {
         if (!this.current) throw new BaseException('No drive selected')
+
+        let data: any = payload
+        
+        if (typeof payload === 'object' && !(payload instanceof Uint8Array)) {
+            data = JSON.stringify(payload, null, 4)
+        }
+
+        if (typeof data === 'string') {
+            data = new TextEncoder().encode(data)
+        }
 
         return this.current.write(filename, data)
     }
