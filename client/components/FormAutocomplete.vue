@@ -78,7 +78,7 @@ const props = defineProps({
         default: null,
     },
     fetchOption: {
-        type: Function as PropType<(value: any) => Promise<any>>,
+        type: [String, Function] as PropType<string | ((value: any) => Promise<any>)>,
         default: null,
     },
     serialize: {
@@ -161,7 +161,15 @@ async function loadSelected(){
 
     loading.value = true
 
-    const [error, response] = await tryCatch(() => props.fetchOption!(value.value))
+    const [error, response] = await tryCatch(() => {
+        if (typeof props.fetchOption === 'string') {
+            return $fetch<any>(props.fetchOption.replace(':value', value.value as any), {
+                method: 'GET',
+            })
+        }
+
+        return props.fetchOption!(value.value)
+    })
 
     if (error) {
         console.error('Failed to load selected option:', error)
