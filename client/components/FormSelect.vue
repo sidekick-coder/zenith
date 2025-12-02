@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import { watch } from 'vue'
+import { computed, watch } from 'vue'
 import { get } from 'lodash-es'
-import { SelectIcon } from 'reka-ui'
-import { ChevronDown } from 'lucide-vue-next'
+import { useFieldValue } from 'vee-validate'
 import { FormField } from './ui/form'
 import FormControl from './ui/form/FormControl.vue'
 import FormDescription from './ui/form/FormDescription.vue'
@@ -24,10 +23,6 @@ const props = defineProps({
     name: {
         type: String,
         required: true,
-    },
-    type: {
-        type: String,
-        default: 'text',
     },
     label: {
         type: String,
@@ -53,6 +48,10 @@ const props = defineProps({
         type: String,
         default: 'label',
     },
+    descriptionKey: {
+        type: String,
+        default: null,
+    },
     valueKey: {
         type: String,
         default: 'value',
@@ -76,12 +75,30 @@ const options = defineModel('options', {
     default: () => [],
 })
 
+const model = useFieldValue(props.name)
+
+
+const formated = computed(() => options.value.map(option => ({
+    label: findLabel(option),
+    value: findValue(option),
+    description: findDescription(option),
+}))
+)
+
+const selected = computed(() => {
+    return formated.value.find(o => o.value === model.value)
+})
+
 function findLabel(option: any) {
-    return option[props.labelKey] || option[props.valueKey] || option
+    return get(option, props.labelKey) || get(option, props.valueKey) || option
 }
 
 function findValue(option: any) {
-    return option[props.valueKey] || option
+    return get(option, props.valueKey) || option
+}
+
+function findDescription(option: any) {
+    return get(option, props.descriptionKey) || ''
 }
 
 function findFetchOptions(response: any){
@@ -111,7 +128,7 @@ watch(() => props.fetch, fetchOptions, { immediate: true })
 </script>
 <template>
     <FormField
-        v-slot="{ componentField, setValue }"
+        v-slot="{ componentField, setValue, value }"
         :name
         :disabled
         :readonly
@@ -125,7 +142,9 @@ watch(() => props.fetch, fetchOptions, { immediate: true })
                         disabled
                         class="w-full disabled:opacity-100 min-h-10"
                     >
-                        <select-value :placeholder="placeholder" />
+                        <select-value :placeholder>
+                            {{ selected?.label }}
+                        </select-value>
                     </SelectTrigger>
                     
                     <select-trigger
@@ -133,7 +152,9 @@ watch(() => props.fetch, fetchOptions, { immediate: true })
                         class="w-full min-h-10"
                         :disabled="disabled"
                     >
-                        <select-value :placeholder="placeholder" />
+                        <select-value :placeholder>
+                            {{ selected?.label }}
+                        </select-value>
                     </select-trigger>
                     <select-content>
                         <select-group>
@@ -148,11 +169,19 @@ watch(() => props.fetch, fetchOptions, { immediate: true })
                                 {{ $t('None') }}
                             </select-item>
                             <select-item
-                                v-for="option in options"
-                                :key="findValue(option)"
-                                :value="findValue(option)"
+                                v-for="o in formated"
+                                :key="o.value"
+                                :value="o.value"
                             >
-                                {{ findLabel(option) }}
+                                <div class="flex flex-col">
+                                    <span>{{ o.label }}</span>
+                                    <span
+                                        v-if="descriptionKey"
+                                        class="text-xs text-muted-foreground white-space-normal break-words mt-0.5"
+                                    >
+                                        {{ o.description }}
+                                    </span>
+                                </div>
                             </select-item>
                         </select-group>
                     </select-content>
