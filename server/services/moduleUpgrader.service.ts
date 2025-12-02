@@ -2,7 +2,7 @@ import fs from 'fs'
 import path from 'path'
 import unzipper from 'unzipper'
 import rootLogger from '../facades/logger.facade.ts'
-import shell from './shell.service.ts'
+import shell from '#server/facades/shell.facade.ts'
 import {
     basePath,
     tmpPath

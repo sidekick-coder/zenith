@@ -9,7 +9,7 @@ interface CommandOptions {
     env?: NodeJS.ProcessEnv
 }
 
-export class ShellService {
+export default class ShellService {
     /**
      * Execute a shell command and return a promise
      */
@@ -95,7 +95,3 @@ export class ShellService {
         })
     }
 }
-
-const shell = new ShellService()
-
-export default shell

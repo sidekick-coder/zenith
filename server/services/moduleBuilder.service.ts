@@ -5,7 +5,7 @@ import { createFilter } from '@rollup/pluginutils'
 import MagicString from 'magic-string'
 import * as acorn from 'acorn'
 import rootLogger from '../facades/logger.facade.ts'
-import shell from './shell.service.ts'
+import shell from '#server/facades/shell.facade.ts'
 import { basePath } from '#server/utils/paths.ts'
 
 
