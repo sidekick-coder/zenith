@@ -8,7 +8,7 @@ export function ConfigModelMixin(key: string) {
         return class extends Base {
             public static __isConfigModel = true
 
-            public static serialize<T>(this: new () => T, row: any): Promise<T> {
+            public static serialize<T>(this: new (...args: any[]) => T, row: any): Promise<T> {
                 const instance = new this() as any
 
                 Object.assign(instance as any, row)
@@ -16,7 +16,7 @@ export function ConfigModelMixin(key: string) {
                 return instance as any
             }
 
-            public static async list<T>(this: new () => T): Promise<T[]> {
+            public static async list<T>(this: new (...args: any[]) => T): Promise<T[]> {
                 const constructor = this as any
 
                 const map = config.get<Record<string, any>>(key) || {}

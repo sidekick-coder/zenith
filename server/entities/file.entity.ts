@@ -5,7 +5,7 @@ import Base from '#shared/entities/file.entity.ts'
 import { composeWith } from '#shared/utils/compose.ts'
 import { Metadata } from '#server/mixins/metadata.mixin.ts'
 import drive from '#server/facades/drive.facade.ts'
-import { Hooks } from '#server/mixins/hooks.mixin.ts'
+import { HooksStatic } from '#server/mixins/hooks.mixin.ts'
 import type { DriveUrlOptions } from '#server/contracts/drive.contract.ts'
 import MetadataService from '#server/services/metadata.service.ts'
 
@@ -16,7 +16,7 @@ interface URLCache {
 
 export default class File extends composeWith(
     Base,
-    Hooks,
+    HooksStatic,
     Model('files'),
     Metadata('file_metas', 'file_id')
 ) {

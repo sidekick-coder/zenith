@@ -1,25 +1,18 @@
 import fs from 'fs'
 import path from 'path'
 import nodeSchedule from 'node-schedule'
-import rootLogger from '../facades/logger.facade.ts'
+import logger from '../facades/logger.facade.ts'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
 import Routine from '#server/entities/routine.entity.ts'
 import BaseException from '#server/exceptions/base.ts'
 
-const logger = rootLogger.child({ label: 'scheduler' })
-
 export default class ScheduleService {
     private routines: Routine[] = []
     private filename: string | null = null
+    private logger = logger.child({ label: 'scheduler' })
 
     public add(id: string, cron: string, handler: Function) {
         const data = { filename: this.filename, }
-
-        logger.debug('adding routine', {
-            id,
-            cron,
-            data 
-        })
 
         this.routines.push(new Routine({
             id,
@@ -27,11 +20,17 @@ export default class ScheduleService {
             handler,
             data
         }))
+
+        this.logger.info(`${id} routine added`, {
+            id,
+            cron,
+            filename: this.filename
+        })
     }
 
     public async loadFile(filename: string) {
         if (!fs.existsSync(filename)) {
-            logger.warn(`File not found: ${filename}`)
+            this.logger.warn(`File not found: ${filename}`)
             return
         }
 
@@ -44,10 +43,10 @@ export default class ScheduleService {
         this.filename = null
 
         if (error) {
-            logger.error(`failed to load routines from ${filename}`, error)
+            this.logger.error(`failed to load routines from ${filename}`, error)
         }
 
-        logger.debug('file loaded', { filename })
+        this.logger.debug('file loaded', { filename })
     }
 
     public async removeFile(filename: string) {
@@ -57,7 +56,7 @@ export default class ScheduleService {
             this.routines = this.routines.filter(r => r !== routine)
         }
 
-        logger.debug(`removed routes from ${filename}`)
+        this.logger.debug(`removed routes from ${filename}`)
     }
 
     public async loadDirectory(directory: string) {
@@ -88,7 +87,7 @@ export default class ScheduleService {
             routine.job.cancel()
         }
 
-        const child = logger.child({ 
+        const child = this.logger.child({ 
             routineId: routine.id,
             routineCron: routine.cron
         })
@@ -101,10 +100,10 @@ export default class ScheduleService {
                 return
             }
 
-            child.info('routine executed')
+            child.info(`${routine.id} routine executed`)
         })
 
-        child.info(`routine ${routine.id} started`)
+        child.info(`${routine.id} routine started`)
     }
 
     public startAll() {
@@ -126,7 +125,15 @@ export default class ScheduleService {
 
         routine.job.cancel()
 
-        logger.info(`routine ${routine.id} stopped`)
+        this.logger.info(`${routine.id} routine stopped`)
+    }
+
+    public async remove(id: Routine['id']) {
+        await this.stop(id)
+
+        this.routines = this.routines.filter(r => r.id !== id)
+
+        this.logger.info(`routine ${id} removed`)
     }
 
     public async stopAll() {
@@ -138,9 +145,11 @@ export default class ScheduleService {
     public async clear() {
         await this.stopAll()
 
-        logger.debug('clear', { count: this.routines.length })
-
+        const count = this.routines.length
+        
         this.routines = []
+
+        this.logger.info('clear', { count: count })
     }
 
     public list() {

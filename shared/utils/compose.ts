@@ -1,5 +1,6 @@
 import type { UnionToIntersection } from './typing'
 
+export type AnyClass = new (...args: any[]) => any
 export type Constructor<T = {}> = new (...args: any[]) => T
 export type Mixin<T> = (base: Constructor) => Constructor<T>
 

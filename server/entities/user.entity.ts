@@ -5,7 +5,7 @@ import Permission from '#shared/entities/permission.entity.ts'
 import Role from '#server/entities/role.entity.ts'
 import BaseUser from '#shared/entities/user.entity.ts'
 import { composeWith } from '#shared/utils/compose.ts'
-import { Hooks } from '#server/mixins/hooks.mixin.ts'
+import { HooksStatic } from '#server/mixins/hooks.mixin.ts'
 import hasher from '#server/facades/hasher.facade.ts'
 import { firstOrCreate } from '#server/queries/firstOrCreate.ts'
 import { Metadata } from '#server/mixins/metadata.mixin.ts'
@@ -13,7 +13,7 @@ import MetadataService from '#server/services/metadata.service.ts'
 
 export default class User extends composeWith(
     BaseUser,
-    Hooks,
+    HooksStatic,
     Model('users'),
     Metadata('user_metas', 'user_id')
 ) {

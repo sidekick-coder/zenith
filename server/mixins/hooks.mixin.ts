@@ -1,5 +1,10 @@
 import type { Constructor } from '#shared/utils/compose.ts'
 
+interface Listener {
+    event: string
+    listener: (...args: any[]) => void
+}
+
 export async function emitHook(constructor: any, event: string, ...args: any[]) {                
     const listeners = constructor.listeners || []
 
@@ -25,7 +30,7 @@ export function onHook(constructor: any, event: string, listener: (...args: any[
     constructor.listeners = listeners
 }
 
-export function Hooks<TBase extends Constructor>(Base: TBase) {
+export function HooksStatic<TBase extends Constructor>(Base: TBase) {
     return class extends Base {
         constructor(...args: any[]) {
             super(...args)
@@ -46,3 +51,33 @@ export function Hooks<TBase extends Constructor>(Base: TBase) {
         }
     }
 }
+
+export function Hooks<TBase extends Constructor>(Base: TBase) {
+    return class extends Base {
+        public listeners = [] as Listener[]
+
+        public on(event: string, listener: (...args: any[]) => void) {
+            const exists = this.listeners.find((l) => l.event === event && l.listener === listener)
+
+            if (exists) {
+                return
+            }
+
+            this.listeners.push({ 
+                event,
+                listener 
+            })
+        }
+
+        public async emit(event: string, ...args: any[]) {
+            const listeners = this.listeners || []
+
+            for await (const l of listeners.filter((l: any) => l.event === event)) {
+                await l.listener(...args)
+            }
+        }
+    }
+}
+
+HooksStatic.emit = emitHook
+HooksStatic.on = onHook
