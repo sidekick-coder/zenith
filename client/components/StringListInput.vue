@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { X } from 'lucide-vue-next'
+import Icon from './Icon.vue'
 import { Input } from '#client/components/ui/input'
 import { Button } from '#client/components/ui/button'
 import { cn } from '#client/lib/utils'
@@ -59,7 +60,10 @@ function remove(index: number) {
                 class="h-10"
                 @click="add"
             >
-                Add
+                <Icon
+                    name="plus"
+                    class="w-4 h-4"
+                />
             </Button>
         </div>
 

@@ -1,6 +1,15 @@
 <script lang="ts">
 export interface FormField {
-    component: 'text-field' | 'textarea' | 'select' | 'autocomplete' | 'switch' | 'image-upload' | 'color-picker'
+    component: 
+        'text-field' 
+        | 'textarea' 
+        | 'select' 
+        | 'autocomplete'
+        | 'switch'
+        | 'image-upload'
+        | 'color-picker'
+        | 'string-list-input'
+        | 'hidden'
     [key: string]: any
 }
 
@@ -93,6 +102,12 @@ const components = computed(() => {
             :name="field.name"
             v-bind="field.props"    
         />
+
+        <input
+            v-else-if="field.component === 'hidden'"
+            class="hidden"
+            :name="field.name"
+        >
 
         <div
             v-else

@@ -1,10 +1,5 @@
 <script lang="ts">
-export interface FormField {
-    component: 'text-field' | 'textarea' | 'select' | 'autocomplete' | 'switch' | 'image-upload' | 'color-picker'
-    [key: string]: any
-}
-
-export function defineFormFields(field: Record<string, FormField>) {
+export function defineFormFields(field: Record<string, FormField | ((data: any) => FormField)>) {
     return field
 }
 
@@ -18,6 +13,7 @@ import type { PropType } from 'vue'
 import type { BaseSchema } from 'valibot'
 import ClientOnly from './ClientOnly.vue'
 import FormAutoFieldList from './FormAutoFieldList.vue'
+import type { FormField } from './FormAutoFieldList.vue'
 import { $t } from '#shared/lang.ts'
 import { $fetch } from '#client/utils/fetcher.ts'
 import Button from '#client/components/Button.vue'
@@ -54,12 +50,16 @@ const props = defineProps({
         type: [String, Function] as PropType<string | ((data: any) => Promise<any>)>,
         default: null,
     },
+    handle: {
+        type: Function as PropType<(data: v.InferInput<T>) => Promise<any>>,
+        default: null,
+    },
     method: {
         type: String,
         default: 'POST',
     },
     fields: {
-        type: Object as () => Record<keyof v.InferInput<T>, FormField>,
+        type: Object as () => Record<keyof v.InferInput<T>, FormField | ((data: any) => FormField)>,
         default: () => ({}),
     },
     submitText: {
@@ -77,9 +77,23 @@ const open = defineModel('open', {
     default: false,
 })
 
-const { handleSubmit, errors, resetForm, setFieldValue } = useForm({
+const { handleSubmit, errors, values, resetForm, setFieldValue } = useForm({
     validationSchema: toTypedSchema(props.schema as T),
     initialValues: props.values as v.InferInput<T>,
+})
+
+const formatedFields = computed(() => {
+    const result: Record<string, FormField> = {}
+
+    for (const [key, field] of Object.entries(props.fields)) {
+        if (typeof field === 'function') {
+            result[key] = field(values)
+        } else {
+            result[key] = field
+        }
+    }
+
+    return result
 })
 
 const errorsWihoutFields = computed(() => {
@@ -106,14 +120,20 @@ function doFetch(data: v.InferInput<T>) {
 }
 
 const onSubmit = handleSubmit(async (data) => {
-    if (!props.fetch) {
+    if (!props.fetch && !props.handle) {
         open.value = false
         return
     }
 
     loading.value = true
 
-    const [error, response] = await tryCatch(() => doFetch(data))
+    const [error, response] = await tryCatch(() => {
+        if (props.handle) {
+            return props.handle(data)
+        }
+
+        return doFetch(data)
+    })
 
     if (error) {
         loading.value = false
@@ -162,7 +182,7 @@ defineExpose({
                     class="space-y-4 py-2"
                     @submit.prevent="onSubmit"
                 >
-                    <FormAutoFieldList :fields="fields" />
+                    <FormAutoFieldList :fields="formatedFields" />
     
                     <div
                         v-if="Object.keys(errorsWihoutFields).length"
