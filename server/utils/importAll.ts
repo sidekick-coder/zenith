@@ -5,11 +5,16 @@ import fg from 'fast-glob'
 interface Options {
     onBeforeImport?: (ctx: { filename: string }) => void | Promise<void>;
     onAfterImport?: (ctx: { filename: string, module: any }) => void | Promise<void>;
+    exclude?: string[];
 }
 export async function importFiles(files: string[], options: Options = {}): Promise<Record<string, any>> {
     const modules: Record<string, any> = {}
 
     for (const filename of files) {
+        if (options.exclude && options.exclude.some(pattern => filename.includes(pattern))) {
+            continue
+        }
+
         const ctx = { filename }
 
         if (options.onBeforeImport) {
