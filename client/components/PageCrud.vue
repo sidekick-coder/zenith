@@ -30,6 +30,10 @@ const props = defineProps({
         type: String,
         default: null
     },
+    fetchDestroy: {
+        type: String,
+        default: null
+    },
     actions: {
         type: Array as PropType<Array<'create' | 'edit' | 'destroy'>> ,
         default: () => ['edit', 'destroy'],
@@ -57,6 +61,11 @@ const fieldsEdit = defineModel('fieldsEdit', {
 
 async function load() {
     tableRef.value?.load()   
+}
+
+function parse(url: string, row: any): string {
+    // replace all :key with row.key in fetch-destroy
+    return url.replace(/:([a-zA-Z_]+)/g, (_, key) => row[key]) as string
 }
 
 defineExpose({
@@ -133,7 +142,7 @@ defineExpose({
 
                     <DialogForm 
                         v-if="actions.includes('edit')"
-                        :fetch="`${fetch}/${row.id}`"
+                        :fetch="parse(fetch || '', row)"
                         method="PUT"
                         :title="$t('Edit')"
                         :description="$t('Fill in the details below to edit')"
@@ -153,7 +162,7 @@ defineExpose({
                         v-if="actions.includes('destroy')"
                         variant="ghost"
                         size="sm"
-                        :fetch="`${fetch}/${row.id}`"
+                        :fetch="parse(fetchDestroy || fetch, row)"
                         fetch-method="DELETE"
                         @fetched="load"
                     >
