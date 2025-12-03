@@ -19,6 +19,7 @@ import FormAutocomplete from './FormAutocomplete.vue'
 import FormSwitch from './FormSwitch.vue'
 import FormImageUploader from './FormImageUploader.vue'
 import FormColorPicker from './FormColorPicker.vue'
+import FormStringListInput from './FormStringListInput.vue'
 import FormTextField from '#client/components/FormTextField.vue'
 
 const props = defineProps({
@@ -85,6 +86,12 @@ const components = computed(() => {
             v-else-if="field.component === 'color-picker'"
             :name="field.name"
             v-bind="field.props"
+        />
+
+        <FormStringListInput
+            v-else-if="field.component === 'string-list-input'"
+            :name="field.name"
+            v-bind="field.props"    
         />
 
         <div
