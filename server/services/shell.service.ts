@@ -7,6 +7,7 @@ interface CommandOptions {
     cwd?: string
     silent?: boolean
     env?: NodeJS.ProcessEnv
+    shell?: boolean
 }
 
 export default class ShellService {
@@ -18,7 +19,7 @@ export default class ShellService {
             const child = spawn(bin, args, {
                 cwd: options.cwd || process.cwd(),
                 stdio: options.silent ? 'pipe' : 'inherit',
-                shell: true,
+                shell: options.shell ?? true,
                 env: options.env || process.env
             })
 
