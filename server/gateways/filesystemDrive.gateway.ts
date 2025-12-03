@@ -139,6 +139,15 @@ export default class FilesystemDrive implements DriveContract {
     async delete(filename: string): Promise<void> {
         const filePath = join(this.path, filename)
 
+        const isDirectory = await fs.promises.stat(filePath)
+            .then(stat => stat.isDirectory())
+            .catch(() => false)
+
+        if (isDirectory) {
+            await fs.promises.rmdir(filePath, { recursive: true })
+            return
+        }
+
         await fs.promises.unlink(filePath)
     }
 
