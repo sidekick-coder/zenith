@@ -1,8 +1,10 @@
 import Table from 'cli-table3'
+import modules from './modules.service.ts'
 import db from '#server/facades/db.facade.ts'
 import drive from '#server/facades/drive.facade.ts'
 import encrypt from '#server/facades/encrypt.facade.ts'
 import config from '#server/facades/config.facade.ts'
+import emmitter from '#server/facades/emmitter.facade.ts'
 
 interface TableColumn {
     label: string
@@ -128,7 +130,13 @@ export class UI {
     
 }
 
-type Capability = 'config' | 'db' | 'drive' | 'encrypt' | 'all'
+type Capability = 'config' 
+    | 'db' 
+    | 'drive' 
+    | 'encrypt' 
+    | 'emmitter' 
+    | 'modules'
+    | 'all'
 
 export class CLIService {
     public ui: UI
@@ -141,7 +149,14 @@ export class CLIService {
         let caps = Array.isArray(capabilities) ? capabilities : [capabilities]
 
         if (caps.includes('all')) {
-            caps = ['config', 'db', 'drive', 'encrypt']
+            caps = [
+                'config', 
+                'db',
+                'drive',
+                'encrypt',
+                'emmitter',
+                'modules'
+            ]
         }
 
         return async (...args: any[]) => {
@@ -160,6 +175,16 @@ export class CLIService {
 
                 if (caps.includes('encrypt')) {
                     encrypt.load(config.get('app.key'))
+                }
+
+                if (caps.includes('emmitter')) {
+                    emmitter.load({
+                        debug: config.get('emmitter.debug', false)
+                    })
+                }
+
+                if (caps.includes('modules')) {
+                    await modules.load()
                 }
 
                 await fn(...args)

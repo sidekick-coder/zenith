@@ -3,7 +3,9 @@ import EmmitterService from '#server/services/emmitter.service.ts'
 
 const key = 'emmitter'
 
-di.set(key, new EmmitterService())
+const service = new EmmitterService()
+
+di.set(key, service)
 
 const emmitter = di.proxy<EmmitterService>(key)
 

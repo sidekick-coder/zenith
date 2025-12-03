@@ -5,13 +5,20 @@ import logger from '../facades/logger.facade.ts'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
 import Routine from '#server/entities/routine.entity.ts'
 import BaseException from '#server/exceptions/base.ts'
+import { createId } from '#client/utils/createId.ts'
+
+export interface AddOptions {
+    id?: string
+}
 
 export default class ScheduleService {
     private routines: Routine[] = []
     private filename: string | null = null
     private logger = logger.child({ label: 'scheduler' })
 
-    public add(id: string, cron: string, handler: Function) {
+    public add(cron: string, handler: Function, options?: AddOptions) {
+        const id = options?.id || createId()
+
         const data = { filename: this.filename, }
 
         this.routines.push(new Routine({

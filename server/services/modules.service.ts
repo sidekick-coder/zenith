@@ -9,8 +9,13 @@ import { basePath } from '#server/utils/paths.ts'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
 import migrator from '#server/facades/migrator.facade.ts'
 import Module from '#server/entities/module.entity.ts'
-
-const logger = rootLogger.child({ label: 'modules' })
+import type { ServerSetup, SetupServerParams } from '#server/utils/defineServerSetup.ts'
+import queue from '#server/facades/queue.facade.ts'
+import assets from '#server/facades/assets.facade.ts'
+import router from '#server/facades/router.facade.ts'
+import scheduler from '#server/facades/scheduler.facade.ts'
+import emmitter from '#server/facades/emmitter.facade.ts'
+import logger from '#server/facades/logger.facade.ts'
 
 interface UninstallOptions {
     rollback?: boolean
@@ -23,6 +28,7 @@ export class ModulesService {
     public installer = new ModuleInstallerService()
     public upgrader = new ModuleUpgraderService()
     public builder = new ModuleBuilderService()
+    private logger = logger.child({ label: 'modules' })
 
     constructor(
         installer?: ModuleInstallerService,
@@ -322,6 +328,41 @@ export class ModulesService {
         }
         
         return { results }
+    }
+
+    public async load() {
+        const ctx: SetupServerParams = {
+            router,
+            scheduler,
+            emmitter,
+            assets,
+            queue
+        }
+
+        const mods = await this.list({
+            enabled: true
+        })
+        
+        const files = mods.flatMap(m => m.files).filter(f => f.type === 'setup:server')
+        
+        for await (const f of files) {
+            const filename = f.src
+            const [errorImport, mod] = await tryCatch(() => import(f.src) as Promise<{ default: ServerSetup }>)
+        
+            if (errorImport) {
+                this.logger.error('Error importing setup', errorImport)
+                continue
+            }
+        
+            const [error] = await tryCatch(() => mod.default.setup(ctx))
+        
+            if (error) {
+                this.logger.error('Error in setup', error)
+                continue
+            }
+        
+            this.logger.debug('setup loaded', { filename })
+        }
     }
 
 }

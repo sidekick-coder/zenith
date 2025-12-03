@@ -89,7 +89,7 @@ async function main() {
 
     drive.load()
     
-    await server.booter.bootAndWatch()
+    await server.booter.boot()
 
     const origins = config.get('cors.origins', '').split(',')
         .map((o: string) => o.trim())

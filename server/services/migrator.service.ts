@@ -5,6 +5,7 @@ import { basePath } from '#server/utils/paths.ts'
 import modules from '#server/services/modules.service.ts'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
 import db from '#server/facades/db.facade.ts'
+import emmitter from '#server/facades/emmitter.facade.ts'
 
 export interface Migration {
     name: string;
@@ -137,6 +138,8 @@ export default class MigratorService {
 
     public async migrateFile(fileName: string): Promise<MigrationResult> {
         await this.ensureMigrationsTable()
+
+        
         
         const migrations = await this.list()
         const migration = migrations.find(m => m.name === fileName)
@@ -159,6 +162,8 @@ export default class MigratorService {
         }
 
         try {
+            await emmitter.emitAndWait('migrator:before-migrate', { fileName })
+            
             await migration.up(db)
             
             await db
@@ -169,6 +174,8 @@ export default class MigratorService {
                     executed_at: format(new Date(), 'yyyy-MM-dd HH:mm:ss'),
                 })
                 .execute()
+
+            await emmitter.emitAndWait('migrator:after-migrate', { fileName })
 
             return {
                 filename: migration.name,
@@ -210,12 +217,16 @@ export default class MigratorService {
         }
 
         try {
+            await emmitter.emitAndWait('migrator:before-rollback', { fileName })
+
             await migration.down(db)
             
             await db
                 .deleteFrom('migrations')
                 .where('name', '=', migration.name)
                 .execute()
+
+            await emmitter.emitAndWait('migrator:after-rollback', { fileName })
 
             return {
                 filename: migration.name,
