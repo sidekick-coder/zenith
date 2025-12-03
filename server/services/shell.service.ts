@@ -56,6 +56,7 @@ export default class ShellService {
                 cwd: options.cwd || process.cwd(),
                 stdio: 'pipe',
                 shell: true,
+                env: options.env || process.env
             })
 
             let output = ''
