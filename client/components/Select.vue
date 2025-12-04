@@ -54,7 +54,7 @@ const props = defineProps({
     },
     fetchKey: {
         type: String,
-        default: '',
+        default: 'items',
     },
     labelClass: {
         type: String,
@@ -78,11 +78,11 @@ const options = defineModel('options', {
 })
 
 function findLabel(option: any) {
-    return option[props.labelKey] || option[props.valueKey] || option
+    return get(option, props.labelKey) || option
 }
 
 function findValue(option: any) {
-    return option[props.valueKey] || option
+    return get(option, props.valueKey) || option
 }
 
 function findFetchOptions(response: any) {
@@ -142,7 +142,7 @@ watch(() => props.fetch, fetchOptions, { immediate: true })
                     :class="cn('!h-10', variant === 'horizontal' ? 'rounded-l-none flex-1' : 'w-full', $attrs.class as any)"
                 >
                     <div 
-                        v-if="model.length > 2"
+                        v-if="multiple && model.length > 2"
                         class="flex items-center gap-2"
                     >
                         <span class="text-sm">{{ model.length }} selected</span>
