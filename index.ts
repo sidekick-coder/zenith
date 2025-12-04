@@ -1,22 +1,45 @@
 import config from '#server/facades/config.facade.ts'
-import router from '#server/facades/router.facade.ts'
-import server from '#server/facades/server.facade.ts'
-import drive from '#server/facades/drive.facade.ts'
-import ExpressService from '#server/services/express.service.ts'
+import LifecycleService, { LifecycleHook } from '#server/services/lifecycle.service.ts'
+import { importAll } from '#server/utils/importAll.ts'
+import { basePath } from '#server/utils/paths.ts'
 
-const origins = config.get('cors.origins', '').split(',')
-    .map((o: string) => o.trim())
-    .filter((o: string) => o.length > 0)
-
-const app = new ExpressService({
-    origins,
-    router
+const lifecycle = new LifecycleService({
+    debug: config.getOne(['app.debug', 'lifecycle.debug'], false)
 })
 
-await app.load()
+const mods = await importAll(basePath('server/hooks'))
 
-drive.load()
+const hooks: LifecycleHook[] = Object.values(mods)
+    .map(m => m.default || m)
+    .filter((HookClass: any) => HookClass.prototype instanceof LifecycleHook)
+    .map((HookClass: any) => new HookClass())
 
-await server.booter.boot()
+lifecycle.add(hooks)
 
-app.start()
+await lifecycle.register()
+
+await lifecycle.load()
+
+await lifecycle.boot()
+
+process.on('SIGINT', async () => {
+    await lifecycle.shutdown()
+    process.exit(0)
+})
+
+// const origins = config.get('cors.origins', '').split(',')
+//     .map((o: string) => o.trim())
+//     .filter((o: string) => o.length > 0)
+
+// const app = new ExpressService({
+//     origins,
+//     router
+// })
+
+// await app.load()
+
+// drive.load()
+
+// await server.booter.boot()
+
+// app.start()

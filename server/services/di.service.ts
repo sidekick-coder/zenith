@@ -1,5 +1,3 @@
-import { get } from 'lodash-es'
-
 type Constructor<T = object> = new (...args: any[]) => T
 
 type EntryKey = string | symbol | Constructor

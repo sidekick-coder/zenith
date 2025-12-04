@@ -12,53 +12,37 @@ import logger from '#server/facades/logger.facade.ts'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
 import env from '#server/env.ts'
 
-interface Options {
-    app?: express.Application;
-    router?: Router;
-    exception?: ExceptionService;
-    vite?: ViteService;
-    origins?: string[];
-    debug?: boolean;
-}
-
 export interface LoadOptions {
     debug?: boolean;
+    app: express.Application;
+    router?: Router;
+    exception?: ExceptionService;
+    origins?: string[];
 }
 
 export default class ExpressService {
     public app: express.Application
     public router: Router
     public exception: ExceptionService
-    public vite: ViteService
-    public origins: string[] = []
     public logger = logger.child({ label: 'express' })
     public debug = false
+    public onUnhandlerRouted: ((req: express.Request, res: express.Response) => void) | null = null
 
-    constructor(data: Options = {}) {
-        this.app = data.app || express()
-        this.router = data.router || new Router()
-        this.exception = data.exception || new ExceptionService()
-        this.debug = data.debug ?? false
-        this.origins = data.origins || []
-        this.vite = data.vite || new ViteService()
-    }
-
-    public async load(options: LoadOptions = {}) {
-        this.debug = options.debug ?? this.debug
-
-        if (this.debug) {
-            this.logger.debug('service loaded in debug mode')
-        }
-
+    constructor() {
+        this.app = express()
         this.app.use(cookieParser())
         this.app.use(this.parser)
-        this.app.use(cors({
-            credentials: true,
-            origin: this.origins.length > 0 ? this.origins : undefined,
-        }))
+    }
 
-        await this.vite.load(this.app)
+    public getExpressApp(): express.Application {
+        return this.app
+    }
 
+    public cors(options: cors.CorsOptions) {
+        this.app.use(cors(options))
+    }
+
+    public routes(){
         this.app.use('*all', (req, res) => {
             const url = new URL(req.originalUrl, `http://${req.headers.host}`)
             const method = req.method.toLowerCase()
@@ -78,7 +62,10 @@ export default class ExpressService {
                 })
             }
 
-            return this.vite.render(req.originalUrl, req, res)
+            if (this.onUnhandlerRouted) {
+                this.onUnhandlerRouted(req, res)
+                return
+            }
         })
     }
 
