@@ -330,15 +330,7 @@ export class ModulesService {
         return { results }
     }
 
-    public async load() {
-        const ctx: SetupServerParams = {
-            router,
-            scheduler,
-            emmitter,
-            assets,
-            queue
-        }
-
+    public async load(ctx: SetupServerParams) {
         const mods = await this.list({
             enabled: true
         })

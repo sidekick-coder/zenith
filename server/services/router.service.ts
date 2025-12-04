@@ -1,11 +1,7 @@
-import fs from 'fs'
-import path from 'path'
 import { join } from 'path'
 import logger from '#server/facades/logger.facade.ts'
 import Route from '#server/entities/route.entity.ts'
 import type { Handler, Middleware, MiddlewareHandleResult } from '#server/contracts/router.contract.ts'
-import { tryCatch } from '#shared/utils/tryCatch.ts'
-
 
 type RouteContext = 'global' | 'group' | 'route'
 
@@ -20,52 +16,24 @@ interface LoadOptions {
 
 
 export default class Router<C = {}> {
-    private routes: Route[] = []
-    private filename = null as string | null
-    private files = new Set<string>()
+    public routes: Route[] = []
 
-    private middlewares: MiddlewareRegister[] = []
-    private prefixes: string[] = []
+    public middlewares: MiddlewareRegister[] = []
+    public prefixes: string[] = []
 
-    private groupPrefixes: string[] = []
+    public groups: Router<any>[] = []
+    public groupPrefixes: string[] = []
 
-    private groups: Router<any>[] = []
-    private debug = false
+    public debug = false
     public logger = logger.child({ label: 'router' })
 
-    public addFile(filename: string) {
-        this.files.add(filename)
-    }
-
-    public addDir(directory: string) {
-        const entries = fs.readdirSync(directory)
-
-        for (const entry of entries) {
-            const fullPath = path.join(directory, entry)
-
-            const stats = fs.statSync(fullPath)
-
-            if (stats.isFile() && entry.endsWith('.ts')) {
-                this.files.add(fullPath)
-                continue
-            } 
-            
-            if (stats.isDirectory()) {
-                this.addDir(fullPath)
-            }
-        }
-    }
-
-    public open(filename: string) {
-        this.filename = filename
-    }
-
-    public close() {
-        if (!this.filename) {
-            throw new Error('Cannot close router without a filename')
-        }
-
-        this.filename = null
+    constructor(data: Partial<Router<C>> = {}) {
+        this.routes = data.routes || []
+        this.middlewares = data.middlewares || []
+        this.prefixes = data.prefixes || []
+        this.groups = data.groups || []
+        this.groupPrefixes = data.groupPrefixes || []
+        this.debug = data.debug || false
     }
 
     public use<T extends Middleware>(middleware: T, context: RouteContext = 'route') {
@@ -146,7 +114,6 @@ export default class Router<C = {}> {
     public group() {
         const group = new Router<C>()
 
-        group.filename = this.filename
         group.groupPrefixes = this.prefixes // Inherit prefixes from parent
         group.middlewares = this.middlewares.map(r => ({
             middleware: r.middleware,
@@ -237,44 +204,6 @@ export default class Router<C = {}> {
         return true
     }
 
-    private async loadFile(filename: string) {
-        if (!fs.existsSync(filename)) {
-            this.logger.warn(`File not found: ${filename}`)
-            return
-        }
-
-        this.open(filename)
-
-        const path = `${filename}?t=${Date.now()}` // Prevent caching issues
-
-        const [error] = await tryCatch(() => import(path))
-
-        if (error) {
-            this.logger.error('failed to load routes from file', {
-                filename,
-                error
-            })
-        }
-
-        if (this.debug) {
-            this.logger.debug('loaded routes file', {
-                filename,
-            })
-        }
-
-        this.close()
-    }
-
-    public removeFile(filename: string) {
-        this.files.delete(filename)
-
-        if (this.debug) {
-            this.logger.debug('removed file', {
-                filename,
-            })
-        }
-    }
-
     public clear() {
         if (this.debug) {
             this.logger.debug('clear', { count: this.routes.length })
@@ -294,9 +223,13 @@ export default class Router<C = {}> {
         if (this.debug) {
             this.logger.debug('service loaded in debug mode')
         }
+    }
 
-        for (const file of this.files) {
-            await this.loadFile(file)
+    public loadSync(options: LoadOptions = {}) {
+        this.debug = options.debug ?? this.debug
+
+        if (this.debug) {
+            this.logger.debug('service loaded in debug mode')
         }
     }
 }

@@ -7,19 +7,54 @@ import Base from '#shared/services/config.service.ts'
 import { configPath } from '#server/utils/paths.ts'
 import { importGlob } from '#server/utils/importAll.ts'
 import env from '#server/env.ts'
+import logger from '#server/facades/logger.facade.ts'
+
+interface LoadOptions {
+    debug?: boolean
+}
 
 export default class ConfigService extends Base {
     private configDir: string
+    public debug = false
+    private logger = logger.child({ label: 'config' })
 
     constructor(configDir?: string) {
         super()
         this.configDir = configDir ?? configPath()
     }
 
-    public async load() {
+    public async load(options: LoadOptions = {}) {
+        this.debug = options.debug ?? false
+
+        if (this.debug) {
+            this.logger.info('service loaded in debug mode')
+        }
+
         const files = await importGlob(configPath('*.json'))
 
         for (const [filename, config] of Object.entries(files)) {
+            const key = path.basename(filename, '.json')
+
+            this.set(key, config)
+        }
+
+        for (const [key, value] of Object.entries(env.CONFIG || {})) {
+            this.set(key, value, 'env')
+        }
+    }
+
+    public loadSync(options: LoadOptions = {}) {
+        this.debug = options.debug ?? false
+
+        if (this.debug) {
+            this.logger.info('service loaded in debug mode')
+        }
+
+        const fileNames = fs.readdirSync(this.configDir).filter(file => file.endsWith('.json'))
+
+        for (const filename of fileNames) {
+            const filePath = path.join(this.configDir, filename)
+            const config = JSON.parse(fs.readFileSync(filePath, 'utf-8'))
             const key = path.basename(filename, '.json')
 
             this.set(key, config)
@@ -80,27 +115,5 @@ export default class ConfigService extends Base {
 
         super.unset(fullKey)
 
-    }
-
-    public watch() {
-        const watcher = chokidar.watch(this.configDir, {
-            persistent: true,
-            ignoreInitial: true
-        })
-        
-        const reloadConfig = () => {
-            this.load()
-        }
-        
-        watcher.on('change', reloadConfig)
-        watcher.on('add', reloadConfig)
-        watcher.on('unlink', reloadConfig)
-        
-        return watcher
-    }
-
-    public async loadAndWatch(){
-        await this.load()
-        this.watch()
     }
 }

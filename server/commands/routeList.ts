@@ -2,10 +2,10 @@ import { program } from 'commander'
 import Table from 'cli-table3'
 import router from '#server/facades/router.facade.ts'
 import server from '#server/facades/server.facade.ts'
+import config from '#server/facades/config.facade.ts'
 
 program.command('route:list')
     .action(async () => {
-        await server.booter.root()
         await server.booter.setup()
 
         const routes = router.list()
@@ -16,13 +16,13 @@ program.command('route:list')
         }
 
         const table = new Table({
-            head: ['Method', 'Path', 'Filename'],
+            head: ['Module', 'Method', 'Path', ],
             colWidths: [10, 50],
         })
 
         routes
             .forEach(route => {
-                table.push([route.method, route.path, route.filename])
+                table.push([route.module || 'root', route.method, route.path])
             })
 
         console.log(table.toString())

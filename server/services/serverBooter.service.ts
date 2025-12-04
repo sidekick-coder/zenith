@@ -1,5 +1,6 @@
 import type { FSWatcher } from 'chokidar'
 import modules from './modules.service.ts'
+import RouterRegister from './routerRegister.service.ts'
 import db from '#server/facades/db.facade.ts'
 import assets from '#server/facades/assets.facade.ts'
 import router from '#server/facades/router.facade.ts'
@@ -24,7 +25,7 @@ export default class ServerBooterService {
     public async setup() {
 
         const ctx: SetupServerParams = {
-            router,
+            router: new RouterRegister(router),
             scheduler,
             emmitter,
             assets,
@@ -32,7 +33,8 @@ export default class ServerBooterService {
         }
 
         await setup.setup(ctx)
-        await modules.load()
+        await modules.load(ctx)
+        await ctx.router.load()
 
         this.logger.debug('core setup loaded')
     }
