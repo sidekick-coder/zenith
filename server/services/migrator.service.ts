@@ -138,8 +138,6 @@ export default class MigratorService {
 
     public async migrateFile(fileName: string): Promise<MigrationResult> {
         await this.ensureMigrationsTable()
-
-        
         
         const migrations = await this.list()
         const migration = migrations.find(m => m.name === fileName)
@@ -161,9 +159,7 @@ export default class MigratorService {
             }
         }
 
-        try {
-            await emmitter.emitAndWait('migrator:before-migrate', { fileName })
-            
+        try {            
             await migration.up(db)
             
             await db
@@ -174,8 +170,6 @@ export default class MigratorService {
                     executed_at: format(new Date(), 'yyyy-MM-dd HH:mm:ss'),
                 })
                 .execute()
-
-            await emmitter.emitAndWait('migrator:after-migrate', { fileName })
 
             return {
                 filename: migration.name,
@@ -217,16 +211,12 @@ export default class MigratorService {
         }
 
         try {
-            await emmitter.emitAndWait('migrator:before-rollback', { fileName })
-
             await migration.down(db)
             
             await db
                 .deleteFrom('migrations')
                 .where('name', '=', migration.name)
                 .execute()
-
-            await emmitter.emitAndWait('migrator:after-rollback', { fileName })
 
             return {
                 filename: migration.name,
@@ -243,101 +233,32 @@ export default class MigratorService {
         }
     }
 
-    
-
-    public async migrateFolder(folderPath: string): Promise<MigrationResult[]> {
-        if (!fs.existsSync(folderPath)) {
-            throw new Error(`Folder ${folderPath} does not exist`)
-        }
-
-        const entries = await fs.promises.readdir(folderPath)
-
-        const migrationFiles = entries
-            .filter(entry => entry.endsWith('.js') || entry.endsWith('.ts'))
-            .map(entry => path.basename(entry, path.extname(entry)))
-            .sort()
-
-        if (migrationFiles.length === 0) {
-            return []
-        }
-
-        const allResults: MigrationResult[] = []
-
-        for (const fileName of migrationFiles) {
-            const result = await this.migrateFile(fileName)
-            allResults.push(result)
-            
-            // Stop processing if migration failed
-            if (result.result === 'failed') {
-                break
-            }
-        }
-
-        return allResults
-    }
-
-    public async rollbackFolder(folderPath: string): Promise<MigrationResult[]> {
-        if (!fs.existsSync(folderPath)) {
-            throw new Error(`Folder ${folderPath} does not exist`)
-        }
-
-        const entries = await fs.promises.readdir(folderPath)
-
-        const migrationFiles = entries
-            .filter(entry => entry.endsWith('.js') || entry.endsWith('.ts'))
-            .map(entry => path.basename(entry, path.extname(entry)))
-            .sort()
-            .reverse() // Reverse order for rollback
-
-        if (migrationFiles.length === 0) {
-            return []
-        }
-
-        const allResults: MigrationResult[] = []
-
-        for (const fileName of migrationFiles) {
-            const result = await this.rollbackFile(fileName)
-            allResults.push(result)
-            
-            // Stop processing if rollback failed
-            if (result.result === 'failed') {
-                break
-            }
-        }
-
-        return allResults
-    }
-
-    public async migrateByModule(moduleName: string): Promise<MigrationResult[]> {
-        const mod = await modules.findOrFail(moduleName)
-
-        return this.migrateFolder(mod.makePath('server', 'migrations'))
-    }
-
-    public async rollbackByModule(moduleName: string): Promise<MigrationResult[]> {
-        const mod = await modules.findOrFail(moduleName)
-
-        return this.rollbackFolder(mod.makePath('server', 'migrations'))
-    }
-
-    public async up(steps: number = 1, filters: ListFilters = {}): Promise<MigrationResult[]> {
+    public async migrate(filters: ListFilters & { steps?: number } = {}): Promise<MigrationResult[]> {
         await this.ensureMigrationsTable()
         
-        const migrations = await this.list(filters)
+        let migrations = await this.list(filters)
 
-        const pendingMigrations = migrations
-            .filter(m => !m.executedAt)
-            .sort((a, b) => a.name.localeCompare(b.name))
+        if (filters.steps !== undefined) {
+            migrations = migrations.slice(0, filters.steps)
+        }
 
-        if (pendingMigrations.length === 0) {
+        migrations = migrations.filter(m => !m.executedAt)
+
+        migrations.sort((a, b) => a.name.localeCompare(b.name))
+
+        if (migrations.length === 0) {
             return []
         }
 
+        await emmitter.emitAndWait('migrator:before-migrate', { 
+            migrations: migrations.map(m => m.name)
+        })
+
         const results: MigrationResult[] = []
-        const migrationsToProcess = pendingMigrations.slice(0, steps)
-        
-        for (const migration of migrationsToProcess) {
+
+        for (const migration of migrations) {
             const result = await this.migrateFile(migration.name)
+            
             results.push(result)
             
             // Stop on first failure
@@ -346,14 +267,23 @@ export default class MigratorService {
             }
         }
 
+        await emmitter.emitAndWait('migrator:after-migrate', { 
+            migrations: migrations,
+            results
+        })
+
         return results
     }
 
-    public async down(steps: number = 1, filters: ListFilters = {}): Promise<MigrationResult[]> {
+    public async rollback(filters: ListFilters & { steps?: number } = {}): Promise<MigrationResult[]> {
         await this.ensureMigrationsTable()
         
-        const migrations = await this.list(filters)
-        
+        let migrations = await this.list(filters)
+
+        if (filters.steps !== undefined) {
+            migrations = migrations.slice(0, filters.steps)
+        }
+
         const executedMigrations = migrations
             .filter(m => m.executedAt)
             .sort((a, b) => b.name.localeCompare(a.name))
@@ -362,62 +292,9 @@ export default class MigratorService {
             return []
         }
 
-        const results: MigrationResult[] = []
-        const migrationsToProcess = executedMigrations.slice(0, steps)
-        
-        for (const migration of migrationsToProcess) {
-            const result = await this.rollbackFile(migration.name)
-            results.push(result)
-            
-            // Stop on first failure
-            if (result.result === 'failed') {
-                break
-            }
-        }
-
-        return results
-    }
-
-    public async latest(filters: ListFilters = {}): Promise<MigrationResult[]> {
-        await this.ensureMigrationsTable()
-        
-        const migrations = await this.list(filters)
-
-        const pendingMigrations = migrations
-            .filter(m => !m.executedAt)
-            .sort((a, b) => a.name.localeCompare(b.name))
-
-        if (pendingMigrations.length === 0) {
-            return []
-        }
-
-        const results: MigrationResult[] = []
-        
-        for (const migration of pendingMigrations) {
-            const result = await this.migrateFile(migration.name)
-            results.push(result)
-            
-            // Stop on first failure
-            if (result.result === 'failed') {
-                break
-            }
-        }
-
-        return results
-    }
-
-    public async rollback(filters: ListFilters = {}): Promise<MigrationResult[]> {
-        await this.ensureMigrationsTable()
-        
-        const migrations = await this.list(filters)
-
-        const executedMigrations = migrations
-            .filter(m => m.executedAt)
-            .sort((a, b) => b.name.localeCompare(a.name))
-
-        if (executedMigrations.length === 0) {
-            return []
-        }
+        await emmitter.emitAndWait('migrator:before-rollback', { 
+            migrations: executedMigrations.map(m => m.name)
+        })
 
         const results: MigrationResult[] = []
         
@@ -430,6 +307,43 @@ export default class MigratorService {
             if (result.result === 'failed') {
                 break
             }
+        }
+
+        await emmitter.emitAndWait('migrator:after-rollback', { 
+            migrations: executedMigrations,
+            results
+        })
+
+        return results
+    }
+
+    public async up(steps: number = 1, filters: ListFilters = {}): Promise<MigrationResult[]> {
+        return this.migrate({ 
+            ...filters,
+            steps 
+        })
+    }
+
+    public async down(steps: number = 1, filters: ListFilters = {}): Promise<MigrationResult[]> {
+        return this.rollback({ 
+            ...filters,
+            steps 
+        })
+    }
+
+    public async latest(filters: ListFilters = {}): Promise<MigrationResult[]> {
+        return this.migrate(filters)
+    }
+
+    public async latestOrFail(filters: ListFilters = {}): Promise<MigrationResult[]> {
+        const results = await this.latest(filters)
+        
+        if (results.some(r => r.result === 'failed')) {
+            const error = new Error('Failed to run all migrations')
+
+            Object.assign(error, { results })
+
+            throw error
         }
 
         return results
@@ -447,17 +361,4 @@ export default class MigratorService {
         return upResults
     }
 
-    public async latestOrFail(filters: ListFilters = {}): Promise<MigrationResult[]> {
-        const results = await this.latest(filters)
-        
-        if (results.some(r => r.result === 'failed')) {
-            const error = new Error('Failed to run all migrations')
-
-            Object.assign(error, { results })
-
-            throw error
-        }
-
-        return results
-    }
 }

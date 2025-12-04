@@ -61,7 +61,9 @@ router.post('/:id/toggle', async ({ params, acl }) => {
 router.post('/:id/migrate', async ({ params, acl }) => {
     acl.authorize('update', 'Module')
 
-    const items = await migrator.migrateByModule(params.id)
+    const items = await migrator.migrate({
+        module: params.id,
+    })
 
     const itemWithError = items.find(i => i.error)
 
