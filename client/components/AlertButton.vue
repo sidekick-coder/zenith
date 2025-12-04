@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import { toast } from 'vue-sonner'
 import Button from './Button.vue'
 import ClientOnly from './ClientOnly.vue'
 import {
@@ -36,7 +37,11 @@ const props = defineProps({
     fetchMethod: {
         type: String,
         default: 'POST'
-    }
+    },
+    toastOnSuccess: {
+        type: String,
+        default: ''
+    },
 })
 
 const loading = defineModel('loading', {
@@ -71,6 +76,11 @@ async function doFetch() {
 
     setTimeout(() => {
         loading.value = false
+        
+        if (props.toastOnSuccess) {
+            toast.success(props.toastOnSuccess)
+        }
+
         emit('fetched', response)
     }, 500)
 }
