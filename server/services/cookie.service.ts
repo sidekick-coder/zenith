@@ -37,4 +37,18 @@ export default class CookieService extends Base {
 
         return super.get(fullName, defaultValue)
     }
+
+    public toObject(): Record<string, string> {
+        const prefix = config.get('cookie.prefix', '')
+        const result: Record<string, string> = {}
+
+        for (const [key, value] of Object.entries(this.cookies)) {
+            if (key.startsWith(prefix)) {
+                const unprefixedKey = key.slice(prefix.length)
+                result[unprefixedKey] = value
+            }
+        }
+
+        return result
+    }
 }

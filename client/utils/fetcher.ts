@@ -89,6 +89,7 @@ export function createServerFetcher(router: Router, cookies: Record<string, stri
             // files,
             cookie: new CookieService(cookies)
         })
+        
 
         return result as Promise<T>
     }

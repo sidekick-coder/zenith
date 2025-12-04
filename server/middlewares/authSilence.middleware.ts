@@ -9,7 +9,11 @@ export type AuthSilenceMiddlewareContext = {
 export class AuthSilenceMiddleware implements Middleware {
     public async handle(ctx: HttpContext): Promise<AuthSilenceMiddlewareContext> {
         // Example authentication logic
-        const token = ctx.cookie.get('Authorization') || ctx.request.headers['authorization'] as string
+        let token = ctx.cookie.get('Authorization')
+
+        if (ctx.request && ctx.request.headers['authorization']) {
+            token = ctx.request.headers['authorization']
+        }
 
         if (!token) {
             return { user: undefined }

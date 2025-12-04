@@ -90,7 +90,7 @@ export class ViteServer {
                 router,
                 state,
                 logger: logger.child({ label: 'ssr' }),
-                cookies: _request.cookies || {},
+                cookies:  new CookieService(_request, response).toObject(),
             })
 
             let head = rendered.head ?? ''

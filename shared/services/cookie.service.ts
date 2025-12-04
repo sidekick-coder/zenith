@@ -1,5 +1,5 @@
 export default class CookieService {
-    private cookies: Record<string, string> = {}
+    public cookies: Record<string, string> = {}
 
     constructor(cookies: Record<string, string> = {}) {
         this.cookies = cookies
