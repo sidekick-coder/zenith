@@ -35,11 +35,11 @@ export default class ConfigService extends Base {
         for (const [filename, config] of Object.entries(files)) {
             const key = path.basename(filename, '.json')
 
-            this.set(key, config)
+            super.set(key, config)
         }
 
         for (const [key, value] of Object.entries(env.CONFIG || {})) {
-            this.set(key, value, 'env')
+            super.set(key, value, 'env')
         }
     }
 
@@ -57,11 +57,11 @@ export default class ConfigService extends Base {
             const config = JSON.parse(fs.readFileSync(filePath, 'utf-8'))
             const key = path.basename(filename, '.json')
 
-            this.set(key, config)
+            super.set(key, config)
         }
 
         for (const [key, value] of Object.entries(env.CONFIG || {})) {
-            this.set(key, value, 'env')
+            super.set(key, value, 'env')
         }
     }
 
