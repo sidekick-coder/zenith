@@ -26,6 +26,7 @@ export default class Router<C = {}> {
 
     public debug = false
     public logger = logger.child({ label: 'router' })
+    public metadata: Record<string, any> = {}
 
     constructor(data: Partial<Router<C>> = {}) {
         this.routes = data.routes || []
@@ -34,6 +35,7 @@ export default class Router<C = {}> {
         this.groups = data.groups || []
         this.groupPrefixes = data.groupPrefixes || []
         this.debug = data.debug || false
+        this.metadata = data.metadata || {}
     }
 
     public use<T extends Middleware>(middleware: T, context: RouteContext = 'route') {
@@ -68,6 +70,12 @@ export default class Router<C = {}> {
         this.prefixes = [] // Reset prefixes after use
 
         this.routes.push(route)
+
+        // console.log(this.debug)
+
+        if (this.debug) {
+            this.logger.debug('added route', route)
+        }
     }
 
     public get(path: string, handler: Handler<C>) {

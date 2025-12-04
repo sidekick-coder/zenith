@@ -38,7 +38,7 @@ export default class LifecycleService {
             this.hooks.set(hook.id, hook)
 
             if (this.debug) {
-                this.logger.debug('hook added:', hook)
+                this.logger.debug('add ' + hook.id)
             }
         }
     }
@@ -54,7 +54,7 @@ export default class LifecycleService {
             }
             
             if (this.debug) {
-                this.logger.debug('register executed', hook)
+                this.logger.debug('register' + hook.id)
             }
         }
     }
@@ -70,7 +70,7 @@ export default class LifecycleService {
             }
             
             if (this.debug) {
-                this.logger.debug('load executed', hook)
+                this.logger.debug('load ' + hook.id)
             }
         }
     }
@@ -86,7 +86,7 @@ export default class LifecycleService {
             }
             
             if (this.debug) {
-                this.logger.debug('boot executed', hook)
+                this.logger.debug('boot ' + hook.id)
             }
         }
     }
@@ -102,7 +102,7 @@ export default class LifecycleService {
             }
             
             if (this.debug) {
-                this.logger.debug('shutdown executed', hook)
+                this.logger.debug('shutdown ' + hook.id)
             }
         }
     }

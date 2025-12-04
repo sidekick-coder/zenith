@@ -7,35 +7,16 @@ export default class RouterRegister<C = {}> extends Router<C> {
     public files = new Set<string>()
     public dirs = new Set<string>()
     
-    constructor(router: Router) {
-        super({
-            routes: router.routes,
-            middlewares: router.middlewares,
-            prefixes: router.prefixes,
-            groups: router.groups,
-            groupPrefixes: router.groupPrefixes,
-            debug: router.debug,
-        })
+    constructor(router: Partial<Router<C>> = {}) {
+        super(router)
     }
 
     public addFile(filename: string) {
         this.files.add(filename)
-
-        if (this.debug) {
-            this.logger.debug('added file', {
-                filename,
-            })
-        }
     }
 
     public addDir(dirname: string) {
         this.dirs.add(dirname)
-
-        if (this.debug) {
-            this.logger.debug('added directory', {
-                dirname,
-            })
-        }
     }
 
     private async loadFile(filename: string) {
@@ -49,22 +30,31 @@ export default class RouterRegister<C = {}> extends Router<C> {
         const [error] = await tryCatch(() => import(path))
     
         if (error) {
-            this.logger.error('failed to load routes from file', {
+            this.logger.error('failed to load file', {
                 filename,
                 error
             })
+
+            return false
         }
-    
-        if (this.debug) {
-            this.logger.debug('loaded routes file', {
-                filename,
-            })
-        }
+
+        return true
     }
 
     public async load() {
+        const loaded = new Set<string>()
+
         for (const file of this.files) {
-            await this.loadFile(file)
+            
+            const stat = fs.statSync(file)
+
+            if (!stat.isFile() && stat.isDirectory()) {
+                continue
+            }
+
+            if ((await this.loadFile(file))) {
+                loaded.add(file)
+            }
         }
 
         for (const dir of this.dirs) {
@@ -75,10 +65,20 @@ export default class RouterRegister<C = {}> extends Router<C> {
 
                 const stat = fs.statSync(fullPath)
 
-                if (stat.isFile() && file.endsWith('.ts')) {
-                    await this.loadFile(fullPath)
+                if (!stat.isFile() && stat.isDirectory()) {
+                    continue
+                }
+
+                if ((await this.loadFile(fullPath))) {
+                    loaded.add(fullPath)
                 }
             }
+        }
+
+        if (this.debug) {
+            this.logger.debug('load files', {
+                files: Array.from(loaded).map(p => path.relative(process.cwd(), p)),
+            })
         }
     }
 }

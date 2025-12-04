@@ -1,23 +1,11 @@
 import di from './di.facade.ts'
-import config from './config.facade.ts'
-import Router from '#server/services/router.service.ts'
-import setupMiddleware from '#server/middlewares/setup.middleware.ts'
+import RouterService from '#server/services/router.service.ts'
 import authorizationMiddleware from '#server/middlewares/authorization.middleware.ts'
 import authSilenceMiddleware from '#server/middlewares/authSilence.middleware.ts'
 import type { MiddlewareHandleResult } from '#server/contracts/router.contract.ts'
 
 type Context = MiddlewareHandleResult<[typeof authSilenceMiddleware, typeof authorizationMiddleware]>
 
-di.set('router', new Router<Context>())
-
-const router = di.proxy<Router<Context>>('router')
-
-router.use(setupMiddleware, 'global')
-router.use(authSilenceMiddleware, 'global')
-router.use(authorizationMiddleware, 'global')
-
-router.loadSync({
-    debug: config.getOne<boolean>(['app.debug', 'server.debug'], false),
-})
+const router = di.proxy<RouterService<Context>>(RouterService)
 
 export default router
