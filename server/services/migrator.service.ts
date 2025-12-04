@@ -237,14 +237,15 @@ export default class MigratorService {
         await this.ensureMigrationsTable()
         
         let migrations = await this.list(filters)
+        
+        migrations = migrations.filter(m => !m.executedAt)
+
+        migrations.sort((a, b) => a.name.localeCompare(b.name))
 
         if (filters.steps !== undefined) {
             migrations = migrations.slice(0, filters.steps)
         }
 
-        migrations = migrations.filter(m => !m.executedAt)
-
-        migrations.sort((a, b) => a.name.localeCompare(b.name))
 
         if (migrations.length === 0) {
             return []
@@ -279,26 +280,31 @@ export default class MigratorService {
         await this.ensureMigrationsTable()
         
         let migrations = await this.list(filters)
+        
+        migrations = migrations.filter(m => m.executedAt)
+
+        migrations.sort((a, b) => b.name.localeCompare(a.name))
+        
 
         if (filters.steps !== undefined) {
             migrations = migrations.slice(0, filters.steps)
         }
 
-        const executedMigrations = migrations
-            .filter(m => m.executedAt)
-            .sort((a, b) => b.name.localeCompare(a.name))
 
-        if (executedMigrations.length === 0) {
+        console.log(migrations)
+
+
+        if (migrations.length === 0) {
             return []
         }
 
         await emmitter.emitAndWait('migrator:before-rollback', { 
-            migrations: executedMigrations.map(m => m.name)
+            migrations: migrations.map(m => m.name)
         })
 
         const results: MigrationResult[] = []
         
-        for (const migration of executedMigrations) {
+        for (const migration of migrations) {
             const result = await this.rollbackFile(migration.name)
             
             results.push(result)
@@ -310,8 +316,7 @@ export default class MigratorService {
         }
 
         await emmitter.emitAndWait('migrator:after-rollback', { 
-            migrations: executedMigrations,
-            results
+            migrations: migrations.map(m => m.name)
         })
 
         return results

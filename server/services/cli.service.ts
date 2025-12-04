@@ -189,6 +189,12 @@ export class CLIService {
 
                 await fn(...args)
 
+                if (caps.includes('db')) {
+                    await db.destroy()
+                }
+
+                process.exit(0)
+
             } catch (error) {
                 await db.destroy()
                 console.error(error)
