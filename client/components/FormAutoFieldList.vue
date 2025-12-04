@@ -9,6 +9,7 @@ export interface FormField {
         | 'image-upload'
         | 'color-picker'
         | 'string-list-input'
+        | 'multi-select'
         | 'hidden'
     [key: string]: any
 }
@@ -29,6 +30,7 @@ import FormSwitch from './FormSwitch.vue'
 import FormImageUploader from './FormImageUploader.vue'
 import FormColorPicker from './FormColorPicker.vue'
 import FormStringListInput from './FormStringListInput.vue'
+import FormMultiSelect from './FormMultiSelect.vue'
 import FormTextField from '#client/components/FormTextField.vue'
 
 const props = defineProps({
@@ -99,6 +101,12 @@ const components = computed(() => {
 
         <FormStringListInput
             v-else-if="field.component === 'string-list-input'"
+            :name="field.name"
+            v-bind="field.props"    
+        />
+
+        <FormMultiSelect
+            v-else-if="field.component === 'multi-select'"
             :name="field.name"
             v-bind="field.props"    
         />

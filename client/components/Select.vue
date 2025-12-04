@@ -11,6 +11,7 @@ import {
     SelectValue,
 } from './ui/select'
 import Label from './ui/label/Label.vue'
+import Button from './Button.vue'
 import { $fetch } from '#client/utils/fetcher.ts'
 import { cn } from '#client/lib/utils.ts'
 
@@ -63,9 +64,13 @@ const props = defineProps({
         type: Boolean,
         default: false,
     },
+    multiple: {
+        type: Boolean,
+        default: false,
+    },
 })
 
-const modelValue = defineModel<any>({ required: true })
+const model = defineModel<any>({ required: true })
 
 const options = defineModel('options', {
     type: Array,
@@ -98,6 +103,14 @@ async function fetchOptions() {
     }
 }
 
+function all() {
+    model.value = options.value.map((option) => findValue(option))
+}
+
+function clear(){
+    model.value = []
+}
+
 watch(() => props.fetch, fetchOptions, { immediate: true })
 </script>
 
@@ -121,13 +134,24 @@ watch(() => props.fetch, fetchOptions, { immediate: true })
             </Label>
             <Select
                 :id
-                v-model="modelValue"
+                v-model="model"
                 :disabled="disabled"
+                :multiple="multiple"
             >
                 <SelectTrigger
                     :class="cn('!h-10', variant === 'horizontal' ? 'rounded-l-none flex-1' : 'w-full', $attrs.class as any)"
                 >
-                    <SelectValue :placeholder="placeholder" />
+                    <div 
+                        v-if="model.length > 2"
+                        class="flex items-center gap-2"
+                    >
+                        <span class="text-sm">{{ model.length }} selected</span>
+                    </div>
+
+                    <SelectValue
+                        v-else
+                        :placeholder="placeholder"
+                    />
                 </SelectTrigger>
                 <SelectContent>
                     <SelectGroup>
@@ -142,6 +166,27 @@ watch(() => props.fetch, fetchOptions, { immediate: true })
                             {{ findLabel(option) }}
                         </SelectItem>
                     </SelectGroup>
+
+                    <template #bottom>
+                        <div class="flex space-x-2 p-2 border-t justify-end">
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                :disabled="options.length === model.length"
+                                @click="all"
+                            >
+                                {{ $t('All') }}
+                            </Button>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                :disabled="model.length === 0"
+                                @click="clear"
+                            >
+                                {{ $t('Clear') }}
+                            </Button>
+                        </div>
+                    </template>
                 </SelectContent>
             </Select>
         </div>

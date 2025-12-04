@@ -11,7 +11,6 @@ import {
     SelectTrigger,
     SelectValue,
 } from './ui/select'
-import Icon from './Icon.vue'
 import Button from './Button.vue'
 import { $fetch } from '#client/utils/fetcher.ts'
 
@@ -59,11 +58,11 @@ const options = defineModel('options', {
 const tempValue = ref<string | null>(null)
 
 function findLabel(option: any) {
-    return option[props.labelKey] || option[props.valueKey] || option
+    return get(option, props.labelKey) || option
 }
 
 function findValue(option: any) {
-    return option[props.valueKey] || option
+    return get(option, props.valueKey) || option
 }
 
 function findFetchOptions(response: any) {
@@ -92,7 +91,8 @@ function handleSelect(value: any) {
     const numValue = Number(value)
 
     if (!model.value.includes(numValue)) {
-        model.value = [...model.value, numValue]
+        console.log(value)
+        // model.value = [...model.value, numValue]
     }
 
     if (model.value.includes(numValue)) {
