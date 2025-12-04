@@ -56,7 +56,7 @@ const parsed = computed(() => {
 <template>
     <Dialog v-model:open="dialog">
         <DialogTrigger as-child>
-            <slot name="trigger">
+            <slot>
                 <Button
                     size="sm"
                     variant="outline"
