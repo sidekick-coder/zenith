@@ -10,13 +10,20 @@ interface URLOptions {
     expireAt?: number | Date;
 }
 
+interface LoadOptions {
+    key: string;
+    debug?: boolean;
+}
+
 export default class EncryptService {
     public static readonly DI_KEY = 'encrypt'
     private readonly algorithm = 'aes-256-cbc'
     private key: Buffer | null = null
+    private debug = false
 
-    public load(key: string) {
-        this.key = crypto.scryptSync(key, 'salt', 32)
+    public async load(options: LoadOptions) {
+        this.debug = options.debug ?? this.debug
+        this.key = crypto.scryptSync(options.key, 'salt', 32)
     }
 
     public encrypt(text: string) {

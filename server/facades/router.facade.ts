@@ -1,4 +1,5 @@
 import di from './di.facade.ts'
+import config from './config.facade.ts'
 import Router from '#server/services/router.service.ts'
 import setupMiddleware from '#server/middlewares/setup.middleware.ts'
 import authorizationMiddleware from '#server/middlewares/authorization.middleware.ts'
@@ -14,5 +15,9 @@ const router = di.proxy<Router<Context>>('router')
 router.use(setupMiddleware, 'global')
 router.use(authSilenceMiddleware, 'global')
 router.use(authorizationMiddleware, 'global')
+
+await router.load({
+    debug: config.getOne<boolean>(['app.debug', 'router.debug'], false),
+})
 
 export default router

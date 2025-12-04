@@ -3,13 +3,13 @@ import vue from '@vitejs/plugin-vue'
 import tailwindcss from '@tailwindcss/vite'
 import logger from './server/facades/logger.facade.ts'
 
-const viteLogger = createLogger()
+// const viteLogger = createLogger()
 
-const childLogger = logger.child({ label: 'vite' })
+// const childLogger = logger.child({ label: 'vite' })
 
-viteLogger.info = (msg, opts) => childLogger.debug(msg, opts)
-viteLogger.warn = (msg, opts) => childLogger.debug(msg, opts)
-viteLogger.error = (msg, opts) => childLogger.debug(msg, opts)
+// viteLogger.info = (msg, opts) => childLogger.debug(msg, opts)
+// viteLogger.warn = (msg, opts) => childLogger.debug(msg, opts)
+// viteLogger.error = (msg, opts) => childLogger.debug(msg, opts)
 
 
 let allowedHosts = [
@@ -25,7 +25,7 @@ if (process.env.VITEST_ALLOWED_HOSTS) {
 
 export default defineConfig({
     clearScreen: false,
-    customLogger: viteLogger,
+    // customLogger: viteLogger,
     plugins: [
         vue(), 
         tailwindcss()

@@ -1,6 +1,6 @@
 import fs from 'fs'
 import type { Application } from 'express'
-import { createServer as createViteServer  } from 'vite'
+import { createLogger, createServer as createViteServer  } from 'vite'
 import type { ViteDevServer } from 'vite'
 import express from 'express'
 import type { Request, Response } from 'express'
@@ -18,19 +18,22 @@ import Permission from '#server/entities/permission.entity.ts'
 
 const isProduction = env.NODE_ENV === 'production'
 
-export class ViteServer {
-    private logger = logger.child({ label: 'vite' })
-    private vite: ViteDevServer | undefined
+
+
+export default class ViteService {
+    public logger = logger.child({ label: 'vite' })
+    public server: ViteDevServer | undefined
+    public debug = false
 
     public async render(url: string, _request: Request, response: Response) {
         try {
             const template = isProduction 
                 ? fs.readFileSync(basePath('client-dist', 'client', 'client', 'index.html'), 'utf-8')
-                : await this.vite!.transformIndexHtml(url, fs.readFileSync(clientPath('index.html'), 'utf-8'))
+                : await this.server!.transformIndexHtml(url, fs.readFileSync(clientPath('index.html'), 'utf-8'))
 
             const render = isProduction
                 ? (await import(basePath('client-dist', 'server', 'entry-server.js'))).render
-                : (await this.vite!.ssrLoadModule('/client/entry-server.ts')).render
+                : (await this.server!.ssrLoadModule('/client/entry-server.ts')).render
 
                 
             const state = {
@@ -85,11 +88,24 @@ export class ViteServer {
                 state['user:metas'] = await state['auth:user'].$metas.all()
             }
 
+            const log = (msg: string, opts?: any) => {
+                if (this.debug) {
+                    this.logger.debug(msg, opts)
+                }
+                
+                return logger
+            }
+
             const rendered = await render({
                 url,
                 router,
                 state,
-                logger: logger.child({ label: 'ssr' }),
+                logger: {
+                    info: log,
+                    warn: log,
+                    error: log,
+                    debug: log,
+                },
                 cookies:  new CookieService(_request, response).toObject(),
             })
 
@@ -126,7 +142,7 @@ export class ViteServer {
         } catch (e) {
             this.logger.error('Error during Vite SSR render', e)
             const error = e as Error
-            this.vite?.ssrFixStacktrace(error)
+            this.server?.ssrFixStacktrace(error)
             console.error(error.stack)
             response.status(500).end(error.stack)
         }
@@ -151,9 +167,22 @@ export class ViteServer {
         return html
     }
     
-    public async init(app: Application) {
+    public async load(app: Application) {
         if (!isProduction) {
-            this.vite = await createViteServer({
+            const viteLogger = createLogger()
+
+            const log: typeof viteLogger.info = (msg, opts) => {
+                if (this.debug) {
+                    this.logger.debug(msg, opts)
+                }
+            }
+
+            viteLogger.info = (msg, opts) => log(msg, opts)
+            viteLogger.warn = (msg, opts) => log(msg, opts)
+            viteLogger.error = (msg, opts) => log(msg, opts)
+
+            this.server = await createViteServer({
+                customLogger: viteLogger,
                 server: { middlewareMode: true },
                 appType: 'custom',
                 publicDir: 'client/public',
@@ -164,7 +193,7 @@ export class ViteServer {
                 }
             })
 
-            app.use(this.vite.middlewares)
+            app.use(this.server.middlewares)
         }
 
         if (isProduction) {
@@ -172,8 +201,4 @@ export class ViteServer {
         }
     }
 }
-
-const vite = new ViteServer()
-
-export default vite
 

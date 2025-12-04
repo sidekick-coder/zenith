@@ -16,6 +16,10 @@ interface MiddlewareRegister {
     context: RouteContext
 }
 
+interface LoadOptions {
+    debug?: boolean;
+}
+
 
 export default class Router<C = {}> {
     private routes: Route[] = []
@@ -27,7 +31,16 @@ export default class Router<C = {}> {
     private groupPrefixes: string[] = []
 
     private groups: Router<any>[] = []
+    private debug = false
     public logger = logger.child({ label: 'router' })
+
+    public async load(options: LoadOptions = {}) {
+        this.debug = options.debug ?? this.debug
+
+        if (this.debug) {
+            this.logger.debug('service loaded in debug mode')
+        }
+    }
 
     public open(filename: string) {
         this.filename = filename
@@ -137,7 +150,7 @@ export default class Router<C = {}> {
     public resolve(method: string, path: string) {
         const route = this.list()
             .find(r => {
-                if (r.method !== method.toUpperCase()) {
+                if (r.method.toUpperCase() !== method.toUpperCase()) {
                     return false
                 }
 
@@ -270,7 +283,16 @@ export default class Router<C = {}> {
         const [error] = await tryCatch(() => import(path))
 
         if (error) {
-            this.logger.error(`failed to load routes from ${filename}`, error)
+            this.logger.error('failed to load routes from file', {
+                filename,
+                error
+            })
+        }
+
+        if (this.debug) {
+            this.logger.debug('loaded routes file', {
+                filename,
+            })
         }
 
         this.close()
@@ -285,7 +307,12 @@ export default class Router<C = {}> {
             this.routes = this.routes.filter(r => r !== route)
         }
 
-        this.logger.debug(`removed routes from ${filename}`)
+        if (this.debug) {
+            this.logger.debug('removed file from file', {
+                filename,
+            })
+        }
+
     }
 
     public async loadDirectory(directory: string) {
@@ -300,11 +327,17 @@ export default class Router<C = {}> {
             await this.loadFile(path.join(directory, file))
         }
 
-        this.logger.debug('loaded directory', { files })
+        if (this.debug) {
+            this.logger.debug('loaded directory', { files })
+        }
+
     }
 
     public clear() {
-        this.logger.debug('clear', { count: this.routes.length })
+        if (this.debug) {
+            this.logger.debug('clear', { count: this.routes.length })
+        }
+
         this.routes = []
         this.groups = []
     }

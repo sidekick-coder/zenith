@@ -66,6 +66,16 @@ export default class ConfigService {
         return result
     }
 
+    public getOne<T = any | undefined>(keys: string[], defaultValue?: any): T {
+        for (const key of keys) {
+            if (this.has(key)) {
+                return this.get<T>(key)
+            }
+        }
+
+        return defaultValue
+    }
+
     public set(key: string, value: any, source = 'runtime'): void {
         if (!key.includes('.')) {
             this.entries.set(key, {

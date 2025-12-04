@@ -59,6 +59,7 @@ program.command('serve').option('-w, --watch', 'Watch for changes and restart se
                 'shared',
                 'server',
                 'modules',
+                '.env',
                 'index.ts'
             ]
 

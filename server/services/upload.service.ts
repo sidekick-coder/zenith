@@ -5,13 +5,15 @@ import type {
 import multer from 'multer'
 import { tmpPath } from '../utils/index.ts'
 import { cuid } from '#server/utils/cuid.util.ts'
+import Base from '#shared/services/upload.service.ts'
 
-export default class UploadService {
+export default class UploadService extends Base {
     private request: Request
     private response: Response
     private upload: multer.Multer
 
     constructor(request: Request, response: Response) {
+        super()
         this.request = request
         this.response = response
         this.upload = multer({
