@@ -18,17 +18,24 @@ const memory = new SqliteDialect({ database: new SQLite(':memory:') })
 
 const logger = rootLogger.child({ label: 'db' })
 
+interface DatabaseServiceOptions extends KyselyConfig {
+    dialect: Dialect
+    debug?: boolean
+}
+
 export default class DatabaseService extends Kysely<Database> {
-    public static readonly KEY = 'db'
+    public static memoryDialect = memory
+
     public configConnectionName = 'initial'
     public configConnection = ''
     public driver: 'sqlite' | 'mysql' | 'postgresql' = 'sqlite'
+    public debug = false
+    public logger = logger.child({ label: 'database' })
 
-
-    constructor(kyselyConfig?: KyselyConfig & { dialect: Dialect }) {
-        const config = kyselyConfig || { dialect: memory }
-        
+    constructor(config: DatabaseServiceOptions) {        
         super(config)
+
+        this.debug = config.debug || false
     }
 
     public createConnection(driver: 'sqlite' | 'mysql' | 'postgresql', options: any) {
@@ -73,8 +80,8 @@ export default class DatabaseService extends Kysely<Database> {
                 const conn = await pool.promise().getConnection()
 
                 conn.release()
-            } catch (error) {
-                throw new Error(`Failed to connect to MySQL database: ${error.message}`)
+            } catch (error: any) {
+                throw new Error(`Failed to connect to MySQL database: ${error?.message}`)
             }
 
             dialect = new MysqlDialect({ 
@@ -108,7 +115,7 @@ export default class DatabaseService extends Kysely<Database> {
         return db
     }
 
-    public async load(connectionName?: string, quiet = false) {
+    public async load(connectionName?: string) {
         const defaultConnection = config.get('database.default')
         const connections = config.get('database.connections', {})
 
@@ -117,7 +124,7 @@ export default class DatabaseService extends Kysely<Database> {
         const connection = connections[name]
 
         if (!connection) {
-            logger.warn(`Database connection "${name}" not found. Using in-memory database.`)
+            logger.warn(`Database connection "${name}" not found`)
             return
         }
 
@@ -131,14 +138,14 @@ export default class DatabaseService extends Kysely<Database> {
         db.configConnection = connection.database
         db.driver = connection.driver
 
-        if (di.has(DatabaseService.KEY)) {
-            await di.get<DatabaseService>(DatabaseService.KEY).destroy()
+        if (di.has(DatabaseService)) {
+            await di.get<DatabaseService>(DatabaseService).destroy()
         }
 
-        di.set(DatabaseService.KEY, db)
+        di.set(DatabaseService, db)
 
-        if (!quiet) {
-            logger.info('connected to database', {
+        if (this.debug) {
+            this.logger.debug('connected to database', {
                 connection: name,
                 database: connection.database,
                 driver: connection.driver,

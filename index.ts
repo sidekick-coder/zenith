@@ -3,8 +3,9 @@ import LifecycleService, { LifecycleHook } from '#server/services/lifecycle.serv
 import { importAll } from '#server/utils/importAll.ts'
 import { basePath } from '#server/utils/paths.ts'
 
+
 const lifecycle = new LifecycleService({
-    debug: config.getOne(['app.debug', 'lifecycle.debug'], false)
+    debug: config.get('lifecycle.debug') || config.get('app.debug')
 })
 
 const mods = await importAll(basePath('server/hooks'))
