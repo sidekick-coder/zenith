@@ -3,7 +3,6 @@ import cors from 'cors'
 import cookieParser from 'cookie-parser'
 import Router from './router.service.ts'
 import ExceptionService from './exception.service.ts'
-import ViteService from './vite.service.ts'
 import Route from '#server/entities/route.entity.ts'
 import HttpContext from '#shared/entities/httpContext.entity.ts'
 import CookieService from '#server/services/cookie.service.ts'
@@ -63,8 +62,7 @@ export default class ExpressService {
             }
 
             if (this.onUnhandlerRouted) {
-                this.onUnhandlerRouted(req, res)
-                return
+                return this.onUnhandlerRouted(req, res)
             }
         })
     }

@@ -1,6 +1,5 @@
 import fs from 'fs'
 import path from 'path'
-import rootLogger from '../facades/logger.facade.ts'
 import ModuleInstallerService from './moduleInstaller.service.ts'
 import ModuleUpgraderService from './moduleUpgrader.service.ts'
 import ModuleBuilderService from './moduleBuilder.service.ts'
@@ -10,11 +9,6 @@ import { tryCatch } from '#shared/utils/tryCatch.ts'
 import migrator from '#server/facades/migrator.facade.ts'
 import Module from '#server/entities/module.entity.ts'
 import type { ServerSetup, SetupServerParams } from '#server/utils/defineServerSetup.ts'
-import queue from '#server/facades/queue.facade.ts'
-import assets from '#server/facades/assets.facade.ts'
-import router from '#server/facades/router.facade.ts'
-import scheduler from '#server/facades/scheduler.facade.ts'
-import emmitter from '#server/facades/emmitter.facade.ts'
 import logger from '#server/facades/logger.facade.ts'
 
 interface UninstallOptions {

@@ -1,4 +1,3 @@
-import express from 'express'
 import config from '#server/facades/config.facade.ts'
 import di from '#server/facades/di.facade.ts'
 import app from '#server/facades/app.facade.ts'
@@ -21,10 +20,10 @@ export default class AppLifecycleHook extends LifecycleHook {
             origin: origins.length > 0 ? origins : undefined,
         })
 
-        app.routes()
     }
-
+    
     public async onBoot(): Promise<void> {
+        app.routes()
         await app.start()
     }
 }

@@ -26,20 +26,3 @@ process.on('SIGINT', async () => {
     await lifecycle.shutdown()
     process.exit(0)
 })
-
-// const origins = config.get('cors.origins', '').split(',')
-//     .map((o: string) => o.trim())
-//     .filter((o: string) => o.length > 0)
-
-// const app = new ExpressService({
-//     origins,
-//     router
-// })
-
-// await app.load()
-
-// drive.load()
-
-// await server.booter.boot()
-
-// app.start()

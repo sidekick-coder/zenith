@@ -18,8 +18,6 @@ import Permission from '#server/entities/permission.entity.ts'
 
 const isProduction = env.NODE_ENV === 'production'
 
-
-
 export default class ViteService {
     public logger = logger.child({ label: 'vite' })
     public server: ViteDevServer | undefined

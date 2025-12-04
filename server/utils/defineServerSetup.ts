@@ -1,8 +1,8 @@
 import type Router from '#server/services/router.service.ts'
 import type EmmitterService from '#server/services/emmitter.service.ts'
 import type ScheduleService from '#server/services/schedule.service.ts'
-import AssetsService from '#server/services/assets.service.ts'
-import QueueService from '#server/services/queue.service.ts'
+import type AssetsService from '#server/services/assets.service.ts'
+import type QueueService from '#server/services/queue.service.ts'
 import type RouterRegister from '#server/services/routerRegister.service.ts'
 
 export interface SetupServerParams {
