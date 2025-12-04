@@ -31,7 +31,10 @@ defineProps({
     }
 })
 
-const dialog = ref(false)
+const dialog = defineModel('open', {
+    type: Boolean,
+    default: false
+})
 
 const model = defineModel({
     type: [Object, String] as PropType<Record<string, any> | string>,

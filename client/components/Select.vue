@@ -70,7 +70,10 @@ const props = defineProps({
     },
 })
 
-const model = defineModel<any>({ required: true })
+const model = defineModel<any>({ 
+    required: true,
+    default: null
+})
 
 const options = defineModel('options', {
     type: Array,
@@ -142,7 +145,7 @@ watch(() => props.fetch, fetchOptions, { immediate: true })
                     :class="cn('!h-10', variant === 'horizontal' ? 'rounded-l-none flex-1' : 'w-full', $attrs.class as any)"
                 >
                     <div 
-                        v-if="multiple && model.length > 2"
+                        v-if="multiple && model?.length > 2"
                         class="flex items-center gap-2"
                     >
                         <span class="text-sm">{{ model.length }} selected</span>
@@ -167,12 +170,15 @@ watch(() => props.fetch, fetchOptions, { immediate: true })
                         </SelectItem>
                     </SelectGroup>
 
-                    <template #bottom>
+                    <template
+                        v-if="multiple"
+                        #bottom
+                    >
                         <div class="flex space-x-2 p-2 border-t justify-end">
                             <Button
                                 variant="outline"
                                 size="sm"
-                                :disabled="options.length === model.length"
+                                :disabled="options.length === model?.length"
                                 @click="all"
                             >
                                 {{ $t('All') }}
@@ -180,7 +186,7 @@ watch(() => props.fetch, fetchOptions, { immediate: true })
                             <Button
                                 variant="outline"
                                 size="sm"
-                                :disabled="model.length === 0"
+                                :disabled="model?.length === 0"
                                 @click="clear"
                             >
                                 {{ $t('Clear') }}

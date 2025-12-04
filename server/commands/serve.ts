@@ -67,6 +67,7 @@ program.command('serve').option('-w, --watch', 'Watch for changes and restart se
                 'arte',
                 'node_modules',
                 'commands',
+                'tmp',
                 'root',
                 'client',
                 'storage',
