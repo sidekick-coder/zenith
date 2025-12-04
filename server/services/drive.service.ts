@@ -13,9 +13,10 @@ interface ValidateUploadOptions {
 }
 
 export default class DriveService {
-    private drives: Map<string, DriveContract> = new Map()
+    public drives: Map<string, DriveContract> = new Map()
     public selected?: string
     public defaultDrive?: string
+    public debug = false
 
     public get current() {
         if (!this.selected) return undefined 
@@ -27,11 +28,10 @@ export default class DriveService {
         return drive
     }
 
-    constructor(name?: string, drives?: Map<string, DriveContract>) {
-        this.selected = name
-        if (drives) {
-            this.drives = drives
-        }
+    constructor(data: Partial<DriveService> = {}) {        
+        this.selected = data.selected || this.selected
+        this.debug = data.debug || this.debug
+        this.drives = data.drives || this.drives
     }
 
     public listDrives(): (DriveContract & { default: boolean })[] {
@@ -60,7 +60,11 @@ export default class DriveService {
             throw new BaseException('Drive not found')
         }
         
-        return new DriveService(name, this.drives)
+        return new DriveService({ 
+            selected: name,
+            drives: this.drives,
+            debug: this.debug 
+        })
     }
     
 

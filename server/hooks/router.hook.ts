@@ -14,7 +14,7 @@ export default class RouterLifecycleHook extends LifecycleHook {
 
     public async onRegister(): Promise<void> {
         const router = new RouterRegister({
-            debug: config.getOne(['app.debug', 'router.debug'], 'false') === 'true',
+            debug: config.get('router.debug') || config.get('app.debug') || false,
             metadata: {
                 id: 'main-router',
             }

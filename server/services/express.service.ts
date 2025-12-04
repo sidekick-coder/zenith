@@ -31,6 +31,8 @@ export default class ExpressService {
         this.app = express()
         this.app.use(cookieParser())
         this.app.use(this.parser)
+
+        this.exception = new ExceptionService()
     }
 
     public getExpressApp(): express.Application {
@@ -48,8 +50,11 @@ export default class ExpressService {
 
             const route = this.router.resolve(method, url.pathname)
 
-            if (route) {            
+            if (this.router.debug) {
                 this.router.logger.debug(`${method.toUpperCase()} ${url.pathname}`)
+            }
+
+            if (route) {            
                 
                 return this.execute(url, req, res, route)
             }
