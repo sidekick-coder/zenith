@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { watch } from 'vue'
+import { computed, watch } from 'vue'
 import { get } from 'lodash-es'
 import {
     Select,
@@ -44,6 +44,10 @@ const props = defineProps({
         type: String,
         default: 'label',
     },
+    descriptionKey: {
+        type: String,
+        default: null,
+    },
     valueKey: {
         type: String,
         default: 'value',
@@ -75,6 +79,12 @@ const model = defineModel<any>({
     default: null
 })
 
+const formated = computed(() => options.value.map(option => ({
+    label: findLabel(option),
+    value: findValue(option),
+    description: findDescription(option),
+})))
+
 const options = defineModel('options', {
     type: Array,
     default: () => [],
@@ -86,6 +96,13 @@ function findLabel(option: any) {
 
 function findValue(option: any) {
     return get(option, props.valueKey) || option
+}
+
+function findDescription(option: any) {
+    if (!props.descriptionKey) {
+        return null
+    }
+    return get(option, props.descriptionKey)
 }
 
 function findFetchOptions(response: any) {
@@ -161,22 +178,36 @@ watch(() => props.fetch, fetchOptions, { immediate: true })
                         <SelectLabel v-if="!options.length">
                             {{ $t('No items') }}
                         </SelectLabel>
-                        <SelectItem
-                            v-for="option in options"
-                            :key="findValue(option)"
-                            :value="findValue(option)"
+                        <select-item
+                            v-if="clearable && !multiple"
+                            :value="null"
+                            @click="model = multiple ? [] : null"
                         >
-                            {{ findLabel(option) }}
-                        </SelectItem>
+                            {{ $t('None') }}
+                        </select-item>
+                        <select-item
+                            v-for="o in formated"
+                            :key="o.value"
+                            :value="o.value"
+                        >
+                            <div class="flex flex-col">
+                                <span>{{ o.label }}</span>
+                                <span
+                                    v-if="descriptionKey"
+                                    class="text-xs text-muted-foreground white-space-normal break-words mt-0.5"
+                                >
+                                    {{ o.description }}
+                                </span>
+                            </div>
+                        </select-item>
                     </SelectGroup>
 
                     <template
-                        v-if="multiple || clearable"
+                        v-if="multiple"
                         #bottom
                     >
                         <div class="flex space-x-2 p-2 border-t justify-end">
                             <Button
-                                v-if="multiple"
                                 variant="outline"
                                 size="sm"
                                 :disabled="options.length === model?.length"
