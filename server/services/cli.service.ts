@@ -1,10 +1,4 @@
 import Table from 'cli-table3'
-import modules from './modules.service.ts'
-import db from '#server/facades/db.facade.ts'
-import drive from '#server/facades/drive.facade.ts'
-import encrypt from '#server/facades/encrypt.facade.ts'
-import config from '#server/facades/config.facade.ts'
-import emmitter from '#server/facades/emmitter.facade.ts'
 
 interface TableColumn {
     label: string
@@ -162,41 +156,43 @@ export class CLIService {
         return async (...args: any[]) => {
             try {
                 if (caps.includes('config')) {
-                    await config.load()
+                    await import('#server/facades/config.facade.ts')
                 }
 
                 if (caps.includes('db')) {
-                    await db.load(undefined, true)
+                    await import('#server/facades/db.facade.ts')
                 }
 
                 if (caps.includes('drive')) {
-                    await drive.load()
+                    await import('#server/facades/drive.facade.ts')
                 }
 
                 if (caps.includes('encrypt')) {
-                    encrypt.load(config.get('app.key'))
+                    await import('#server/facades/encrypt.facade.ts')
                 }
 
                 if (caps.includes('emmitter')) {
-                    emmitter.load({
-                        debug: config.get('emmitter.debug', false)
-                    })
+                    await import('#server/facades/emmitter.facade.ts')
                 }
 
                 if (caps.includes('modules')) {
-                    await modules.load()
+                    await import('#server/services/modules.service.ts')
                 }
 
                 await fn(...args)
 
                 if (caps.includes('db')) {
-                    await db.destroy()
+                    await import('#server/facades/db.facade.ts')
                 }
 
                 process.exit(0)
 
             } catch (error) {
-                await db.destroy()
+
+                if (caps.includes('db')) {
+                    await import('#server/facades/db.facade.ts')
+                }
+                
                 console.error(error)
                 process.exit(1)
             }
