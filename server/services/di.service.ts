@@ -1,3 +1,5 @@
+import { get } from 'lodash-es'
+
 type Constructor<T = object> = new (...args: any[]) => T
 
 type EntryKey = string | symbol | Constructor
@@ -5,15 +7,33 @@ type EntryKey = string | symbol | Constructor
 export default class DIService {
     private entries = new Map<EntryKey, any>()
 
-    public set(key: EntryKey, value: any): void {
+    public set(payload: EntryKey, value: any): void {
+        let key = payload
+
+        if (typeof payload === 'function' || typeof payload === 'object') {
+            key = payload.name
+        }
+
         this.entries.set(key, value)
     }
 
-    public has(key: EntryKey): boolean {
+    public has(payload: EntryKey): boolean {
+        let key = payload
+
+        if (typeof payload === 'function' || typeof payload === 'object') {
+            key = payload.name
+        }
+
         return this.entries.has(key)
     }
 
-    public get<T>(key: EntryKey): T {
+    public get<T>(payload: EntryKey): T {
+        let key = payload
+
+        if (typeof payload === 'function' || typeof payload === 'object') {
+            key = payload.name
+        }
+
         if (!this.has(key)) {
             throw new Error(`entry not found: ${String(key)}`)
         }
@@ -45,10 +65,16 @@ export default class DIService {
 
     public proxy<T = unknown>(key: EntryKey): T {
         return new Proxy({}, {
+            apply: (_target, thisArg, argumentsList) => {
+                const entry = this.get<T>(key) as any
+                
+                return entry.apply(thisArg, argumentsList)
+            },
             get: (_target, prop) => {
                 const entry = this.get<T>(key) as any
+                const value = entry[prop]
 
-                if (typeof entry[prop] === 'function') {
+                if (typeof value === 'function') {
                     return (...args: any[]) => entry[prop].bind(entry)(...args)
                 }
 
