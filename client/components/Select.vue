@@ -171,11 +171,12 @@ watch(() => props.fetch, fetchOptions, { immediate: true })
                     </SelectGroup>
 
                     <template
-                        v-if="multiple"
+                        v-if="multiple || clearable"
                         #bottom
                     >
                         <div class="flex space-x-2 p-2 border-t justify-end">
                             <Button
+                                v-if="multiple"
                                 variant="outline"
                                 size="sm"
                                 :disabled="options.length === model?.length"
@@ -184,6 +185,7 @@ watch(() => props.fetch, fetchOptions, { immediate: true })
                                 {{ $t('All') }}
                             </Button>
                             <Button
+                                v-if="clearable"
                                 variant="outline"
                                 size="sm"
                                 :disabled="model?.length === 0"

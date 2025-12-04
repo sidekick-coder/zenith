@@ -27,10 +27,6 @@ defineProps({
         type: Boolean,
         default: false,
     },
-    clearable: {
-        type: Boolean,
-        default: false,
-    },
 })
 
 const options = defineModel('options', {
