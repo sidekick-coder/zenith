@@ -1,11 +1,9 @@
 import fs from 'fs'
 import path from 'path'
 import { join } from 'path'
-import logger from '../facades/logger.facade.ts'
-import Route from '../entities/route.entity.ts'
-import type {
-    Handler, Middleware, MiddlewareHandleResult 
-} from '../contracts/router.contract.ts'
+import logger from '#server/facades/logger.facade.ts'
+import Route from '#server/entities/route.entity.ts'
+import type { Handler, Middleware, MiddlewareHandleResult } from '#server/contracts/router.contract.ts'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
 
 
@@ -24,6 +22,7 @@ interface LoadOptions {
 export default class Router<C = {}> {
     private routes: Route[] = []
     private filename = null as string | null
+    private files = new Set<string>()
 
     private middlewares: MiddlewareRegister[] = []
     private prefixes: string[] = []
@@ -34,11 +33,26 @@ export default class Router<C = {}> {
     private debug = false
     public logger = logger.child({ label: 'router' })
 
-    public async load(options: LoadOptions = {}) {
-        this.debug = options.debug ?? this.debug
+    public addFile(filename: string) {
+        this.files.add(filename)
+    }
 
-        if (this.debug) {
-            this.logger.debug('service loaded in debug mode')
+    public addDir(directory: string) {
+        const entries = fs.readdirSync(directory)
+
+        for (const entry of entries) {
+            const fullPath = path.join(directory, entry)
+
+            const stats = fs.statSync(fullPath)
+
+            if (stats.isFile() && entry.endsWith('.ts')) {
+                this.files.add(fullPath)
+                continue
+            } 
+            
+            if (stats.isDirectory()) {
+                this.addDir(fullPath)
+            }
         }
     }
 
@@ -184,53 +198,6 @@ export default class Router<C = {}> {
         return route.handler(ctx)
     }
 
-    public extractParams(routePath: string, requestPath: string): Record<string, string> {
-        const params: Record<string, string> = {}
-
-        const routeSegments = routePath.split('/').filter(Boolean)
-        const requestSegments = requestPath.split('/').filter(Boolean)
-
-        for (let i = 0; i < routeSegments.length; i++) {
-            const routeSegment = routeSegments[i]
-            const requestSegment = requestSegments[i]
-
-            if (routeSegment.startsWith(':')) {
-                const paramName = routeSegment.slice(1) // Remove the ':' prefix
-                params[paramName] = requestSegment
-            }
-            
-            if (routeSegment === '*') {
-                // Capture all remaining segments as a single path
-                const remainingSegments = requestSegments.slice(i)
-                params['*'] = remainingSegments.join('/')
-                break
-            }
-        }
-
-        return params
-    }
-
-    public extractQuery(requestPath: string): Record<string, string> {
-        const query: Record<string, string> = {}
-        const queryString = requestPath.split('?')[1]
-
-        if (!queryString) {
-            return query
-        }
-
-        const pairs = queryString.split('&')
-
-        for (const pair of pairs) {
-            const [key, value] = pair.split('=')
-
-            if (key) {
-                query[decodeURIComponent(key)] = value ? decodeURIComponent(value) : ''
-            }
-        }
-
-        return query
-    }
-
     public matchPath(routePath: string, requestPath: string): boolean {
         // Split paths into segments
         const routeSegments = routePath.split('/').filter(Boolean)
@@ -270,7 +237,7 @@ export default class Router<C = {}> {
         return true
     }
 
-    public async loadFile(filename: string) {
+    private async loadFile(filename: string) {
         if (!fs.existsSync(filename)) {
             this.logger.warn(`File not found: ${filename}`)
             return
@@ -298,39 +265,14 @@ export default class Router<C = {}> {
         this.close()
     }
 
-    public async removeFile(filename: string) {
-        const routes = Array.from(this.routes.values())
-
-        const toRemove = routes.filter(route => route.filename === filename)
-
-        for (const route of toRemove) {
-            this.routes = this.routes.filter(r => r !== route)
-        }
+    public removeFile(filename: string) {
+        this.files.delete(filename)
 
         if (this.debug) {
-            this.logger.debug('removed file from file', {
+            this.logger.debug('removed file', {
                 filename,
             })
         }
-
-    }
-
-    public async loadDirectory(directory: string) {
-        if (!fs.existsSync(directory)) {
-            this.logger.warn('directory not found', { directory })
-            return
-        }
-
-        const files = fs.readdirSync(directory).filter(file => file.endsWith('.ts'))
-
-        for (const file of files) {
-            await this.loadFile(path.join(directory, file))
-        }
-
-        if (this.debug) {
-            this.logger.debug('loaded directory', { files })
-        }
-
     }
 
     public clear() {
@@ -344,5 +286,17 @@ export default class Router<C = {}> {
 
     public list() {
         return this.routes.concat(...this.groups.map(g => g.routes))
+    }
+
+    public async load(options: LoadOptions = {}) {
+        this.debug = options.debug ?? this.debug
+
+        if (this.debug) {
+            this.logger.debug('service loaded in debug mode')
+        }
+
+        for (const file of this.files) {
+            await this.loadFile(file)
+        }
     }
 }

@@ -5,6 +5,7 @@ import setupMiddleware from '#server/middlewares/setup.middleware.ts'
 import authorizationMiddleware from '#server/middlewares/authorization.middleware.ts'
 import authSilenceMiddleware from '#server/middlewares/authSilence.middleware.ts'
 import type { MiddlewareHandleResult } from '#server/contracts/router.contract.ts'
+import { serverPath } from '#server/utils/paths.ts'
 
 type Context = MiddlewareHandleResult<[typeof authSilenceMiddleware, typeof authorizationMiddleware]>
 
@@ -15,6 +16,8 @@ const router = di.proxy<Router<Context>>('router')
 router.use(setupMiddleware, 'global')
 router.use(authSilenceMiddleware, 'global')
 router.use(authorizationMiddleware, 'global')
+
+router.addDir(serverPath('routes'))
 
 await router.load({
     debug: config.getOne<boolean>(['app.debug', 'router.debug'], false),

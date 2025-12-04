@@ -4,7 +4,7 @@ import cookieParser from 'cookie-parser'
 import Router from './router.service.ts'
 import ExceptionService from './exception.service.ts'
 import ViteService from './vite.service.ts'
-import type Route from '#server/entities/route.entity.ts'
+import Route from '#server/entities/route.entity.ts'
 import HttpContext from '#shared/entities/httpContext.entity.ts'
 import CookieService from '#server/services/cookie.service.ts'
 import UploadService from '#server/services/upload.service.ts'
@@ -105,8 +105,8 @@ export default class ExpressService {
     
             url: url.pathname,
             method: request.method.toLowerCase(),
-            params: this.router.extractParams(route.path, url.pathname),
-            query: Object.fromEntries(url.searchParams.entries()),
+            params: Route.params(route.path, url.pathname),
+            query: Route.query(url.href),
             body: request.body,
             
             upload: new UploadService(request, response),

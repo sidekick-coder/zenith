@@ -1,6 +1,9 @@
 import path from 'path'
 import fs from 'fs'
+import { pathToFileURL } from 'url'
 import fg from 'fast-glob'
+import { tryCatch } from '#shared/utils/tryCatch.ts'
+import logger from '#server/facades/logger.facade.ts'
 
 interface Options {
     onBeforeImport?: (ctx: { filename: string }) => void | Promise<void>;
@@ -23,13 +26,37 @@ export async function importFiles(files: string[], options: Options = {}): Promi
 
         const cleanFilename = ctx.filename.split('?')[0]
 
-        if (/\.(js|ts)$/.test(cleanFilename)) {
-            modules[filename] = await import(ctx.filename)
+        if (/\.(mts|ts)$/.test(cleanFilename)) {
+            const abs = path.resolve(ctx.filename)
+            const fileUrl = pathToFileURL(abs).href
+
+            const [error, mod] = await tryCatch(() => import(fileUrl))
+            
+            if (error) {
+                Object.assign(error, {
+                    filename: ctx.filename,
+                    url: fileUrl,
+                })
+                logger.error(`Failed to import file: ${ctx.filename}`, error)
+                continue
+            }
+
+            modules[filename] = mod
         }
         
         if (/\.json$/.test(cleanFilename)) {
-            const text = await fs.promises.readFile(ctx.filename, 'utf8')
-            modules[filename] = JSON.parse(text)
+            const [error, json] = await tryCatch(async () => {
+                const text = await fs.promises.readFile(ctx.filename, 'utf8')
+
+                return JSON.parse(text)
+            })
+
+            if (error) {
+                logger.error(`Failed to import JSON file: ${ctx.filename}`, { error })
+                continue
+            }
+
+            modules[filename] = json
         }
 
         if (options.onAfterImport) {
@@ -46,7 +73,7 @@ export async function importFiles(files: string[], options: Options = {}): Promi
 export async function importGlob(pattern: string, options: Options = {}): Promise<Record<string, any>> {
     const files = await fg(pattern)
 
-    return importFiles(files, options)
+    return importFiles(files as string[], options)
 }
 
 export async function importAll(directory: string, options: Options = {}): Promise<Record<string, any>> {

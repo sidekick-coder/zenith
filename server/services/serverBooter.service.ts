@@ -18,7 +18,6 @@ export default class ServerBooterService {
     public watcher: FSWatcher | null = null
 
     public async root(){
-        await router.loadDirectory(serverPath('routes'))
         await scheduler.loadDirectory(serverPath('routines'))
     }
 
@@ -40,7 +39,6 @@ export default class ServerBooterService {
 
     public async boot() {
         // stop & clear
-        router.clear()
         emmitter.clear()
         queue.stop()
 
