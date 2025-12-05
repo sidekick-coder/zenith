@@ -21,7 +21,9 @@ export default class DatabaseLifecycleHook extends LifecycleHook {
         await db.load()
     }
 
-    public async onBoot(): Promise<void> {
-        
+    public async onShutdown(): Promise<void> {
+        const db = di.get<DatabaseService>(DatabaseService)
+
+        await db.destroy()
     }
 }

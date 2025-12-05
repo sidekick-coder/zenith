@@ -1,4 +1,5 @@
 import logger from '#server/facades/logger.facade.ts'
+import type { Constructor } from '#shared/utils/compose.ts'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
 
 export class LifecycleHook {
@@ -31,10 +32,18 @@ export default class LifecycleService {
         this.hooks = data.hooks ?? new Map()
     }
 
-    public add(payload: LifecycleHook | LifecycleHook[]): void {
-        const hooks = Array.isArray(payload) ? payload : [payload]
+    public add(...payload: (LifecycleHook | Constructor<LifecycleHook>)[]): void {
+        const instances: LifecycleHook[] = []
+        for (const item of payload) {
+            if (typeof item === 'function') {
+                instances.push(new item())
+                continue
+            }
+            
+            instances.push(item)
+        }
 
-        for (const hook of hooks) {
+        for (const hook of instances) {
             this.hooks.set(hook.id, hook)
 
             if (this.debug) {

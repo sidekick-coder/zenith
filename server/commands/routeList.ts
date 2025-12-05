@@ -1,8 +1,13 @@
 import { program } from 'commander'
 import { orderBy } from 'lodash-es'
+import type { TableColumn } from '#server/utils/cliUi.ts'
 import router from '#server/facades/router.facade.ts'
 import { table  } from '#server/utils/cliUi.ts'
-import type { TableColumn } from '#server/utils/cliUi.ts'
+import lifecycle from '#server/facades/lifecycle.facade.ts'
+import RouterLifecycleHook from '#server/hooks/router.hook.ts'
+import ModulesLifecycleHook from '#server/hooks/modules.hook.ts'
+
+lifecycle.add(RouterLifecycleHook, ModulesLifecycleHook)
 
 program.command('route:list')
     .option('--json', 'Output in JSON format')

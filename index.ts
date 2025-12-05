@@ -1,12 +1,8 @@
 import config from '#server/facades/config.facade.ts'
+import lifecycle from '#server/facades/lifecycle.facade.ts'
 import LifecycleService, { LifecycleHook } from '#server/services/lifecycle.service.ts'
 import { importAll } from '#server/utils/importAll.ts'
 import { basePath } from '#server/utils/paths.ts'
-
-
-const lifecycle = new LifecycleService({
-    debug: config.get('lifecycle.debug') || config.get('app.debug')
-})
 
 const mods = await importAll(basePath('server/hooks'))
 
@@ -15,7 +11,7 @@ const hooks: LifecycleHook[] = Object.values(mods)
     .filter((HookClass: any) => HookClass.prototype instanceof LifecycleHook)
     .map((HookClass: any) => new HookClass())
 
-lifecycle.add(hooks)
+lifecycle.add(...hooks)
 
 await lifecycle.register()
 
