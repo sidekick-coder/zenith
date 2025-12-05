@@ -7,7 +7,6 @@ import ModuleHooksService from './moduleHooks.service.ts'
 import config from '#server/facades/config.facade.ts'
 import { basePath } from '#server/utils/paths.ts'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
-import migrator from '#server/facades/migrator.facade.ts'
 import Module from '#server/entities/module.entity.ts'
 import type { ServerSetup, SetupServerParams } from '#server/utils/defineServerSetup.ts'
 import logger from '#server/facades/logger.facade.ts'
@@ -261,13 +260,6 @@ export default class ModulesService {
         const moduleDir = mod.makePath()
 
         logger.info(`uninstalling module '${moduleName}'`)
-
-        // Rollback migrations if requested
-        if (options.rollback) {
-            await migrator.rollback({
-                module: moduleName
-            })
-        }
 
         // Remove module folder        
         fs.rmSync(moduleDir, { 
