@@ -3,6 +3,7 @@ import path from 'path'
 import ModuleInstallerService from './moduleInstaller.service.ts'
 import ModuleUpgraderService from './moduleUpgrader.service.ts'
 import ModuleBuilderService from './moduleBuilder.service.ts'
+import ModuleHooksService from './moduleHooks.service.ts'
 import config from '#server/facades/config.facade.ts'
 import { basePath } from '#server/utils/paths.ts'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
@@ -10,6 +11,7 @@ import migrator from '#server/facades/migrator.facade.ts'
 import Module from '#server/entities/module.entity.ts'
 import type { ServerSetup, SetupServerParams } from '#server/utils/defineServerSetup.ts'
 import logger from '#server/facades/logger.facade.ts'
+import ModuleManifest from '#shared/entities/moduleManifest.entity.ts'
 
 interface UninstallOptions {
     rollback?: boolean
@@ -18,22 +20,75 @@ interface ListOptions {
     enabled?: boolean;
 }
 
-export class ModulesService {
-    public installer = new ModuleInstallerService()
-    public upgrader = new ModuleUpgraderService()
-    public builder = new ModuleBuilderService()
-    private logger = logger.child({ label: 'modules' })
+interface Manifest {
+    name: string
+    version: string
+    description?: string
+    author?: string
+    dependencies?: Record<string, string>
+}
 
-    constructor(
-        installer?: ModuleInstallerService,
-        upgrader?: ModuleUpgraderService
-    ) {
-        if (installer) {
-            this.installer = installer
-        }
+export default class ModulesService {
+    public installer: ModuleInstallerService
+    public upgrader: ModuleUpgraderService
+    public builder: ModuleBuilderService
+    public hooks: ModuleHooksService
+    public manifests: Map<string, ModuleManifest>
+    public logger = logger.child({ label: 'modules' })
+    public debug = false
+
+    constructor(data: Partial<ModulesService> = {}) {
+        this.manifests = data.manifests || new Map<string, ModuleManifest>()
+        this.logger = data.logger || logger.child({ label: 'modules' })
+        this.debug = data.debug || false
+
+        this.installer = data.installer || new ModuleInstallerService()
+        this.upgrader = data.upgrader || new ModuleUpgraderService()
+        this.builder = data.builder || new ModuleBuilderService()
+        this.hooks = data.hooks || new ModuleHooksService({
+            manifests: this.manifests,
+            logger: this.logger,
+            debug: this.debug,
+        })
+    }
+
+    public async discover() {
+        const folder = basePath('modules')
+        const dirs = await fs.promises.readdir(folder, { withFileTypes: true })
         
-        if (upgrader) {
-            this.upgrader = upgrader
+        const moduleNames = dirs
+            .filter(dirent => dirent.isDirectory())
+            .map(dirent => dirent.name)
+
+        for (const name of moduleNames) {
+            const manifestPath = path.join(folder, name, 'module.json')
+
+            if (!fs.existsSync(manifestPath)) {
+                continue
+            }
+
+            const [error, json] =  await tryCatch(async () => {
+                const text = await fs.promises.readFile(manifestPath, 'utf-8')
+
+                return JSON.parse(text) as Manifest
+            })
+
+            if (error) {
+                this.logger.error(`Failed to read manifest for module '${name}'`, error)
+                continue
+            }
+
+            this.manifests.set(name, ModuleManifest.from({
+                id: name,
+                name: json.name,
+                version: json.version,
+                description: json.description,
+                enabled: config.get(`modules.enabled.${name}`, false),
+            }))
+
+            if (this.debug) {
+                this.logger.debug(`discovered module '${name}'`, json)
+            }
         }
     }
 
@@ -352,7 +407,3 @@ export class ModulesService {
     }
 
 }
-
-const modules = new ModulesService()
-
-export default modules

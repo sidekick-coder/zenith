@@ -1,6 +1,6 @@
 import { program } from 'commander'
 import Table from 'cli-table3'
-import modules from '#server/services/modules.service.ts'
+import modules from '#server/facades/modules.facade.ts'
 
 program.command('module:list')
     .helpGroup('module')

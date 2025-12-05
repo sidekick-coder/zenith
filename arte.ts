@@ -3,27 +3,27 @@ import { program } from 'commander'
 import { importAll } from '#server/utils/importAll.ts'
 import { basePath } from '#server/utils/paths.ts'
 import config from '#server/facades/config.facade.ts'
-// import LifecycleService, { LifecycleHook } from '#server/services/lifecycle.service.ts'
+import LifecycleService, { LifecycleHook } from '#server/services/lifecycle.service.ts'
 
-// const lifecycle = new LifecycleService({
-//     debug: config.get('lifecycle.debug') || config.get('app.debug')
-// })
+const lifecycle = new LifecycleService({
+    debug: config.get('lifecycle.debug') || config.get('app.debug')
+})
 
-// const mods = await importAll(basePath('server/hooks'))
+const mods = await importAll(basePath('server/hooks'))
 
-// const hooks: LifecycleHook[] = Object.values(mods)
-//     .map(m => m.default || m)
-//     .filter((HookClass: any) => HookClass.prototype instanceof LifecycleHook)
-//     .map((HookClass: any) => new HookClass())
-//     .filter(hook => !['app', 'vite'].includes(hook.id)) // Exclude 'app' hook for separate handling
+const hooks: LifecycleHook[] = Object.values(mods)
+    .map(m => m.default || m)
+    .filter((HookClass: any) => HookClass.prototype instanceof LifecycleHook)
+    .map((HookClass: any) => new HookClass())
+    .filter(hook => !['app', 'vite'].includes(hook.id)) // Exclude 'app' hook for separate handling
 
-// lifecycle.add(hooks)
+lifecycle.add(hooks)
 
-// await lifecycle.register()
+await lifecycle.register()
 
-// await lifecycle.load()
+await lifecycle.load()
 
-// await lifecycle.boot()
+await lifecycle.boot()
 
 await importAll(basePath('server/commands'))
 

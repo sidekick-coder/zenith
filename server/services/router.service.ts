@@ -2,6 +2,8 @@ import { join } from 'path'
 import logger from '#server/facades/logger.facade.ts'
 import Route from '#server/entities/route.entity.ts'
 import type { Handler, Middleware, MiddlewareHandleResult } from '#server/contracts/router.contract.ts'
+import { compose } from '#shared/utils/compose.ts'
+import { Hooks } from '#server/mixins/hooks.mixin.ts'
 
 type RouteContext = 'global' | 'group' | 'route'
 
@@ -15,7 +17,7 @@ interface LoadOptions {
 }
 
 
-export default class Router<C = {}> {
+export default class Router<C = {}> extends compose(Hooks){
     public routes: Route[] = []
 
     public middlewares: MiddlewareRegister[] = []
@@ -29,6 +31,7 @@ export default class Router<C = {}> {
     public metadata: Record<string, any> = {}
 
     constructor(data: Partial<Router<C>> = {}) {
+        super()
         this.routes = data.routes || []
         this.middlewares = data.middlewares || []
         this.prefixes = data.prefixes || []
@@ -36,6 +39,7 @@ export default class Router<C = {}> {
         this.groupPrefixes = data.groupPrefixes || []
         this.debug = data.debug || false
         this.metadata = data.metadata || {}
+        this.listeners = data.listeners || []
     }
 
     public use<T extends Middleware>(middleware: T, context: RouteContext = 'route') {
@@ -71,11 +75,11 @@ export default class Router<C = {}> {
 
         this.routes.push(route)
 
-        // console.log(this.debug)
-
         if (this.debug) {
             this.logger.debug('added route', route)
         }
+
+        this.emit('added', route)
     }
 
     public get(path: string, handler: Handler<C>) {
@@ -120,7 +124,10 @@ export default class Router<C = {}> {
     
 
     public group() {
-        const group = new Router<C>()
+        const group = new Router<C>({
+            listeners: this.listeners, // Inherit listeners from parent
+            debug: this.debug,
+        })
 
         group.groupPrefixes = this.prefixes // Inherit prefixes from parent
         group.middlewares = this.middlewares.map(r => ({

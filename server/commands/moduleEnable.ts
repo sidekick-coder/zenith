@@ -1,5 +1,5 @@
 import { program } from 'commander'
-import modules from '#server/services/modules.service.ts'
+import modules from '#server/facades/modules.facade.ts'
 import build from '#server/facades/server.facade.ts'
 import config from '#server/facades/config.facade.ts'
 

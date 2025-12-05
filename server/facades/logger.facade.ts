@@ -70,12 +70,12 @@ export function formatLog(data: any) {
 
     result += ` ${message}`
 
-    if (stack) {
-        result += `\n${stack}`
-    }
-
     if (Object.keys(rest).length > 0) {
         result += '\n' + chalk.gray(printObject(rest).trim())
+    }
+
+    if (stack) {
+        result += `\n${stack}`
     }
 
     return result.trim()

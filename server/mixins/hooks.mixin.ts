@@ -54,25 +54,44 @@ export function HooksStatic<TBase extends Constructor>(Base: TBase) {
 
 export function Hooks<TBase extends Constructor>(Base: TBase) {
     return class extends Base {
-        public listeners = [] as Listener[]
+        public listeners: Listener[]
+
+        constructor(...args: any[]) {
+            super(...args)
+            this.listeners = []
+        }
 
         public on(event: string, listener: (...args: any[]) => void) {
-            const exists = this.listeners.find((l) => l.event === event && l.listener === listener)
-
-            if (exists) {
-                return
-            }
-
             this.listeners.push({ 
                 event,
                 listener 
             })
         }
 
-        public async emit(event: string, ...args: any[]) {
-            const listeners = this.listeners || []
+        public off(event: string, listener: (...args: any[]) => void) {
+            const index = this.listeners.findIndex((l) => l.event === event && l.listener === listener)
 
-            for await (const l of listeners.filter((l: any) => l.event === event)) {
+            
+            if (index === -1) {
+                return
+            }
+            
+            this.listeners.splice(index, 1)
+        }
+
+        public emit(event: string, ...args: any[]) {
+            const listeners = this.listeners.filter((l) => l.event === event)
+
+
+            for (const l of listeners) {
+                l.listener(...args)
+            }
+        }
+        
+        public async emitAsync(event: string, ...args: any[]) {
+            const listeners = this.listeners.filter((l) => l.event === event)
+
+            for await (const l of listeners) {
                 await l.listener(...args)
             }
         }

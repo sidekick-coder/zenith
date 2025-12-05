@@ -2,38 +2,70 @@ import fs from 'fs'
 import path from 'path'
 import Router from './router.service.ts'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
+import type Route from '#server/entities/route.entity.ts'
+
+export interface RouterRegisterEntry {
+    filepath: string
+    metadata: Record<string, any>
+}
 
 export default class RouterRegister<C = {}> extends Router<C> {
-    public files = new Set<string>()
-    public dirs = new Set<string>()
+    public files = new Map<string, RouterRegisterEntry>()
+    public dirs = new Map<string, RouterRegisterEntry>()
     
     constructor(router: Partial<Router<C>> = {}) {
         super(router)
     }
 
-    public addFile(filename: string) {
-        this.files.add(filename)
+    public addFile(filename: string, metadata?: Record<string, any>) {
+        const entry = {
+            filepath: filename,
+            metadata: metadata || {}
+        }
+
+        this.emit('addEntry', entry)
+
+        this.files.set(filename, entry)
+
     }
 
-    public addDir(dirname: string) {
-        this.dirs.add(dirname)
+    public addDir(dirname: string, metadata?: Record<string, any>) {
+        const entry = {
+            filepath: dirname,
+            metadata: metadata || {}
+        }
+
+        this.emit('addEntry', entry)
+
+        this.dirs.set(dirname, entry)
     }
 
-    private async loadFile(filename: string) {
-        if (!fs.existsSync(filename)) {
-            this.logger.warn(`File not found: ${filename}`)
-            return
+    private async loadFile(entry: RouterRegisterEntry): Promise<boolean> {        
+        if (!fs.existsSync(entry.filepath)) {
+            this.logger.warn(`File not found: ${entry.filepath}`)
+            return false
+        }
+
+        const hook = function(route: Route){
+            route.metadata = {
+                ...route.metadata,
+                ...entry.metadata,
+                filename: entry.filepath,
+            }
         }
     
-        const path = `${filename}?t=${Date.now()}` // Prevent caching issues
+        const unached = `${entry.filepath}?t=${Date.now()}` // Prevent caching issues
+
+        this.on('added', hook)
     
-        const [error] = await tryCatch(() => import(path))
+        const [error] = await tryCatch(() => import(unached))
+
+        this.off('added', hook)
     
         if (error) {
-            this.logger.error('failed to load file', {
-                filename,
-                error
-            })
+            Object.assign(error, entry)
+
+            this.logger.error('failed to load file', error)
 
             return false
         }
@@ -41,38 +73,46 @@ export default class RouterRegister<C = {}> extends Router<C> {
         return true
     }
 
-    public async load() {
-        const loaded = new Set<string>()
+    private async loadDir(entry: RouterRegisterEntry): Promise<string[]> {
+        const loaded: Set<string> = new Set()
 
-        for (const file of this.files) {
+        if (!fs.existsSync(entry.filepath)) {
+            this.logger.warn(`Directory not found: ${entry.filepath}`)
+            return Array.from(loaded)
+        }
+
+        const files = fs.readdirSync(entry.filepath)
             
-            const stat = fs.statSync(file)
+        for (const file of files) {
 
-            if (!stat.isFile() && stat.isDirectory()) {
-                continue
+            const fullPath = path.join(entry.filepath, file)
+                
+            const fileRouterRegisterEntry = { 
+                filepath: fullPath,
+                metadata: entry.metadata 
             }
 
-            if ((await this.loadFile(file))) {
-                loaded.add(file)
+            if ((await this.loadFile(fileRouterRegisterEntry))) {
+                loaded.add(fullPath)
             }
         }
 
-        for (const dir of this.dirs) {
-            const files = fs.readdirSync(dir)
+        return Array.from(loaded)
+    }
 
-            for (const file of files) {
-                const fullPath = path.join(dir, file)
+    public async load() {
+        const loaded = new Set<string>()
 
-                const stat = fs.statSync(fullPath)
-
-                if (!stat.isFile() && stat.isDirectory()) {
-                    continue
-                }
-
-                if ((await this.loadFile(fullPath))) {
-                    loaded.add(fullPath)
-                }
+        for (const e of this.files.values()) {
+            if ((await this.loadFile(e))) {
+                loaded.add(e.filepath)
             }
+        }
+
+        for (const dir of this.dirs.values()) {
+            const dirLoaded = await this.loadDir(dir)
+
+            dirLoaded.forEach(p => loaded.add(p))
         }
 
         if (this.debug) {

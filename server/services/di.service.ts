@@ -63,11 +63,6 @@ export default class DIService {
 
     public proxy<T = unknown>(key: EntryKey): T {
         return new Proxy({}, {
-            apply: (_target, thisArg, argumentsList) => {
-                const entry = this.get<T>(key) as any
-                
-                return entry.apply(thisArg, argumentsList)
-            },
             get: (_target, prop) => {
                 const entry = this.get<T>(key) as any
                 const value = entry[prop]

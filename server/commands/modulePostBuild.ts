@@ -1,5 +1,5 @@
 import { program } from 'commander'
-import modules from '#server/services/modules.service.ts'
+import modules from '#server/facades/modules.facade.ts'
 import cli from '#server/services/cli.service.ts'
 
 program.command('module:posbuild')

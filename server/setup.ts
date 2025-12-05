@@ -1,6 +1,6 @@
 import branding from './facades/branding.facade.ts'
 import { defineServerSetup } from '#server/utils/defineServerSetup.ts'
-import modules from '#server/services/modules.service.ts'
+import modules from '#server/facades/modules.facade.ts'
 
 export default defineServerSetup(async ({ assets }) => {
 

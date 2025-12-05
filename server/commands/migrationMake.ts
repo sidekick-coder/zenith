@@ -4,7 +4,7 @@ import { program } from 'commander'
 import { format, } from 'date-fns'
 import { basePath } from '#server/utils/paths.ts'
 import template from '#server/facades/template.facade.ts'
-import modules from '#server/services/modules.service.ts'
+import modules from '#server/facades/modules.facade.ts'
 
 program.command('migration:make')
     .argument('<name>', 'Migration name')

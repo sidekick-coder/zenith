@@ -29,7 +29,9 @@ export default class RouterLifecycleHook extends LifecycleHook {
     public async onLoad(): Promise<void> {
         const router = di.get<RouterRegister>(RouterSevice)
         
-        router.addDir(serverPath('routes'))
+        router.addDir(serverPath('routes'), {
+            module: 'root'
+        })
     }
     
     public async onBoot(): Promise<void> {

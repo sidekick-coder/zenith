@@ -37,7 +37,7 @@ export async function importFiles(files: string[], options: Options = {}): Promi
                     filename: ctx.filename,
                     url: fileUrl,
                 })
-                logger.error(`Failed to import file: ${ctx.filename}`, error)
+                logger.error(`Failed to import file: ${path.basename(ctx.filename)}`, error)
                 continue
             }
 

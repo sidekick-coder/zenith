@@ -1,5 +1,5 @@
 import { program } from 'commander'
-import modules from '#server/services/modules.service.ts'
+import modules from '#server/facades/modules.facade.ts'
 
 program.command('module:prepare')
     .helpGroup('module')

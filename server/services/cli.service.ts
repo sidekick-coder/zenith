@@ -176,7 +176,7 @@ export class CLIService {
                 }
 
                 if (caps.includes('modules')) {
-                    await import('#server/services/modules.service.ts')
+                    await import('#server/facades/modules.facade.ts')
                 }
 
                 await fn(...args)

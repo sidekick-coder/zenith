@@ -15,7 +15,6 @@ export default class Route {
     public path: string = ''
     public method: RouteMethod = 'get'
     public handler: Handler<any> | null = null
-    public filename: string | null = null
     public middlewares: Middleware[] = []
     public metadata: Record<string, any> | null = {}
 
@@ -23,7 +22,6 @@ export default class Route {
         this.path = data.path || ''
         this.method = data.method || 'get'
         this.handler = data.handler || null
-        this.filename = data.filename || null
         this.middlewares = data.middlewares || []
         this.metadata = data.metadata || {}
     }
@@ -73,5 +71,14 @@ export default class Route {
         }
 
         return query
+    }
+
+    public toJSON() {
+        return {
+            path: this.path,
+            method: this.method,
+            middlewares: this.middlewares.map(mw => mw.constructor.name),
+            metadata: this.metadata
+        }
     }
 }
