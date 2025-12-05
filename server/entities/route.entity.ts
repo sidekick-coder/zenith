@@ -17,9 +17,15 @@ export default class Route {
     public handler: Handler<any> | null = null
     public filename: string | null = null
     public middlewares: Middleware[] = []
+    public metadata: Record<string, any> | null = {}
 
     constructor(data: Partial<Route> = {}) {
-        Object.assign(this, data)
+        this.path = data.path || ''
+        this.method = data.method || 'get'
+        this.handler = data.handler || null
+        this.filename = data.filename || null
+        this.middlewares = data.middlewares || []
+        this.metadata = data.metadata || {}
     }
 
     public static params(routePath: string, requestPath: string): Record<string, string> {
