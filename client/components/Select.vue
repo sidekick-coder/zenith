@@ -90,6 +90,14 @@ const options = defineModel('options', {
     default: () => [],
 })
 
+const selected = computed(() => {
+    if (props.multiple) {
+        return formated.value.filter(option => model.value?.includes(option.value))
+    }
+
+    return formated.value.find(option => option.value === model.value) || null
+})
+
 function findLabel(option: any) {
     return get(option, props.labelKey) || option
 }
@@ -166,6 +174,13 @@ watch(() => props.fetch, fetchOptions, { immediate: true })
                         class="flex items-center gap-2"
                     >
                         <span class="text-sm">{{ model.length }} selected</span>
+                    </div>
+
+                    <div
+                        v-if="selected && !Array.isArray(selected)"
+                        class="flex flex-col"
+                    >
+                        <span>{{ selected.label }}</span>
                     </div>
 
                     <SelectValue
