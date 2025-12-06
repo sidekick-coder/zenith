@@ -2,6 +2,8 @@ import di from './utils/di'
 import config from '#client/facades/config.facade'
 import lifecycle from '#client/facades/lifecycle.facade.ts'
 import type LifecycleHook from '#shared/entities/lifecycleHook.entity.ts'
+import './imports'
+import './assets/styles.css'
 
 const state = (window as any).__INITIAL_STATE__ || {}
 

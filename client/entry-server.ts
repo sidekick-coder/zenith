@@ -6,15 +6,13 @@ import { createServerFetcher } from './utils/fetcher'
 import type { Logger } from './utils/logger'
 import config from './facades/config.facade'
 import lifecycle from './facades/lifecycle.facade.ts'
-import RouterLifecycleHook from './hooks/router.hook.ts'
 import AppLifecycleHook from './hooks/app.hook.ts'
-import AuthLifecycleHook from './hooks/auth.hook.ts'
 import app from './facades/app.facade.ts'
 import router from './facades/router.facade.ts'
-import AclLifecycleHook from './hooks/acl.hook.ts'
-import MenuLifecycleHook from './hooks/menu.hook.ts'
 import { flatten } from '#shared/utils/flatten.ts'
 import type LifecycleHook from '#shared/entities/lifecycleHook.entity.ts'
+import './imports'
+import './assets/styles.css'
 
 const hooks = Object.values<any>(import.meta.glob('./hooks/**/*.hook.ts', { eager: true }))
     .map(hook => hook.default || hook) as LifecycleHook[]
