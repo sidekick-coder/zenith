@@ -3,6 +3,10 @@ import type LifecycleHook from '#shared/entities/lifecycleHook.entity.ts'
 import type { Constructor } from '#shared/utils/compose.ts'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
 
+interface ListOptions {
+    exclude?: (string | Constructor<LifecycleHook> | LifecycleHook)[]
+}
+
 export default class LifecycleService {
     public hooks: Map<string, LifecycleHook>
     public logger: LoggerService
@@ -14,9 +18,30 @@ export default class LifecycleService {
         this.logger = data.logger ?? new LoggerService()
     }
 
-    public list(){
-        const hooks = Array.from(this.hooks.values())
-        
+    public list(options?: ListOptions){
+        let hooks = Array.from(this.hooks.values())
+
+        if (options?.exclude) {
+            const ids = options.exclude.filter(item => typeof item === 'string') as string[]
+            const constructors = options.exclude.filter(item => typeof item === 'function') as Constructor<LifecycleHook>[]
+            const instances = options.exclude.filter(item => typeof item === 'object') as LifecycleHook[]
+            hooks = hooks.filter(hook => {
+                if (ids.includes(hook.hook_id)) {
+                    return false
+                }
+                
+                if (constructors.find(ctor => hook instanceof ctor)) {
+                    return false
+                }
+                
+                if (instances.find(inst => hook === inst)) {
+                    return false
+                }
+
+                return true
+            })
+        }
+
         hooks.sort((a, b) => {
             const orderA = a.order ?? 0
             const orderB = b.order ?? 0
@@ -79,8 +104,10 @@ export default class LifecycleService {
         }
     }
 
-    public async boot(): Promise<void> {
-        for (const hook of this.list()) {
+    public async boot(options?: ListOptions): Promise<void> {
+        const hooks = this.list(options)
+
+        for (const hook of hooks) {
             const [error] = await tryCatch(() => hook.onBoot())
             
             if (error) {

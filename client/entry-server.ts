@@ -1,7 +1,6 @@
 import { pathToFileURL } from 'url'
 import fs from 'fs'
 import { renderToString } from 'vue/server-renderer'
-import { createApp } from './main'
 import di from './utils/di'
 import { createServerFetcher } from './utils/fetcher'
 import type { Logger } from './utils/logger'
@@ -11,8 +10,18 @@ import RouterLifecycleHook from './hooks/router.hook.ts'
 import AppLifecycleHook from './hooks/app.hook.ts'
 import AuthLifecycleHook from './hooks/auth.hook.ts'
 import app from './facades/app.facade.ts'
+import router from './facades/router.facade.ts'
 import { flatten } from '#shared/utils/flatten.ts'
 
+lifecycle.add(
+    RouterLifecycleHook,
+    AppLifecycleHook,
+    AuthLifecycleHook
+)
+
+await lifecycle.register()
+
+await lifecycle.load()
 
 if (import.meta.env.SSR) {
     globalThis.imports['vue/server-renderer'] = () => import('vue/server-renderer')
@@ -52,25 +61,13 @@ export async function render(context: RenderContext) {
             value,
             source: 'state'
         })
-    }   
-
-    lifecycle.add(
-        RouterLifecycleHook,
-        AppLifecycleHook,
-        AuthLifecycleHook
-    )
-
-    await lifecycle.register()
-
-    await lifecycle.load()
-
-    // await lifecycle.boot()
-
-    // const { app, router } = await createApp()
-
-    // await router.push(url)
-
-    // await router.isReady()
+    }
+    
+    await router.push(url)
+    
+    await lifecycle.boot({
+        exclude: [AppLifecycleHook]
+    })
 
     const ctx = {}
 
