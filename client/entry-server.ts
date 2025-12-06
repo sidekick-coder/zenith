@@ -12,18 +12,18 @@ import AuthLifecycleHook from './hooks/auth.hook.ts'
 import app from './facades/app.facade.ts'
 import router from './facades/router.facade.ts'
 import AclLifecycleHook from './hooks/acl.hook.ts'
+import MenuLifecycleHook from './hooks/menu.hook.ts'
 import { flatten } from '#shared/utils/flatten.ts'
+import type LifecycleHook from '#shared/entities/lifecycleHook.entity.ts'
 
-lifecycle.add(
-    RouterLifecycleHook,
-    AppLifecycleHook,
-    AuthLifecycleHook,
-    AclLifecycleHook
-)
+const hooks = Object.values<any>(import.meta.glob('./hooks/**/*.hook.ts', { eager: true }))
+    .map(hook => hook.default || hook) as LifecycleHook[]
 
-await lifecycle.register()
+lifecycle.add(...hooks)
 
-await lifecycle.load()
+if (!globalThis.imports) {
+    globalThis.imports = {}
+}
 
 if (import.meta.env.SSR) {
     globalThis.imports['vue/server-renderer'] = () => import('vue/server-renderer')
@@ -64,6 +64,10 @@ export async function render(context: RenderContext) {
             source: 'state'
         })
     }
+
+    await lifecycle.register()
+
+    await lifecycle.load()
     
     await router.push(url)
     

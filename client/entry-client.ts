@@ -1,19 +1,18 @@
-import { createApp } from './main'
 import di from './utils/di'
-import RouterLifecycleHook from './hooks/router.hook.ts'
-import AppLifecycleHook from './hooks/app.hook.ts'
-import AuthLifecycleHook from './hooks/auth.hook.ts'
-import AclLifecycleHook from './hooks/acl.hook.ts'
 import config from '#client/facades/config.facade'
 import lifecycle from '#client/facades/lifecycle.facade.ts'
-import router from '#client/facades/router.facade.ts'
-import app from '#client/facades/app.facade.ts'
-import { tryCatch } from '#shared/utils/tryCatch.ts'
+import type LifecycleHook from '#shared/entities/lifecycleHook.entity.ts'
 
 const state = (window as any).__INITIAL_STATE__ || {}
 
 di.load(state)
 di.set('isServer', false)
+
+const hooks = Object.values<any>(import.meta.glob('./hooks/**/*.hook.ts', { eager: true }))
+    .map(hook => hook.default || hook) as LifecycleHook[]
+
+lifecycle.add(...hooks)
+
 
 for (const [key, value] of Object.entries(state.config || {})) {
     config.entries.set(key, {
@@ -22,13 +21,6 @@ for (const [key, value] of Object.entries(state.config || {})) {
         source: 'state'
     })
 }
-
-lifecycle.add(
-    RouterLifecycleHook,
-    AppLifecycleHook,
-    AuthLifecycleHook,
-    AclLifecycleHook
-)
 
 await lifecycle.register()
 

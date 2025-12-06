@@ -7,10 +7,8 @@ import di from '../utils/di'
 import LifecycleHook from '#shared/entities/lifecycleHook.entity.ts'
 import { $t } from '#shared/lang.ts'
 import { useMenu } from '#client/composables/useMenu.ts'
-import setup from '#client/setup.ts'
 import { listSetupFiles } from '#client/utils/listSetupFiles.ts'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
-import config from '#client/facades/config.facade.ts'
 import logger from '#client/facades/logger.facade.ts'
 
 export default class AppLifecycleHook extends LifecycleHook {
@@ -31,13 +29,6 @@ export default class AppLifecycleHook extends LifecycleHook {
         app.use<Vue3TouchEventsOptions>(Vue3TouchEvents, {
             disableClick: false,
         })
-
-        menu.clear()
-        
-        await setup.setup({
-            router,
-            menu 
-        })
         
         const files = await listSetupFiles()
         
@@ -53,12 +44,7 @@ export default class AppLifecycleHook extends LifecycleHook {
             }
         
             logger.debug(`setup file loaded: ${filename}`)
-        }   
-        
-        const hide = config.get<string>('menu.hide', '').split(',')
-            .map((s: string) => s.trim())
-        
-        hide.forEach(id => menu.remove(id))
+        }
     }
 
     public async onBoot(): Promise<void> {
