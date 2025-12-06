@@ -10,10 +10,10 @@ import Icon from '#client/components/Icon.vue'
 import AlertButton from '#client/components/AlertButton.vue'
 import { $t } from '#shared/lang.ts'
 import { $fetch } from '#client/utils/fetcher.ts'
-import { $auth } from '#client/composables/useAuth.ts'
 import di from '#client/utils/di.ts'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
 import { createId } from '#client/utils/createId.ts'
+import auth from '#client/facades/auth.facade.ts'
 
 const menuExtras = ref<Record<string, any>[]>([])
 
@@ -75,11 +75,11 @@ async function load() {
 }
 
 async function persistExtras(extras: Record<string, any>[]) {
-    if (!$auth.user) {
+    if (!auth.user) {
         throw new Error('no user')
     }
 
-    return $fetch(`/api/users/${$auth.user.id}/metas`, {
+    return $fetch(`/api/users/${auth.user.id}/metas`, {
         method: 'PUT',
         data: [
             {

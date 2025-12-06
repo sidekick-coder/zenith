@@ -3,7 +3,7 @@ import { defineClientSetup } from './utils/defineClientSetup'
 import authGuard from './guards/auth.guard'
 import guestGuard from './guards/guest.guard'
 import setupGuard from './guards/setup.guard'
-import { $auth } from './composables/useAuth'
+import auth from './facades/auth.facade.ts'
 import { $t } from '#shared/lang.ts'
 
 export default defineClientSetup(({ menu, router }) => {
@@ -30,13 +30,16 @@ export default defineClientSetup(({ menu, router }) => {
         redirect: '/admin/users',
     })
 
-    menu.add({
-        id: 'account-profile',
-        label: $t('Profile'),
-        to: `/admin/users/${$auth.user?.id}`,
-        icon: 'User',
-        group: $t('Account')
-    })
+    if (auth.user) {
+        menu.add({
+            id: 'account-profile',
+            label: $t('Profile'),
+            to: `/admin/users/${auth.user?.id}`,
+            icon: 'User',
+            group: $t('Account')
+        })
+    }
+
 
     menu.add({
         id: 'account-preferences',

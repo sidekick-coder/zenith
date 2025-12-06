@@ -6,7 +6,13 @@ import di from './utils/di'
 import { createServerFetcher } from './utils/fetcher'
 import type { Logger } from './utils/logger'
 import config from './facades/config.facade'
+import lifecycle from './facades/lifecycle.facade.ts'
+import RouterLifecycleHook from './hooks/router.hook.ts'
+import AppLifecycleHook from './hooks/app.hook.ts'
+import AuthLifecycleHook from './hooks/auth.hook.ts'
+import app from './facades/app.facade.ts'
 import { flatten } from '#shared/utils/flatten.ts'
+
 
 if (import.meta.env.SSR) {
     globalThis.imports['vue/server-renderer'] = () => import('vue/server-renderer')
@@ -46,21 +52,29 @@ export async function render(context: RenderContext) {
             value,
             source: 'state'
         })
-    }
+    }   
 
-    const { app, router } = await createApp()
+    lifecycle.add(
+        RouterLifecycleHook,
+        AppLifecycleHook,
+        AuthLifecycleHook
+    )
 
-    await router.push(url)
+    await lifecycle.register()
 
-    await router.isReady()
+    await lifecycle.load()
+
+    // await lifecycle.boot()
+
+    // const { app, router } = await createApp()
+
+    // await router.push(url)
+
+    // await router.isReady()
 
     const ctx = {}
 
     const html = await renderToString(app, ctx)
 
-    return {
-        html,
-        router,
-        hello: 'world',
-    }
+    return { html }
 }

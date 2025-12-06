@@ -6,8 +6,6 @@ import { toast } from 'vue-sonner'
 import * as v from 'valibot'
 import { $t } from '#shared/lang.ts'
 import { $fetch } from '#client/utils/fetcher.ts'
-import { $auth } from '#client/composables/useAuth.ts'
-// FormTextarea removed: replaced by interactive menu lists
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '#client/components/ui/card'
 import Button from '#client/components/Button.vue'
 import AppLayout from '#client/layouts/AppLayout.vue'
@@ -18,6 +16,7 @@ import FormSwitch from '#client/components/FormSwitch.vue'
 import di from '#client/utils/di.ts'
 import { useMenu } from '#client/composables/useMenu.ts'
 import CustomMenuItems from '#client/components/CustomMenuItems.vue'
+import auth from '#client/facades/auth.facade.ts'
 
 const loading = ref(false)
 const saving = ref(false)
@@ -51,7 +50,7 @@ const { handleSubmit, resetForm } = useForm({
 })
 
 async function load() {
-    if (!$auth.user) {
+    if (!auth.user) {
         return
     }
 
@@ -80,13 +79,13 @@ async function load() {
 // custom menu persistence is handled in the component
 
 const onSubmit = handleSubmit(async (data) => {
-    if (!$auth.user) {
+    if (!auth.user) {
         return
     }
 
     saving.value = true
 
-    const [error] = await $fetch.try(`/api/users/${$auth.user.id}/metas`, {
+    const [error] = await $fetch.try(`/api/users/${auth.user.id}/metas`, {
         method: 'PUT',
         data: [
             {

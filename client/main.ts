@@ -9,7 +9,6 @@ import setup from './setup'
 import { logger } from './utils/logger'
 import config from './facades/config.facade'
 import di from './utils/di'
-import { $auth } from './composables/useAuth'
 import { $acl } from './composables/useAcl'
 import { listSetupFiles } from './utils/listSetupFiles'
 
@@ -26,11 +25,9 @@ export async function createApp() {
     app.use<Vue3TouchEventsOptions>(Vue3TouchEvents, {
         disableClick: false,
     })
-
-    const user = di.get<any>('auth:user', undefined)
+    
     const permissions = di.get<any[]>('permissions', [])
-
-    $auth.load({ user })
+    
     $acl.load(permissions)
 
     app.config.globalProperties.$t = $t

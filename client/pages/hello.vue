@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { $auth } from '#client/composables/useAuth.ts'
 import { $t } from '#shared/lang.ts'
 import Button from '#client/components/Button.vue'
 import { $acl } from '#client/composables/useAcl.ts'
+import auth from '#client/facades/auth.facade.ts'
 
-const isLoggedIn = computed(() => !!$auth.user)
+const isLoggedIn = computed(() => auth.user)
 
 async function handleLogout() {
-    await $auth.logout({ redirect: '/admin/auth/login' })
+    await auth.logout({ redirect: '/admin/auth/login' })
 }
 </script>
 

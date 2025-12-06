@@ -6,7 +6,6 @@ import App from '../App.vue'
 import di from '../utils/di'
 import LifecycleHook from '#shared/entities/lifecycleHook.entity.ts'
 import { $t } from '#shared/lang.ts'
-import { $auth } from '#client/composables/useAuth.ts'
 import { $acl } from '#client/composables/useAcl.ts'
 import { useMenu } from '#client/composables/useMenu.ts'
 import setup from '#client/setup.ts'
@@ -21,8 +20,6 @@ export default class AppLifecycleHook extends LifecycleHook {
         const app = createSSRApp(App)
         
         di.set('app', app)
-        
-        
     }
     
     public async onLoad(): Promise<void> {
@@ -36,10 +33,8 @@ export default class AppLifecycleHook extends LifecycleHook {
             disableClick: false,
         })
         
-        const user = di.get<any>('auth:user', undefined)
         const permissions = di.get<any[]>('permissions', [])
         
-        $auth.load({ user })
         $acl.load(permissions)
 
         menu.clear()
