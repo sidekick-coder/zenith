@@ -12,12 +12,10 @@ import ModulesService from './services/modules.service.ts'
 import ModulesNodeService from './services/modulesNode.service.ts'
 import type { Router } from './router.ts'
 import logger from './facades/logger.facade.ts'
-import { flatten } from '#shared/utils/flatten.ts'
+import ModulesDevService from './services/modulesDev.service.ts'
 import type LifecycleHook from '#shared/entities/lifecycleHook.entity.ts'
-import { tryCatch } from '#shared/utils/tryCatch.ts'
 import './imports'
 import './assets/styles.css'
-import ModulesDevService from './services/modulesDev.service.ts'
 
 const hooks = Object.values<any>(import.meta.glob('./hooks/**/*.hook.ts', { eager: true }))
     .map(hook => hook.default || hook) as LifecycleHook[]
@@ -36,9 +34,9 @@ interface RenderContext {
     url: string;
     router: any;
     cookies: Record<string, string>;
-    state: Record<string, any>;
     logger: Logger
-    config?: any;
+    container: Record<string, any>;
+    config: Record<string, any>;
 }
 
 
@@ -55,12 +53,13 @@ export async function render(context: RenderContext) {
     const url = context.url
     const serverRouter = context.router
 
-    di.load(context.state)
-    config.loadEntries(context.config || {})
+    di.loadFromRecord(context.container)
+    config.loadFromRecord(context.config || {})
     
     di.set('fetcher', createServerFetcher(serverRouter, context.cookies))
     di.set('logger', context.logger)
     di.set('isServer', true)
+    di.set('state', {})
 
     const serviceOptions = {
         debug: config.get('modules.debug') || config.get('app.debug')
@@ -70,14 +69,6 @@ export async function render(context: RenderContext) {
         ? new ModulesDevService(serviceOptions) 
         : new ModulesNodeService(serviceOptions)
     )
-
-    for (const [key, value] of Object.entries(flatten(context.state.config || {}))) {
-        config.entries.set(key, {
-            key,
-            value,
-            source: 'state'
-        })
-    }
 
     await lifecycle.register()
 
@@ -99,6 +90,10 @@ export async function render(context: RenderContext) {
     const ctx = {}
 
     const html = await renderToString(app, ctx)
+
+    context.container.state = di.get<Record<string, any>>('state')
         
-    return { html }
+    return { 
+        html,
+    }
 }

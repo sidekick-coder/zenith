@@ -13,10 +13,24 @@ export default class ConfigService {
         return Array.from(this.entries.values())
     }
 
-    public loadEntries(entries: Entry[]){
-        for(const entry of entries){
-            this.entries.set(entry.key, entry)
+    public loadFromRecord(record: Record<string, any>, source = 'env'): void {
+        for (const [key, value] of Object.entries(record)) {
+            this.entries.set(key, {
+                key,
+                value,
+                source
+            })
         }
+    }
+
+    public toRecord(): Record<string, any> {
+        const record: Record<string, any> = {}
+
+        for (const [key, entry] of this.entries.entries()) {
+            record[key] = entry.value
+        }
+
+        return record
     }
 
     public has(key: string): boolean {

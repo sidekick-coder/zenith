@@ -25,7 +25,7 @@ export default class ModulesClientLifecycleHook extends LifecycleHook {
             }
         }
         
-        vite.addState('modules', mods)
+        vite.addToContainer('modules', mods)
     }
 
     public async onBoot(): Promise<void> {}

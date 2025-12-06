@@ -16,6 +16,7 @@ import assets from '#server/facades/assets.facade.ts'
 import type User from '#server/entities/user.entity.ts'
 import Permission from '#server/entities/permission.entity.ts'
 import ConfigService from '#shared/services/config.service.ts'
+import DIService from '#shared/services/di.service.ts'
 
 const isProduction = env.NODE_ENV === 'production'
 
@@ -23,15 +24,15 @@ export default class ViteService {
     public logger = logger.child({ label: 'vite' })
     public server: ViteDevServer | undefined
     public debug: boolean
-    public state: Map<string, any>
+    public container: Map<string, any>
 
     constructor(data: Partial<ViteService> = {}) {
-        this.state = new Map<string, any>()
+        this.container = new Map<string, any>()
         this.debug = data.debug ?? false
     }
 
-    public addState(key: string, value: any) {
-        this.state.set(key, value)
+    public addToContainer(key: string, value: any) {
+        this.container.set(key, value)
     }
 
     public async render(url: string, _request: Request, response: Response) {
@@ -44,10 +45,10 @@ export default class ViteService {
                 ? (await import(basePath('client-dist', 'server', 'entry-server.js'))).render
                 : (await this.server!.ssrLoadModule('/client/entry-server.ts')).render
 
-            const state = new Map<string, any>()
+            const container = new DIService()
 
-            for (const [key, value] of this.state.entries()) {
-                state.set(key, JSON.parse(JSON.stringify(value)))
+            for (const [key, value] of this.container.entries()) {
+                container.set(key, JSON.parse(JSON.stringify(value)))
             }
 
             const clientConfig = new ConfigService()
@@ -64,44 +65,24 @@ export default class ViteService {
             clientConfig.set('branding', config.get('branding', {}))
             clientConfig.set('auth', config.get('auth', {}))
 
-            state.set('setup', config.get('setup') || {})
-            state.set('permissions', [] as Permission[])
-            state.set('client:setups:client', [] as string[])
-            state.set('client:setups:server', [] as string[])
-            state.set('user:metas', {} as Record<string, any>)
-
-            const mods = await modules.list({
-                enabled: true
-            })
-
-            state.set('modules:enabled', mods.map(m => m.name))
-
-            state.set('client:setups:client', mods
-                .flatMap(m => m.files)
-                .filter(f => f.type === 'setup:client' && f.context === 'client')
-                .map(f => f.src)
-            )
-
-            state.set('client:setups:server', mods
-                .flatMap(m => m.files)
-                .filter(f => f.type === 'setup:client' && f.context === 'server')
-                .map(f => f.src)
-            )
-
-            
-            state.set('preferences:dark_mode', false)
+            container.set('setup', config.get('setup') || {})
+            container.set('state', {})
+            container.set('permissions', [] as Permission[])
+            container.set('user:metas', {} as Record<string, any>)
+            container.set('preferences:dark_mode', false)
             
             const cookies = new CookieService(_request, response)
+
             const token = cookies.get('Authorization', '') 
                 || _request.headers['authorization'] as string
                 || ''
 
             if (token) {                
-                state.set('auth:user', await auth.authenticate(token))
+                container.set('auth:user', await auth.authenticate(token))
             }
 
-            if (state.get('auth:user')) {
-                const user = state.get('auth:user') as User
+            if (container.get('auth:user')) {
+                const user = container.get('auth:user') as User
                 const permissions = Permission.applyContext(user.permissions, {
                     auth: {
                         user: user
@@ -110,24 +91,20 @@ export default class ViteService {
 
                 const metas = await user.$metas.all()
 
-                state.set('permissions', permissions)
-                state.set('user:metas', metas)
-                state.set('preferences:dark_mode', metas['admin-ui:dark_mode'] ?? false)
+                container.set('permissions', permissions)
+                container.set('user:metas', metas)
+                container.set('preferences:dark_mode', metas['admin-ui:dark_mode'] ?? false)
             }
 
             
 
-            const ctx: Record<string, any> = {
+            const ctx = {
                 url,
                 router,
-                state: {},
-                config: clientConfig.list(),
+                container: container.toRecord(),
+                config: clientConfig.toRecord(),
                 logger: this.logger,
                 cookies:  cookies.toObject(),
-            }
-
-            for (const [key, value] of state.entries()) {
-                ctx.state[key] = value
             }
 
             const rendered = await render(ctx)
@@ -145,15 +122,15 @@ export default class ViteService {
 
             // state
             head += `<script>
-                window.__INITIAL_STATE__ = ${JSON.stringify(ctx.state)}
-                window.__CONFIG__ = ${JSON.stringify(clientConfig.list())}
+                window.__CONTAINER__ = ${JSON.stringify(ctx.container)}
+                window.__CONFIG__ = ${JSON.stringify(ctx.config)}
             </script>`
 
             // Replace app-html first
             let html = template.replace('<!--app-html-->', body)
             
             // Add dark class to html tag if dark mode is enabled
-            if (state.get('preferences:dark_mode')) {
+            if (container.get('preferences:dark_mode')) {
                 html = html.replace('<html', '<html class="dark"')
             }
             

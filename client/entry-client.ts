@@ -8,9 +8,10 @@ import type LifecycleHook from '#shared/entities/lifecycleHook.entity.ts'
 import './imports'
 import './assets/styles.css'
 
-di.load(window.__INITIAL_STATE__ || {})
+di.loadFromRecord(window.__CONTAINER__ || {})
+config.loadFromRecord(window.__CONFIG__ || [])
+
 di.set('isServer', false)
-config.loadEntries(window.__CONFIG__ || [])
 
 const serviceOptions = {
     debug: config.get('modules.debug') || config.get('app.debug')
@@ -25,8 +26,6 @@ const hooks = Object.values<any>(import.meta.glob('./hooks/**/*.hook.ts', { eage
     .map(hook => hook.default || hook) as LifecycleHook[]
 
 lifecycle.add(...hooks)
-
-
 
 
 await lifecycle.register()

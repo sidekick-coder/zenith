@@ -43,7 +43,6 @@ interface DataTableFetchCallback {
 export function defineColumns<T extends Record<string, any> = any>(columns: DataTableColumn<T>[]){
     return columns
 }
-
 </script>
 <script setup lang="ts" generic="T extends Record<string, any>">
 

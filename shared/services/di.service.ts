@@ -5,6 +5,22 @@ type EntryKey = string | symbol | Constructor
 export default class DIService {
     private entries = new Map<EntryKey, any>()
 
+    public loadFromRecord(record: Record<string, any>): void {
+        Object.entries(record).forEach(([key, value]) => {
+            this.set(key, value)
+        })
+    }
+
+    public toRecord(): Record<string, any> {
+        const record: Record<string, any> = {}
+
+        for (const [key, value] of this.entries.entries()) {
+            record[String(key)] = value
+        }
+
+        return record
+    }
+
     public set(payload: EntryKey, value: any): void {
         let key = payload
 

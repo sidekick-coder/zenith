@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onServerPrefetch } from 'vue'
+import { ref } from 'vue'
 import { toast } from 'vue-sonner'
 import type { ComponentExposed } from 'vue-component-type-helpers'
 import DataTable, { defineColumns } from '#client/components/DataTable.vue'
@@ -12,8 +12,15 @@ import Button from '#client/components/Button.vue'
 import Icon from '#client/components/Icon.vue'
 import AlertButton from '#client/components/AlertButton.vue'
 import ClientOnly from '#client/components/ClientOnly.vue'
+import type User from '#shared/entities/user.entity.ts'
+import { useFetchPagination } from '#client/composables/useFetchPagination.ts'
 
 const loading = ref(false)
+
+const { items, total, load } = useFetchPagination<User>('/api/users', {
+    limit: 20,
+})
+
 const tableRef = ref<ComponentExposed<typeof DataTable>>()
 const deletingItems = ref<string[]>([])
 
@@ -41,10 +48,6 @@ const columns = defineColumns([
     },
     { id: 'actions' }
 ])
-
-function load(){
-    tableRef.value?.load()
-}
 
 function reset() {
     tableRef.value?.reset()
@@ -92,9 +95,10 @@ async function destroy(id: string) {
         </div>
         <DataTable
             ref="tableRef"
+            v-model:rows="items"
+            v-model:total="total"
             v-model:loading="loading"
             :columns="columns"
-            fetch="/api/users"
         >
             <template #row-actions="{ row }">
                 <div class="flex items-center gap-2 justify-end">
