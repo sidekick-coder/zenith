@@ -2,7 +2,6 @@
 import { ref } from 'vue'
 import { toast } from 'vue-sonner'
 import { useRouter } from 'vue-router'
-import type { ComponentExposed } from 'vue-component-type-helpers'
 import DataTable, { defineColumns } from '#client/components/DataTable.vue'
 import { $t } from '#shared/lang.ts'
 import AppLayout from '#client/layouts/AppLayout.vue'
@@ -13,13 +12,15 @@ import Icon from '#client/components/Icon.vue'
 import AlertButton from '#client/components/AlertButton.vue'
 import type Role from '#shared/entities/role.entity.ts'
 import { createId } from '#client/utils/createId.ts'
+import { useFetchPagination } from '#client/composables/useFetchPagination.ts'
 
 const router = useRouter()
 
-const items = ref<Role[]>([])
-const loading = ref(false)
+const { items, total, loading, load, reset } = useFetchPagination<Role>('/api/roles', {
+    limit: 20,
+})
+
 const saving = ref(false)
-const tableRef = ref<ComponentExposed<typeof DataTable>>()
 const deletingItems = ref<number[]>([])
 
 const columns = defineColumns([
@@ -42,9 +43,6 @@ const columns = defineColumns([
     { id: 'actions' }
 ])
 
-async function load() {
-    await tableRef.value?.load()
-}
 async function create() {
     saving.value = true
 
@@ -79,7 +77,7 @@ async function destroy(id: number) {
     setTimeout(() => {
         toast.success($t('Deleted successfully.'))
         deletingItems.value = []
-        load()
+        reset()
     }, 1000)
 
 }
@@ -101,10 +99,10 @@ async function destroy(id: number) {
         </div>
 
         <DataTable 
-            ref="tableRef"
+            v-model:rows="items"
+            v-model:total="total"
             v-model:loading="loading"
             :columns="columns"
-            fetch="/api/roles"
         >
             <template #row-actions="{ row }">
                 <div class="flex items-center gap-2 justify-end">

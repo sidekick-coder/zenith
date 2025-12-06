@@ -2,6 +2,11 @@
 import { Icon } from '@iconify/vue'
 import { computed } from 'vue'
 import { kebabCase } from 'lodash-es'
+import ClientOnly from './ClientOnly.vue'
+
+defineOptions({
+    inheritAttrs: false,
+})
 
 const props = defineProps({
     name: {
@@ -20,5 +25,14 @@ const iconName = computed(() => {
 </script>
 
 <template>
-    <Icon :icon="iconName" />
+    <ClientOnly>
+        <Icon
+            :icon="iconName"
+            v-bind="$attrs"
+        />
+
+        <template #fallback>
+            <span v-bind="$attrs" />
+        </template>
+    </ClientOnly>
 </template>

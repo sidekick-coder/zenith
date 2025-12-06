@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { toast } from 'vue-sonner'
-import type { ComponentExposed } from 'vue-component-type-helpers'
 import { defineColumns } from '#client/components/DataTable.vue'
 import { $t } from '#shared/lang.ts'
 import AppLayout from '#client/layouts/AppLayout.vue'
@@ -15,11 +14,15 @@ import { createId } from '#client/utils/createId.ts'
 import DataTable from '#client/components/DataTable.vue'
 import PermissionDialog from '#client/components/PermissionDialog.vue'
 import ObjectInspect from '#client/components/ObjectInspect.vue'
+import { useFetchPagination } from '#client/composables/useFetchPagination.ts'
 
 const TypedDataTable = DataTable as typeof DataTable<Permission>
 
-const loading = ref(false)
-const tableRef = ref<ComponentExposed<typeof DataTable>>()
+const { items, total, loading, load, reset } = useFetchPagination<Permission>('/api/permissions', {
+    serialize: Permission.from,
+    limit: 20,
+})
+
 const deletingItems = ref<number[]>([])
 const selected = ref<Permission[]>([])
 
@@ -58,10 +61,6 @@ const columns = defineColumns<Permission>([
     { id: 'actions' }
 ])
 
-async function load() {
-    await tableRef.value?.load()
-}
-
 async function destroy(id: number) {
     deletingItems.value.push(id)
 
@@ -76,7 +75,7 @@ async function destroy(id: number) {
     setTimeout(() => {
         toast.success($t('Deleted successfully.'))
         deletingItems.value = []
-        load()
+        reset()
     }, 1000)
 
 }
@@ -105,12 +104,11 @@ async function destroy(id: number) {
         </div>
 
         <TypedDataTable
-            ref="tableRef"
+            v-model:rows="items"
+            v-model:total="total"
             v-model:loading="loading"
             v-model:selected="selected"
             :columns="columns"
-            :serialize="Permission.from"
-            fetch="/api/permissions"
             selection="multiple"
             row-key="id"
         >

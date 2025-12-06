@@ -15,10 +15,19 @@ import DataTable from '#client/components/DataTable.vue'
 import { $file } from '#client/utils/file.ts'
 import Image from '#client/components/Image.vue'
 import acl from '#client/facades/acl.facade.ts'
+import { useFetchPagination } from '#client/composables/useFetchPagination.ts'
 
-const loading = ref(false)
+const query = ref({
+    include: ['metas', 'url'],
+})
+
+const { items, total, loading, load, reset } = useFetchPagination<File>('/api/files', {
+    serialize: row => File.from(row),
+    query: query.value,
+    limit: 20,
+})
+
 const uploading = ref(false)
-const tableRef = ref<ComponentExposed<typeof DataTable>>()
 const deletingItems = ref<number[]>([])
 const selected = ref<File[]>([])
 
@@ -56,14 +65,6 @@ const columns = defineColumns<File>([
     { id: 'actions' }
 ])
 
-const query = ref({
-    include: ['metas', 'url'],
-})
-
-async function load() {
-    await tableRef.value?.load()
-}
-
 async function upload(){
     
     const file = await $file.pick({
@@ -93,7 +94,7 @@ async function upload(){
     setTimeout(() => {
         toast.success($t('Uploaded successfully.'))
         uploading.value = false
-        load()
+        reset()
     }, 500)
 }
 
@@ -111,7 +112,7 @@ async function destroy(id: number) {
     setTimeout(() => {
         toast.success($t('Deleted successfully.'))
         deletingItems.value = []
-        load()
+        reset()
     }, 1000)
 
 }
@@ -140,13 +141,11 @@ async function destroy(id: number) {
         </div>
 
         <DataTable
-            ref="tableRef"
+            v-model:rows="items"
+            v-model:total="total"
             v-model:loading="loading"
             v-model:selected="selected"
             :columns="columns"
-            :serialize="row => File.from(row)"
-            :query="query"
-            fetch="/api/files"
             row-key="id"
         >
             <template #row-filename="{ row }">

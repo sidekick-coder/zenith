@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { toast } from 'vue-sonner'
 import type { ComponentExposed } from 'vue-component-type-helpers'
 import { Files } from 'lucide-vue-next'
@@ -13,6 +13,7 @@ import AlertButton from '#client/components/AlertButton.vue'
 import DialogForm, { defineFormFields } from '#client/components/DialogForm.vue'
 import schemas from '#shared/validators/index.ts'
 import FileMeta from '#shared/entities/fileMeta.entity.ts'
+import { useFetchPagination } from '#client/composables/useFetchPagination.ts'
 
 const props = defineProps({
     fileId: {
@@ -21,8 +22,13 @@ const props = defineProps({
     },
 })
 
-const loading = ref(false)
-const tableRef = ref<ComponentExposed<typeof DataTable>>()
+const url = computed(() => `/api/files/${props.fileId}/metas`)
+
+const { items, total, loading, load, reset } = useFetchPagination<FileMeta>(url, {
+    serialize: row => FileMeta.from(row),
+    limit: 20,
+})
+
 const deletingItems = ref<number[]>([])
 
 const columns = defineColumns<FileMeta>([
@@ -56,10 +62,6 @@ const fields = defineFormFields({
     },
 })
 
-function load(){
-    tableRef.value?.load()
-}
-
 async function destroy(id: FileMeta['id']) {
     deletingItems.value.push(id)
 
@@ -76,7 +78,7 @@ async function destroy(id: FileMeta['id']) {
     setTimeout(() => {
         deletingItems.value = deletingItems.value.filter(i => i !== id)
         toast.success($t('Deleted successfully.'))
-        load()
+        reset()
     }, 1000)
 }
 </script>
@@ -116,11 +118,10 @@ async function destroy(id: FileMeta['id']) {
         </CardHeader>
         <CardContent>
             <DataTable
-                ref="tableRef"
+                v-model:rows="items"
+                v-model:total="total"
                 v-model:loading="loading"
                 :columns="columns"
-                :serialize="row => FileMeta.from(row)"
-                :fetch="`/api/files/${fileId}/metas`"
                 row-key="id"
             >
                 <template #row-actions="{ row }">
@@ -139,7 +140,7 @@ async function destroy(id: FileMeta['id']) {
                             }"
                             :values="row"
                             method="PUT"
-                            @submit="load"
+                            @submit="reset"
                         >
                             <Button
                                 size="icon"

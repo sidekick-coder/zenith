@@ -56,6 +56,8 @@ export function useFetchPagination<T = any>(url: string, options: UseFetchPagina
         if (loading.value) return
 
         loading.value = true
+        
+
 
         const [error, result] = await $fetch.try<Pagination>(url, {
             method: 'GET',
@@ -73,6 +75,11 @@ export function useFetchPagination<T = any>(url: string, options: UseFetchPagina
         }
 
         response.value = result
+
+        if (import.meta.env.SSR) {
+            loading.value = false
+            return
+        }
 
         setTimeout(() => {
             loading.value = false

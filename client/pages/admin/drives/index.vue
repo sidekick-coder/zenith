@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref  } from 'vue'
-import type { ComponentExposed } from 'vue-component-type-helpers'
+import { toast } from 'vue-sonner'
 import DataTable, { defineColumns } from '#client/components/DataTable.vue'
 import { $t } from '#shared/lang.ts'
 import AppLayout from '#client/layouts/AppLayout.vue'
@@ -8,15 +8,15 @@ import Button from '#client/components/Button.vue'
 import Icon from '#client/components/Icon.vue'
 import type { Drive } from '#client/types.ts'
 import { $fetch } from '#client/utils/fetcher.ts'
-import { toast } from 'vue-sonner'
 import AlertButton from '#client/components/AlertButton.vue'
 import Switch from '#client/components/ui/switch/Switch.vue'
+import { useFetchPagination } from '#client/composables/useFetchPagination.ts'
 
-const items = ref<Drive[]>([])
-const loading = ref(false)
+const { items, total, loading, load, reset } = useFetchPagination<Drive>('/api/drives', {
+    limit: 20,
+})
+
 const generating = ref(false)
-
-const tableRef = ref<ComponentExposed<typeof DataTable<Drive>>>()
 
 const columns = defineColumns<Drive>([
     {
@@ -43,10 +43,6 @@ const columns = defineColumns<Drive>([
     { id: 'actions' }
 ])
 
-async function load(){
-    await tableRef.value?.load()
-}
-
 async function generateDefaults(){
     generating.value = true
 
@@ -62,7 +58,7 @@ async function generateDefaults(){
     setTimeout(() => {
         generating.value = false
         toast.success($t('Default drives created'))    
-        load()
+        reset()
     }, 1000)
 
 }
@@ -84,7 +80,6 @@ async function generateDefaults(){
                 <Button
                     variant="outline"
                     size="icon"
-                    :disabled="loading"
                     @click="load"
                 >
                     <Icon
@@ -96,13 +91,11 @@ async function generateDefaults(){
         </div>
 
         <DataTable 
-            ref="tableRef"
             v-model:rows="items"
+            v-model:total="total"
             v-model:loading="loading"
             :columns="columns"
-            fetch="/api/drives"
         >
-
             <template #row-default="{ row }">
                 <div class="flex items-center justify-start h-full">
                     <Switch
