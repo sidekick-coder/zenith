@@ -9,7 +9,6 @@ import setup from './setup'
 import { logger } from './utils/logger'
 import config from './facades/config.facade'
 import di from './utils/di'
-import { $acl } from './composables/useAcl'
 import { listSetupFiles } from './utils/listSetupFiles'
 
 import { tryCatch } from '#shared/utils/tryCatch.ts'
@@ -25,10 +24,6 @@ export async function createApp() {
     app.use<Vue3TouchEventsOptions>(Vue3TouchEvents, {
         disableClick: false,
     })
-    
-    const permissions = di.get<any[]>('permissions', [])
-    
-    $acl.load(permissions)
 
     app.config.globalProperties.$t = $t
 

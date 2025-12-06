@@ -2,8 +2,8 @@
 import { computed } from 'vue'
 import { $t } from '#shared/lang.ts'
 import Button from '#client/components/Button.vue'
-import { $acl } from '#client/composables/useAcl.ts'
 import auth from '#client/facades/auth.facade.ts'
+import acl from '#client/facades/acl.facade.ts'
 
 const isLoggedIn = computed(() => auth.user)
 
@@ -39,7 +39,7 @@ async function handleLogout() {
                 />
     
                 <Button
-                    v-if="$acl.can('read', 'AdminDashboard')"
+                    v-if="acl.can('read', 'AdminDashboard')"
                     :label="$t('Go to Admin Dashboard')"
                     to="/admin"
                 />

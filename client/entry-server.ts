@@ -11,12 +11,14 @@ import AppLifecycleHook from './hooks/app.hook.ts'
 import AuthLifecycleHook from './hooks/auth.hook.ts'
 import app from './facades/app.facade.ts'
 import router from './facades/router.facade.ts'
+import AclLifecycleHook from './hooks/acl.hook.ts'
 import { flatten } from '#shared/utils/flatten.ts'
 
 lifecycle.add(
     RouterLifecycleHook,
     AppLifecycleHook,
-    AuthLifecycleHook
+    AuthLifecycleHook,
+    AclLifecycleHook
 )
 
 await lifecycle.register()

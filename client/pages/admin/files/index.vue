@@ -12,9 +12,9 @@ import Icon from '#client/components/Icon.vue'
 import AlertButton from '#client/components/AlertButton.vue'
 import File from '#shared/entities/file.entity.ts'
 import DataTable from '#client/components/DataTable.vue'
-import { $acl } from '#client/composables/useAcl.ts'
 import { $file } from '#client/utils/file.ts'
 import Image from '#client/components/Image.vue'
+import acl from '#client/facades/acl.facade.ts'
 
 const loading = ref(false)
 const uploading = ref(false)
@@ -183,7 +183,7 @@ async function destroy(id: number) {
                         <Icon name="Edit" />
                     </Button>
                     <AlertButton
-                        v-if="$acl.can('delete', row)"
+                        v-if="acl.can('delete', row)"
                         variant="ghost"
                         size="sm"
                         :loading="deletingItems.includes(row.id)"

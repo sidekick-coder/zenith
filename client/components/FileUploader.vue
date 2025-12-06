@@ -7,8 +7,8 @@ import { tryCatch } from '#shared/utils/tryCatch.ts'
 import Button from '#client/components/Button.vue'
 import Icon from '#client/components/Icon.vue'
 import type UploadSession from '#shared/entities/fileUploadSession.entity.ts'
-import { $acl } from '#client/composables/useAcl.ts'
 import type ServerFile from '#shared/entities/file.entity.ts'
+import acl from '#client/facades/acl.facade.ts'
 
 const props = defineProps({
     label: {
@@ -74,7 +74,7 @@ const hasPermission = computed(() => {
         mime_types: props.mimetypes,
     }
 
-    return $acl.can('create', 'FileUploadSession', data)
+    return acl.can('create', 'FileUploadSession', data)
 })
 
 async function createSession(file: File){

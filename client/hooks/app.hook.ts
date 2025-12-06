@@ -6,7 +6,6 @@ import App from '../App.vue'
 import di from '../utils/di'
 import LifecycleHook from '#shared/entities/lifecycleHook.entity.ts'
 import { $t } from '#shared/lang.ts'
-import { $acl } from '#client/composables/useAcl.ts'
 import { useMenu } from '#client/composables/useMenu.ts'
 import setup from '#client/setup.ts'
 import { listSetupFiles } from '#client/utils/listSetupFiles.ts'
@@ -32,10 +31,6 @@ export default class AppLifecycleHook extends LifecycleHook {
         app.use<Vue3TouchEventsOptions>(Vue3TouchEvents, {
             disableClick: false,
         })
-        
-        const permissions = di.get<any[]>('permissions', [])
-        
-        $acl.load(permissions)
 
         menu.clear()
         

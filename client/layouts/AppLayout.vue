@@ -37,6 +37,7 @@ import type { MenuItem } from '#client/composables/useMenu.ts'
 import Icon from '#client/components/Icon.vue'
 import config from '#client/facades/config.facade.ts'
 import di from '#client/utils/di.ts'
+import acl from '#client/facades/acl.facade.ts'
 
 export interface BreadcrumbItem {
     label: string;
@@ -192,10 +193,10 @@ async function onLogout() {
 }
 
 onMounted(() => {
-    // if ($acl.cannot('read', 'AdminDashboard')) {
-    //     window.location.href = '/404'
-    //     return
-    // }
+    if (acl.cannot('read', 'AdminDashboard')) {
+        window.location.href = '/404'
+        return
+    }
 
     loading.value = false
 })

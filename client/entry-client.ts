@@ -3,6 +3,7 @@ import di from './utils/di'
 import RouterLifecycleHook from './hooks/router.hook.ts'
 import AppLifecycleHook from './hooks/app.hook.ts'
 import AuthLifecycleHook from './hooks/auth.hook.ts'
+import AclLifecycleHook from './hooks/acl.hook.ts'
 import config from '#client/facades/config.facade'
 import lifecycle from '#client/facades/lifecycle.facade.ts'
 import router from '#client/facades/router.facade.ts'
@@ -25,7 +26,8 @@ for (const [key, value] of Object.entries(state.config || {})) {
 lifecycle.add(
     RouterLifecycleHook,
     AppLifecycleHook,
-    AuthLifecycleHook
+    AuthLifecycleHook,
+    AclLifecycleHook
 )
 
 await lifecycle.register()
