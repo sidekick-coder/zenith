@@ -7,9 +7,10 @@ import lifecycle from '#server/facades/lifecycle.facade.ts'
 import RouterLifecycleHook from '#server/hooks/router.hook.ts'
 import ModulesLifecycleHook from '#server/hooks/modules.hook.ts'
 
-lifecycle.add(RouterLifecycleHook, ModulesLifecycleHook)
 
-program.command('route:list')
+program
+    .hook('preAction', () => lifecycle.add(RouterLifecycleHook, ModulesLifecycleHook))
+    .command('route:list')
     .option('--json', 'Output in JSON format')
     .option('--module <module>', 'Filter by module name')
     .option('--sort-by <field>', 'Sort by field (module, path, method)', 'module,path,method')
@@ -17,9 +18,10 @@ program.command('route:list')
     .action(async (options) => {
         let routes = router.list()
 
-        const sortBy = options['sortBy'].split(',').map((f: string) => f.trim())
+        const sortBy: string[] = options['sortBy'].split(',').map((f: string) => f.trim())
         const sortDesc = options['sortDesc']
-            .split(',').map((d: string) => d.trim())
+            .split(',')
+            .map((d: string) => d.trim())
             .map((d: string) => d.length > 0)
 
         if (options.module) {
