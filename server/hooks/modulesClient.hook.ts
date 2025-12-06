@@ -13,15 +13,19 @@ export default class ModulesClientLifecycleHook extends LifecycleHook {
     public async onLoad(): Promise<void> {
         const vite = di.get<ViteService>(ViteService)
 
-        const clientFiles = [] as string[]
+        const mods = [] as any[]
 
         for (const mod of modules.mods) {
+            if (!mod.enabled) {
+                continue
+            }
+            
             if (fs.existsSync(mod.makePath('client/module.client.ts'))) {
-                clientFiles.push(mod.staticPath('client/module.client.ts'))
+                mods.push(mod)
             }
         }
         
-        vite.addState('modules:constructors', clientFiles)
+        vite.addState('modules', mods)
     }
 
     public async onBoot(): Promise<void> {}

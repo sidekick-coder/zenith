@@ -1,14 +1,25 @@
 import di from './utils/di'
+import ModulesService from './services/modules.service.ts'
+import ModulesBrowserService from './services/modulesBrowser.service.ts'
+import ModulesDevService from './services/modulesDev.service.ts'
 import config from '#client/facades/config.facade'
 import lifecycle from '#client/facades/lifecycle.facade.ts'
 import type LifecycleHook from '#shared/entities/lifecycleHook.entity.ts'
 import './imports'
 import './assets/styles.css'
 
-const state = (window as any).__INITIAL_STATE__ || {}
-
-di.load(state)
+di.load(window.__INITIAL_STATE__ || {})
 di.set('isServer', false)
+config.loadEntries(window.__CONFIG__ || [])
+
+const serviceOptions = {
+    debug: config.get('modules.debug') || config.get('app.debug')
+}
+
+di.set(ModulesService, import.meta.env.DEV 
+    ? new ModulesDevService(serviceOptions) 
+    : new ModulesBrowserService(serviceOptions)
+)
 
 const hooks = Object.values<any>(import.meta.glob('./hooks/**/*.hook.ts', { eager: true }))
     .map(hook => hook.default || hook) as LifecycleHook[]
@@ -16,13 +27,7 @@ const hooks = Object.values<any>(import.meta.glob('./hooks/**/*.hook.ts', { eage
 lifecycle.add(...hooks)
 
 
-for (const [key, value] of Object.entries(state.config || {})) {
-    config.entries.set(key, {
-        key,
-        value,
-        source: 'state'
-    })
-}
+
 
 await lifecycle.register()
 

@@ -1,3 +1,4 @@
+import type ModuleManifest from './moduleManifest.entity.ts'
 import LifecycleHook from '#shared/entities/lifecycleHook.entity.ts'
 import { BaseEntity } from '#shared/mixins/index.ts'
 import { compose, mixin } from '#shared/utils/compose.ts'
@@ -14,4 +15,10 @@ export default class Module extends compose(BaseEntity, mixin(LifecycleHook)) {
     public enabled: boolean = false
     public files: ModuleFile[] = []
     public dependencies: Record<string, any> = {}
+
+    public setData(data: Partial<Module | ModuleManifest>) {
+        Object.assign(this, data)
+
+        this.hook_id = `module:${this.id}`
+    }
 }

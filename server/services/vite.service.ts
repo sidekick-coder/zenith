@@ -15,6 +15,7 @@ import auth from '#server/facades/auth.facade.ts'
 import assets from '#server/facades/assets.facade.ts'
 import type User from '#server/entities/user.entity.ts'
 import Permission from '#server/entities/permission.entity.ts'
+import ConfigService from '#shared/services/config.service.ts'
 
 const isProduction = env.NODE_ENV === 'production'
 
@@ -49,7 +50,20 @@ export default class ViteService {
                 state.set(key, JSON.parse(JSON.stringify(value)))
             }
 
-            state.set('config', env.CLIENT_CONFIG || {})
+            const clientConfig = new ConfigService()
+
+            for (const [key, entry] of Object.entries(env.CLIENT_CONFIG || {})) {
+                clientConfig.entries.set(key, {
+                    key,
+                    value: entry,
+                    source: 'env'
+                })
+            }
+
+            clientConfig.set('site', config.get('site', {}))
+            clientConfig.set('branding', config.get('branding', {}))
+            clientConfig.set('auth', config.get('auth', {}))
+
             state.set('setup', config.get('setup') || {})
             state.set('permissions', [] as Permission[])
             state.set('client:setups:client', [] as string[])
@@ -74,9 +88,7 @@ export default class ViteService {
                 .map(f => f.src)
             )
 
-            state.set('config.site', config.get('site', {}))
-            state.set('config.branding', config.get('branding', {}))
-            state.set('config.auth', config.get('auth', {}))
+            
             state.set('preferences:dark_mode', false)
             
             const cookies = new CookieService(_request, response)
@@ -109,6 +121,7 @@ export default class ViteService {
                 url,
                 router,
                 state: {},
+                config: clientConfig,
                 logger: this.logger,
                 cookies:  cookies.toObject(),
             }
@@ -116,8 +129,6 @@ export default class ViteService {
             for (const [key, value] of state.entries()) {
                 ctx.state[key] = value
             }
-
-            console.log(ctx.state)
 
             const rendered = await render(ctx)
 
@@ -133,7 +144,10 @@ export default class ViteService {
             }
 
             // state
-            head += `<script>window.__INITIAL_STATE__ = ${JSON.stringify(ctx.state)}</script>`
+            head += `<script>
+                window.__INITIAL_STATE__ = ${JSON.stringify(ctx.state)}
+                window.__CONFIG__ = ${JSON.stringify(clientConfig.list())}
+            </script>`
 
             // Replace app-html first
             let html = template.replace('<!--app-html-->', body)

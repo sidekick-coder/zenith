@@ -13,6 +13,12 @@ export default class ConfigService {
         return Array.from(this.entries.values())
     }
 
+    public loadEntries(entries: Entry[]){
+        for(const entry of entries){
+            this.entries.set(entry.key, entry)
+        }
+    }
+
     public has(key: string): boolean {
         if (!key.includes('.')) {
             return this.entries.has(key)
@@ -52,7 +58,9 @@ export default class ConfigService {
         const primaryEntry = this.entries.get(primary)
 
         if (!primaryEntry) {
-            return defaultValue
+            const entry = this.entries.get(key)
+            
+            return entry ? entry.value : defaultValue
         }
 
         const value = primaryEntry.value

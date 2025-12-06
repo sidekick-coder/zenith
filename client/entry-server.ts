@@ -9,10 +9,14 @@ import lifecycle from './facades/lifecycle.facade.ts'
 import AppLifecycleHook from './hooks/app.hook.ts'
 import app from './facades/app.facade.ts'
 import router from './facades/router.facade.ts'
+import ModulesService from './services/modules.service.ts'
+import ModulesNodeService from './services/modulesNode.service.ts'
 import { flatten } from '#shared/utils/flatten.ts'
 import type LifecycleHook from '#shared/entities/lifecycleHook.entity.ts'
 import './imports'
 import './assets/styles.css'
+
+di.set(ModulesService, new ModulesNodeService())
 
 const hooks = Object.values<any>(import.meta.glob('./hooks/**/*.hook.ts', { eager: true }))
     .map(hook => hook.default || hook) as LifecycleHook[]
