@@ -14,6 +14,18 @@ export default class LifecycleService {
         this.logger = data.logger ?? new LoggerService()
     }
 
+    public list(){
+        const hooks = Array.from(this.hooks.values())
+        
+        hooks.sort((a, b) => {
+            const orderA = a.order ?? 0
+            const orderB = b.order ?? 0
+            return orderA - orderB
+        })
+
+        return hooks 
+    }
+
     public add(...payload: (LifecycleHook | Constructor<LifecycleHook>)[]): void {
         const instances: LifecycleHook[] = []
         
@@ -36,7 +48,7 @@ export default class LifecycleService {
     }
 
     public async register(): Promise<void> {
-        for (const hook of this.hooks.values()) {
+        for (const hook of this.list()) {
             const [error] = await tryCatch(() => hook.onRegister())
             
             if (error) {
@@ -52,7 +64,7 @@ export default class LifecycleService {
     }
 
     public async load(): Promise<void> {
-        for (const hook of this.hooks.values()) {
+        for (const hook of this.list()) {
             const [error] = await tryCatch(() => hook.onLoad())
             
             if (error) {
@@ -68,7 +80,7 @@ export default class LifecycleService {
     }
 
     public async boot(): Promise<void> {
-        for (const hook of this.hooks.values()) {
+        for (const hook of this.list()) {
             const [error] = await tryCatch(() => hook.onBoot())
             
             if (error) {
@@ -84,7 +96,7 @@ export default class LifecycleService {
     }
 
     public async shutdown(): Promise<void> {
-        for (const hook of this.hooks.values()) {
+        for (const hook of this.list()) {
             const [error] = await tryCatch(() => hook.onShutdown())
             
             if (error) {

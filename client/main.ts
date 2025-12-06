@@ -12,10 +12,9 @@ import di from './utils/di'
 import { $auth } from './composables/useAuth'
 import { $acl } from './composables/useAcl'
 import { listSetupFiles } from './utils/listSetupFiles'
+
 import { tryCatch } from '#shared/utils/tryCatch.ts'
-
 import './imports'
-
 import './assets/styles.css'
 
 export async function createApp() {

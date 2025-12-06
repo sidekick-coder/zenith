@@ -1,43 +1,70 @@
 import { createApp } from './main'
 import di from './utils/di'
-import config from './facades/config.facade'
+import RouterLifecycleHook from './hooks/router.hook.ts'
+import AppLifecycleHook from './hooks/app.hook.ts'
+import config from '#client/facades/config.facade'
+import lifecycle from '#client/facades/lifecycle.facade.ts'
+import router from '#client/facades/router.facade.ts'
+import app from '#client/facades/app.facade.ts'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
 
-export async function importDynamicModule(modulePath: string) {
-    const [error, mod] = await tryCatch(async () => await import(/* @vite-ignore */ modulePath + `?t=${Date.now()}`)) // bust cache
+const state = (window as any).__INITIAL_STATE__ || {}
 
-    if (error) return null
+di.load(state)
+di.set('isServer', false)
 
-    return mod
-}
-
-async function main(){
-    const state = (window as any).__INITIAL_STATE__ || {}
-    
-    di.load(state)
-    di.set('logger', console) // Set a default logger, can be replaced with a proper logger later
-    di.set('isServer', false)
-
-    for (const [key, value] of Object.entries(state.config || {})) {
-        config.entries.set(key, {
-            key,
-            value,
-            source: 'state'
-        })
-    }
-
-    const { app, router } = await createApp()
-    
-    await router.isReady()
-    
-    app.mount('#app')
-}
-
-main()
-
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js')
-            .catch(err => console.error('sw failed:', err))
+for (const [key, value] of Object.entries(state.config || {})) {
+    config.entries.set(key, {
+        key,
+        value,
+        source: 'state'
     })
 }
+
+lifecycle.add(RouterLifecycleHook, AppLifecycleHook)
+
+await lifecycle.register()
+
+await lifecycle.load()
+
+await lifecycle.boot()
+
+
+// export async function importDynamicModule(modulePath: string) {
+//     const [error, mod] = await tryCatch(async () => await import(/* @vite-ignore */ modulePath + `?t=${Date.now()}`)) // bust cache
+
+//     if (error) return null
+
+//     return mod
+// }
+
+// async function main(){
+//     const state = (window as any).__INITIAL_STATE__ || {}
+    
+//     di.load(state)
+//     di.set('logger', console) // Set a default logger, can be replaced with a proper logger later
+//     di.set('isServer', false)
+
+//     for (const [key, value] of Object.entries(state.config || {})) {
+//         config.entries.set(key, {
+//             key,
+//             value,
+//             source: 'state'
+//         })
+//     }
+
+//     const { app, router } = await createApp()
+    
+//     await router.isReady()
+    
+//     app.mount('#app')
+// }
+
+// main()
+
+// if ('serviceWorker' in navigator) {
+//     window.addEventListener('load', () => {
+//         navigator.serviceWorker.register('/sw.js')
+//             .catch(err => console.error('sw failed:', err))
+//     })
+// }
