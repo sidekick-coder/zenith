@@ -1,4 +1,4 @@
-import LoggerService from './logger.service.ts'
+import LoggerService from '#shared/services/logger.service.ts'
 import type LifecycleHook from '#shared/entities/lifecycleHook.entity.ts'
 import type { Constructor } from '#shared/utils/compose.ts'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
@@ -16,6 +16,7 @@ export default class LifecycleService {
 
     public add(...payload: (LifecycleHook | Constructor<LifecycleHook>)[]): void {
         const instances: LifecycleHook[] = []
+        
         for (const item of payload) {
             if (typeof item === 'function') {
                 instances.push(new item())
