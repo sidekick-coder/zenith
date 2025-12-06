@@ -10,35 +10,15 @@ import type { SetupServerParams } from '#server/utils/index.ts'
 import config from '#server/facades/config.facade.ts'
 import modules from '#server/facades/modules.facade.ts'
 import type Module from '#server/entities/module.entity.ts'
+import ViteService from '#server/services/vite.service.ts'
 
 export default class ModulesLifecycleHook extends LifecycleHook {
-    public mods: (Module & LifecycleHook)[] = []
-
     public async onRegister(): Promise<void> {
         await modules.discover()
 
-        for (const manifest of modules.manifests.values()) {
-            if (!manifest.enabled) {
-                continue
-            }
-        
-            const file = path.join(basePath('modules'), manifest.id, 'server/module.server.ts')
-        
-            if (!await fs.promises.stat(file).catch(() => false)) {
-                continue
-            }
+        await modules.loadModulesInstances()
 
-            const modImport = await import(file)
-            const ModClass = modImport.default || modImport
-
-            const modInstance = new ModClass() as any
-
-            Object.assign(modInstance, manifest)
-
-            this.mods.push(modInstance)
-        }
-
-        for (const mod of this.mods) {
+        for (const mod of modules.mods) {
             if (typeof mod.onRegister === 'function') {
                 await mod.onRegister()
             }
@@ -48,8 +28,8 @@ export default class ModulesLifecycleHook extends LifecycleHook {
     public async onLoad(): Promise<void> {
         const router = di.get<RouterRegister>(RouterSevice)
 
-        for (const mod of this.mods) {
-
+        for (const mod of modules.mods) {
+            // Load module routes
             const hook = (entry: RouterRegisterEntry) => {
                 entry.metadata.module = mod.id
             }
@@ -65,7 +45,7 @@ export default class ModulesLifecycleHook extends LifecycleHook {
     }
 
     public async onBoot(): Promise<void> {
-        for (const mod of this.mods) {
+        for (const mod of modules.mods) {
             if (typeof mod.onBoot === 'function') {
                 await mod.onBoot()
             }

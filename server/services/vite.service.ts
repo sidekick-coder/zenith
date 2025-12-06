@@ -21,7 +21,17 @@ const isProduction = env.NODE_ENV === 'production'
 export default class ViteService {
     public logger = logger.child({ label: 'vite' })
     public server: ViteDevServer | undefined
-    public debug = false
+    public debug: boolean
+    public state: Map<string, any>
+
+    constructor(data: Partial<ViteService> = {}) {
+        this.state = new Map<string, any>()
+        this.debug = data.debug ?? false
+    }
+
+    public addState(key: string, value: any) {
+        this.state.set(key, value)
+    }
 
     public async render(url: string, _request: Request, response: Response) {
         try {
@@ -33,79 +43,83 @@ export default class ViteService {
                 ? (await import(basePath('client-dist', 'server', 'entry-server.js'))).render
                 : (await this.server!.ssrLoadModule('/client/entry-server.ts')).render
 
-                
-            const state = {
-                'auth:user': null as User | null,
-                'config': env.CLIENT_CONFIG || {},
-                'setup': config.get('setup') || {},
-                'permissions': [] as Permission[],
-                'modules:enabled': [] as string[],
-                'client:setups:client': [] as string[],
-                'client:setups:server': [] as string[],
+            const state = new Map<string, any>()
 
-                'user:metas': {} as Record<string, any>,
+            for (const [key, value] of this.state.entries()) {
+                state.set(key, JSON.parse(JSON.stringify(value)))
             }
+
+            state.set('config', env.CLIENT_CONFIG || {})
+            state.set('setup', config.get('setup') || {})
+            state.set('permissions', [] as Permission[])
+            state.set('client:setups:client', [] as string[])
+            state.set('client:setups:server', [] as string[])
+            state.set('user:metas', {} as Record<string, any>)
 
             const mods = await modules.list({
                 enabled: true
             })
 
-            state['modules:enabled'] = mods.map(m => m.name)
+            state.set('modules:enabled', mods.map(m => m.name))
 
-            state['client:setups:client'] = mods
+            state.set('client:setups:client', mods
                 .flatMap(m => m.files)
                 .filter(f => f.type === 'setup:client' && f.context === 'client')
                 .map(f => f.src)
+            )
 
-            state['client:setups:server'] = mods
+            state.set('client:setups:server', mods
                 .flatMap(m => m.files)
                 .filter(f => f.type === 'setup:client' && f.context === 'server')
                 .map(f => f.src)
+            )
 
-            state.config.site = config.get('site', {})
-            state.config.branding = config.get('branding', {})
-            state.config.auth = config.get('auth', {})
+            state.set('config.site', config.get('site', {}))
+            state.set('config.branding', config.get('branding', {}))
+            state.set('config.auth', config.get('auth', {}))
+            state.set('preferences:dark_mode', false)
+            
+            const cookies = new CookieService(_request, response)
+            const token = cookies.get('Authorization', '') 
+                || _request.headers['authorization'] as string
+                || ''
 
-            if (state.setup.user) {
-                const token = 
-                    new CookieService(_request, response).get('Authorization', '') 
-                    || _request.headers['authorization'] as string
-                    || ''
-                
-                state['auth:user'] = await auth.authenticate(token)
+            if (token) {                
+                state.set('auth:user', await auth.authenticate(token))
             }
 
-            if (state['auth:user']) {
-                const permissions = Permission.applyContext(state['auth:user'].permissions, {
+            if (state.get('auth:user')) {
+                const user = state.get('auth:user') as User
+                const permissions = Permission.applyContext(user.permissions, {
                     auth: {
-                        user: state['auth:user']
+                        user: user
                     },
                 })
 
-                state['permissions'] = permissions
-                state['user:metas'] = await state['auth:user'].$metas.all()
+                const metas = await user.$metas.all()
+
+                state.set('permissions', permissions)
+                state.set('user:metas', metas)
+                state.set('preferences:dark_mode', metas['admin-ui:dark_mode'] ?? false)
             }
 
-            const log = (msg: string, opts?: any) => {
-                if (this.debug) {
-                    this.logger.debug(msg, opts)
-                }
-                
-                return logger
-            }
+            
 
-            const rendered = await render({
+            const ctx: Record<string, any> = {
                 url,
                 router,
-                state,
-                logger: {
-                    info: log,
-                    warn: log,
-                    error: log,
-                    debug: log,
-                },
-                cookies:  new CookieService(_request, response).toObject(),
-            })
+                state: {},
+                logger: this.logger,
+                cookies:  cookies.toObject(),
+            }
+
+            for (const [key, value] of state.entries()) {
+                ctx.state[key] = value
+            }
+
+            console.log(ctx.state)
+
+            const rendered = await render(ctx)
 
             let head = rendered.head ?? ''
             const body = rendered.html ?? ''
@@ -119,13 +133,13 @@ export default class ViteService {
             }
 
             // state
-            head += `<script>window.__INITIAL_STATE__ = ${JSON.stringify(state)}</script>`
+            head += `<script>window.__INITIAL_STATE__ = ${JSON.stringify(ctx.state)}</script>`
 
             // Replace app-html first
             let html = template.replace('<!--app-html-->', body)
             
             // Add dark class to html tag if dark mode is enabled
-            if (state['user:metas']['admin-ui:dark_mode']) {
+            if (state.get('preferences:dark_mode')) {
                 html = html.replace('<html', '<html class="dark"')
             }
             

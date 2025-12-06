@@ -11,6 +11,7 @@ import Module from '#server/entities/module.entity.ts'
 import type { ServerSetup, SetupServerParams } from '#server/utils/defineServerSetup.ts'
 import logger from '#server/facades/logger.facade.ts'
 import ModuleManifest from '#shared/entities/moduleManifest.entity.ts'
+import type LifecycleHook from '#shared/entities/lifecycleHook.entity.ts'
 
 interface UninstallOptions {
     rollback?: boolean
@@ -33,6 +34,7 @@ export default class ModulesService {
     public builder: ModuleBuilderService
     public hooks: ModuleHooksService
     public manifests: Map<string, ModuleManifest>
+    public mods: (Module & LifecycleHook)[] = []
     public logger = logger.child({ label: 'modules' })
     public debug = false
 
@@ -88,6 +90,29 @@ export default class ModulesService {
             if (this.debug) {
                 this.logger.debug(`discovered module '${name}'`, json)
             }
+        }
+    }
+
+    public async loadModulesInstances(){
+        for (const manifest of this.manifests.values()) {
+            if (!manifest.enabled) {
+                continue
+            }
+        
+            const file = path.join(basePath('modules'), manifest.id, 'server/module.server.ts')
+        
+            if (!await fs.promises.stat(file).catch(() => false)) {
+                continue
+            }
+
+            const modImport = await import(file)
+            const ModClass = modImport.default || modImport
+
+            const modInstance = new ModClass() as any
+
+            Object.assign(modInstance, manifest)
+
+            this.mods.push(modInstance)
         }
     }
 
