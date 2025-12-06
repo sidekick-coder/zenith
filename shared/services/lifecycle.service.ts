@@ -1,16 +1,17 @@
-import logger from '#server/facades/logger.facade.ts'
+import LoggerService from './logger.service.ts'
 import type LifecycleHook from '#shared/entities/lifecycleHook.entity.ts'
 import type { Constructor } from '#shared/utils/compose.ts'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
 
 export default class LifecycleService {
     public hooks: Map<string, LifecycleHook>
+    public logger: LoggerService
     public debug = false
-    public logger = logger.child({ label: 'lifecycle' })
 
     constructor(data: Partial<LifecycleService> = {}) {
         this.debug = data.debug ?? this.debug
         this.hooks = data.hooks ?? new Map()
+        this.logger = data.logger ?? new LoggerService()
     }
 
     public add(...payload: (LifecycleHook | Constructor<LifecycleHook>)[]): void {
