@@ -1,8 +1,7 @@
 <script lang="ts">
-import { computed, onMounted, onServerPrefetch, watch  } from 'vue'
+import { computed  } from 'vue'
 import type { PropType } from 'vue'
 import { get } from 'lodash-es'
-import { watchDebounced } from '@vueuse/core'
 import Checkbox from './ui/checkbox/Checkbox.vue'
 import DataTablePagination from './DataTablePagination.vue'
 import {
@@ -18,10 +17,7 @@ import {
     CardContent,
 } from '#client/components/ui/card'
 import { cn } from '#client/lib/utils.ts'
-import type Pagination from '#shared/entities/pagination.entity.ts'
-import { $fetch } from '#client/utils/fetcher.ts'
 import { useBreakpoints } from '#client/composables/useBreakpoint.ts'
-import { tryCatch } from '#shared/utils/tryCatch.ts'
 
 export interface DataTableFetchParams {
     page: number
@@ -34,10 +30,6 @@ export interface DataTableColumn<T extends Record<string, any> = any> {
     field?: keyof T | ((row: T) => any)
     width?: number
     cardClass?: string
-}
-
-interface DataTableFetchCallback {
-    (params: DataTableFetchParams): Promise<Pagination>
 }
 
 export function defineColumns<T extends Record<string, any> = any>(columns: DataTableColumn<T>[]){
@@ -69,22 +61,6 @@ const props = defineProps({
     },
     rowKey: {
         type: [String, Function] as PropType<string | ((row: T) => string | number)>,
-        default: null,
-    },
-    fetch: {
-        type: [String, Function] as PropType<string | DataTableFetchCallback>,
-        default: null
-    },
-    query: {
-        type: Object as PropType<Record<string, any>>,
-        default: () => ({}),
-    },
-    serialize: {
-        type: Function as PropType<(row: any) => T>,
-        default: (row: any) => row as T,
-    },
-    refine: {
-        type: Function as PropType<(rows: T[]) => T[]>,
         default: null,
     },
     filter: {
@@ -304,110 +280,6 @@ const total = defineModel('total', {
 const limit = defineModel('limit', {
     type: Number,
     default: 10,
-})
-
-async function load(){
-    if (!props.fetch) return
-    if (loading.value) return
-
-    if (typeof window !== 'undefined') {
-        window.scrollTo({
-            top: 0, 
-            behavior: 'smooth' 
-        })
-    }
-
-    loading.value = true 
-
-    let response: Pagination | null = null
-
-    if (typeof props.fetch === 'function') {
-        const callback = props.fetch as DataTableFetchCallback
-        
-        const [error, result] = await tryCatch(() => callback({
-            page: page.value,
-            limit: limit.value,
-        }))
-
-        if (error) {
-            loading.value = false
-            return
-        }
-
-        response = result
-    }
-
-    
-   
-
-    if (typeof props.fetch === 'string') {
-        const [error, result] = await $fetch.try<Pagination>(props.fetch, {
-            method: 'GET',
-            query: {
-                page: page.value,
-                limit: limit.value,
-                ...props.query,
-            }
-        })
-
-        if (error) {
-            loading.value = false
-            console.error(error)
-            return
-        }
-
-        response = result
-    }
-
-
-
-    if (!response) {
-        response = {
-            items: [],
-            page: 1,
-            per_page: 20,
-            total: 0,
-            total_pages: 1,
-        }
-    }
-
-    let items = Array.isArray(response.items) ? response.items : []
-
-    if (props.refine) {
-        items = props.refine(items as any[])
-    }
-
-    rows.value = items.map(i => props.serialize(i))
-    total.value = response.total || 0
-    limit.value = response.per_page || 20
-    page.value = response.page || 1
-    totalPages.value = response.total_pages || 1
-
-    
-    setTimeout(() => {
-        loading.value = false
-    }, 800)
-}
-function reset() {
-    if (page.value === 1) {
-        load()
-        return
-    }
-
-    page.value = 1
-}
-
-watch([page, limit], load)
-watchDebounced(() => props.query, reset, { 
-    deep: true,
-    debounce: 1000 
-})
-
-onMounted(load)
-
-defineExpose({ 
-    load,
-    reset
 })
 </script>
 

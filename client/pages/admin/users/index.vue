@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { toast } from 'vue-sonner'
-import type { ComponentExposed } from 'vue-component-type-helpers'
 import DataTable, { defineColumns } from '#client/components/DataTable.vue'
 import { $t } from '#shared/lang.ts'
 import AppLayout from '#client/layouts/AppLayout.vue'
@@ -17,11 +16,10 @@ import { useFetchPagination } from '#client/composables/useFetchPagination.ts'
 
 const loading = ref(false)
 
-const { items, total, load } = useFetchPagination<User>('/api/users', {
+const { items, total, load, reset } = useFetchPagination<User>('/api/users', {
     limit: 20,
 })
 
-const tableRef = ref<ComponentExposed<typeof DataTable>>()
 const deletingItems = ref<number[]>([])
 
 const columns = defineColumns([
@@ -48,10 +46,6 @@ const columns = defineColumns([
     },
     { id: 'actions' }
 ])
-
-function reset() {
-    tableRef.value?.reset()
-}
 
 async function destroy(id: number) {
     deletingItems.value.push(id)
