@@ -1,8 +1,7 @@
-import config from '#server/facades/config.facade.ts'
 import lifecycle from '#server/facades/lifecycle.facade.ts'
-import LifecycleService, { LifecycleHook } from '#server/services/lifecycle.service.ts'
 import { importAll } from '#server/utils/importAll.ts'
 import { basePath } from '#server/utils/paths.ts'
+import LifecycleHook from '#shared/entities/lifecycleHook.entity.ts'
 
 const mods = await importAll(basePath('server/hooks'))
 

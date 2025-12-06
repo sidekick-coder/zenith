@@ -1,11 +1,9 @@
 import config from '#server/facades/config.facade.ts'
 import di from '#server/facades/di.facade.ts'
 import DriveService from '#server/services/drive.service.ts'
-import { LifecycleHook } from '#server/services/lifecycle.service.ts'
+import LifecycleHook from '#shared/entities/lifecycleHook.entity.ts'
 
 export default class DriveLifecycleHook extends LifecycleHook {
-    public id = 'drive'
-
     public async onRegister(): Promise<void> {
         const service = new DriveService({
             debug: config.get('drive.debug') || config.get('app.debug'),

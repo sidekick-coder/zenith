@@ -1,26 +1,7 @@
 import logger from '#server/facades/logger.facade.ts'
+import type LifecycleHook from '#shared/entities/lifecycleHook.entity.ts'
 import type { Constructor } from '#shared/utils/compose.ts'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
-
-export class LifecycleHook {
-    public id = 'lifecycle-hook'
-
-    public async onRegister(): Promise<void> {
-        // Logic to execute when the service is loaded
-    }
-
-    public async onLoad(): Promise<void> {
-        // Logic to execute when the service is registered
-    }
-
-    public async onBoot(): Promise<void> {
-        // Logic to execute when the service is booting
-    }
-
-    public async onShutdown(): Promise<void> {
-        // Logic to execute when the service is shutting down
-    }
-}
 
 export default class LifecycleService {
     public hooks: Map<string, LifecycleHook>
@@ -44,10 +25,10 @@ export default class LifecycleService {
         }
 
         for (const hook of instances) {
-            this.hooks.set(hook.id, hook)
+            this.hooks.set(hook.hook_id, hook)
 
             if (this.debug) {
-                this.logger.debug('add ' + hook.id)
+                this.logger.debug('add ' + hook.hook_id)
             }
         }
     }
@@ -57,13 +38,13 @@ export default class LifecycleService {
             const [error] = await tryCatch(() => hook.onRegister())
             
             if (error) {
-                Object.assign(error, { hookId: hook.id })
-                this.logger.error('error in hook register:', error)
+                Object.assign(error, { hookId: hook.hook_id })
+                this.logger.error('error in hook register: ', error)
                 continue
             }
             
             if (this.debug) {
-                this.logger.debug('register' + hook.id)
+                this.logger.debug('register ' + hook.hook_id)
             }
         }
     }
@@ -73,13 +54,13 @@ export default class LifecycleService {
             const [error] = await tryCatch(() => hook.onLoad())
             
             if (error) {
-                Object.assign(error, { hookId: hook.id })
+                Object.assign(error, { hookId: hook.hook_id })
                 this.logger.error('error in hook load:', error)
                 continue
             }
             
             if (this.debug) {
-                this.logger.debug('load ' + hook.id)
+                this.logger.debug('load ' + hook.hook_id)
             }
         }
     }
@@ -89,13 +70,13 @@ export default class LifecycleService {
             const [error] = await tryCatch(() => hook.onBoot())
             
             if (error) {
-                Object.assign(error, { hookId: hook.id })
+                Object.assign(error, { hookId: hook.hook_id })
                 this.logger.error('error in hook boot:', error)
                 continue
             }
             
             if (this.debug) {
-                this.logger.debug('boot ' + hook.id)
+                this.logger.debug('boot ' + hook.hook_id)
             }
         }
     }
@@ -105,13 +86,13 @@ export default class LifecycleService {
             const [error] = await tryCatch(() => hook.onShutdown())
             
             if (error) {
-                Object.assign(error, { hookId: hook.id })
+                Object.assign(error, { hookId: hook.hook_id })
                 this.logger.error('error in hook shutdown:', error)
                 continue
             }
             
             if (this.debug) {
-                this.logger.debug('shutdown ' + hook.id)
+                this.logger.debug('shutdown ' + hook.hook_id)
             }
         }
     }

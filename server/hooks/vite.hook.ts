@@ -1,11 +1,9 @@
 import di from '#server/facades/di.facade.ts'
 import ExpressService from '#server/services/express.service.ts'
-import { LifecycleHook } from '#server/services/lifecycle.service.ts'
+import LifecycleHook from '#shared/entities/lifecycleHook.entity.ts'
 import ViteService from '#server/services/vite.service.ts'
 
-export default class AppLifecycleHook extends LifecycleHook {
-    public id = 'vite'
-
+export default class ViteLifecycleHook extends LifecycleHook {
     public async onRegister(): Promise<void> {
         di.singleton(ViteService)
     }

@@ -1,7 +1,8 @@
+import type { LifecycleHook } from '#shared/services/lifecycle.service.ts'
 import type { Constructor } from '#shared/utils/compose.ts'
 
 export function Lifecycle<T extends Constructor>(base: T) {
-    return class extends base {
+    return class extends base implements LifecycleHook {
         public id = 'lifecycle-hook'
 
         public async onRegister(): Promise<void> {

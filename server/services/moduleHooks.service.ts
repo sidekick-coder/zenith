@@ -1,12 +1,9 @@
 import fs from 'fs'
 import path from 'path'
-import { LifecycleHook } from './lifecycle.service.ts'
+import LifecycleHook from '#shared/entities/lifecycleHook.entity.ts'
 import logger from '#server/facades/logger.facade.ts'
 import shell from '#server/facades/shell.facade.ts'
-import {
-    basePath,
-    tmpPath
-} from '#server/utils/paths.ts'
+import { basePath } from '#server/utils/paths.ts'
 import type ModuleManifest from '#shared/entities/moduleManifest.entity.ts'
 import { importFiles } from '#server/utils/importAll.ts'
 

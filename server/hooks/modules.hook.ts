@@ -1,7 +1,7 @@
 import path from 'path'
 import fs from 'fs'
 import di from '#server/facades/di.facade.ts'
-import { LifecycleHook } from '#server/services/lifecycle.service.ts'
+import LifecycleHook from '#shared/entities/lifecycleHook.entity.ts'
 import RouterSevice from '#server/services/router.service.ts'
 import RouterRegister from '#server/services/routerRegister.service.ts'
 import type { RouterRegisterEntry } from '#server/services/routerRegister.service.ts'
@@ -12,7 +12,6 @@ import modules from '#server/facades/modules.facade.ts'
 import type Module from '#server/entities/module.entity.ts'
 
 export default class ModulesLifecycleHook extends LifecycleHook {
-    public id = 'modules'
     public mods: (Module & LifecycleHook)[] = []
 
     public async onRegister(): Promise<void> {

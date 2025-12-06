@@ -1,11 +1,9 @@
 import config from '#server/facades/config.facade.ts'
 import di from '#server/facades/di.facade.ts'
 import DatabaseService from '#server/services/database.service.ts'
-import { LifecycleHook } from '#server/services/lifecycle.service.ts'
+import LifecycleHook from '#shared/entities/lifecycleHook.entity.ts'
 
 export default class DatabaseLifecycleHook extends LifecycleHook {
-    public id = 'database'
-
     public async onRegister(): Promise<void> {
         const service = new DatabaseService({
             dialect: DatabaseService.memoryDialect,

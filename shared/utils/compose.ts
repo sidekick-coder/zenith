@@ -21,7 +21,7 @@ export type Mixin<T> = (base: Constructor) => Constructor<T>
  * ```
  */
 export function compose<
-    M extends Array<(base: Constructor) => Constructor<any>>
+    M extends Array<(base: Constructor<any>) => Constructor<any>>
 >(...mixins: M): UnionToIntersection<ReturnType<M[number]>> {
     return mixins.reduce((base, mixin) => mixin(base), class {} as any) as any
 }
@@ -50,4 +50,29 @@ export function composeWith<
     ...mixins: M
 ): TBase & UnionToIntersection<ReturnType<M[number]>> {
     return mixins.reduce((base, mixin) => mixin(base), baseClass as any) as any
+}
+
+export function mixin<TBase extends Constructor>(Source: TBase) {
+    return function <TTarget extends Constructor>(Target: TTarget) {
+        class Mixed extends Target {
+            constructor(...args: any[]) {
+                super(...args)
+                const source = new Source(...args)
+                Object.assign(this, source)
+            }
+        }
+
+        // Copy methods
+        for (const key of Reflect.ownKeys(Source.prototype)) {
+            if (key !== 'constructor') {
+                Object.defineProperty(
+                    Mixed.prototype,
+                    key,
+                    Object.getOwnPropertyDescriptor(Source.prototype, key)!
+                )
+            }
+        }
+
+        return Mixed as TTarget & TBase
+    }
 }

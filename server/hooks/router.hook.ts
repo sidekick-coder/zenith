@@ -1,6 +1,6 @@
 import di from '#server/facades/di.facade.ts'
 import RouterSevice from '#server/services/router.service.ts'
-import { LifecycleHook } from '#server/services/lifecycle.service.ts'
+import LifecycleHook from '#shared/entities/lifecycleHook.entity.ts'
 import RouterRegister from '#server/services/routerRegister.service.ts'
 import { serverPath } from '#server/utils/paths.ts'
 import config from '#server/facades/config.facade.ts'
@@ -9,8 +9,6 @@ import authSilenceMiddleware from '#server/middlewares/authSilence.middleware.ts
 import authorizationMiddleware from '#server/middlewares/authorization.middleware.ts'
 
 export default class RouterLifecycleHook extends LifecycleHook {
-    public id = 'router'
-
     public async onRegister(): Promise<void> {
         const router = new RouterRegister({
             debug: config.get('router.debug') || config.get('app.debug') || false,
