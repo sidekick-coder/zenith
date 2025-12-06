@@ -22,7 +22,7 @@ const { items, total, load } = useFetchPagination<User>('/api/users', {
 })
 
 const tableRef = ref<ComponentExposed<typeof DataTable>>()
-const deletingItems = ref<string[]>([])
+const deletingItems = ref<number[]>([])
 
 const columns = defineColumns([
     {
@@ -53,8 +53,9 @@ function reset() {
     tableRef.value?.reset()
 }
 
-async function destroy(id: string) {
+async function destroy(id: number) {
     deletingItems.value.push(id)
+    
     const [error] = await tryCatch(() => $fetch(`/api/users/${id}`, { method: 'DELETE', }))
 
     if (error) {

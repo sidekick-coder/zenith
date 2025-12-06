@@ -36,9 +36,9 @@ export function useFetchPagination<T = any>(url: string, options: UseFetchPagina
         set: (value) => { response.value.per_page = value }
     })
 
-    const total = readonly(computed(() => response.value.total))
-    const totalPages = readonly(computed(() => response.value.total_pages))
-    const items = readonly(computed(() => {
+    const total = computed(() => response.value.total)
+    const totalPages = computed(() => response.value.total_pages)
+    const items = computed(() => {
         let items = Array.isArray(response.value.items) ? response.value.items : []
 
         if (options.refine) {
@@ -50,7 +50,7 @@ export function useFetchPagination<T = any>(url: string, options: UseFetchPagina
         }
 
         return items as T[]
-    }))
+    })
 
     async function load() {
         if (loading.value) return
