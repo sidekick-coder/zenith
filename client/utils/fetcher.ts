@@ -1,9 +1,10 @@
 import { toast } from 'vue-sonner'
 import di from './di'
 import { $t } from '#shared/lang'
-import type Router from '#server/services/router.service'
+import type Router from '#server/services/router.service.ts'
 import CookieService from '#shared/services/cookie.service'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
+import Route from '#server/entities/route.entity.ts'
 
 interface Options extends RequestInit {
     query?: Record<string, any>
@@ -80,8 +81,8 @@ export function createServerFetcher(router: Router, cookies: Record<string, stri
         }
 
         const result = await router.execute(route,{
-            params: router.extractParams(route.path, url),
-            query: options.query || router.extractQuery(url),
+            params: Route.params(route.path, url),
+            query: options.query || Route.query(url),
             body: options.data || options.body,
             url: url,
             method: method.toLowerCase(),

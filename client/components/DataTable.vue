@@ -1,5 +1,5 @@
 <script lang="ts">
-import { computed, watch  } from 'vue'
+import { computed, onMounted, onServerPrefetch, watch  } from 'vue'
 import type { PropType } from 'vue'
 import { get } from 'lodash-es'
 import { watchDebounced } from '@vueuse/core'
@@ -311,10 +311,12 @@ async function load(){
     if (!props.fetch) return
     if (loading.value) return
 
-    window.scrollTo({
-        top: 0, 
-        behavior: 'smooth' 
-    })
+    if (typeof window !== 'undefined') {
+        window.scrollTo({
+            top: 0, 
+            behavior: 'smooth' 
+        })
+    }
 
     loading.value = true 
 
@@ -336,6 +338,9 @@ async function load(){
         response = result
     }
 
+    
+   
+
     if (typeof props.fetch === 'string') {
         const [error, result] = await $fetch.try<Pagination>(props.fetch, {
             method: 'GET',
@@ -348,11 +353,14 @@ async function load(){
 
         if (error) {
             loading.value = false
+            console.error(error)
             return
         }
 
         response = result
     }
+
+
 
     if (!response) {
         response = {
@@ -390,18 +398,18 @@ function reset() {
     page.value = 1
 }
 
-watch([page, limit], load, { immediate: true })
+watch([page, limit], load)
 watchDebounced(() => props.query, reset, { 
     deep: true,
     debounce: 1000 
 })
 
+onMounted(load)
 
 defineExpose({ 
     load,
     reset
 })
-
 </script>
 
 <template>

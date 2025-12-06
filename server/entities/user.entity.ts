@@ -151,4 +151,21 @@ export default class User extends composeWith(
         })
     }
 
+    public toJSON() {
+        const json = JSON.parse(JSON.stringify({
+            id: this.id,
+            username: this.username,
+            email: this.email,
+            name: this.name,
+            created_at: this.created_at,
+            updated_at: this.updated_at,
+            roles: this.roles,
+            permissions: this.permissions,
+        }))
+
+        delete json.password
+
+        return json
+    }
+
 }

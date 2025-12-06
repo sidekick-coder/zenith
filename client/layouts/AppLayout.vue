@@ -203,10 +203,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <SidebarProvider
-        v-if="!loading"
-        v-model:open="open"
-    >
+    <SidebarProvider v-model:open="open">
         <Sidebar
             collapsible="icon"
             variant="inset"

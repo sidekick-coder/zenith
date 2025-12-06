@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { watch, ref } from 'vue'
+import { ref, onServerPrefetch } from 'vue'
 import { toast } from 'vue-sonner'
 import type { ComponentExposed } from 'vue-component-type-helpers'
 import DataTable, { defineColumns } from '#client/components/DataTable.vue'
@@ -8,13 +8,11 @@ import AppLayout from '#client/layouts/AppLayout.vue'
 import { $fetch } from '#client/utils/fetcher.ts'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
 import UserDialog from '#client/components/UserDialog.vue'
-import ClientOnly from '#client/components/ClientOnly.vue'
 import Button from '#client/components/Button.vue'
 import Icon from '#client/components/Icon.vue'
 import AlertButton from '#client/components/AlertButton.vue'
+import ClientOnly from '#client/components/ClientOnly.vue'
 
-const items = ref([])
-const page = ref(1)
 const loading = ref(false)
 const tableRef = ref<ComponentExposed<typeof DataTable>>()
 const deletingItems = ref<string[]>([])
@@ -49,8 +47,7 @@ function load(){
 }
 
 function reset() {
-    page.value = 1
-    return load()
+    tableRef.value?.reset()
 }
 
 async function destroy(id: string) {
@@ -67,10 +64,7 @@ async function destroy(id: string) {
         toast.success($t('User deleted successfully.'))
         reset()
     }, 1000)
-
 }
-
-watch(page, load, { immediate: true })
 </script>
 <template>
     <AppLayout>
@@ -90,12 +84,12 @@ watch(page, load, { immediate: true })
                         :class="{ 'animate-spin': loading }"
                     />
                 </Button>
+
                 <ClientOnly>
                     <UserDialog @submit="reset" />
                 </ClientOnly>
             </div>
         </div>
-
         <DataTable
             ref="tableRef"
             v-model:loading="loading"
@@ -111,7 +105,7 @@ watch(page, load, { immediate: true })
                     >
                         <Icon name="edit" />
                     </Button>
-
+    
                     <AlertButton 
                         variant="ghost"
                         size="sm"

@@ -121,7 +121,7 @@ export default class ViteService {
                 url,
                 router,
                 state: {},
-                config: clientConfig,
+                config: clientConfig.list(),
                 logger: this.logger,
                 cookies:  cookies.toObject(),
             }
@@ -159,6 +159,7 @@ export default class ViteService {
             
             // Find the last script or link tag in head and insert our head content after it
             const headEndIndex = html.indexOf('</head>')
+            
             if (headEndIndex !== -1) {
                 html = html.slice(0, headEndIndex) + head + '\n  ' + html.slice(headEndIndex)
             }
