@@ -1,5 +1,5 @@
-import Container from '#shared/container'
+import DIService from '#shared/services/di.service.ts'
 
-const di = new Container()
+const di = new DIService()
 
 export default di

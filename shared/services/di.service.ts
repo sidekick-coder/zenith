@@ -2,21 +2,34 @@ type Constructor<T = object> = new (...args: any[]) => T
 
 type EntryKey = string | symbol | Constructor
 
-export default class Container {
+export default class DIService {
     private entries = new Map<EntryKey, any>()
 
-    public set(key: EntryKey, value: any): void {
+    public set(payload: EntryKey, value: any): void {
+        let key = payload
+
+        if (typeof payload === 'function' || typeof payload === 'object') {
+            key = payload.name
+        }
+
         this.entries.set(key, value)
     }
 
-    public has(key: EntryKey): boolean {
+    public has(payload: EntryKey): boolean {
+        let key = payload
+
+        if (typeof payload === 'function' || typeof payload === 'object') {
+            key = payload.name
+        }
+
         return this.entries.has(key)
     }
 
-    public get<T>(key: EntryKey, defaultValue?: T): T {
+    public get<T>(payload: EntryKey): T {
+        let key = payload
 
-        if (!this.has(key) && defaultValue !== undefined) {
-            return defaultValue
+        if (typeof payload === 'function' || typeof payload === 'object') {
+            key = payload.name
         }
 
         if (!this.has(key)) {
@@ -52,8 +65,9 @@ export default class Container {
         return new Proxy({}, {
             get: (_target, prop) => {
                 const entry = this.get<T>(key) as any
+                const value = entry[prop]
 
-                if (typeof entry[prop] === 'function') {
+                if (typeof value === 'function') {
                     return (...args: any[]) => entry[prop].bind(entry)(...args)
                 }
 
@@ -67,5 +81,9 @@ export default class Container {
                 return true
             }
         }) as T
+    }
+
+    public keys(): EntryKey[] {
+        return Array.from(this.entries.keys())
     }
 }
