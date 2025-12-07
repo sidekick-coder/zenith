@@ -39,7 +39,6 @@ export default defineConfig({
                 '**/server',
                 '**/storage',
                 '**/modules/**/server',
-                '**/shared/**/server',
             ]
         }
     }

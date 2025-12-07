@@ -7,6 +7,8 @@ export default class ModulesLifecycleHook extends LifecycleHook {
 
     public async onRegister(): Promise<void> {
         await modules.discover()
+
+        await modules.load()
         
         for await (const mod of modules.mods) {
             const [error] = await tryCatch(() =>  mod.onRegister())

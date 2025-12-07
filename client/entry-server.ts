@@ -65,9 +65,11 @@ export async function render(context: RenderContext) {
         debug: config.get('modules.debug') || config.get('app.debug')
     }
 
-    di.set(ModulesService, import.meta.env.DEV 
-        ? new ModulesDevService(serviceOptions) 
-        : new ModulesNodeService(serviceOptions)
+    const useNodeService = config.get('modules.node.service') === 'node' || import.meta.env.DEV
+
+    di.set(ModulesService, useNodeService
+        ? new ModulesNodeService(serviceOptions)
+        : new ModulesDevService(serviceOptions)
     )
 
     await lifecycle.register()
