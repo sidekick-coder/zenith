@@ -31,4 +31,10 @@ export default class AppLifecycleHook extends LifecycleHook {
 
         app.mount('#app')
     }
+
+    public async onShutdown(): Promise<void> {
+        const app = di.get<VueApp>('app')
+
+        app.unmount()
+    }
 }

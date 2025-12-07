@@ -1,11 +1,16 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 
-const ssr = import.meta.env.SSR
+const show = ref(false)
+
+onMounted(() => {
+    show.value = true
+})
 </script>
 <template>
-    <slot v-if="!ssr" />
-    <div v-else>
-        <slot name="fallback" />
-    </div>
+    <slot v-if="show" />
+    <slot
+        v-else
+        name="fallback"
+    />
 </template>

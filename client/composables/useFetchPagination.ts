@@ -18,7 +18,6 @@ export function useFetchPagination<T = any>(url: string, options: UseFetchPagina
         default: () => ({
             items: [],
             page: 1,
-            per_page: options.limit || 10,
             total: 0,
             total_pages: 1,
         })
@@ -31,10 +30,7 @@ export function useFetchPagination<T = any>(url: string, options: UseFetchPagina
         set: (value) => { response.value.page = value }
     })
 
-    const limit = computed({
-        get: () => response.value.per_page,
-        set: (value) => { response.value.per_page = value }
-    })
+    const limit = ref(options.limit || 10)
 
     const total = computed(() => response.value.total)
     const totalPages = computed(() => response.value.total_pages)
@@ -56,8 +52,6 @@ export function useFetchPagination<T = any>(url: string, options: UseFetchPagina
         if (loading.value) return
 
         loading.value = true
-        
-
 
         const [error, result] = await $fetch.try<Pagination>(url, {
             method: 'GET',

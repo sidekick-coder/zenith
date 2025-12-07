@@ -37,4 +37,10 @@ export default class RouterLifecycleHook extends LifecycleHook {
 
         await router.load()
     }
+    
+    public async onShutdown(): Promise<void> {
+        const router = di.get<RouterRegister>(RouterSevice)
+
+        await router.clear()
+    }
 }

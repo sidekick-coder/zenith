@@ -3,7 +3,6 @@ import { program } from 'commander'
 import { importAll } from '#server/utils/importAll.ts'
 import { basePath } from '#server/utils/paths.ts'
 import config from '#server/facades/config.facade.ts'
-import lifecycle from '#server/facades/lifecycle.facade.ts'
 
 await importAll(basePath('server/commands'))
 
@@ -28,17 +27,5 @@ for await (const name of moduleNames) {
         }
     }
 }
-
-program.hook('preAction', async () => {    
-    await lifecycle.register()
-
-    await lifecycle.load()
-
-    await lifecycle.boot()
-})
-
-program.hook('postAction', async () => {
-    await lifecycle.shutdown()
-})
 
 program.parse()

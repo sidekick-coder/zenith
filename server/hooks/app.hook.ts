@@ -31,6 +31,11 @@ export default class AppLifecycleHook extends LifecycleHook {
     
     public async onBoot(): Promise<void> {
         app.routes()
+
         await app.start()
+    }
+
+    public async onShutdown(): Promise<void> {
+        await app.stop()
     }
 }
