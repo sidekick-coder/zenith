@@ -168,10 +168,10 @@ export default class ModuleBuilderService {
                     }
                 },
                 lib: {
-                    entry: path.join(moduleDir, 'client/setup.client.ts'),
-                    name: 'setupClient',
+                    entry: path.join(moduleDir, 'client/module.client.ts'),
+                    name: 'module',
                     formats: ['es'] as const,
-                    fileName: () => 'setup.client.js' // <— force deterministic name
+                    fileName: () => 'module.client.js' // <— force deterministic name
                 },
             },
         }
