@@ -16,6 +16,7 @@ import ModulesDevService from './services/modulesDev.service.ts'
 import type LifecycleHook from '#shared/entities/lifecycleHook.entity.ts'
 import './imports'
 import './assets/styles.css'
+import ViteEntryPointService from '#shared/services/viteEntryPoint.service.ts'
 
 const hooks = Object.values<any>(import.meta.glob('./hooks/**/*.hook.ts', { eager: true }))
     .map(hook => hook.default || hook) as LifecycleHook[]
@@ -36,7 +37,6 @@ interface RenderContext {
     cookies: Record<string, string>;
     logger: Logger
     container: Record<string, any>;
-    config: Record<string, any>;
 }
 
 
@@ -48,17 +48,14 @@ export async function importDynamicModule(modulePath: string) {
     return await import(/* @vite-ignore */ fileUrl + `?t=${Date.now()}`) // bust cache
 }
 
-
 export async function render(context: RenderContext) {
     const url = context.url
     const serverRouter = context.router
 
     di.loadFromRecord(context.container)
-    config.loadFromRecord(context.config || {})
+    
     
     di.set('fetcher', createServerFetcher(serverRouter, context.cookies))
-    di.set('logger', context.logger)
-    di.set('isServer', true)
     di.set('state', {})
 
     const serviceOptions = {
@@ -97,5 +94,13 @@ export async function render(context: RenderContext) {
         
     return { 
         html,
+    }
+}
+
+export default class EntryNode extends ViteEntryPointService {
+    public load: ViteEntryPointService['load'] = async (options) => {
+        config.loadFromRecord(options.config || {})
+        di.set('logger', options.logger)
+        di.set('isServer', true)
     }
 }

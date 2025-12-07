@@ -138,4 +138,8 @@ export default class LifecycleService {
         }
     }
 
+    public clear(): void {
+        this.hooks.clear()
+    }
+
 }

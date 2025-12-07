@@ -4,6 +4,12 @@ import { importAll } from '#server/utils/importAll.ts'
 import { basePath } from '#server/utils/paths.ts'
 import config from '#server/facades/config.facade.ts'
 
+// handle unhandled rejections
+process.on('unhandledRejection', (reason: any, promise) => {
+    console.error('Unhandled Rejection at:', promise, 'reason:', reason)
+})
+
+
 await importAll(basePath('server/commands'))
 
 const modulesPath = basePath('modules')

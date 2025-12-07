@@ -8,17 +8,16 @@ import LifecycleService from '#shared/services/lifecycle.service.ts'
 import LifecycleHook from '#shared/entities/lifecycleHook.entity.ts'
 import config from '#server/facades/config.facade.ts'
 
-let lifecycle: LifecycleService
+const lifecycle = new LifecycleService({
+    logger: logger.child({ label: 'lifecycle' }),
+})
 
 async function init(){
     env.load()
 
     config.load()
 
-    lifecycle = new LifecycleService({
-        debug: config.get('lifecycle.debug') || config.get('app.debug'),
-        logger: logger.child({ label: 'lifecycle' }),
-    })
+    lifecycle.debug = config.get('lifecycle.debug') || config.get('app.debug')
 
     const mods = await importAll(basePath('server/hooks'), {
         cache: false

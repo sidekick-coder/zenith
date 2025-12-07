@@ -141,16 +141,23 @@ export default class ExpressService {
     }
 
     public stop(){
-        if (!this.server) {
-            this.logger.warn('server is not running')
-            return
-        }
+        return new Promise<void>((resolve) => {
+            if (!this.server) {
+                this.logger.warn('server is not running')
+                return resolve()
+            }
 
-        this.server.close()
+            this.server.on('close', () => {
+                resolve()
 
-        this.logger.info('server stopped', {
-            pid: process.pid,
-            env: env.get('NODE_ENV'),
+                this.logger.info('server stopped', {
+                    pid: process.pid,
+                    env: env.get('NODE_ENV'),
+                })
+            })
+    
+            this.server.close()
+    
         })
     }
 }

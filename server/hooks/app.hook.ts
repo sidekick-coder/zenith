@@ -1,21 +1,23 @@
 import config from '#server/facades/config.facade.ts'
 import di from '#server/facades/di.facade.ts'
-import app from '#server/facades/app.facade.ts'
 import ExpressService from '#server/services/express.service.ts'
 import RouterRegister from '#server/services/routerRegister.service.ts'
 import RouterService from '#server/services/router.service.ts'
 import LifecycleHook from '#shared/entities/lifecycleHook.entity.ts'
 
 export default class AppLifecycleHook extends LifecycleHook {
+    public order = 99
     public async onRegister(): Promise<void> {
-        di.singleton(ExpressService)
+        const service = new ExpressService()
+
+        di.set(ExpressService, service)
 
         const origins = config.get('cors.origins', '')
             .split(',')
             .map((o: string) => o.trim())
             .filter((o: string) => o.length > 0)
     
-        app.cors({
+        service.cors({
             credentials: true,
             origin: origins.length > 0 ? origins : undefined,
         })
@@ -23,19 +25,23 @@ export default class AppLifecycleHook extends LifecycleHook {
     }
 
     public async onLoad(): Promise<void> {
-        const app = di.get<ExpressService>(ExpressService)
+        const service = di.get<ExpressService>(ExpressService)
         const router = di.get<RouterRegister>(RouterService)
 
-        app.router = router
+        service.router = router
     }
     
     public async onBoot(): Promise<void> {
-        app.routes()
+        const service = di.get<ExpressService>(ExpressService)
+        
+        service.routes()
 
-        await app.start()
+        await service.start()
     }
 
     public async onShutdown(): Promise<void> {
-        await app.stop()
+        const service = di.get<ExpressService>(ExpressService)
+
+        await service.stop()
     }
 }

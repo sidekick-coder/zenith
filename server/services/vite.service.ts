@@ -1,4 +1,5 @@
 import fs from 'fs'
+import { stripVTControlCharacters } from 'util'
 import type { Application } from 'express'
 import { createLogger, createServer as createViteServer  } from 'vite'
 import type { ViteDevServer } from 'vite'
@@ -16,10 +17,12 @@ import type User from '#server/entities/user.entity.ts'
 import Permission from '#server/entities/permission.entity.ts'
 import ConfigService from '#shared/services/config.service.ts'
 import DIService from '#shared/services/di.service.ts'
+import type ViteEntryPointService from '#shared/services/viteEntryPoint.service.ts'
 
 export default class ViteService {
     public logger = logger.child({ label: 'vite' })
     public server: ViteDevServer | undefined
+    public entrypoint: ViteEntryPointService | null = null
     public debug: boolean
     public container: Map<string, any>
 
@@ -32,7 +35,88 @@ export default class ViteService {
         this.container.set(key, value)
     }
 
-    public async render(url: string, _request: Request, response: Response) {
+    public async loadEntryNode(){
+        if (this.debug) {
+            this.logger.debug('loading vite entrypoint')
+        }
+
+        let mod: { default: typeof ViteEntryPointService } | null = null
+
+        if (env.get('NODE_ENV') == 'production') {
+            mod = await import(basePath('client-dist', 'node', 'entry-server.js'))
+        }
+
+        if (this.server && env.get('NODE_ENV') !== 'production') {
+            mod = await this.server.ssrLoadModule('/client/entry-server.ts') as any
+        }
+
+        if (!mod) {
+            throw new Error('Failed to load Vite entrypoint module')
+        }
+
+        this.entrypoint = new mod.default()
+
+        if (!this.entrypoint) {
+            throw new Error('Failed to load Vite entrypoint')
+        }
+
+        const clientConfig = new ConfigService()
+
+        clientConfig.loadFromEntries(Object.entries(env.get('CLIENT_CONFIG') || {}), 'env')
+
+        clientConfig.set('site', config.get('site', {}))
+        clientConfig.set('branding', config.get('branding', {}))
+        clientConfig.set('auth', config.get('auth', {}))
+
+        const options = {
+            config: clientConfig.toRecord(),
+            logger: this.logger,
+        }
+
+        await this.entrypoint.load(options)
+    }
+
+    public async loadServer(app: Application) {
+        if (env.get('NODE_ENV') === 'production') {
+            app.use(express.static(basePath('client-dist', 'browser')))
+            return
+        }
+        
+        const viteLogger = createLogger()
+
+        const log: typeof viteLogger.info = (msg, opts) => {
+            const sanitizedMsg = stripVTControlCharacters(msg)
+
+            if (this.debug) {
+                this.logger.debug(sanitizedMsg, opts)
+            }
+        }
+
+        viteLogger.info = (msg, opts) => log(msg, opts)
+        viteLogger.warn = (msg, opts) => log(msg, opts)
+        viteLogger.error = (msg, opts) => log(msg, opts)
+
+        this.server = await createViteServer({
+            customLogger: viteLogger,
+            server: { middlewareMode: true },
+            appType: 'custom',
+            publicDir: 'client/public',
+            resolve: {
+                alias: {
+                    'vue': 'vue/dist/vue.esm-bundler.js',
+                }
+            }
+        })
+
+        app.use(this.server.middlewares)
+    }
+
+    public async load(app: Application) {
+        await this.loadServer(app)
+        await this.loadEntryNode()
+    }
+
+    public async handle(url: string, _request: Request, response: Response) {
         try {
             const template = env.get('NODE_ENV') === 'production' 
                 ? fs.readFileSync(basePath('client-dist', 'browser', 'client', 'index.html'), 'utf-8')
@@ -162,43 +246,15 @@ export default class ViteService {
         return html
     }
     
-    public async load(app: Application) {
-        if (env.get('NODE_ENV') !== 'production') {
-            const viteLogger = createLogger()
-
-            const log: typeof viteLogger.info = (msg, opts) => {
-                if (this.debug) {
-                    this.logger.debug(msg, opts)
-                }
-            }
-
-            viteLogger.info = (msg, opts) => log(msg, opts)
-            viteLogger.warn = (msg, opts) => log(msg, opts)
-            viteLogger.error = (msg, opts) => log(msg, opts)
-
-            this.server = await createViteServer({
-                customLogger: viteLogger,
-                server: { middlewareMode: true },
-                appType: 'custom',
-                publicDir: 'client/public',
-                resolve: {
-                    alias: {
-                        'vue': 'vue/dist/vue.esm-bundler.js',
-                    }
-                }
-            })
-
-            app.use(this.server.middlewares)
-        }
-
-        if (env.get('NODE_ENV') === 'production') {
-            app.use(express.static(basePath('client-dist', 'browser')))
-        }
-    }
+    
 
     public async close() {
-        if (this.server) {
-            await this.server.close()
+        if (!this.server) return
+        
+        await this.server.close()
+
+        if (this.debug) {
+            this.logger.debug('vite server closed')
         }
     }
 }

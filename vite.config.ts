@@ -1,15 +1,6 @@
-import { createLogger, defineConfig } from 'vite'
+import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import tailwindcss from '@tailwindcss/vite'
-import logger from './server/facades/logger.facade.ts'
-
-// const viteLogger = createLogger()
-
-// const childLogger = logger.child({ label: 'vite' })
-
-// viteLogger.info = (msg, opts) => childLogger.debug(msg, opts)
-// viteLogger.warn = (msg, opts) => childLogger.debug(msg, opts)
-// viteLogger.error = (msg, opts) => childLogger.debug(msg, opts)
 
 
 let allowedHosts = [
@@ -25,7 +16,6 @@ if (process.env.VITEST_ALLOWED_HOSTS) {
 
 export default defineConfig({
     clearScreen: false,
-    // customLogger: viteLogger,
     plugins: [
         vue({
             template: {
@@ -41,11 +31,13 @@ export default defineConfig({
         allowedHosts,
         watch: {
             ignored: [
-                // '**/shared',
+                '**/shared',
                 '**/server',
                 '**/storage',
                 '**/modules/**/server',
-                '.env'
+                '**/.env', // Ignores .env files in the root and subdirectories
+                '**/.env.*', // Ignores all .env-related files (e.g., .env.local, .env.development)
+                '**/vite.config.*', // Ignores Vite config files
             ]
         }
     }
