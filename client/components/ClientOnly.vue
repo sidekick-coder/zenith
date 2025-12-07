@@ -1,18 +1,11 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 
-const show = ref(false)
-
-onMounted(() => {
-    show.value = true
-})
+const ssr = import.meta.env.SSR
 </script>
 <template>
-    <slot v-if="show" />
-    <div
-        v-else
-        data-allow-mismatch
-    >
+    <slot v-if="!ssr" />
+    <div v-else>
         <slot name="fallback" />
     </div>
 </template>

@@ -27,7 +27,13 @@ export default defineConfig({
     clearScreen: false,
     // customLogger: viteLogger,
     plugins: [
-        vue(), 
+        vue({
+            template: {
+                compilerOptions: {
+                    isCustomElement: (tag) => tag.startsWith('iconify-icon'),
+                }
+            }
+        }), 
         tailwindcss()
     ],
     publicDir: 'client/public',
