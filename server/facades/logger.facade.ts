@@ -1,6 +1,6 @@
 import winston from 'winston'
 import chalk from 'chalk'
-import env from '#server/env.ts'
+import env from '#server/facades/env.facade.ts'
 
 const { format } = winston
 
@@ -58,9 +58,7 @@ export function formatLog(data: any) {
 
     let result = ''
 
-    if (!env.ZARTE) {
-        result += `[${timestamp}] `
-    }
+    result += `[${timestamp}] `
 
     result += levelColor(`[${level}]`) + ':'
 
@@ -81,43 +79,29 @@ export function formatLog(data: any) {
     return result.trim()
 }
 
-function filter() {
-    return format((info: any) => {
-        if (!info.label) {
-            return info
-        }
-
-        if (info.level !== 'error' && env.LOG_LABEL_EXCLUDE?.includes(info.label)) {
-            return false
-        }
-
-        return info
-        
-    })
-}
-
 const transports: winston.transport[] = [
     new winston.transports.Console({
         format: format.combine(
-            filter()(),
             format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss', }),
             format.printf(formatLog)
         ),
     }),
 ]
 
-if (!env.ZARTE) {
-    transports.push(
-        new winston.transports.File({
-            filename: 'storage/logs/error.log', 
-            level: 'error' 
-        }),
-        new winston.transports.File({ filename: 'storage/logs/app.log' }),
-    )
-}
+// if (!env.ZARTE) {
+//     transports.push(
+//         new winston.transports.File({
+//             filename: 'storage/logs/error.log', 
+//             level: 'error' 
+//         }),
+//         new winston.transports.File({ 
+//             filename: 'storage/logs/app.log'
+//         }),
+//     )
+// }
 
 export const logger = winston.createLogger({
-    level: env.LOG_LEVEL,
+    level: env.get('LOG_LEVEL') || 'info',
     format: winston.format.json(),
     transports,
 })

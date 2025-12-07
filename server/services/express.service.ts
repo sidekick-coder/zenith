@@ -1,3 +1,4 @@
+import type { Server } from 'node:http'
 import express from 'express'
 import cors from 'cors'
 import cookieParser from 'cookie-parser'
@@ -9,7 +10,7 @@ import CookieService from '#server/services/cookie.service.ts'
 import UploadService from '#server/services/upload.service.ts'
 import logger from '#server/facades/logger.facade.ts'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
-import env from '#server/env.ts'
+import env from '#server/facades/env.facade.ts'
 
 export interface LoadOptions {
     debug?: boolean;
@@ -21,6 +22,7 @@ export interface LoadOptions {
 
 export default class ExpressService {
     public app: express.Application
+    public server: Server | null = null
     public router: Router
     public exception: ExceptionService
     public logger = logger.child({ label: 'express' })
@@ -130,11 +132,25 @@ export default class ExpressService {
     }
 
     public start(){
-        this.app.listen(3000, () => {
-            this.logger.info(`server started at ${env.APP_URL}`, {
+        this.server =this.app.listen(3000, () => {
+            this.logger.info(`server started at ${env.get('APP_URL')}`, {
                 pid: process.pid,
-                env: env.NODE_ENV,
+                env: env.get('NODE_ENV'),
             })
+        })
+    }
+
+    public stop(){
+        if (!this.server) {
+            this.logger.warn('server is not running')
+            return
+        }
+
+        this.server.close()
+
+        this.logger.info('server stopped', {
+            pid: process.pid,
+            env: env.get('NODE_ENV'),
         })
     }
 }

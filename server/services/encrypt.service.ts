@@ -1,7 +1,7 @@
 import crypto from 'crypto'
 import ms from 'ms'
 import { format } from 'date-fns'
-import env from '#server/env.ts'
+import env from '#server/facades/env.facade.ts'
 import BaseException from '#server/exceptions/base.ts'
 
 interface URLOptions {
@@ -82,7 +82,7 @@ export default class EncryptService {
 
         const key = this.encrypt(JSON.stringify(payload))
 
-        const url = new URL(path, env.APP_URL)
+        const url = new URL(path, env.get('APP_URL'))
 
         url.searchParams.append('key', encodeURIComponent(key))
 

@@ -1,7 +1,6 @@
 import fs from 'fs'
 import { join } from 'path'
 import { basePath } from '#server/utils/paths.ts'
-import env from '#server/env.ts'
 import Base from '#shared/entities/module.entity.ts'
 import { composeWith } from '#shared/utils/compose.ts'
 
@@ -14,8 +13,9 @@ export default class Module extends composeWith(Base) {
         return join('/static', 'modules', this.name, ...parts)
     }
 
-    public loadManifest(){
+    public load(){
         const manifestPath = this.makePath('module.json')
+
         if (!fs.existsSync(manifestPath)) {
             return
         }
@@ -24,59 +24,5 @@ export default class Module extends composeWith(Base) {
         const json = JSON.parse(content)
 
         this.dependencies = json.dependencies || {}        
-    }
-
-    private loadServerFiles(){
-        if (fs.existsSync(this.makePath('server/setup.server.ts'))) {
-            this.files.push({
-                type: 'setup:server',
-                src: this.makePath('server/setup.server.ts'),
-            })
-        }
-    }
-
-    private loadClientFiles(){
-        if (env.isProduction && fs.existsSync(this.makePath('dist/client/setup.client.js'))) {
-            this.files.push({
-                type: 'setup:client',
-                context: 'client',
-                src: this.staticPath('dist/client/setup.client.js'),
-            })
-
-            this.files.push({
-                type: 'setup:client',
-                context: 'server',
-                src: this.makePath('dist/server/setup.client.js'),
-            })
-        }
-        
-        if (env.isProduction && fs.existsSync(this.makePath('dist/client/styles.css'))) {
-            this.files.push({
-                type: 'asset',
-                src: this.staticPath('dist/client/styles.css'),
-            })
-        }
-
-        if (env.isDevelopment && fs.existsSync(this.makePath('client/setup.client.ts'))) {
-            this.files.push({
-                type: 'setup:client',
-                context: 'server',
-                src: join('/modules', this.id, 'client/setup.client.ts'),
-            })
-
-            this.files.push({
-                type: 'setup:client',
-                context: 'client',
-                src: this.staticPath('client/setup.client.ts'),
-            })
-        }
-    }
-
-    public load(){
-        this.files = []
-
-        this.loadServerFiles()
-        this.loadClientFiles()
-        this.loadManifest()
     }
 }

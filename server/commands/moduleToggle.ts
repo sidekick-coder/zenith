@@ -1,7 +1,6 @@
 import { program } from 'commander'
 import modules from '#server/facades/modules.facade.ts'
 import build from '#server/facades/server.facade.ts'
-import env from '#server/env.ts'
 import logger from '#server/facades/logger.facade.ts'
 
 program.command('module:toggle')

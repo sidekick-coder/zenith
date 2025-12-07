@@ -4,9 +4,8 @@ import { createLogger, createServer as createViteServer  } from 'vite'
 import type { ViteDevServer } from 'vite'
 import express from 'express'
 import type { Request, Response } from 'express'
-import env from '../env.ts'
 import CookieService from './cookie.service.ts'
-import modules from '#server/facades/modules.facade.ts'
+import env from '#server/facades/env.facade.ts'
 import config from '#server/facades/config.facade.ts'
 import logger from '#server/facades/logger.facade.ts'
 import { basePath, clientPath } from '#server/utils/paths.ts'
@@ -17,8 +16,6 @@ import type User from '#server/entities/user.entity.ts'
 import Permission from '#server/entities/permission.entity.ts'
 import ConfigService from '#shared/services/config.service.ts'
 import DIService from '#shared/services/di.service.ts'
-
-const isProduction = env.NODE_ENV === 'production'
 
 export default class ViteService {
     public logger = logger.child({ label: 'vite' })
@@ -37,11 +34,11 @@ export default class ViteService {
 
     public async render(url: string, _request: Request, response: Response) {
         try {
-            const template = isProduction 
+            const template = env.get('NODE_ENV') === 'production' 
                 ? fs.readFileSync(basePath('client-dist', 'browser', 'client', 'index.html'), 'utf-8')
                 : await this.server!.transformIndexHtml(url, fs.readFileSync(clientPath('index.html'), 'utf-8'))
 
-            const render = isProduction
+            const render = env.get('NODE_ENV') === 'production'
                 ? (await import(basePath('client-dist', 'node', 'entry-server.js'))).render
                 : (await this.server!.ssrLoadModule('/client/entry-server.ts')).render
 
@@ -53,13 +50,7 @@ export default class ViteService {
 
             const clientConfig = new ConfigService()
 
-            for (const [key, entry] of Object.entries(env.CLIENT_CONFIG || {})) {
-                clientConfig.entries.set(key, {
-                    key,
-                    value: entry,
-                    source: 'env'
-                })
-            }
+            clientConfig.loadFromEntries(Object.entries(env.get('CLIENT_CONFIG') || {}), 'env')
 
             clientConfig.set('site', config.get('site', {}))
             clientConfig.set('branding', config.get('branding', {}))
@@ -116,7 +107,7 @@ export default class ViteService {
             head += this.getAssetsHtml()
 
             // only inject styles in development mode, to prevent layout shifts
-            if (!isProduction) {
+            if (env.get('NODE_ENV') !== 'production') {
                 head += '<link rel="stylesheet" href="/client/assets/styles.css">'
             }
 
@@ -172,7 +163,7 @@ export default class ViteService {
     }
     
     public async load(app: Application) {
-        if (!isProduction) {
+        if (env.get('NODE_ENV') !== 'production') {
             const viteLogger = createLogger()
 
             const log: typeof viteLogger.info = (msg, opts) => {
@@ -200,8 +191,14 @@ export default class ViteService {
             app.use(this.server.middlewares)
         }
 
-        if (isProduction) {
+        if (env.get('NODE_ENV') === 'production') {
             app.use(express.static(basePath('client-dist', 'browser')))
+        }
+    }
+
+    public async close() {
+        if (this.server) {
+            await this.server.close()
         }
     }
 }

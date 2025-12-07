@@ -13,11 +13,29 @@ export default class ConfigService {
         return Array.from(this.entries.values())
     }
 
-    public loadFromRecord(record: Record<string, any>, source = 'env'): void {
+    public parseValue(value: any): any {
+        if (typeof value === 'string' && value.endsWith(':boolean')) {
+            return value.replace(':boolean', '').trim() === 'true'
+        }
+
+        return value
+    }
+
+    public loadFromRecord(record: Record<string, any>, source = 'unknow'): void {
         for (const [key, value] of Object.entries(record)) {
             this.entries.set(key, {
                 key,
-                value,
+                value: this.parseValue(value),
+                source
+            })
+        }
+    }
+
+    public loadFromEntries(entries: [string, any][], source = 'unknow'): void {
+        for (const [key, value] of entries) {
+            this.entries.set(key, {
+                key,
+                value: this.parseValue(value),
                 source
             })
         }
@@ -58,14 +76,14 @@ export default class ConfigService {
 
     public get<T = any | undefined>(key: string, defaultValue?: any): T {
 
-        if (!key.includes('.')) {
-            const entry = this.entries.get(key)
-            
-            if (!entry) {
-                return defaultValue
-            }
+        const entry = this.entries.get(key)
 
-            return entry.value
+        if (entry) {
+            return entry.value as T
+        }
+
+        if (!key.includes('.')) {
+            return defaultValue
         }
 
         const primary = key.split('.')[0]
@@ -146,5 +164,9 @@ export default class ConfigService {
             source: 'runtime',
             value: primaryValue
         })
+    }
+
+    public clear(): void {
+        this.entries.clear()
     }
 }

@@ -2,11 +2,10 @@
 import fs from 'fs'
 import path from 'path'
 import { set } from 'lodash-es'
-import chokidar from 'chokidar'
 import Base from '#shared/services/config.service.ts'
 import { configPath } from '#server/utils/paths.ts'
 import { importGlob } from '#server/utils/importAll.ts'
-import env from '#server/env.ts'
+import env from '#server/facades/env.facade.ts'
 import logger from '#server/facades/logger.facade.ts'
 
 interface LoadOptions {
@@ -23,27 +22,10 @@ export default class ConfigService extends Base {
         this.configDir = configDir ?? configPath()
     }
 
-    public async load(options: LoadOptions = {}) {
-        this.debug = options.debug ?? false
 
-        if (this.debug) {
-            this.logger.info('service loaded in debug mode')
-        }
+    public load(options: LoadOptions = {}) {
+        this.clear()
 
-        const files = await importGlob(configPath('*.json'))
-
-        for (const [filename, config] of Object.entries(files)) {
-            const key = path.basename(filename, '.json')
-
-            super.set(key, config)
-        }
-
-        for (const [key, value] of Object.entries(env.CONFIG || {})) {
-            super.set(key, value, 'env')
-        }
-    }
-
-    public loadSync(options: LoadOptions = {}) {
         this.debug = options.debug ?? false
 
         if (this.debug) {
@@ -60,8 +42,13 @@ export default class ConfigService extends Base {
             super.set(key, config)
         }
 
-        for (const [key, value] of Object.entries(env.CONFIG || {})) {
-            super.set(key, value, 'env')
+        
+        this.loadFromEntries(Object.entries(env.get('CONFIG') || {}), 'env')
+
+        this.debug = this.get('app.debug') || this.get('config.debug') || false
+
+        if (this.debug) {
+            this.logger.info('config loaded in debug mode')
         }
     }
 

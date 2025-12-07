@@ -6,6 +6,7 @@ import { tryCatch } from '#shared/utils/tryCatch.ts'
 import logger from '#server/facades/logger.facade.ts'
 
 interface Options {
+    cache?: boolean;
     onBeforeImport?: (ctx: { filename: string }) => void | Promise<void>;
     onAfterImport?: (ctx: { filename: string, module: any }) => void | Promise<void>;
     exclude?: string[];
@@ -28,9 +29,13 @@ export async function importFiles(files: string[], options: Options = {}): Promi
 
         if (/\.(mts|ts)$/.test(cleanFilename)) {
             const abs = path.resolve(ctx.filename)
-            const fileUrl = pathToFileURL(abs).href
+            const fileUrl = pathToFileURL(abs)
 
-            const [error, mod] = await tryCatch(() => import(fileUrl))
+            if (options.cache === false) {
+                fileUrl.searchParams.set('t', Date.now().toString())
+            }
+
+            const [error, mod] = await tryCatch(() => import(fileUrl.toString()))
             
             if (error) {
                 Object.assign(error, {

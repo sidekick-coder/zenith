@@ -1,10 +1,7 @@
 import fs from 'fs'
+import dotenv from 'dotenv'
 import * as v from 'valibot'
 import { basePath } from '#server/utils/paths.ts'
-
-if (fs.existsSync(basePath('.env'))) {
-    process.loadEnvFile(basePath('.env'))
-}
 
 const configSchema = v.optional(v.pipe(v.string(), v.transform((value) => {
     const entries = value.split(/[;\n]/)
@@ -39,6 +36,38 @@ const schema = v.pipe(base, v.transform((value) => {
     }
 }))
 
-const env = v.parse(schema, process.env)
+type EnvType = v.InferOutput<typeof schema>
 
-export default env
+export default class EnvService {
+    private env: EnvType | null = null
+
+    public load() {
+        if (fs.existsSync(basePath('.env'))) {
+            dotenv.config({ 
+                path: basePath('.env'),
+                override: true,
+                quiet: true,
+            })
+        }
+
+        this.env = v.parse(schema, process.env)
+
+        return this.env
+    }
+
+    public get<K extends keyof EnvType>(key: K): EnvType[K] {
+        if (!this.env) {
+            this.load()
+        }
+
+        return this.env![key]
+    }
+
+    public set<K extends keyof EnvType>(key: K, value: EnvType[K]) {
+        if (!this.env) {
+            this.load()
+        }
+
+        this.env![key] = value
+    }
+}
