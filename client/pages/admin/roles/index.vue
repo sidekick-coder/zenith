@@ -16,14 +16,14 @@ import { useFetchPagination } from '#client/composables/useFetchPagination.ts'
 
 const router = useRouter()
 
-const { items, total, loading, load, reset } = useFetchPagination<Role>('/api/roles', {
+const { items, total, loading, reset } = useFetchPagination<Role>('/api/roles', {
     limit: 20,
 })
 
 const saving = ref(false)
 const deletingItems = ref<number[]>([])
 
-const columns = defineColumns([
+const columns = defineColumns<Role>([
     {
         id: 'id',
         label: 'ID',
