@@ -9,7 +9,7 @@ export default class ModulesNodeService extends ModulesService {
         const manifests = di.get<ModuleManifest[]>('modules')
 
         for (const manifest of manifests) {
-            const filepath = basePath('modules', manifest.id, 'client', 'module.client.ts')
+            const filepath = basePath('modules', manifest.id, 'client-dist', 'node', 'module.client.js')
 
             const url = pathToFileURL(filepath)
 

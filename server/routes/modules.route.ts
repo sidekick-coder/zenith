@@ -308,7 +308,10 @@ router.post('/install/git', async ({ body, acl }) => {
 
 root.get('/static/modules/:id/:context/*', async ({ params, response }) => {
     const moduleId = params.id
-    const context = validator.validate(params.context, v => v.picklist(['client', 'shared', 'dist']))
+    const context = validator.validate(params.context, v => v.picklist([
+        'browser',
+    ]))
+    
     const assetPath = validator.validate(params['*'], v => v.string())
     const basename = path.basename(assetPath)
     
@@ -318,7 +321,15 @@ root.get('/static/modules/:id/:context/*', async ({ params, response }) => {
         throw new BaseException('Module not found', 404)
     }
 
-    const fullPath = mod.makePath(context, assetPath)
+    let fullPath = null
+
+    if (context === 'browser') {
+        fullPath = mod.makePath('client-dist', 'browser', assetPath)
+    }
+
+    if (!fullPath) {
+        throw new BaseException('Invalid context', 400)
+    }
 
     if (!fs.existsSync(fullPath)) {
         throw new BaseException('Asset not found', 404)

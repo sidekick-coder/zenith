@@ -9,11 +9,13 @@ export interface ImportModule {
     default: typeof Module
 }
 
+export type ImportModuleFunction = () => Promise<ImportModule>
+
 export default class ModulesService {
     public mods: Module[]
     public debug: boolean
     public logger: LoggerService
-    public imports: Map<string, () => Promise<ImportModule>>
+    public imports: Map<string, ImportModuleFunction>
 
     constructor(data: Partial<ModulesService> = {}) {
         this.mods = []

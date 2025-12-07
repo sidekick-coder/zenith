@@ -128,8 +128,8 @@ export default class ModuleBuilderService {
         const modulesPath = basePath('modules')
         const moduleDir = path.join(modulesPath, moduleId)
 
-        const outDirServer = path.join(moduleDir, 'dist/server')
-        const outDirClient = path.join(moduleDir, 'dist/client')
+        const outDirNode = path.join(moduleDir, 'client-dist/node')
+        const outDirBrowser = path.join(moduleDir, 'client-dist/browser')
 
         const common: UserConfig =  {
             publicDir: path.join(moduleDir, 'client/public'),
@@ -137,7 +137,7 @@ export default class ModuleBuilderService {
                 customImportReplacer(),
             ],
             build: {
-                outDir: outDirServer,
+                outDir: outDirNode,
                 rollupOptions: {
                     output: {
                         assetFileNames: (assetInfo: any) => {
@@ -179,7 +179,7 @@ export default class ModuleBuilderService {
         await viteBuild(mergeConfig(common, {
             build: {
                 ssr: true,
-                outDir: outDirServer,
+                outDir: outDirNode,
             },
         }))
 
@@ -190,7 +190,7 @@ export default class ModuleBuilderService {
             },
             build: {
                 ssr: false,
-                outDir: outDirClient,
+                outDir: outDirBrowser,
             },
         }))
     }

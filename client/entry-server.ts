@@ -65,7 +65,7 @@ export async function render(context: RenderContext) {
         debug: config.get('modules.debug') || config.get('app.debug')
     }
 
-    const useNodeService = config.get('modules.node.service') === 'node' || import.meta.env.DEV
+    const useNodeService = config.get('modules.node.service') === 'node' || import.meta.env.PROD
 
     di.set(ModulesService, useNodeService
         ? new ModulesNodeService(serviceOptions)

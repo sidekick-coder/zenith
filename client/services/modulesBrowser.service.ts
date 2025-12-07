@@ -1,33 +1,21 @@
 import ModulesService from './modules.service.ts'
+import type { ImportModuleFunction } from './modules.service.ts'
 import ModuleManifest from '#shared/entities/moduleManifest.entity.ts'
 import di from '#client/utils/di.ts'
-import Module from '#client/entities/module.entity.ts'
 
 export default class ModulesBrowserService extends ModulesService {
-   
-
     public async discover() {
         const manifests = di.get<ModuleManifest[]>('modules')
 
         for (const manifest of manifests) {
-            const url = new URL(`/static/modules/${manifest.id}/module.client.ts`, window.location.origin)
+            const url = new URL(`/static/modules/${manifest.id}/browser/module.client.js`, window.location.origin)
 
-            console.log(url.toString())
+            url.searchParams.set('t', Date.now().toString()) // bust cache
 
-            // const url = filename + `?t=${Date.now()}` // bust cache
-            
-            // const [error, mod] = await tryCatch(async () => await import(/* @vite-ignore */ url))
-        
-            // if (error) {
-            //     console.error('Error importing setup file:', error)
-            //     return null
-            // }
-        
-            // return mod
+            const importFn: ImportModuleFunction = () => import(/* @vite-ignore */ url.toString())
+
+            this.imports.set(manifest.id, importFn)
         }
 
-    }
-    public async load() {
-        // implement load logic here
     }
 }

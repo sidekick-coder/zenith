@@ -17,9 +17,11 @@ const serviceOptions = {
     debug: config.get('modules.debug') || config.get('app.debug')
 }
 
-di.set(ModulesService, import.meta.env.DEV 
-    ? new ModulesDevService(serviceOptions) 
-    : new ModulesBrowserService(serviceOptions)
+const useBrowserService = config.get('modules.browser.service') === 'browser' || import.meta.env.PROD
+
+di.set(ModulesService, useBrowserService
+    ? new ModulesBrowserService(serviceOptions) 
+    : new ModulesDevService(serviceOptions)
 )
 
 const hooks = Object.values<any>(import.meta.glob('./hooks/**/*.hook.ts', { eager: true }))

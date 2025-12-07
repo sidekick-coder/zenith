@@ -38,11 +38,11 @@ export default class ViteService {
     public async render(url: string, _request: Request, response: Response) {
         try {
             const template = isProduction 
-                ? fs.readFileSync(basePath('client-dist', 'client', 'client', 'index.html'), 'utf-8')
+                ? fs.readFileSync(basePath('client-dist', 'browser', 'client', 'index.html'), 'utf-8')
                 : await this.server!.transformIndexHtml(url, fs.readFileSync(clientPath('index.html'), 'utf-8'))
 
             const render = isProduction
-                ? (await import(basePath('client-dist', 'server', 'entry-server.js'))).render
+                ? (await import(basePath('client-dist', 'node', 'entry-server.js'))).render
                 : (await this.server!.ssrLoadModule('/client/entry-server.ts')).render
 
             const container = new DIService()
@@ -201,7 +201,7 @@ export default class ViteService {
         }
 
         if (isProduction) {
-            app.use(express.static(basePath('client-dist', 'client')))
+            app.use(express.static(basePath('client-dist', 'browser')))
         }
     }
 }
