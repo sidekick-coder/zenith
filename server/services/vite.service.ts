@@ -153,6 +153,12 @@ export default class ViteService {
 
         const html = new El('html')
 
+        if (options.htmlAttrs) {
+            for (const [key, value] of Object.entries(options.htmlAttrs)) {
+                html.attr(key, value)
+            }
+        }
+
         // head
         const head = html.child('head')
 

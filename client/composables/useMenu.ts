@@ -1,4 +1,4 @@
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 
 export interface MenuBase {
     id: string
@@ -35,31 +35,26 @@ export interface MenuItem {
 
 export type UseMenu = ReturnType<typeof useMenu>
 
-const items = ref<MenuItem[]>([])
+const items = ref<Map<string, MenuItem>>(new Map())
 
 export function useMenu() {
     function add(...item: MenuItem[]) {
-        items.value.push(...item)
+        item.forEach(i => {
+            items.value.set(i.id, i)
+        })
     }
 
     function remove(item: MenuItem | MenuItem['id']) {
-        let index = -1
 
         if (typeof item === 'string') {
-            index = items.value.findIndex(i => i.id === item)
-        }
-
-        if (index === -1) {
-            index = items.value.indexOf(item as MenuItem)
-        }
-
-        if (index !== -1) {
-            items.value.splice(index, 1)
+            items.value.delete(item)
         }
     }
 
     function removeGroup(groupId: string) {
-        items.value = items.value.filter(i => i.group !== groupId)
+        Array.from(items.value.values())
+            .filter(i => i.group === groupId || i.parent === groupId)
+            .forEach(i => items.value.delete(i.id))
     }
 
     function removeMany(itemIds: string[]) {
@@ -67,16 +62,15 @@ export function useMenu() {
     }
 
     function removeManyGroup(groupIds: string[]) {
-        console.log('removeManyGroup', groupIds)
         groupIds.forEach(id => removeGroup(id))
     }
 
     function clear() {
-        items.value = []
+        items.value.clear()
     }
 
     return {
-        items,
+        items: computed(() => Array.from(items.value.values())),
         add,
         remove,
         removeGroup,
