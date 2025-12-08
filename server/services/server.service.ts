@@ -24,6 +24,7 @@ export default class ServerService {
                 }
             },
             build: {
+                manifest: true,
                 rollupOptions: {
                     external: (id: string) => {
                         if (id.startsWith(basePath('modules'))) {

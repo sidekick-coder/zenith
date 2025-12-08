@@ -1,4 +1,5 @@
 import { stripVTControlCharacters } from 'util'
+import fs from 'fs'
 import type { Application } from 'express'
 import { createLogger, createServer as createViteServer  } from 'vite'
 import type { ViteDevServer } from 'vite'
@@ -20,6 +21,8 @@ import type ViteEntryPointService from '#shared/services/viteEntryPoint.service.
 import El from '#server/entities/el.entity.ts'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
 import type { RenderOptions } from '#shared/services/viteEntryPoint.service.ts'
+import { compose } from '#shared/utils/compose.ts'
+import { Hooks } from '#server/mixins/hooks.mixin.ts'
 
 interface HandleOptions {
     url: string;
@@ -27,7 +30,17 @@ interface HandleOptions {
     response: Response;
 }
 
-export default class ViteService {
+export interface ViteServiceEvents {
+    'vite:render': {
+        head: El;
+        html: El;
+        body: El;
+        options: RenderOptions;
+        vite: ViteService;
+    };
+}
+
+export default class ViteService extends compose(Hooks) {
     public logger = logger.child({ label: 'vite' })
     public server: ViteDevServer | undefined
     public entrypoint: ViteEntryPointService | null = null
@@ -37,6 +50,8 @@ export default class ViteService {
     public clientContainer: DIService
 
     constructor(data: Partial<ViteService> = {}) {
+        super()
+
         this.state = new Map<string, any>()
         this.debug = data.debug ?? false
 
@@ -146,6 +161,61 @@ export default class ViteService {
         await this.loadEntryNode()
     }
 
+    public async head(head: El, options: RenderOptions) {        
+        head
+            .child('meta')
+            .attr('charset', 'utf-8')
+            
+        head
+            .child('meta')
+            .attr('name', 'viewport')
+            .attr('content', 'width=device-width, initial-scale=1')
+
+        if (env.get('NODE_ENV') !== 'production') {
+            head
+                .child('link')
+                .attr('rel', 'stylesheet')
+                .attr('href', '/client/assets/styles.css')
+            
+            head
+                .child('script')
+                .attr('defer', '')
+                .attr('type', 'module')
+                .attr('src', '/client/entry-client.ts')
+
+            return
+        }
+
+        const [error, manifest] = await tryCatch(async () => {
+            const text = await fs.promises.readFile(basePath('client-dist', 'browser', '.vite', 'manifest.json'), 'utf-8')
+
+            return JSON.parse(text)
+        })
+
+        if (error) {
+            this.logger.error('Failed to load Vite manifest', error)
+            return
+        }
+
+        const index = manifest['client/index.html']
+
+        if (!index) {
+            this.logger.error('Vite manifest is missing client/index.html entry')
+            return
+        }
+
+        index.css?.forEach( (file: string) => {
+            head.child('link')
+                .attr('rel', 'stylesheet')
+                .attr('href', `/${file}`)
+        })
+
+        head.child('script')
+            .attr('defer', '')
+            .attr('type', 'module')
+            .attr('src', `/${index.file}`)
+    }
+
     public async render(options: RenderOptions): Promise<string> {
         if (!this.entrypoint) {
             throw new Error('Vite entrypoint not loaded')
@@ -162,32 +232,7 @@ export default class ViteService {
         // head
         const head = html.child('head')
 
-        // meta
-        head
-            .child('meta')
-            .attr('charset', 'utf-8')
-            
-        head
-            .child('meta')
-            .attr('name', 'viewport')
-            .attr('content', 'width=device-width, initial-scale=1')
-
-        // styles
-        if (env.get('NODE_ENV') !== 'production') {
-            head
-                .child('link')
-                .attr('rel', 'stylesheet')
-                .attr('href', '/client/assets/styles.css')
-        }
-        
-        // scripts
-        head
-            .child('script')
-            .attr('defer', '')
-            .attr('type', 'module')
-            .attr('src', '/client/entry-client.ts')
-
-       
+        this.head(head, options)
         
         // body
         const body = html.child('body')
@@ -203,11 +248,10 @@ export default class ViteService {
             state.set(key, value)
         }
 
-        const rendered = await this.entrypoint!.render({
+        const rendered = await this.entrypoint.render({
             url: options.url,
             cookies: options.cookies || {},
             state: Object.fromEntries(state),
-            router: options.router,
         })
 
         // update state
@@ -224,6 +268,14 @@ export default class ViteService {
         body.child('div')
             .attr('id', 'app')
             .html(rendered.html || '')
+
+        await this.emitAsync('vite:render', {
+            html,
+            head,
+            body,
+            options,
+            vite: this,
+        })
 
         return html.toString()
     }
@@ -260,7 +312,6 @@ export default class ViteService {
             url,
             cookies: cookie.toRecord(),
             state: Object.fromEntries(state),
-            router: router,
             htmlAttrs: {}
         }
 

@@ -137,6 +137,7 @@ export default class ModuleBuilderService {
                 customImportReplacer(),
             ],
             build: {
+                manifest: true,
                 outDir: outDirNode,
                 rollupOptions: {
                     output: {
