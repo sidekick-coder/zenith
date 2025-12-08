@@ -22,6 +22,6 @@ const iconName = computed(() => {
 <template>
     <iconify-icon
         :icon="iconName"
-        ssr
+        class="flex"
     />
 </template>

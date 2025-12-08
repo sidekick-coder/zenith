@@ -16,7 +16,8 @@ export default class MenuLifecycleHook extends LifecycleHook {
                 label: $t('Profile'),
                 to: `/admin/users/${auth.user.id}`,
                 icon: 'User',
-                group: $t('Account')
+                layout: 'setting',
+                group: $t('My Account')
             })
         }
 
@@ -25,7 +26,8 @@ export default class MenuLifecycleHook extends LifecycleHook {
             label: $t('Preferences'),
             to: '/admin/account/preferences',
             icon: 'UserCog',
-            group: $t('Account')
+            layout: 'setting',
+            group: $t('My Account')
         })
 
         menu.add({
@@ -57,6 +59,7 @@ export default class MenuLifecycleHook extends LifecycleHook {
             label: $t('Settings'),
             icon: 'Lock',
             group: $t('Auth'),
+            layout: 'setting',
             to: '/admin/settings/auth'
         })
 
@@ -82,12 +85,14 @@ export default class MenuLifecycleHook extends LifecycleHook {
             to: '/admin/modules',
             icon: 'Puzzle',
             group: $t('Settings'),
+            layout: 'setting',
         })
 
         menu.add({
             id: 'system-routes',
             label: $t('Routes'),
             icon: 'Settings',
+            layout: 'setting',
             group: $t('System'),
             to: '/admin/settings/site'
         })
@@ -96,6 +101,7 @@ export default class MenuLifecycleHook extends LifecycleHook {
             id: 'branding',
             label: $t('Branding'),
             icon: 'Palette',
+            layout: 'setting',
             group: $t('System'),
             to: '/admin/settings/branding'
         })
@@ -105,6 +111,7 @@ export default class MenuLifecycleHook extends LifecycleHook {
             group: $t('System'),
             label: $t('PWA'),
             icon: 'Tablet',
+            layout: 'setting',
             to: '/admin/settings/pwa'
         })
 
