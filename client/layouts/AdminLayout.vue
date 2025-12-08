@@ -8,7 +8,6 @@ import {
 } from 'vue'
 import { useRoute } from 'vue-router'
 import { truncate } from 'lodash-es'
-import AdminLayout from './AdminLayout.vue'
 import AppLayoutSidebarGroup from './AdminLayoutSidebarGroup.vue'
 import Logo from '#client/components/Logo.vue'
 import {
@@ -36,9 +35,9 @@ import { $t } from '#shared/lang.ts'
 import { useMenu } from '#client/composables/useMenu.ts'
 import type { MenuItem } from '#client/composables/useMenu.ts'
 import Icon from '#client/components/Icon.vue'
-import config from '#client/facades/config.facade.ts'
 import di from '#client/utils/di.ts'
 import acl from '#client/facades/acl.facade.ts'
+import config from '#client/facades/config.facade.ts'
 
 export interface BreadcrumbItem {
     label: string;
@@ -47,6 +46,7 @@ export interface BreadcrumbItem {
 }
 </script>
 <script setup lang="ts">
+
 const open = ref( true)
 const loading = ref(true)
 const route = useRoute()
@@ -59,7 +59,16 @@ defineProps({
     hideBreadcrumbs: {
         type: Boolean,
         default: false,
+    },
+    title: {
+        type: String,
+        default: () => config.get('branding.name', 'Dashboard'),
     }
+})
+
+const menu = defineModel('menu', {
+    type: Array as () => MenuItem[],
+    default: () => [],
 })
 
 const breadcrumbs = defineModel('breadcrumbs', {
@@ -67,66 +76,144 @@ const breadcrumbs = defineModel('breadcrumbs', {
     default: null,
 })
 
-const { items: menuAll } = useMenu()
-
-menuAll.value.sort((a, b) => {
-    const orderA = a.order ? a.order : 98
+const computedBreadcrumbs = computed(() => {
+    if (breadcrumbs.value) {
+        return breadcrumbs.value
+    }
     
-    const orderB = b.order ? b.order : 98
-
-    return orderA - orderB
+    return generateBreadcrumbsFromRoute()
 })
 
-const state = di.get<Record<string, any>>('state')
+function generateBreadcrumbsFromRoute(): BreadcrumbItem[] {
+    const pathSegments = route.path.split('/').filter(segment => segment !== '')
+    const breadcrumbItems: BreadcrumbItem[] = []
+    
+    // Add home breadcrumb only if we're not on the home page
+    if (route.path !== '/') {
+        // breadcrumbItems.push({
+        //     label: $t('Home'),
+        //     to: '/admin',
+        // })
+    }
+    
+    // Generate breadcrumbs for each path segment
+    let currentPath = ''
+    for (let i = 0; i < pathSegments.length; i++) {
+        currentPath += `/${pathSegments[i]}`
+        const segment = pathSegments[i]
+        
+        // Skip dynamic segments (they start with :)
+        if (segment.startsWith(':') || segment === 'admin') {
+            continue
+        }
+        
+        // Capitalize first letter and replace hyphens with spaces
+        const label = segment
+            .split('-')
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(' ')
+        
+        breadcrumbItems.push({
+            label: $t(label),
+            to: i === pathSegments.length - 1 ? undefined : currentPath,
+        })
+    }
+    
+    return breadcrumbItems
+}
 
-const metas = state['user:metas'] || {}
-const hideIds = metas['admin-ui:hide-menus'] || []
-const hideGroups = metas['admin-ui:hide-menu-groups'] || []
-const extras = metas['admin-ui:menu-extras'] || []
+interface GroupedMenu {
+    id: string;
+    label: string;
+    items: MenuItem[];
+}
 
-const menu = computed(() => {
-    return menuAll.value
-        .concat(extras)
-        .filter(item => !hideIds.includes(item.id))
-        .filter(item => !hideGroups.includes(item.group || $t('General')))
+const groups = computed(() => {
+    const result = [] as GroupedMenu[]
+    const items = menu.value
+    
+    // mount groups
+    for (const item of items) {
+        const group = item.group || $t('General')
+
+        let current = result.find(g => g.id === group)
+
+        if (!current) {
+            current = {
+                id: group,
+                label: group,
+                items: []
+            }
+
+            result.push(current)
+        }
+
+        current.items.push(item)
+    }
+
+    return result
+})
+
+async function onLogout() {
+    const [error] = await tryCatch(() =>  $fetch('/auth/logout', { method: 'POST', }))
+
+    if (error) {
+        return
+    }
+
+    toast.error($t('You have been logged out.'))
+
+    window.location.href = '/'
+}
+
+onMounted(() => {
+    if (acl.cannot('read', 'AdminDashboard')) {
+        window.location.href = '/404'
+        return
+    }
+
+    loading.value = false
 })
 </script>
 
 <template>
-    <AdminLayout
-        :menu
-        :breadcrumbs
-    >
-        <slot />
-    </AdminLayout>
-    <!-- <SidebarProvider v-model:open="open">
+    <SidebarProvider v-model:open="open">
         <Sidebar
             collapsible="icon"
             variant="inset"
         >
-            <SidebarHeader>
-                <SidebarMenu>
-                    <SidebarMenuItem>
-                        <SidebarMenuButton
-                            size="lg"
-                            as-child
-                        >
-                            <router-link to="/">
-                                <Logo />
-                                <span class="font-medium">{{ config.get('branding.name', 'Dashboard') }}</span>
-                            </router-link>
-                        </SidebarMenuButton>
-                    </SidebarMenuItem>
-                </SidebarMenu>
-            </SidebarHeader>
+            <slot name="header">
+                <SidebarHeader>
+                    <SidebarMenu>
+                        <SidebarMenuItem>
+                            <SidebarMenuButton
+                                size="lg"
+                                as-child
+                            >
+                                <router-link to="/admin">
+                                    <Logo />
+                                    <span class="font-medium">
+                                        {{ title }}
+                                    </span>
+                                </router-link>
+                            </SidebarMenuButton>
+                        </SidebarMenuItem>
+                    </SidebarMenu>
+                </SidebarHeader>
+            </slot>
 
             <SidebarContent class="gap-0">
+                <div v-if="!groups.length">
+                    <p class="p-4 text-sm text-muted-foreground">
+                        {{ $t('No menu items available.') }}
+                    </p>
+                </div>
                 <AppLayoutSidebarGroup
                     v-for="group in groups"
                     :id="group.id"
                     :key="group.label"
                     :open
-                    :items="menu.concat(extras)"
+                    :items="menu"
                     class="py-0"
                     :label="group.label"
                 />
@@ -202,5 +289,5 @@ const menu = computed(() => {
                 </div>
             </div>
         </SidebarInset>
-    </SidebarProvider> -->
+    </SidebarProvider>
 </template>

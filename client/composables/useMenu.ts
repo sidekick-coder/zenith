@@ -31,6 +31,7 @@ export interface MenuItem {
     order?: number;
     icon?: string
     parent?: string
+    layout?: string
 }
 
 export type UseMenu = ReturnType<typeof useMenu>
