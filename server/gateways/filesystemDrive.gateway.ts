@@ -39,6 +39,10 @@ export default class FilesystemDrive implements DriveContract {
     async list(folder?: string): Promise<DriveEntity[]> {
         const filepath = folder ? join(this.path, folder) : this.path
 
+        if (!(await this.exists(relative(this.path, filepath)))) {
+            return []
+        }
+
         const files = await fs.promises.readdir(filepath)
 
         const entries: DriveEntity[] = []

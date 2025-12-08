@@ -7,6 +7,7 @@ import rootRouter from '#server/facades/router.facade.ts'
 import authMiddleware from '#server/middlewares/auth.middleware.ts'
 import encrypt from '#server/facades/encrypt.facade.ts'
 import validator from '#shared/services/validator.service.ts'
+import { tryCatch } from '#shared/utils/tryCatch.ts'
 
 const router = rootRouter.use(authMiddleware)
     .prefix('/api/drives')
@@ -66,16 +67,15 @@ rootRouter
             acl.authorize('read', 'DriveEntry', { filename })
         }
 
-        const entry = await current.find(filename)
+        const [error, entry] = await tryCatch(() => current.find(filename))
 
-        if (entry.type !== 'file') {
-            throw new BaseException('Not a file', 400)
+        if (error || entry.type !== 'file') {
+            throw new BaseException('File not found', 404)
         }
-
-        const data = await current.read(filename)
+        
         const mimetype = mime.getType(basename) || 'application/octet-stream'
 
-        const stream = await current.readStream(filename, data)
+        const stream = await current.readStream(filename)
 
         response.set('Content-Type', mimetype || 'application/octet-stream')
         response.set('Content-Disposition', `inline; filename="${basename}"`)

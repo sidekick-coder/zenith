@@ -3,11 +3,15 @@ import BaseException from '#server/exceptions/base.ts'
 import logger from '#server/facades/logger.facade.ts'
 
 export default class ExceptionService {
+    public ignoreCodeErrors: number[] = [404]
     public handle(error: Error, response: Response) {
-        logger.error('Error occurred while processing request', {
-            error: error.message,
-            stack: error.stack,
-        })
+
+        if (error instanceof BaseException && !this.ignoreCodeErrors.includes(error.statusCode)) {
+            logger.error('Error occurred while processing request', {
+                error: error.message,
+                stack: error.stack,
+            })
+        }
 
         if (error instanceof BaseException) {
             return response.status(error.statusCode).json({
@@ -15,6 +19,11 @@ export default class ExceptionService {
                 message: error.message,
             })
         }
+
+        logger.error('Error occurred while processing request', {
+            error: error.message,
+            stack: error.stack,
+        })
 
         const data = BaseException.fromError(error)
 
