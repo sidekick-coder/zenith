@@ -11,6 +11,8 @@ import config from '#server/facades/config.facade.ts'
 import modules from '#server/facades/modules.facade.ts'
 import type Module from '#server/entities/module.entity.ts'
 import ViteService from '#server/services/vite.service.ts'
+import type { ViteServiceEvents } from '#server/services/vite.service.ts'
+import env from '#server/facades/env.facade.ts'
 
 export default class ModulesLifecycleHook extends LifecycleHook {
     public async onRegister(): Promise<void> {
@@ -27,6 +29,9 @@ export default class ModulesLifecycleHook extends LifecycleHook {
 
     public async onLoad(): Promise<void> {
         const router = di.get<RouterRegister>(RouterSevice)
+        const vite = di.get<ViteService>(ViteService)
+
+        const assets = [] as any[]
 
         for (const mod of modules.mods) {
             // Load module routes
@@ -41,7 +46,24 @@ export default class ModulesLifecycleHook extends LifecycleHook {
             }
 
             router.off('addEntry', hook)
+
+            // load assets if have
+            if (env.production && fs.existsSync(mod.makePath('client-dist/browser/styles.css'))) {
+                assets.push(`static/modules/${mod.id}/browser/styles.css`)
+            }
         }
+
+        vite.on('vite:render', ({ head }: ViteServiceEvents['vite:render']) => {
+            assets.forEach(asset => {
+                if (asset.endsWith('.css')) {
+                    head
+                        .child('link')
+                        .attr('type', 'text/css')
+                        .attr('rel', 'stylesheet')
+                        .attr('href', `/${asset}`)
+                }
+            })
+        })
     }
 
     public async onBoot(): Promise<void> {

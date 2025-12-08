@@ -55,10 +55,8 @@ async function reload(filename?: string){
     if (filename) {
         logger.debug(`File changed: ${filename}, reloading server...`)
     }
-
-    if (filename?.includes('.env')) {
-        await init()
-    }
+    
+    await init()
 
     await stop()
 

@@ -55,6 +55,10 @@ export default class EnvService {
         return this.env
     }
 
+    public get production(): boolean {
+        return this.get('NODE_ENV') === 'production'
+    }
+
     public get<K extends keyof EnvType>(key: K): EnvType[K] {
         if (!this.env) {
             this.load()
