@@ -5,6 +5,7 @@ import { createLogger, createServer as createViteServer  } from 'vite'
 import type { ViteDevServer } from 'vite'
 import express from 'express'
 import type { Request, Response } from 'express'
+import { transformHtmlTemplate } from '@unhead/vue/server'
 import CookieService from './cookie.service.ts'
 import env from '#server/facades/env.facade.ts'
 import config from '#server/facades/config.facade.ts'
@@ -161,11 +162,7 @@ export default class ViteService extends compose(Hooks) {
         await this.loadEntryNode()
     }
 
-    public async head(head: El, options: RenderOptions) {        
-        head
-            .child('meta')
-            .attr('charset', 'utf-8')
-            
+    public async head(head: El) {
         head
             .child('meta')
             .attr('name', 'viewport')
@@ -223,16 +220,10 @@ export default class ViteService extends compose(Hooks) {
 
         const html = new El('html')
 
-        if (options.htmlAttrs) {
-            for (const [key, value] of Object.entries(options.htmlAttrs)) {
-                html.attr(key, value)
-            }
-        }
-
         // head
         const head = html.child('head')
 
-        this.head(head, options)
+        this.head(head)
         
         // body
         const body = html.child('body')
@@ -277,7 +268,11 @@ export default class ViteService extends compose(Hooks) {
             vite: this,
         })
 
-        return html.toString()
+        let result = html.toString()
+
+        result = await transformHtmlTemplate(rendered.head, result)
+
+        return result
     }
 
     public async handle({ url, response, request }: HandleOptions) {
@@ -308,15 +303,19 @@ export default class ViteService extends compose(Hooks) {
             state.set('preferences:dark_mode', metas['admin-ui:dark_mode'] ?? false)
         }
 
+        state.set('head', {
+            title: config.get('app.name') || 'Zenith',
+            titleTemplate: '%s - ' + (config.get('app.name') || 'Zenith'),
+            htmlAttrs: { 
+                lang: config.get('app.lang') || 'en',
+                class: state.get('preferences:dark_mode') ? 'dark' : 'light'
+            }
+        })
+
         const options: RenderOptions = {
             url,
             cookies: cookie.toRecord(),
             state: Object.fromEntries(state),
-            htmlAttrs: {}
-        }
-
-        if (state.get('preferences:dark_mode')) {
-            options.htmlAttrs = { class: 'dark' }
         }
 
         const [error, html] = await tryCatch( () => this.render(options) )
@@ -334,27 +333,6 @@ export default class ViteService extends compose(Hooks) {
             .set({ 'Content-Type': 'text/html' })
             .end(html)
     }
-
-    private getAssetsHtml(): string {
-        let html = ''
-        
-        // Get all assets from the assets service
-        const allAssets = assets.getAll()
-        
-        for (const [name, asset] of Object.entries(allAssets)) {
-            if (asset.src) {
-                html += `<link data-asset="${name}" rel="stylesheet" href="${asset.src}">`
-            }
-            
-            if (asset.content) {
-                html += `<style data-asset="${name}">${asset.content}</style>`
-            }
-        }
-        
-        return html
-    }
-    
-    
 
     public async close() {
         if (!this.server) return

@@ -11,11 +11,11 @@ export interface RenderOptions {
     url: string;
     cookies: Record<string, string>;
     state: Record<string, any>;
-    htmlAttrs?: Record<string, string>;
 }
 
 export interface RenderResult {
     html: string;
+    head: any;
     state: Record<string, any>;
 }
 

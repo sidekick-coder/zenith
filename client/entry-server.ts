@@ -2,16 +2,13 @@ import { pathToFileURL } from 'url'
 import fs from 'fs'
 import { renderToString } from 'vue/server-renderer'
 import type { App } from 'vue'
+import { createHead } from '@unhead/vue/server'
 import di from './utils/di'
-import { createServerFetcher } from './utils/fetcher'
-import type { Logger } from './utils/logger'
 import config from './facades/config.facade'
 import lifecycle from './facades/lifecycle.facade.ts'
-import AppLifecycleHook from './hooks/app.hook.ts'
 import ModulesService from './services/modules.service.ts'
 import ModulesNodeService from './services/modulesNode.service.ts'
 import type { Router } from './router.ts'
-import logger from './facades/logger.facade.ts'
 import ModulesDevService from './services/modulesDev.service.ts'
 import FetchNodeService from './services/fetchNode.service.ts'
 import FetchService from './services/fetch.service.ts'
@@ -70,11 +67,15 @@ export default class EntryNode extends ViteEntryPointService {
 
         const router = di.get<Router>('router')
         const app = di.get<App>('app')
+        const head = createHead({
+            init: [context.state.head]
+        })
+
+        app.use(head)
 
         await router.push(context.url)
 
         await router.isReady()
-
 
         const ctx = {}
 
@@ -82,6 +83,7 @@ export default class EntryNode extends ViteEntryPointService {
 
         return {
             html,
+            head,
             state: di.get<Record<string, any>>('state')
         }
     }

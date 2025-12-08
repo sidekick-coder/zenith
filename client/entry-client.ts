@@ -1,3 +1,4 @@
+import { createHead } from '@unhead/vue/client'
 import di from './utils/di'
 import ModulesService from './services/modules.service.ts'
 import ModulesBrowserService from './services/modulesBrowser.service.ts'
@@ -36,6 +37,12 @@ await lifecycle.load()
 await lifecycle.boot()
 
 await router.isReady()
+
+const head = createHead({
+    init: window.__STATE__?.head ? [window.__STATE__.head] : []
+})
+
+app.use(head)
 
 app.mount('#app')
 
