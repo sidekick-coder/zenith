@@ -21,7 +21,7 @@ import ComboboxTrigger from '#client/components/ui/combobox/ComboboxTrigger.vue'
 import { Avatar } from '#client/components/ui/avatar'
 import AvatarImage from '#client/components/ui/avatar/AvatarImage.vue'
 import AvatarFallback from '#client/components/ui/avatar/AvatarFallback.vue'
-import { $fetch } from '#client/utils/fetcher.ts'
+import $fetch from '#client/facades/fetch.facade.ts'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
 
 const props = defineProps({

@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { computed, watch } from 'vue'
+import { computed, onMounted, onServerPrefetch, ref, watch  } from 'vue'
+import type { Ref } from 'vue'
 import { get } from 'lodash-es'
 import {
     Select,
@@ -12,8 +13,10 @@ import {
 } from './ui/select'
 import Label from './ui/label/Label.vue'
 import Button from './Button.vue'
-import { $fetch } from '#client/utils/fetcher.ts'
+import $fetch from '#client/facades/fetch.facade.ts'
 import { cn } from '#client/lib/utils.ts'
+import logger from '#client/facades/logger.facade.ts'
+import { useState } from '#client/composables/useState.ts'
 
 const props = defineProps({
     id: {
@@ -123,12 +126,14 @@ function findFetchOptions(response: any) {
 async function fetchOptions() {
     if (!props.fetch) return
 
-    try {
-        const response = await $fetch(props.fetch)
-        options.value = findFetchOptions(response)
-    } catch (error) {
-        console.error('Failed to fetch options:', error)
+    const [error, response] = await $fetch.try(props.fetch)
+
+    if (error) {
+        logger.error('Select fetch error:', error)
+        return
     }
+
+    options.value = findFetchOptions(response)
 }
 
 function all() {
@@ -139,7 +144,11 @@ function clear(){
     model.value = []
 }
 
-watch(() => props.fetch, fetchOptions, { immediate: true })
+onMounted(() => {
+    if (!options.value.length && props.fetch) {
+        fetchOptions()
+    }
+})
 </script>
 
 <template>

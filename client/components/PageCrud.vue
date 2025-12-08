@@ -1,10 +1,7 @@
 <script setup lang="ts" generic="T extends Record<string, any>">
-import { ref  } from 'vue'
 import type { PropType } from 'vue'
-import type { ComponentExposed } from 'vue-component-type-helpers'
 import DataTable from '#client/components/DataTable.vue'
 import { $t } from '#shared/lang.ts'
-import AppLayout from '#client/layouts/AppLayout.vue'
 import ClientOnly from '#client/components/ClientOnly.vue'
 import Button from '#client/components/Button.vue'
 import Icon from '#client/components/Icon.vue'
@@ -12,6 +9,7 @@ import AlertButton from '#client/components/AlertButton.vue'
 import DialogForm from '#client/components/DialogForm.vue'
 import PageTitle from '#client/components/PageTitle.vue'
 import PageSubtitle from '#client/components/PageSubtitle.vue'
+import { useFetchPagination } from '#client/composables/useFetchPagination.ts'
 
 const props = defineProps({
     title: {
@@ -40,8 +38,9 @@ const props = defineProps({
     },
 })
 
-const loading = ref(false)
-const tableRef = ref<ComponentExposed<typeof DataTable>>()
+const { items, loading, load } = useFetchPagination(props.fetch, {
+    serialize: props.serialize,
+})
 
 const columns = defineModel('columns', {
     type: Array as PropType<Array<any>>,
@@ -57,11 +56,6 @@ const fieldsEdit = defineModel('fieldsEdit', {
     type: Object,
     default: null,
 })
-
-
-async function load() {
-    tableRef.value?.load()   
-}
 
 function parse(url: string, row: any): string {
     // replace all :key with row.key in fetch-destroy
@@ -116,10 +110,9 @@ defineExpose({
         <DataTable
             v-if="fetch"
             ref="tableRef"
+            v-model:rows="items"
             v-model:loading="loading"
             v-model:columns="columns"
-            :serialize="serialize"
-            :fetch="fetch"
         >
             <template
                 v-for="c in columns.filter(c => c.id !== 'actions')"
