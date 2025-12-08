@@ -14,8 +14,6 @@ export class AuthMiddleware implements Middleware {
         // Example authentication logic
         let token = ctx.cookie.get('Authorization')
 
-        console.log('AuthMiddleware token:', token)
-
         if (ctx.request && ctx.request.headers['authorization']) {
             token = ctx.request.headers['authorization']
         }
