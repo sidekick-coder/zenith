@@ -1,8 +1,8 @@
-export class El {
+export default class El {
     public name: string
-    private attrs: Map<string, string>
-    private children: El[]
-    private innerText: string | null = null
+    public attrs: Map<string, string>
+    public children: El[]
+    public innerText: string | null = null
 
     constructor(name: string) {
         this.name = name
@@ -10,8 +10,33 @@ export class El {
         this.children = []
     }
 
-    public toString() {
+    public child(name: string): El {
+        const child = new El(name)
+        this.children.push(child)
+        return child
+    }
+
+    public attr(key: string, value: string) {
+        this.attrs.set(key, value)
+
+        return this
+    }
+
+    public text(value: string) {
+        this.innerText = value
+
+        return this
+    }
+
+    public html(value: string) {
+        this.innerText = value
+
+        return this
+    }
+
+    public toString() {        
         let output = `<${this.name}`
+
 
         for (const [key, value] of this.attrs.entries()) {
             output += ` ${key}="${value}"`

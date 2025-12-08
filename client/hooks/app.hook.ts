@@ -6,12 +6,17 @@ import App from '../App.vue'
 import di from '../utils/di'
 import LifecycleHook from '#shared/entities/lifecycleHook.entity.ts'
 import { $t } from '#shared/lang.ts'
+import logger from '#client/facades/logger.facade.ts'
 
 
 export default class AppLifecycleHook extends LifecycleHook {
     public order = 999
     public async onRegister(): Promise<void> {
         const app = createSSRApp(App)
+
+        app.config.errorHandler = function (err, vm, info) {
+            logger.error(info, err)
+        }
         
         di.set('app', app)
     }
@@ -24,12 +29,6 @@ export default class AppLifecycleHook extends LifecycleHook {
         app.use<Vue3TouchEventsOptions>(Vue3TouchEvents, {
             disableClick: false,
         })
-    }
-
-    public async onBoot(): Promise<void> {
-        const app = di.get<VueApp>('app')
-
-        app.mount('#app')
     }
 
     public async onShutdown(): Promise<void> {

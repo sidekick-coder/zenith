@@ -2,7 +2,7 @@ import { computed, onMounted, onServerPrefetch, readonly, ref, watch } from 'vue
 import { watchDebounced } from '@vueuse/core'
 import { useState } from './useState.ts'
 import type Pagination from '#shared/entities/pagination.entity.ts'
-import { $fetch } from '#client/utils/fetcher.ts'
+import $fetch from '#client/facades/fetch.facade.ts'
 
 export interface UseFetchPaginationOptions {
     query?: Record<string, any>

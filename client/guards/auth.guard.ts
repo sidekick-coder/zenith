@@ -1,5 +1,5 @@
 import type { NavigationGuard } from 'vue-router'
-import di from '#client/utils/di.ts'
+import auth from '#client/facades/auth.facade.ts'
 
 export interface AuthGuardOptions {
     redirect: string
@@ -10,9 +10,7 @@ export function createAuthGuard(options: AuthGuardOptions): NavigationGuard {
     const exclude = options.exclude || ['/admin/auth/login', '/admin/auth/register']
     
     return (to) => {
-        const user = di.get<any>('auth:user')
-
-        if (!user && !exclude.includes(to.path)) {
+        if (!auth.user && !exclude.includes(to.path)) {
             return options.redirect
         }
     }

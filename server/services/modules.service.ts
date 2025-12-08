@@ -94,6 +94,8 @@ export default class ModulesService {
     }
 
     public async loadModulesInstances(){
+        this.mods = []
+        
         for (const manifest of this.manifests.values()) {
             if (!manifest.enabled) {
                 continue
@@ -108,9 +110,9 @@ export default class ModulesService {
             const modImport = await import(file)
             const ModClass = modImport.default || modImport
 
-            const modInstance = new ModClass() as any
+            const modInstance = new ModClass() as Module
 
-            Object.assign(modInstance, manifest)
+            modInstance.setData(manifest)
 
             this.mods.push(modInstance)
         }

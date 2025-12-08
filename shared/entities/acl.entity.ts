@@ -1,20 +1,32 @@
 import { defineAbility, subject as createSubject } from '@casl/ability'
 import Permission from './permission.entity.ts'
+import LoggerService from '#shared/services/logger.service.ts'
 
 export default class Acl {
     public ability: ReturnType<typeof defineAbility>
     public permissions: Permission[]
+    public debug: boolean = false
+    public logger: LoggerService
 
-    constructor(permissions: Permission[]) {
+    constructor(data: Partial<Acl> = {}) {
+        const permissions = data.permissions || []
         const perms = permissions.map((permission) => Permission.from(permission))
 
         this.permissions = perms
+        this.debug = data.debug || false
+        this.logger = data.logger || new LoggerService().child({ label: 'acl' })
         
         this.ability = defineAbility((can) => {
             perms.forEach((permission) => {
                 can(permission.action, permission.subject, permission.parsedConditions)
             })
         })
+
+        if (this.debug) {
+            this.logger.debug('initialized in debug mode', {
+                permissions: this.permissions,
+            })
+        }
     }
 
     public can(action: string, subject: any, object?: Record<string, any>) {

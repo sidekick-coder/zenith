@@ -7,6 +7,8 @@ import type {
 import Acl from '#server/entities/acl.entity.ts'
 import Permission from '#server/entities/permission.entity.ts'
 import type User from '#server/entities/user.entity.ts'
+import config from '#server/facades/config.facade.ts'
+import logger from '#server/facades/logger.facade.ts'
 
 export type AuthorizationContext = MiddlewareHandleResult<[AuthorizationMiddleware]>
 
@@ -50,7 +52,11 @@ export class AuthorizationMiddleware implements Middleware {
             auth: { user },
         })
 
-        const acl = new Acl(permissions)
+        const acl = new Acl({
+            permissions,
+            debug: config.get('acl.debug') || config.get('app.debug'),
+            logger: logger.child({ label: 'acl' }),
+        })
         
         return { acl }
     }

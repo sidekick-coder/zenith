@@ -65,7 +65,5 @@ export default class RouterLifecycleHook extends LifecycleHook {
         })
 
         app.use(router)
-
-        await router.isReady()
     }
 }

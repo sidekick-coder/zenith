@@ -25,7 +25,11 @@ export default class ViteLifecycleHook extends LifecycleHook {
         await vite.load(app.app)
 
         app.onUnhandlerRouted = (req, res) => {
-            return vite.handle(req.originalUrl, req, res)
+            return vite.handle({
+                url: req.originalUrl,
+                request: req,
+                response: res,
+            })
         }
     }
 

@@ -1,5 +1,6 @@
 import { program } from 'commander'
 import chokidar from 'chokidar'
+import { throttle } from 'lodash-es'
 import env from '#server/facades/env.facade.ts'
 import { basePath } from '#server/utils/paths.ts'
 import logger from '#server/facades/logger.facade.ts'
@@ -44,6 +45,7 @@ async function stop(){
 }
 
 async function reload(filename?: string){
+
     if (filename) {
         logger.debug(`File changed: ${filename}, reloading server...`)
     }
@@ -56,6 +58,8 @@ async function reload(filename?: string){
 
     await start()
 }
+
+const throttledReload = throttle(reload, 1000)
 
 program.command('serve')
     .option('-w, --watch', 'Watch for changes and restart server')
@@ -103,9 +107,9 @@ program.command('serve')
             }
         })
 
-        watcher.on('change', reload)
-        watcher.on('add', reload)
-        watcher.on('unlink', reload)
+        watcher.on('change', throttledReload)
+        watcher.on('add', throttledReload)
+        watcher.on('unlink', throttledReload)
 
         watcher.on('error', (error) => logger.error('Watcher error:', error))
 

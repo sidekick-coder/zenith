@@ -1,4 +1,4 @@
-import di from '#client/utils/di.ts'
+import auth from '#client/facades/auth.facade.ts'
 
 export interface GuestGuardOptions {
     redirect: string
@@ -6,9 +6,7 @@ export interface GuestGuardOptions {
 
 export function createGuestGuard(options: GuestGuardOptions) {
     return () => {
-        const user = di.get<any>('auth:user')
-
-        if (user) {
+        if (auth.user) {
             return options.redirect
         }
     }

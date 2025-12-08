@@ -5,12 +5,12 @@ import User from '#shared/entities/user.entity.ts'
 
 export default class AuthLifecycleHook extends LifecycleHook {
     public async onRegister(): Promise<void> {
-        const userData = di.get<any>('auth:user', undefined)
+        const state = di.get<Record<string, any>>('state')
 
         let user = null as User | null
 
-        if (userData) {
-            user = User.from(userData)
+        if (state['auth:user']) {
+            user = User.from(state['auth:user'])
         }
 
         const auth = new AuthService({ user })

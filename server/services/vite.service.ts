@@ -1,4 +1,3 @@
-import fs from 'fs'
 import { stripVTControlCharacters } from 'util'
 import type { Application } from 'express'
 import { createLogger, createServer as createViteServer  } from 'vite'
@@ -9,7 +8,7 @@ import CookieService from './cookie.service.ts'
 import env from '#server/facades/env.facade.ts'
 import config from '#server/facades/config.facade.ts'
 import logger from '#server/facades/logger.facade.ts'
-import { basePath, clientPath } from '#server/utils/paths.ts'
+import { basePath } from '#server/utils/paths.ts'
 import router from '#server/facades/router.facade.ts'
 import auth from '#server/facades/auth.facade.ts'
 import assets from '#server/facades/assets.facade.ts'
@@ -18,21 +17,44 @@ import Permission from '#server/entities/permission.entity.ts'
 import ConfigService from '#shared/services/config.service.ts'
 import DIService from '#shared/services/di.service.ts'
 import type ViteEntryPointService from '#shared/services/viteEntryPoint.service.ts'
+import El from '#server/entities/el.entity.ts'
+import { tryCatch } from '#shared/utils/tryCatch.ts'
+import type { RenderOptions } from '#shared/services/viteEntryPoint.service.ts'
+
+interface HandleOptions {
+    url: string;
+    request: Request;
+    response: Response;
+}
 
 export default class ViteService {
     public logger = logger.child({ label: 'vite' })
     public server: ViteDevServer | undefined
     public entrypoint: ViteEntryPointService | null = null
     public debug: boolean
-    public container: Map<string, any>
+    public state: Map<string, any>
+    public clientConfig: ConfigService
+    public clientContainer: DIService
 
     constructor(data: Partial<ViteService> = {}) {
-        this.container = new Map<string, any>()
+        this.state = new Map<string, any>()
         this.debug = data.debug ?? false
+
+        this.clientConfig = new ConfigService()
+        this.clientContainer = new DIService()
+
+        if (this.debug) {
+            this.logger.debug('initialized in debug mode')
+        }
+
     }
 
-    public addToContainer(key: string, value: any) {
-        this.container.set(key, value)
+    public addDependency(key: string, value: any) {
+        this.clientContainer.set(key, value)
+    }
+
+    public addState(key: string, value: any) {
+        this.state.set(key, value)
     }
 
     public async loadEntryNode(){
@@ -60,17 +82,19 @@ export default class ViteService {
             throw new Error('Failed to load Vite entrypoint')
         }
 
-        const clientConfig = new ConfigService()
+        this.clientConfig.loadFromEntries(Object.entries(env.get('CLIENT_CONFIG') || {}), 'env')
 
-        clientConfig.loadFromEntries(Object.entries(env.get('CLIENT_CONFIG') || {}), 'env')
-
-        clientConfig.set('site', config.get('site', {}))
-        clientConfig.set('branding', config.get('branding', {}))
-        clientConfig.set('auth', config.get('auth', {}))
+        this.clientConfig.set('site', config.get('site', {}))
+        this.clientConfig.set('branding', config.get('branding', {}))
+        this.clientConfig.set('auth', config.get('auth', {}))
+        this.clientConfig.set('setup', config.get('setup') || {})
+        this.clientConfig.set('cookie.prefix', config.get('cookie.prefix', ''))
 
         const options = {
-            config: clientConfig.toRecord(),
             logger: this.logger,
+            config: this.clientConfig.toRecord(),
+            container: this.clientContainer.toRecord(),
+            router: router
         }
 
         await this.entrypoint.load(options)
@@ -94,7 +118,9 @@ export default class ViteService {
 
         viteLogger.info = (msg, opts) => log(msg, opts)
         viteLogger.warn = (msg, opts) => log(msg, opts)
-        viteLogger.error = (msg, opts) => log(msg, opts)
+        viteLogger.error = (msg, opts) => {
+            this.logger.error(stripVTControlCharacters(msg), opts)
+        }
 
         this.server = await createViteServer({
             customLogger: viteLogger,
@@ -109,6 +135,10 @@ export default class ViteService {
         })
 
         app.use(this.server.middlewares)
+
+        if (this.debug) {
+            this.logger.debug('vite server loaded in middleware mode')
+        }
     }
 
     public async load(app: Application) {
@@ -116,115 +146,136 @@ export default class ViteService {
         await this.loadEntryNode()
     }
 
-    public async handle(url: string, _request: Request, response: Response) {
-        try {
-            const template = env.get('NODE_ENV') === 'production' 
-                ? fs.readFileSync(basePath('client-dist', 'browser', 'client', 'index.html'), 'utf-8')
-                : await this.server!.transformIndexHtml(url, fs.readFileSync(clientPath('index.html'), 'utf-8'))
+    public async render(options: RenderOptions): Promise<string> {
+        if (!this.entrypoint) {
+            throw new Error('Vite entrypoint not loaded')
+        }
 
-            const render = env.get('NODE_ENV') === 'production'
-                ? (await import(basePath('client-dist', 'node', 'entry-server.js'))).render
-                : (await this.server!.ssrLoadModule('/client/entry-server.ts')).render
+        const html = new El('html')
 
-            const container = new DIService()
+        // head
+        const head = html.child('head')
 
-            for (const [key, value] of this.container.entries()) {
-                container.set(key, JSON.parse(JSON.stringify(value)))
-            }
-
-            const clientConfig = new ConfigService()
-
-            clientConfig.loadFromEntries(Object.entries(env.get('CLIENT_CONFIG') || {}), 'env')
-
-            clientConfig.set('site', config.get('site', {}))
-            clientConfig.set('branding', config.get('branding', {}))
-            clientConfig.set('auth', config.get('auth', {}))
-
-            container.set('setup', config.get('setup') || {})
-            container.set('state', {})
-            container.set('permissions', [] as Permission[])
-            container.set('user:metas', {} as Record<string, any>)
-            container.set('preferences:dark_mode', false)
+        // meta
+        head
+            .child('meta')
+            .attr('charset', 'utf-8')
             
-            const cookies = new CookieService(_request, response)
+        head
+            .child('meta')
+            .attr('name', 'viewport')
+            .attr('content', 'width=device-width, initial-scale=1')
 
-            const token = cookies.get('Authorization', '') 
-                || _request.headers['authorization'] as string
+        // styles
+        if (env.get('NODE_ENV') !== 'production') {
+            head
+                .child('link')
+                .attr('rel', 'stylesheet')
+                .attr('href', '/client/assets/styles.css')
+        }
+        
+        // scripts
+        head
+            .child('script')
+            .attr('defer', '')
+            .attr('type', 'module')
+            .attr('src', '/client/entry-client.ts')
+
+       
+        
+        // body
+        const body = html.child('body')
+
+        // app
+        const state = new Map<string, any>()
+
+        for (const [key, value] of this.state.entries()) {
+            state.set(key, value)
+        }
+
+        for (const [key, value] of Object.entries(options.state || {})) {
+            state.set(key, value)
+        }
+
+        const rendered = await this.entrypoint!.render({
+            url: options.url,
+            cookies: options.cookies || {},
+            state: Object.fromEntries(state),
+            router: options.router,
+        })
+
+        // update state
+        for (const [key, value] of Object.entries(rendered.state || {})) {
+            state.set(key, value)
+        }
+
+        head.child('script').html(`
+            window.__STATE__ = ${JSON.stringify(Object.fromEntries(state))};
+            window.__CONTAINER__ = ${JSON.stringify(this.clientContainer.toRecord())};
+            window.__CONFIG__ = ${JSON.stringify(this.clientConfig.toRecord())};
+        `)
+
+        body.child('div')
+            .attr('id', 'app')
+            .html(rendered.html || '')
+
+        return html.toString()
+    }
+
+    public async handle({ url, response, request }: HandleOptions) {
+        const cookie = new CookieService(request, response)
+
+        const token = cookie.get('Authorization', '') 
+                || request.headers['authorization'] as string
                 || ''
 
-            if (token) {                
-                container.set('auth:user', await auth.authenticate(token))
-            }
+        const state = new Map<string, any>()
 
-            if (container.get('auth:user')) {
-                const user = container.get('auth:user') as User
-                const permissions = Permission.applyContext(user.permissions, {
-                    auth: {
-                        user: user
-                    },
-                })
-
-                const metas = await user.$metas.all()
-
-                container.set('permissions', permissions)
-                container.set('user:metas', metas)
-                container.set('preferences:dark_mode', metas['admin-ui:dark_mode'] ?? false)
-            }
-
-            
-
-            const ctx = {
-                url,
-                router,
-                container: container.toRecord(),
-                config: clientConfig.toRecord(),
-                logger: this.logger,
-                cookies:  cookies.toObject(),
-            }
-
-            const rendered = await render(ctx)
-
-            let head = rendered.head ?? ''
-            const body = rendered.html ?? ''
-
-            // inject assets from assets facade
-            head += this.getAssetsHtml()
-
-            // only inject styles in development mode, to prevent layout shifts
-            if (env.get('NODE_ENV') !== 'production') {
-                head += '<link rel="stylesheet" href="/client/assets/styles.css">'
-            }
-
-            // state
-            head += `<script>
-                window.__CONTAINER__ = ${JSON.stringify(ctx.container)}
-                window.__CONFIG__ = ${JSON.stringify(ctx.config)}
-            </script>`
-
-            // Replace app-html first
-            let html = template.replace('<!--app-html-->', body)
-            
-            // Add dark class to html tag if dark mode is enabled
-            if (container.get('preferences:dark_mode')) {
-                html = html.replace('<html', '<html class="dark"')
-            }
-            
-            // Find the last script or link tag in head and insert our head content after it
-            const headEndIndex = html.indexOf('</head>')
-            
-            if (headEndIndex !== -1) {
-                html = html.slice(0, headEndIndex) + head + '\n  ' + html.slice(headEndIndex)
-            }
-
-            response.status(200).set({ 'Content-Type': 'text/html' })
-                .end(html)
-        } catch (e) {
-            this.logger.error('Error during Vite SSR render', e)
-            const error = e as Error
-            this.server?.ssrFixStacktrace(error)
-            console.error(error.stack)
-            response.status(500).end(error.stack)
+        if (token) {                
+            state.set('auth:user', await auth.authenticate(token))
         }
+
+        if (state.get('auth:user')) {
+            const user = state.get('auth:user') as User
+            const permissions = Permission.applyContext(user.permissions, {
+                auth: {
+                    user: user
+                },
+            })
+
+            const metas = await user.$metas.all()
+
+            state.set('permissions', permissions)
+            state.set('user:metas', metas)
+            state.set('preferences:dark_mode', metas['admin-ui:dark_mode'] ?? false)
+        }
+
+        const options: RenderOptions = {
+            url,
+            cookies: cookie.toRecord(),
+            state: Object.fromEntries(state),
+            router: router,
+            htmlAttrs: {}
+        }
+
+        if (state.get('preferences:dark_mode')) {
+            options.htmlAttrs = { class: 'dark' }
+        }
+
+        const [error, html] = await tryCatch( () => this.render(options) )
+
+        if (error) {
+            Object.assign(error, { url })
+            this.logger.error('Error during Vite SSR render', error)
+            this.server?.ssrFixStacktrace(error)
+            response.status(500).end(error.stack)
+            return
+        }
+        
+        return response
+            .status(200)
+            .set({ 'Content-Type': 'text/html' })
+            .end(html)
     }
 
     private getAssetsHtml(): string {

@@ -137,7 +137,9 @@ interface GroupedMenu {
     items: MenuItem[];
 }
 
-const metas = di.get<Record<string, any>>('user:metas', {})
+const state = di.get<Record<string, any>>('state')
+
+const metas = state['user:metas'] || {}
 const hideIds = metas['admin-ui:hide-menus'] || []
 const hideGroups = metas['admin-ui:hide-menu-groups'] || []
 const extras = metas['admin-ui:menu-extras'] || []

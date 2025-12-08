@@ -1,8 +1,8 @@
 import type { NavigationGuard } from 'vue-router'
-import di from '#client/utils/di.ts'
+import config from '#client/facades/config.facade.ts'
 
 const setupGuard: NavigationGuard = (to) => {
-    const setup = di.get<any>('setup')
+    const setup = config.get<any>('setup')
     
     const completed = setup?.database && setup?.user
     

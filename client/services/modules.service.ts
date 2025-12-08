@@ -33,6 +33,10 @@ export default class ModulesService {
     }
 
     public async load() {
+        if (!di.has('modules')) {
+            return
+        }
+        
         const manifests = di.get<ModuleManifest[]>('modules')
 
         for (const manifest of manifests) {

@@ -5,7 +5,7 @@ import type ModuleManifest from '#shared/entities/moduleManifest.entity.ts'
 import { basePath } from '#server/utils/paths.ts'
 
 export default class ModulesNodeService extends ModulesService {     
-    public async discover() {        
+    public async discover() {
         const manifests = di.get<ModuleManifest[]>('modules')
 
         for (const manifest of manifests) {
