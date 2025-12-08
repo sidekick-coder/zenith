@@ -226,7 +226,7 @@ onMounted(() => {
                 </SidebarMenu>
             </SidebarHeader>
 
-            <SidebarContent>
+            <SidebarContent class="gap-0">
                 <AppLayoutSidebarGroup
                     v-for="group in groups"
                     :id="group.id"
