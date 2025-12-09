@@ -24,7 +24,6 @@ export default class ModulesLifecycleHook extends LifecycleHook {
 
     public async onLoad(): Promise<void> {
         const router = di.get<RouterRegister>(RouterSevice)
-        const vite = di.get<ViteService>(ViteService)
 
         const assets = [] as any[]
 
@@ -47,18 +46,6 @@ export default class ModulesLifecycleHook extends LifecycleHook {
                 assets.push(`static/modules/${mod.id}/browser/styles.css`)
             }
         }
-
-        vite.on('vite:render', ({ head }: ViteServiceEvents['vite:render']) => {
-            assets.forEach(asset => {
-                if (asset.endsWith('.css')) {
-                    head
-                        .child('link')
-                        .attr('type', 'text/css')
-                        .attr('rel', 'stylesheet')
-                        .attr('href', `/${asset}`)
-                }
-            })
-        })
     }
 
     public async onBoot(): Promise<void> {

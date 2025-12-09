@@ -11,7 +11,8 @@ interface TableListOptions {
     where?: string
 }
 
-program.command('sql:select')
+program
+    .command('sql:select')
     .arguments('<table>')
     .description('List rows from a database table')
     .helpGroup('sql')
