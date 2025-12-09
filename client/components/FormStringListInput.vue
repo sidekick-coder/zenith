@@ -26,6 +26,10 @@ defineProps({
         type: Boolean,
         default: false,
     },
+    placeholder: {
+        type: String,
+        default: null,
+    },
 })
 </script>
 
@@ -39,8 +43,9 @@ defineProps({
             <FormLabel>{{ label }}</FormLabel>
             <FormControl>
                 <StringListInput
-                    :disabled="disabled"
-                    :name="name"
+                    :disabled
+                    :name
+                    :placeholder
                     :model-value="value"
                     @update:model-value="setValue"
                 />

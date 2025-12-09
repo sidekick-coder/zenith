@@ -5,6 +5,7 @@ import Icon from './Icon.vue'
 import { Input } from '#client/components/ui/input'
 import { Button } from '#client/components/ui/button'
 import { cn } from '#client/lib/utils'
+import { $t } from '#shared/lang.ts'
 
 defineOptions({
     inheritAttrs: false,
@@ -23,6 +24,10 @@ defineProps({
     disabled: {
         type: Boolean,
         default: false,
+    },
+    placeholder: {
+        type: String,
+        default: null,
     },
 })
 
@@ -49,7 +54,7 @@ function remove(index: number) {
         <div class="flex gap-2">
             <Input
                 v-model="inputValue"
-                placeholder="Type a filename and press Enter"
+                :placeholder="placeholder"
                 class="flex-1 h-10"
                 :disabled
                 @keydown.enter.prevent="add"
