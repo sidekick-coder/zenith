@@ -2,6 +2,7 @@
 import { computed, ref  } from 'vue'
 import type { PropType } from 'vue'
 import { get } from 'lodash-es'
+import { syncRef } from '@vueuse/core'
 import Checkbox from './ui/checkbox/Checkbox.vue'
 import DataTablePagination from './DataTablePagination.vue'
 import {
@@ -153,32 +154,6 @@ const rowsModel = defineModel('rows', {
     default: () => [],
 })
 
-if (props.fetch) {
-    const pagination = useFetchPagination<T>(props.fetch, {
-        serialize: props.serialize,
-        limit: limitModel.value,
-        query: { 
-            ...props.fetchQuery,
-            ...props.query 
-        },
-    })
-
-    innerRows = pagination.items
-    innerPage = pagination.page
-    innerTotalPages = pagination.totalPages
-    innerTotal = pagination.total
-    innerLimit = pagination.limit
-    innerLoad = pagination.load
-    innerReset = pagination.reset
-}
-
-if (!props.fetch) {
-    innerRows = rowsModel
-    innerPage = pageModel
-    innerTotalPages = totalPagesModel
-    innerTotal = totalModel
-    innerLimit = limitModel
-}
 
 const loading = defineModel('loading', {
     type: Boolean,
@@ -199,6 +174,36 @@ const shouldBreak = computed(() => {
     
     return isBreak.value
 })
+
+if (props.fetch) {
+    const pagination = useFetchPagination<T>(props.fetch, {
+        serialize: props.serialize,
+        limit: limitModel.value,
+        query: { 
+            ...props.fetchQuery,
+            ...props.query 
+        },
+    })
+
+    innerRows = pagination.items
+    innerPage = pagination.page
+    innerTotalPages = pagination.totalPages
+    innerTotal = pagination.total
+    innerLimit = pagination.limit
+    innerLoad = pagination.load
+    innerReset = pagination.reset
+
+    syncRef(loading, pagination.loading)
+}
+
+if (!props.fetch) {
+    innerRows = rowsModel
+    innerPage = pageModel
+    innerTotalPages = totalPagesModel
+    innerTotal = totalModel
+    innerLimit = limitModel
+}
+
 
 function findKey(row: any) {
     if (typeof props.rowKey === 'function') {

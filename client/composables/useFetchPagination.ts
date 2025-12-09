@@ -14,7 +14,15 @@ export interface UseFetchPaginationOptions {
 }
 
 export function useFetchPagination<T = any>(url: string, options: UseFetchPaginationOptions = {}) {
-    const response = useState<Pagination>(url, {
+    let key = url
+
+    if (options.query) {
+        key += '?' + Object.entries(options.query)
+            .map(([k, v]) => `${k}=${Array.isArray(v) ? v.join(',') : v}`)
+            .join('&')
+    }
+
+    const response = useState<Pagination>(key, {
         default: () => ({
             items: [],
             page: 1,
