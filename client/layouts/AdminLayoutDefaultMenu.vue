@@ -98,9 +98,14 @@ watch(groups, (newGroups) => {
         v-model:open="group.open"
         class="group/collapsible"
     >
-        <SidebarGroup>
+        <SidebarGroup
+            :class="open ? '' : 'py-0' "
+        >
             <CollapsibleTrigger as-child>
-                <SidebarGroupLabel class="p-0">
+                <SidebarGroupLabel
+                    class="p-0"
+                    :class="open ? '' : 'hidden' "
+                >
                     <div class="cursor-pointer hover:bg-muted px-2 py-1 rounded-md flex items-center gap-2">
                         {{ group.label }} 
                     </div>

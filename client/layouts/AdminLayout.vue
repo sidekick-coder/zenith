@@ -220,11 +220,13 @@ onMounted(() => {
                 <AdminLayoutDefaultMenu
                     v-else-if="menuVariant === 'default'"
                     :items="menu"
+                    :open="open"
                 />
                 
                 <AdminLayoutPlainMenu
                     v-else-if="menuVariant === 'plain'"
                     :items="menu"
+                    :open="open"
                 />
             </SidebarContent>
 
