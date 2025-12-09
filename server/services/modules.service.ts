@@ -1,5 +1,6 @@
 import fs from 'fs'
 import path from 'path'
+import { pathToFileURL } from 'url'
 import ModuleInstallerService from './moduleInstaller.service.ts'
 import ModuleUpgraderService from './moduleUpgrader.service.ts'
 import ModuleBuilderService from './moduleBuilder.service.ts'
@@ -12,6 +13,7 @@ import type { ServerSetup, SetupServerParams } from '#server/utils/defineServerS
 import logger from '#server/facades/logger.facade.ts'
 import ModuleManifest from '#shared/entities/moduleManifest.entity.ts'
 import type LifecycleHook from '#shared/entities/lifecycleHook.entity.ts'
+import env from '#server/facades/env.facade.ts'
 
 interface UninstallOptions {
     rollback?: boolean
@@ -107,7 +109,13 @@ export default class ModulesService {
                 continue
             }
 
-            const modImport = await import(file)
+            const url = pathToFileURL(file)
+
+            if (env.production) {
+                url.searchParams.set('t', Date.now().toString())
+            }
+
+            const modImport = await import(url.href)
             const ModClass = modImport.default || modImport
 
             const modInstance = new ModClass() as Module
