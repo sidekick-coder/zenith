@@ -15,7 +15,7 @@ async function handleLogout() {
 </script>
 
 <template>
-    <div class="min-h-screen bg-background flex items-center justify-center overflow-hidden relative">
+    <div class="dark min-h-screen bg-background flex items-center justify-center overflow-hidden relative">
         <!-- Parallax Stars Background -->
         <div class="absolute inset-0 overflow-hidden pointer-events-none">
             <div class="stars-layer-1" />

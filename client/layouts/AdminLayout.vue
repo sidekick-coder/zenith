@@ -2,7 +2,6 @@
 import { toast } from 'vue-sonner'
 import {
     ref,
-    toValue,
     computed,
     onMounted
     
@@ -10,9 +9,9 @@ import {
 import type { PropType } from 'vue'
 import { useRoute } from 'vue-router'
 import { truncate } from 'lodash-es'
-import AppLayoutSidebarGroup from './AdminLayoutSidebarGroup.vue'
 import AdminLayoutDefaultMenu from './AdminLayoutDefaultMenu.vue'
 import AdminLayoutPlainMenu from './AdminLayoutPlainMenu.vue'
+import AdminLayoutUserMenu from './AdminLayoutUserMenu.vue'
 import Logo from '#client/components/Logo.vue'
 import {
     Breadcrumb,
@@ -36,10 +35,7 @@ import {
 import { $fetch } from '#client/utils/fetcher.ts'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
 import { $t } from '#shared/lang.ts'
-import { useMenu } from '#client/composables/useMenu.ts'
 import type { MenuItem } from '#client/composables/useMenu.ts'
-import Icon from '#client/components/Icon.vue'
-import di from '#client/utils/di.ts'
 import acl from '#client/facades/acl.facade.ts'
 import config from '#client/facades/config.facade.ts'
 
@@ -233,21 +229,9 @@ onMounted(() => {
             </SidebarContent>
 
             <SidebarFooter>
-                <SidebarMenu>
-                    <slot name="footer" />
+                <slot name="footer" />
 
-                    <SidebarMenuItem>
-                        <SidebarMenuButton @click="onLogout">
-                            <Icon
-                                name="LogOut"
-                                class="rotate-180"
-                            />
-                            <div>
-                                {{ $t('Logout') }}
-                            </div>
-                        </SidebarMenuButton>
-                    </SidebarMenuItem>
-                </SidebarMenu>
+                <AdminLayoutUserMenu @logout="onLogout" />
             </SidebarFooter>
         </Sidebar>
 

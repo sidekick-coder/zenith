@@ -73,14 +73,16 @@ const menu = computed(() => {
         <slot />
 
         <template #footer>
-            <SidebarMenuItem>
-                <SidebarMenuButton as-child>
-                    <RouterLink to="/admin/settings">
-                        <Icon name="Settings" />
-                        <span>{{ $t('Settings') }}</span>
-                    </RouterLink>
-                </SidebarMenuButton>
-            </SidebarMenuItem>
+            <SidebarMenu>
+                <SidebarMenuItem>
+                    <SidebarMenuButton as-child>
+                        <RouterLink to="/admin/settings">
+                            <Icon name="Settings" />
+                            <span>{{ $t('Settings') }}</span>
+                        </RouterLink>
+                    </SidebarMenuButton>
+                </SidebarMenuItem>
+            </SidebarMenu>
         </template>
     </AdminLayout>
 </template>
