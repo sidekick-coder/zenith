@@ -74,6 +74,8 @@ export default class ViteService extends compose(Hooks) {
     }
 
     public async loadEntryNode(){
+        const start = Date.now()
+
         if (this.debug) {
             this.logger.debug('loading vite entrypoint')
         }
@@ -114,6 +116,10 @@ export default class ViteService extends compose(Hooks) {
         }
 
         await this.entrypoint.load(options)
+
+        if (this.debug) {
+            this.logger.debug(`vite entrypoint loaded in ${Date.now() - start}ms`)
+        }
     }
 
     public async loadServer(app: Application) {

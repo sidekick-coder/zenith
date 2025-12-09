@@ -1,85 +1,100 @@
+import cp from 'child_process'
 import { program } from 'commander'
 import chokidar from 'chokidar'
-import env from '#server/facades/env.facade.ts'
+import { debounce } from 'lodash-es'
 import { basePath } from '#server/utils/paths.ts'
 import logger from '#server/facades/logger.facade.ts'
-import { importAll } from '#server/utils/index.ts'
-import LifecycleService from '#shared/services/lifecycle.service.ts'
-import LifecycleHook from '#shared/entities/lifecycleHook.entity.ts'
-import config from '#server/facades/config.facade.ts'
 
-const lifecycle = new LifecycleService({
-    logger: logger.child({ label: 'lifecycle' }),
-})
-
-async function init(){
-    env.load()
-
-    config.load()
-
-    lifecycle.debug = config.get('lifecycle.debug') || config.get('app.debug')
-
-    const mods = await importAll(basePath('server/hooks'), {
-        cache: false
-    })
-        
-    const hooks: LifecycleHook[] = Object.values(mods)
-        .map(m => m.default || m)
-        .filter((HookClass: any) => HookClass.prototype instanceof LifecycleHook)
-        .map((HookClass: any) => new HookClass())
-        
-    lifecycle.add(...hooks)
-}
+let child: cp.ChildProcess | null = null
 
 async function start(){
-    await lifecycle.register()
+    const modulePath = basePath('index.ts')
+    const execArgv = [
+        '--no-warnings',
+        '--experimental-strip-types'
+    ]
         
-    await lifecycle.load()
-        
-    await lifecycle.boot()
+    child = cp.fork(modulePath, [], { 
+        execArgv,
+        silent: false,
+        env: {
+            ...process.env,
+            ZARTE: 'false',
+        }
+    })
+
+    child.on('error', (error) => {
+        logger.error('Server process error:', error)
+    })
+
+    child.on('exit', (code, signal) => {
+        if (code !== null && code !== 0) {
+            logger.error(`Server process exited with code ${code}`)
+        }
+
+        if (signal) {
+            logger.debug(`Server process killed with signal ${signal}`)
+        }
+    })
+
+    // Listen for server-restart events from the child process
+    child.on('message', (message) => {
+        if (message === 'server-restart') {
+            logger.debug('Received server-restart event from child process')
+            debouncedReload()
+        }
+    })
 }
 
 async function stop(){
-    await lifecycle.shutdown()
+    if (!child) return
+
+    return new Promise<void>((resolve) => {
+        child!.once('exit', resolve)
+
+        child!.kill('SIGTERM')
+
+        child = null
+    })
 }
 
-let isReloading = false
-
-async function reload(filename?: string){
-    if (isReloading) {
-        return
-    }
-
-    isReloading = true
-
-    if (filename) {
-        logger.debug(`File changed: ${filename}, reloading server...`)
-    }
-    
-    await init()
-
+async function reload(){
     await stop()
 
     await start()
-
-    isReloading = false
 }
+
+const debouncedReload = debounce(reload, 300)
 
 program.command('serve')
     .option('-w, --watch', 'Watch for changes and restart server')
     .action(async (options) => {
-        await init()
-
         await start()
+
+        if (!child) {
+            logger.error('Failed to start server process')
+            return
+        }
+
+        process.on('SIGINT', () => {
+            logger.info('Shutting down...')
+                
+            if (child) {
+                child.kill('SIGTERM')
+            }
+
+            process.exit(0)
+        })
 
         if (!options.watch) {
             return
         }
-
+        
         const entries = [
             'shared',
             'server',
             'modules',
+            'index.ts',
             '.env'
         ]
 
@@ -91,14 +106,15 @@ program.command('serve')
             'tmp',
             'root',
             'client',
-            'client-dist',
-            'dist',
             'storage',
             '.volumes',
+            'dist',
             'package-lock.json',
             'yarn.lock'
         ]
 
+        logger.debug('Watching directories', entries)
+            
         const watcher = chokidar.watch(entries.map(entry => basePath(entry)), {
             persistent: true,
             ignoreInitial: true,
@@ -111,11 +127,30 @@ program.command('serve')
             }
         })
 
-        watcher.on('change', reload)
-        watcher.on('add', reload)
-        watcher.on('unlink', reload)
+        watcher.on('change', (path) => {
+            logger.debug(`File changed: ${path}`)
+            reload()
+        })
 
-        watcher.on('error', (error) => logger.error('Watcher error:', error))
+        watcher.on('add', (path) => {
+            logger.debug(`File added: ${path}`)
+            reload()
+        })
 
-        watcher.on('ready', () => logger.debug('wathing files'))
-    })
+        watcher.on('unlink', (path) => {
+            logger.debug(`File removed: ${path}`)
+            reload()
+        })
+
+        watcher.on('error', (error) => {
+            logger.error('Watcher error:', error)
+        })
+
+        watcher.on('ready', () => {
+            logger.debug('Watcher is ready')
+            reload()
+        })
+
+        
+    }
+    )
