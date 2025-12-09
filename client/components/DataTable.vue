@@ -118,13 +118,13 @@ const selected = defineModel('selected', {
     default: () => ([]),
 })
 
-let rows = ref([] as any[])
-let page = ref(1)
-let totalPages = ref(1)
-let total = ref(0)
-let limit = ref(10)
-let load = async () => {}
-let reset = async () => {}
+let innerRows = ref([] as any[])
+let innerPage = ref(1)
+let innerTotalPages = ref(1)
+let innerTotal = ref(0)
+let innerLimit = ref(10)
+let innerLoad = async () => {}
+let innerReset = async () => {}
 
 
 // fetch
@@ -163,21 +163,21 @@ if (props.fetch) {
         },
     })
 
-    rows = pagination.items
-    page = pagination.page
-    totalPages = pagination.totalPages
-    total = pagination.total
-    limit = pagination.limit
-    load = pagination.load
-    reset = pagination.reset
+    innerRows = pagination.items
+    innerPage = pagination.page
+    innerTotalPages = pagination.totalPages
+    innerTotal = pagination.total
+    innerLimit = pagination.limit
+    innerLoad = pagination.load
+    innerReset = pagination.reset
 }
 
 if (!props.fetch) {
-    rows = rowsModel
-    page = pageModel
-    totalPages = totalPagesModel
-    total = totalModel
-    limit = limitModel
+    innerRows = rowsModel
+    innerPage = pageModel
+    innerTotalPages = totalPagesModel
+    innerTotal = totalModel
+    innerLimit = limitModel
 }
 
 const loading = defineModel('loading', {
@@ -305,26 +305,26 @@ function toggle(row: any) {
 
 function selectAll(){
     if (props.rowKey) {
-        const newSelected = rows.value.filter(r => !selected.value.some(s => findKey(r) === findKey(s)))
+        const newSelected = innerRows.value.filter(r => !selected.value.some(s => findKey(r) === findKey(s)))
         selected.value = [...selected.value, ...newSelected]
         return
     }
 
-    const newSelected = rows.value.filter(r => !selected.value.includes(r))
+    const newSelected = innerRows.value.filter(r => !selected.value.includes(r))
     selected.value = [...selected.value, ...newSelected]
 }
 
 function unselectAll(){
     if (props.rowKey) {
-        selected.value = selected.value.filter(s => !rows.value.some(r => findKey(r) === findKey(s)))
+        selected.value = selected.value.filter(s => !innerRows.value.some(r => findKey(r) === findKey(s)))
         return
     }
 
-    selected.value = selected.value.filter(s => !rows.value.includes(s))
+    selected.value = selected.value.filter(s => !innerRows.value.includes(s))
 }
 
 function toggleAll(){
-    const allSelected = rows.value.every(isSelected)
+    const allSelected = innerRows.value.every(isSelected)
 
     if (allSelected) return unselectAll()
 
@@ -337,8 +337,8 @@ function onClick(item: any){
 }
 
 defineExpose({
-    load,
-    reset
+    load: innerLoad,
+    reset: innerReset
 })
 
 </script>
@@ -361,8 +361,8 @@ defineExpose({
                 >
                     <Checkbox
                         class="translate-y-0.5"
-                        :model-value="selected.length === rows.length && rows.length > 0"
-                        :indeterminate="selected.length > 0 && selected.length < rows.length"
+                        :model-value="selected.length === innerRows.length && innerRows.length > 0"
+                        :indeterminate="selected.length > 0 && selected.length < innerRows.length"
                         @click.stop="toggleAll"
                     />
                 </TableHead>
@@ -392,7 +392,7 @@ defineExpose({
             </TableRow>
         </TableHeader>
         <TableBody>
-            <TableRow v-if="rows.length === 0">
+            <TableRow v-if="innerRows.length === 0">
                 <TableCell
                     :colspan="columns.length + (props.selection ? 1 : 0)"
                     class="text-center"
@@ -405,7 +405,7 @@ defineExpose({
             </TableRow>
 
             <TableRow
-                v-for="row in rows.filter(filter)"
+                v-for="row in innerRows.filter(filter)"
                 :key="row.id"
                 :data-state="isSelected(row) ? 'selected' : undefined"
                 :class="cn('hover:bg-muted/20 ', findRowClass(row))"
@@ -457,13 +457,13 @@ defineExpose({
 
         <!-- Select all checkbox for mobile -->
         <Card
-            v-if="props.selection === 'multiple' && rows.length > 0"
+            v-if="props.selection === 'multiple' && innerRows.length > 0"
             class="py-2"
         >
             <CardContent class="flex items-center gap-2">
                 <Checkbox
-                    :model-value="selected.length === rows.length && rows.length > 0"
-                    :indeterminate="selected.length > 0 && selected.length < rows.length"
+                    :model-value="selected.length === innerRows.length && innerRows.length > 0"
+                    :indeterminate="selected.length > 0 && selected.length < innerRows.length"
                     @click.stop="toggleAll"
                 />
                 <span class="text-sm text-muted-foreground">
@@ -473,7 +473,7 @@ defineExpose({
         </Card>
 
         <!-- Empty state -->
-        <Card v-if="!loading && rows.length === 0">
+        <Card v-if="!loading && innerRows.length === 0">
             <CardContent class="text-center py-8">
                 {{ $t('No data available') }}
             </CardContent>
@@ -481,7 +481,7 @@ defineExpose({
 
         <!-- Cards -->
         <Card
-            v-for="row in rows"
+            v-for="row in innerRows"
             :key="row.id"
             :data-state="isSelected(row) ? 'selected' : undefined"
             :class="cn(
@@ -532,10 +532,10 @@ defineExpose({
 
     <DataTablePagination
         v-if="!hidePagination"
-        v-model:page="page"
-        v-model:limit="limit"
-        v-model:total="total"
-        v-model:total-pages="totalPages"
+        v-model:page="innerPage"
+        v-model:limit="innerLimit"
+        v-model:total="innerTotal"
+        v-model:total-pages="innerTotalPages"
         class="mt-4"
     />
 </template>
