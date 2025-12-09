@@ -1,7 +1,10 @@
+import env from '#server/facades/env.facade.ts'
 import lifecycle from '#server/facades/lifecycle.facade.ts'
 import { importAll } from '#server/utils/importAll.ts'
 import { basePath } from '#server/utils/paths.ts'
 import LifecycleHook from '#shared/entities/lifecycleHook.entity.ts'
+
+env.load()
 
 const mods = await importAll(basePath('server/hooks'))
 
