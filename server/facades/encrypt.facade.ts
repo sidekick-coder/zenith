@@ -8,7 +8,7 @@ di.set(key, new EncryptService())
 
 const encrypt = di.proxy<EncryptService>(key)
 
-await encrypt.load({
+encrypt.load({
     key: config.get('app.key', 'zenith'),
     debug: config.getOne<boolean>(['app.debug', 'encrypt.debug'], false),
 })

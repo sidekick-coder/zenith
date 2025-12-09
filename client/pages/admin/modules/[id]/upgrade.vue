@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { useRouteQuery } from '@vueuse/router'
 import { $t } from '#shared/lang.ts'
-import { $fetch } from '#client/utils/fetcher.ts'
+import $fetch from '#client/facades/fetch.facade.ts'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
 import SettingLayout from '#client/layouts/SettingLayout.vue'
 import PageSubtitle from '#client/components/PageSubtitle.vue'
@@ -13,7 +13,8 @@ import UpgradeZip from '#client/components/UpgradeZip.vue'
 import UpgradeGit from '#client/components/UpgradeGit.vue'
 
 const route = useRoute()
-const tab = useRouteQuery('tab', 'zip')
+const tab = useRouteQuery<string>('tab', 'zip')
+const loading = ref(false)
 
 const moduleId = computed(() => route.params.id as string)
 
@@ -23,19 +24,29 @@ const module = ref<any>({
     enabled: false
 })
 
-async function loadModule() {
-    const [error, json] = await tryCatch(() => $fetch(`/api/modules/${moduleId.value}`, { method: 'GET' }))
+async function load() {
+    loading.value = true
+
+    const [error, json] = await $fetch.try(`/api/modules/${moduleId.value}`, {
+        query: {
+            include: 'upgrade_info'
+        }
+    })
 
     if (error) {
-        console.error('Failed to load module:', moduleId.value)
-        console.error(error)
+        loading.value = false
         return
     }
 
     module.value = json
+    tab.value = module.value.upgrade_info?.source === 'git' ? 'git' : 'zip'
+
+    setTimeout(() => {
+        loading.value = false
+    }, 300)
 }
 
-await loadModule()
+onMounted(load)
 </script>
 
 <template>
@@ -54,27 +65,27 @@ await loadModule()
                 v-model="tab"
                 class="w-full"
             >
-                <TabsList class="grid w-full grid-cols-2">
+                <TabsList>
                     <TabsTrigger value="zip">
-                        {{ $t('From ZIP File') }}
+                        {{ $t('ZIP File') }}
                     </TabsTrigger>
                     <TabsTrigger value="git">
-                        {{ $t('From Git Repository') }}
+                        {{ $t('Git Repository') }}
                     </TabsTrigger>
                 </TabsList>
                 
-                <TabsContent 
-                    value="zip" 
-                    class="mt-6"
-                >
-                    <UpgradeZip :module="module" />
+                <TabsContent value="zip">
+                    <UpgradeZip
+                        v-if="!loading"
+                        :module="module"
+                    />
                 </TabsContent>
                 
-                <TabsContent 
-                    value="git" 
-                    class="mt-6"
-                >
-                    <UpgradeGit :module="module" />
+                <TabsContent value="git">
+                    <UpgradeGit
+                        v-if="!loading"
+                        :module="module"
+                    />
                 </TabsContent>
             </Tabs>
         </div>

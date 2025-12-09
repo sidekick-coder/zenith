@@ -7,6 +7,8 @@ import {
     basePath,
     tmpPath
 } from '#server/utils/paths.ts'
+import config from '#server/facades/config.facade.ts'
+import encrypt from '#server/facades/encrypt.facade.ts'
 
 export interface BaseOptions {
     id: string
@@ -123,6 +125,13 @@ export default class ModuleInstallerService {
                 silent: false
             })
         }
+
+        config.set(`modules.${id}`, {
+            source: 'git',
+            repository,
+            branch: branch || 'main',
+            key: key
+        })
 
         this.logger.info(`Module '${id}' installed successfully from git repository '${repository}'`)
     }

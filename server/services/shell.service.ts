@@ -1,11 +1,11 @@
 import { spawn } from 'child_process'
+import { da } from '@faker-js/faker'
 import rootLogger from '../facades/logger.facade.ts'
 
 const logger = rootLogger.child({ label: 'shell' })
 
 interface CommandOptions {
     cwd?: string
-    silent?: boolean
     env?: NodeJS.ProcessEnv
     shell?: boolean
 }
@@ -38,23 +38,46 @@ export default class ShellService {
         return new Promise((resolve, reject) => {
             const child = spawn(bin, args, {
                 cwd: options.cwd || process.cwd(),
-                stdio: options.silent ? 'pipe' : 'inherit',
+                stdio: 'pipe',
                 shell: options.shell ?? true,
                 env: options.env || process.env
             })
 
+            let data = ''
+
+            if (this.debug) {
+                child.stdout?.on('data', (d) => {
+                    data += d.toString()
+                })
+
+                child.stderr?.on('data', (d) => {
+                    data += d.toString()
+                })
+            }
+
             child.on('close', (code) => {
-                if (code === 0) {
-                    resolve()
-                } else {
-                    const errorMessage = `Command failed with exit code ${code}`
-                    this.logger.error(errorMessage, { 
+                if (this.debug) {
+                    this.logger.debug('command output', { 
                         bin, 
                         args, 
-                        code 
+                        output: data 
                     })
-                    reject(new Error(errorMessage))
                 }
+                
+                if (code === 0) {
+                    return resolve()
+                }
+
+                const errorMessage = `Command failed with exit code ${code}`
+                
+                this.logger.error(errorMessage, { 
+                    bin, 
+                    args, 
+                    code 
+                })
+
+                reject(new Error(errorMessage))
+                
             })
 
             child.on('error', (error) => {

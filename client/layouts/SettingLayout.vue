@@ -65,6 +65,8 @@ const menu = computed(() => {
     <AdminLayout
         :menu
         :breadcrumbs
+        :padding
+        :hide-breadcrumbs
         menu-variant="plain"
     >
         <template #header>

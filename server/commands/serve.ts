@@ -64,7 +64,7 @@ async function reload(){
     await start()
 }
 
-const debouncedReload = debounce(reload, 300)
+const debouncedReload = debounce(reload, 1000)
 
 program.command('serve')
     .option('-w, --watch', 'Watch for changes and restart server')

@@ -21,7 +21,7 @@ export default class EncryptService {
     private key: Buffer | null = null
     private debug = false
 
-    public async load(options: LoadOptions) {
+    public load(options: LoadOptions) {
         this.debug = options.debug ?? this.debug
         this.key = crypto.scryptSync(options.key, 'salt', 32)
     }

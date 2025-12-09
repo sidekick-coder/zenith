@@ -10,6 +10,9 @@ import { tryCatch } from '#shared/utils/tryCatch.ts'
 import BaseException from '#server/exceptions/base.ts'
 import validator from '#shared/services/validator.service.ts'
 import server from '#server/facades/server.facade.ts'
+import config from '#server/facades/config.facade.ts'
+import encrypt from '#server/facades/encrypt.facade.ts'
+import schemas from '#shared/validators/index.ts'
 
 const router = root.use(authMiddleware)
     .prefix('/api/modules')
@@ -21,13 +24,28 @@ router.get('/', ({ acl }) => {
     return modules.list()
 })
 
-router.get('/:id', async ({ params, acl }) => {
+router.get('/:id', async ({ params, acl, query }) => {
     acl.authorize('read', 'Module')
+
+    const payload = validator.validate(query, v => v.object({
+        include: v.optional(
+            v.pipe(
+                schemas.url.array(),
+                v.array(v.picklist(['upgrade_info']))
+            )
+        ),
+    }))
 
     const mod = await modules.find(params.id)
 
     if (!mod) {
         throw new BaseException('Module not found', 404)
+    }
+
+    if (payload.include?.includes('upgrade_info')) {
+        const info = config.get(`modules.${mod.id}`)
+
+        mod.upgrade_info = info || {}
     }
 
     return mod

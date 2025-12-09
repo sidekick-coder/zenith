@@ -30,9 +30,14 @@ const schema = v.object({
     key: v.optional(v.string()),
 })
 
-const { handleSubmit } = useForm({
+const { handleSubmit, values } = useForm({
     name: 'upgrade-git',
     validationSchema: toTypedSchema(schema),
+    initialValues: {
+        repository: props.module.upgrade_info?.repository || '',
+        branch: props.module.upgrade_info?.branch || '',
+        key: props.module.upgrade_info?.key || ''
+    }
 })
 
 const onSubmit = handleSubmit(async (data) => {

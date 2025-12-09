@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useRouteQuery } from '@vueuse/router'
 import { $t } from '#shared/lang.ts'
-import AppLayout from '#client/layouts/AppLayout.vue'
+import SettingLayout from '#client/layouts/SettingLayout.vue'
 import PageSubtitle from '#client/components/PageSubtitle.vue'
 import PageTitle from '#client/components/PageTitle.vue'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '#client/components/ui/tabs'
@@ -13,7 +13,7 @@ const tab = useRouteQuery('tab', 'zip')
 </script>
 
 <template>
-    <AppLayout>
+    <SettingLayout>
         <div class="space-y-6">
             <div>
                 <PageTitle>
@@ -28,19 +28,16 @@ const tab = useRouteQuery('tab', 'zip')
                 v-model="tab"
                 class="w-full"
             >
-                <TabsList class="grid w-full grid-cols-2">
+                <TabsList>
                     <TabsTrigger value="zip">
-                        {{ $t('From ZIP File') }}
+                        {{ $t('ZIP File') }}
                     </TabsTrigger>
                     <TabsTrigger value="git">
-                        {{ $t('From Git Repository') }}
+                        {{ $t('Git Repository') }}
                     </TabsTrigger>
                 </TabsList>
                 
-                <TabsContent 
-                    value="zip" 
-                    class="mt-6"
-                >
+                <TabsContent value="zip">
                     <InstallZip />
                 </TabsContent>
                 
@@ -52,5 +49,5 @@ const tab = useRouteQuery('tab', 'zip')
                 </TabsContent>
             </Tabs>
         </div>
-    </AppLayout>
+    </SettingLayout>
 </template>

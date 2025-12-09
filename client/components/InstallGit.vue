@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { useForm } from 'vee-validate'
 import * as v from 'valibot'
 import { toTypedSchema } from '@vee-validate/valibot'
@@ -24,7 +24,7 @@ const schema = v.object({
     key: v.optional(v.string()),
 })
 
-const { handleSubmit } = useForm({
+const { handleSubmit, values, setFieldValue } = useForm({
     name: 'install-git',
     validationSchema: toTypedSchema(schema),
 })
@@ -50,6 +50,23 @@ const onSubmit = handleSubmit(async (data) => {
     installing.value = false
 
     router.push('/admin/modules')
+})
+
+watch(() => values.repository, (newVal) => {
+    if (!newVal) return
+
+    if (values.id) return
+    
+    const matched = newVal.match(/\/([^/]+)(\.git)?$/)
+
+    if (!matched || matched.length < 2) return
+
+    let name = matched[1]
+
+    name = name.replace('.git', '')
+
+    // Auto-fill module ID from repo name if ID is empty
+    setFieldValue('id', name)
 })
 </script>
 

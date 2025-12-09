@@ -7,7 +7,6 @@ import { toast } from 'vue-sonner'
 import { useRouter } from 'vue-router'
 import { $t } from '#shared/lang.ts'
 import { $fetch } from '#client/utils/fetcher.ts'
-import { tryCatch } from '#shared/utils/tryCatch.ts'
 import {
     Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter 
 } from '#client/components/ui/card'
