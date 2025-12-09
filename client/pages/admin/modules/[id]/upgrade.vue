@@ -5,7 +5,7 @@ import { useRouteQuery } from '@vueuse/router'
 import { $t } from '#shared/lang.ts'
 import { $fetch } from '#client/utils/fetcher.ts'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
-import AppLayout from '#client/layouts/AppLayout.vue'
+import SettingLayout from '#client/layouts/SettingLayout.vue'
 import PageSubtitle from '#client/components/PageSubtitle.vue'
 import PageTitle from '#client/components/PageTitle.vue'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '#client/components/ui/tabs'
@@ -39,7 +39,7 @@ await loadModule()
 </script>
 
 <template>
-    <AppLayout>
+    <SettingLayout>
         <div class="space-y-6">
             <div>
                 <PageTitle>
@@ -78,5 +78,5 @@ await loadModule()
                 </TabsContent>
             </Tabs>
         </div>
-    </AppLayout>
+    </SettingLayout>
 </template>

@@ -5,10 +5,14 @@ import {
     toValue,
     computed,
     onMounted
+    
 } from 'vue'
+import type { PropType } from 'vue'
 import { useRoute } from 'vue-router'
 import { truncate } from 'lodash-es'
 import AppLayoutSidebarGroup from './AdminLayoutSidebarGroup.vue'
+import AdminLayoutDefaultMenu from './AdminLayoutDefaultMenu.vue'
+import AdminLayoutPlainMenu from './AdminLayoutPlainMenu.vue'
 import Logo from '#client/components/Logo.vue'
 import {
     Breadcrumb,
@@ -47,6 +51,10 @@ export interface BreadcrumbItem {
 </script>
 <script setup lang="ts">
 
+defineOptions({
+    inheritAttrs: false,
+})
+
 const open = ref( true)
 const loading = ref(true)
 const route = useRoute()
@@ -63,6 +71,10 @@ defineProps({
     title: {
         type: String,
         default: () => config.get('branding.name', 'Dashboard'),
+    },
+    menuVariant: {
+        type: String as PropType<'default' | 'plain'>,
+        default: 'default',
     }
 })
 
@@ -208,30 +220,34 @@ onMounted(() => {
                         {{ $t('No menu items available.') }}
                     </p>
                 </div>
-                <AppLayoutSidebarGroup
-                    v-for="group in groups"
-                    :id="group.id"
-                    :key="group.label"
-                    :open
+
+                <AdminLayoutDefaultMenu
+                    v-else-if="menuVariant === 'default'"
                     :items="menu"
-                    class="py-0"
-                    :label="group.label"
+                />
+                
+                <AdminLayoutPlainMenu
+                    v-else-if="menuVariant === 'plain'"
+                    :items="menu"
                 />
             </SidebarContent>
 
             <SidebarFooter>
-                <button
-                    class="w-full py-2 px-4 text-left hover:bg-destructive transition rounded flex items-center space-x-4"
-                    @click="onLogout"
-                >
-                    <Icon
-                        name="LogOut"
-                        class="rotate-180"
-                    />
-                    <div>
-                        {{ $t('Logout') }}
-                    </div>
-                </button>
+                <SidebarMenu>
+                    <slot name="footer" />
+
+                    <SidebarMenuItem>
+                        <SidebarMenuButton @click="onLogout">
+                            <Icon
+                                name="LogOut"
+                                class="rotate-180"
+                            />
+                            <div>
+                                {{ $t('Logout') }}
+                            </div>
+                        </SidebarMenuButton>
+                    </SidebarMenuItem>
+                </SidebarMenu>
             </SidebarFooter>
         </Sidebar>
 

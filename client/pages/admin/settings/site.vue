@@ -19,7 +19,7 @@ import Card from '#client/components/ui/card/Card.vue'
 import CardFooter from '#client/components/ui/card/CardFooter.vue'
 import CardContent from '#client/components/ui/card/CardContent.vue'
 import settingSiteValidator from '#shared/validators/settingSite.validator.ts'
-import AppLayout from '#client/layouts/AppLayout.vue'
+import SettingLayout from '#client/layouts/SettingLayout.vue'
 import CardTitle from '#client/components/ui/card/CardTitle.vue'
 import CardDescription from '#client/components/ui/card/CardDescription.vue'
 import CardHeader from '#client/components/ui/card/CardHeader.vue'
@@ -87,7 +87,7 @@ async function load(){
 onMounted(load)
 </script>
 <template>
-    <AppLayout>
+    <SettingLayout>
         <form
             class="space-y-4 py-2"
             @submit.prevent="onSubmit"
@@ -144,5 +144,5 @@ onMounted(load)
                 </CardFooter>
             </Card>
         </form>
-    </AppLayout>
+    </SettingLayout>
 </template>

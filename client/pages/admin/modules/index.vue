@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref } from 'vue'
 import Button from '#client/components/Button.vue'
-import AppLayout from '#client/layouts/AppLayout.vue'
+import SettingLayout from '#client/layouts/SettingLayout.vue'
 
 import Card from '#client/components/ui/card/Card.vue'
 import CardDescription from '#client/components/ui/card/CardDescription.vue'
@@ -86,7 +86,7 @@ async function uninstall(id: string, data: any) {
 }
 </script>
 <template>
-    <AppLayout>
+    <SettingLayout>
         <Dialog :open="toggling">
             <DialogContent
                 class="sm:max-w-[425px]"
@@ -186,5 +186,5 @@ async function uninstall(id: string, data: any) {
                 </div>
             </template>
         </DataTable>
-    </AppLayout>
+    </SettingLayout>
 </template>

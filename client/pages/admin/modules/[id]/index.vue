@@ -4,7 +4,7 @@ import {
 } from 'vue'
 import { useRoute } from 'vue-router'
 import { toast } from 'vue-sonner'
-import Dashboard from '#client/layouts/AppLayout.vue'
+import SettingLayout from '#client/layouts/SettingLayout.vue'
 import Icon from '#client/components/Icon.vue'
 import Button from '#client/components/Button.vue'
 import AlertButton from '#client/components/AlertButton.vue'
@@ -135,7 +135,7 @@ async function buildModule() {
 
 </script>
 <template>
-    <Dashboard :padding="false">
+    <SettingLayout :padding="false">
         <div class="flex min-h-full w-full">
             <Card class="w-full lg:w-3/12 xl:w-2/12 min-h-full rounded-none shadow-none">
                 <CardHeader class="text-center">
@@ -245,5 +245,5 @@ async function buildModule() {
                 </Suspense>
             </div>
         </div>
-    </Dashboard>
+    </SettingLayout>
 </template>

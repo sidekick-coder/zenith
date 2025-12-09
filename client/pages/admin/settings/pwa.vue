@@ -7,7 +7,7 @@ import { $t } from '#shared/lang.ts'
 import { $fetch } from '#client/utils/fetcher.ts'
 import { Card, CardContent } from '#client/components/ui/card'
 import Button from '#client/components/Button.vue'
-import AppLayout from '#client/layouts/AppLayout.vue'
+import SettingLayout from '#client/layouts/SettingLayout.vue'
 import PageTitle from '#client/components/PageTitle.vue'
 import PageSubtitle from '#client/components/PageSubtitle.vue'
 import schemas from '#shared/validators/index.ts'
@@ -137,7 +137,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <AppLayout>
+    <SettingLayout>
         <form @submit="onSubmit">
             <div class="mb-6 flex">
                 <div class="flex-1">
@@ -392,5 +392,5 @@ onMounted(() => {
                 </Card>
             </div>
         </form>
-    </AppLayout>
+    </SettingLayout>
 </template>

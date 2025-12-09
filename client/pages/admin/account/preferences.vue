@@ -8,7 +8,7 @@ import { $t } from '#shared/lang.ts'
 import { $fetch } from '#client/utils/fetcher.ts'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '#client/components/ui/card'
 import Button from '#client/components/Button.vue'
-import AppLayout from '#client/layouts/AppLayout.vue'
+import SettingLayout from '#client/layouts/SettingLayout.vue'
 import PageTitle from '#client/components/PageTitle.vue'
 import PageSubtitle from '#client/components/PageSubtitle.vue'
 import Icon from '#client/components/Icon.vue'
@@ -140,7 +140,7 @@ function toggleGroup(id: string) {
 </script>
 
 <template>
-    <AppLayout>
+    <SettingLayout>
         <form @submit="onSubmit">
             <div class="mb-6 flex">
                 <div class="flex-1">
@@ -269,5 +269,5 @@ function toggleGroup(id: string) {
             </div>
             <CustomMenuItems />
         </form>
-    </AppLayout>
+    </SettingLayout>
 </template>

@@ -1,44 +1,16 @@
 <script lang="ts">
-import { toast } from 'vue-sonner'
-import {
-    ref,
-    toValue,
-    computed,
-    onMounted
-} from 'vue'
-import { useRoute } from 'vue-router'
-import { truncate } from 'lodash-es'
+import { computed } from 'vue'
 import AdminLayout from './AdminLayout.vue'
-import AppLayoutSidebarGroup from './AdminLayoutSidebarGroup.vue'
-import Logo from '#client/components/Logo.vue'
+import { BreadcrumbItem } from '#client/components/ui/breadcrumb'
 import {
-    Breadcrumb,
-    BreadcrumbItem,
-    BreadcrumbLink,
-    BreadcrumbList,
-    BreadcrumbPage,
-    BreadcrumbSeparator
-} from '#client/components/ui/breadcrumb'
-import {
-    Sidebar,
-    SidebarInset,
-    SidebarTrigger,
-    SidebarProvider,
     SidebarHeader,
-    SidebarContent,
-    SidebarFooter,
     SidebarMenu,
     SidebarMenuItem,SidebarMenuButton
 } from '#client/components/ui/sidebar'
-import { $fetch } from '#client/utils/fetcher.ts'
-import { tryCatch } from '#shared/utils/tryCatch.ts'
 import { $t } from '#shared/lang.ts'
 import { useMenu } from '#client/composables/useMenu.ts'
-import type { MenuItem } from '#client/composables/useMenu.ts'
 import Icon from '#client/components/Icon.vue'
-import config from '#client/facades/config.facade.ts'
 import di from '#client/utils/di.ts'
-import acl from '#client/facades/acl.facade.ts'
 
 export interface BreadcrumbItem {
     label: string;
@@ -47,10 +19,6 @@ export interface BreadcrumbItem {
 }
 </script>
 <script setup lang="ts">
-const open = ref( true)
-const loading = ref(true)
-const route = useRoute()
-
 defineProps({
     padding: {
         type: Boolean,
@@ -97,6 +65,7 @@ const menu = computed(() => {
     <AdminLayout
         :menu
         :breadcrumbs
+        menu-variant="plain"
     >
         <template #header>
             <SidebarHeader class="border-b border-sidebar-border">
@@ -108,15 +77,15 @@ const menu = computed(() => {
                         >
                             <router-link
                                 to="/admin"
+                                class="flex items-center space-x-2"
                             >
-                                <div class="flex items-center space-x-4">
-                                    <Icon
-                                        name="ArrowLeft"
-                                        class="size-5"
-                                    />
-                                    <div>
-                                        {{ $t('Settings') }}
-                                    </div>
+                                <Icon
+                                    name="ArrowLeft"
+                                    class="size-5"
+                                />
+                                
+                                <div>
+                                    {{ $t('Settings') }}
                                 </div>
                             </router-link>
                         </SidebarMenuButton>
@@ -127,108 +96,4 @@ const menu = computed(() => {
 
         <slot />
     </AdminLayout>
-    <!-- <SidebarProvider v-model:open="open">
-        <Sidebar
-            collapsible="icon"
-            variant="inset"
-        >
-            <SidebarHeader>
-                <SidebarMenu>
-                    <SidebarMenuItem>
-                        <SidebarMenuButton
-                            size="lg"
-                            as-child
-                        >
-                            <router-link to="/">
-                                <Logo />
-                                <span class="font-medium">{{ config.get('branding.name', 'Dashboard') }}</span>
-                            </router-link>
-                        </SidebarMenuButton>
-                    </SidebarMenuItem>
-                </SidebarMenu>
-            </SidebarHeader>
-
-            <SidebarContent class="gap-0">
-                <AppLayoutSidebarGroup
-                    v-for="group in groups"
-                    :id="group.id"
-                    :key="group.label"
-                    :open
-                    :items="menu.concat(extras)"
-                    class="py-0"
-                    :label="group.label"
-                />
-            </SidebarContent>
-
-            <SidebarFooter>
-                <button
-                    class="w-full py-2 px-4 text-left hover:bg-destructive transition rounded flex items-center space-x-4"
-                    @click="onLogout"
-                >
-                    <Icon
-                        name="LogOut"
-                        class="rotate-180"
-                    />
-                    <div>
-                        {{ $t('Logout') }}
-                    </div>
-                </button>
-            </SidebarFooter>
-        </Sidebar>
-
-        <SidebarInset variant="sidebar">
-            <header
-                v-if="!hideBreadcrumbs"
-                class="flex h-16 shrink-0 items-center gap-2 border-b border-sidebar-border/70 px-6 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12 md:px-4"
-            >
-                <div class="flex items-center gap-2">
-                    <SidebarTrigger class="-ml-1" />
-                    
-                    <Breadcrumb v-if="computedBreadcrumbs?.length">
-                        <BreadcrumbList class="md:hidden">
-                            <BreadcrumbItem>
-                                <BreadcrumbPage>{{ truncate(computedBreadcrumbs.at(-1)?.label) }}</BreadcrumbPage>
-                            </BreadcrumbItem>
-                        </BreadcrumbList>
-                        <BreadcrumbList class="hidden md:flex">
-                            <template
-                                v-for="(item, index) in computedBreadcrumbs"
-                                :key="index"
-                            >
-                                <BreadcrumbItem>
-                                    <template v-if="index === computedBreadcrumbs.length - 1">
-                                        <BreadcrumbPage>{{ truncate(item.label) }}</BreadcrumbPage>
-                                    </template>
-                                    <template v-else>
-                                        <BreadcrumbLink as-child>
-                                            <RouterLink :to="item.to!">
-                                                {{ truncate(item.label) }}
-                                            </RouterLink>
-                                        </BreadcrumbLink>
-                                    </template>
-                                </BreadcrumbItem>
-                                <BreadcrumbSeparator v-if="index !== computedBreadcrumbs.length - 1" />
-                            </template>
-                        </BreadcrumbList>
-                    </Breadcrumb>
-                </div>
-            </header>
-            <div>
-                <div
-                    class="
-                       dashboard-layout-content
-                        h-full
-                        overflow-auto
-                        lg:max-w-[calc(100dvw-8px-var(--sidebar-width))]
-                        group-has-data-[collapsible=icon]/sidebar-wrapper:max-w-[calc(100dvw-var(--sidebar-width-icon))]
-                    "
-                    :class="{
-                        'p-5': padding,
-                    }"
-                >
-                    <slot />
-                </div>
-            </div>
-        </SidebarInset>
-    </SidebarProvider> -->
 </template>

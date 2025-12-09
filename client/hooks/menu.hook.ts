@@ -1,6 +1,5 @@
 import LifecycleHook from '#shared/entities/lifecycleHook.entity.ts'
 import { useMenu } from '#client/composables/useMenu.ts'
-import auth from '#client/facades/auth.facade.ts'
 import config from '#client/facades/config.facade.ts'
 import { $t } from '#shared/lang.ts'
 
@@ -10,24 +9,13 @@ export default class MenuLifecycleHook extends LifecycleHook {
 
         menu.clear()
 
-        if (auth.user) {
-            menu.add({
-                id: 'account-profile',
-                label: $t('Profile'),
-                to: `/admin/users/${auth.user.id}`,
-                icon: 'User',
-                layout: 'setting',
-                group: $t('My Account')
-            })
-        }
-
         menu.add({
             id: 'account-preferences',
             label: $t('Preferences'),
             to: '/admin/account/preferences',
             icon: 'UserCog',
             layout: 'setting',
-            group: $t('My Account')
+            group: $t('General')
         })
 
         menu.add({
@@ -56,9 +44,9 @@ export default class MenuLifecycleHook extends LifecycleHook {
 
         menu.add({
             id: 'auth-settings',
-            label: $t('Settings'),
+            label: $t('Authentication'),
             icon: 'Lock',
-            group: $t('Auth'),
+            group: $t('General'),
             layout: 'setting',
             to: '/admin/settings/auth'
         })
@@ -84,7 +72,7 @@ export default class MenuLifecycleHook extends LifecycleHook {
             label: $t('Modules'),
             to: '/admin/modules',
             icon: 'Puzzle',
-            group: $t('Settings'),
+            group: $t('General'),
             layout: 'setting',
         })
 
@@ -93,7 +81,7 @@ export default class MenuLifecycleHook extends LifecycleHook {
             label: $t('Routes'),
             icon: 'Settings',
             layout: 'setting',
-            group: $t('System'),
+            group: $t('General'),
             to: '/admin/settings/site'
         })
 
@@ -102,13 +90,13 @@ export default class MenuLifecycleHook extends LifecycleHook {
             label: $t('Branding'),
             icon: 'Palette',
             layout: 'setting',
-            group: $t('System'),
+            group: $t('General'),
             to: '/admin/settings/branding'
         })
 
         menu.add({
             id: 'pwa',
-            group: $t('System'),
+            group: $t('General'),
             label: $t('PWA'),
             icon: 'Tablet',
             layout: 'setting',
