@@ -21,12 +21,9 @@ const query = ref({
     include: ['metas', 'url'],
 })
 
-const { items, total, loading, load, reset } = useFetchPagination<File>('/api/files', {
-    serialize: row => File.from(row),
-    query: query.value,
-    limit: 20,
-})
+const tableRef = ref<ComponentExposed<typeof DataTable>>()
 
+const loading = ref(false)
 const uploading = ref(false)
 const deletingItems = ref<number[]>([])
 const selected = ref<File[]>([])
@@ -64,6 +61,15 @@ const columns = defineColumns<File>([
     },
     { id: 'actions' }
 ])
+
+async function load(){
+    await tableRef.value?.load()
+}
+
+function reset(){
+    selected.value = []
+    load()
+}
 
 async function upload(){
     
@@ -141,11 +147,11 @@ async function destroy(id: number) {
         </div>
 
         <DataTable
-            v-model:rows="items"
-            v-model:total="total"
             v-model:loading="loading"
-            v-model:selected="selected"
             :columns="columns"
+            :serialize="row => File.from(row)"
+            :fetch-query="query"
+            fetch="/api/files"
             row-key="id"
         >
             <template #row-filename="{ row }">

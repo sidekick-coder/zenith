@@ -79,7 +79,20 @@ const props = defineProps({
     fetch: {
         type: String,
         default: null,
-    }
+    },
+    fetchQuery: {
+        type: Object as PropType<Record<string, any>>,
+        default: () => ({}),
+    },
+    /** @deprecated Use fetchQuery instead */
+    query: {
+        type: Object as PropType<Record<string, any>>,
+        default: () => ({}),
+    },
+    serialize: {
+        type: Function as PropType<(row: any) => T>,
+        default: (row: any) => row as T,
+    },
 })
 
 const emit = defineEmits<{
@@ -106,6 +119,34 @@ const selected = defineModel('selected', {
 })
 
 let rows = ref([] as any[])
+let page = ref(1)
+let totalPages = ref(1)
+let total = ref(0)
+let limit = ref(10)
+let load = async () => {}
+let reset = async () => {}
+
+
+// fetch
+const pageModel = defineModel('page', {
+    type: Number,
+    default: 1,
+})
+
+const totalPagesModel = defineModel('totalPages', {
+    type: Number,
+    default: 1,
+})
+
+const totalModel = defineModel('total', {
+    type: Number,
+    default: 0,
+})
+
+const limitModel = defineModel('limit', {
+    type: Number,
+    default: 10,
+})
 
 const rowsModel = defineModel('rows', {
     type: Array as () => T[],
@@ -113,13 +154,30 @@ const rowsModel = defineModel('rows', {
 })
 
 if (props.fetch) {
-    const { items } = useFetchPagination<T>(props.fetch)
+    const pagination = useFetchPagination<T>(props.fetch, {
+        serialize: props.serialize,
+        limit: limitModel.value,
+        query: { 
+            ...props.fetchQuery,
+            ...props.query 
+        },
+    })
 
-    rows = items
+    rows = pagination.items
+    page = pagination.page
+    totalPages = pagination.totalPages
+    total = pagination.total
+    limit = pagination.limit
+    load = pagination.load
+    reset = pagination.reset
 }
 
 if (!props.fetch) {
     rows = rowsModel
+    page = pageModel
+    totalPages = totalPagesModel
+    total = totalModel
+    limit = limitModel
 }
 
 const loading = defineModel('loading', {
@@ -278,26 +336,11 @@ function onClick(item: any){
     emit('click:row', item)
 }
 
-// fetch
-const page = defineModel('page', {
-    type: Number,
-    default: 1,
+defineExpose({
+    load,
+    reset
 })
 
-const totalPages = defineModel('totalPages', {
-    type: Number,
-    default: 1,
-})
-
-const total = defineModel('total', {
-    type: Number,
-    default: 0,
-})
-
-const limit = defineModel('limit', {
-    type: Number,
-    default: 10,
-})
 </script>
 
 <template>

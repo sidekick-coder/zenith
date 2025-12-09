@@ -80,9 +80,9 @@ export function useFetchPagination<T = any>(url: string, options: UseFetchPagina
         }, 800)
     }
 
-    function reset() {
+    async function reset() {
         if (page.value === 1) {
-            load()
+            await load()
             return
         }
 
