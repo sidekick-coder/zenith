@@ -1,5 +1,5 @@
 <script lang="ts">
-import { computed  } from 'vue'
+import { computed, ref  } from 'vue'
 import type { PropType } from 'vue'
 import { get } from 'lodash-es'
 import Checkbox from './ui/checkbox/Checkbox.vue'
@@ -18,6 +18,7 @@ import {
 } from '#client/components/ui/card'
 import { cn } from '#client/lib/utils.ts'
 import { useBreakpoints } from '#client/composables/useBreakpoint.ts'
+import { useFetchPagination } from '#client/composables/useFetchPagination.ts'
 
 export interface DataTableFetchParams {
     page: number
@@ -75,6 +76,10 @@ const props = defineProps({
         type: Boolean,
         default: false,
     },
+    fetch: {
+        type: String,
+        default: null,
+    }
 })
 
 const emit = defineEmits<{
@@ -100,10 +105,22 @@ const selected = defineModel('selected', {
     default: () => ([]),
 })
 
-const rows = defineModel('rows', {
+let rows = ref([] as any[])
+
+const rowsModel = defineModel('rows', {
     type: Array as () => T[],
     default: () => [],
 })
+
+if (props.fetch) {
+    const { items } = useFetchPagination<T>(props.fetch)
+
+    rows = items
+}
+
+if (!props.fetch) {
+    rows = rowsModel
+}
 
 const loading = defineModel('loading', {
     type: Boolean,

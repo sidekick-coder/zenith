@@ -51,6 +51,7 @@ export default defineConfigWithVueTs(
                 'multiline': { 'max': 1 }
             }],
             'vue/no-mutating-props': 'off',
+            'vue/no-ref-as-operand': 'off',
             '@typescript-eslint/no-empty-object-type': 'off',
         },
     },
