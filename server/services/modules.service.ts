@@ -111,7 +111,7 @@ export default class ModulesService {
 
             const url = pathToFileURL(file)
 
-            if (env.production) {
+            if (!env.production) {
                 url.searchParams.set('t', Date.now().toString())
             }
 

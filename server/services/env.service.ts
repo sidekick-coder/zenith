@@ -18,7 +18,7 @@ const boolean = v.pipe(
     v.boolean()
 )
 
-const base = v.object({
+const schema = v.object({
     APP_URL: v.optional(v.string(), 'http://localhost:3000'),
     ZARTE: v.optional(boolean, 'false'),
     NODE_ENV: v.optional(v.union([v.literal('development'), v.literal('production'), v.literal('test')]), 'development'),
@@ -26,15 +26,6 @@ const base = v.object({
     CONFIG: configSchema,
     CLIENT_CONFIG: configSchema,
 })
-
-const schema = v.pipe(base, v.transform((value) => {
-    return {
-        ...value,
-        isProduction: value.NODE_ENV === 'production',
-        isDevelopment: value.NODE_ENV === 'development',
-        isTest: value.NODE_ENV === 'test',
-    }
-}))
 
 type EnvType = v.InferOutput<typeof schema>
 
@@ -57,6 +48,14 @@ export default class EnvService {
 
     public get production(): boolean {
         return this.get('NODE_ENV') === 'production'
+    }
+
+    public get development(): boolean {
+        return this.get('NODE_ENV') === 'development'
+    }
+
+    public get test(): boolean {
+        return this.get('NODE_ENV') === 'test'
     }
 
     public get<K extends keyof EnvType>(key: K): EnvType[K] {
