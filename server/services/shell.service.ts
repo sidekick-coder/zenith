@@ -11,10 +11,30 @@ interface CommandOptions {
 }
 
 export default class ShellService {
+    public debug: boolean
+    public logger: typeof logger
+
+    constructor(data: Partial<ShellService> = {}) {
+        this.debug = data.debug || false
+        this.logger = data.logger || logger.child({ label: 'shell' })
+
+        if (this.debug) {
+            this.logger.debug('initialized in debug mode')
+        }
+    }
     /**
      * Execute a shell command and return a promise
      */
     public async command(bin: string, args: string[], options: CommandOptions = {}): Promise<void> {
+
+        if (this.debug) {
+            this.logger.debug('executing command', {
+                bin,
+                args,
+                options,
+            })
+        }
+
         return new Promise((resolve, reject) => {
             const child = spawn(bin, args, {
                 cwd: options.cwd || process.cwd(),
@@ -28,7 +48,7 @@ export default class ShellService {
                     resolve()
                 } else {
                     const errorMessage = `Command failed with exit code ${code}`
-                    logger.error(errorMessage, { 
+                    this.logger.error(errorMessage, { 
                         bin, 
                         args, 
                         code 
@@ -38,7 +58,7 @@ export default class ShellService {
             })
 
             child.on('error', (error) => {
-                logger.error('Command execution error', { 
+                this.logger.error('Command execution error', { 
                     bin, 
                     args, 
                     error: error.message 
@@ -51,9 +71,16 @@ export default class ShellService {
     /**
      * Execute a shell command and return the output as a string
      */
-    public async executeCommandWithOutput(command: string, args: string[], options: CommandOptions = {}): Promise<string> {
+    public async executeCommandWithOutput(bin: string, args: string[], options: CommandOptions = {}): Promise<string> {
+        if (this.debug) {
+            this.logger.debug('executing command', {
+                bin,
+                args,
+                options,
+            })
+        }
         return new Promise((resolve, reject) => {
-            const child = spawn(command, args, {
+            const child = spawn(bin, args, {
                 cwd: options.cwd || process.cwd(),
                 stdio: 'pipe',
                 shell: true,
@@ -76,8 +103,8 @@ export default class ShellService {
                     resolve(output.trim())
                 } else {
                     const errorMessage = `Command failed with exit code ${code}: ${errorOutput}`
-                    logger.error(errorMessage, { 
-                        command, 
+                    this.logger.error(errorMessage, { 
+                        bin, 
                         args, 
                         code, 
                         errorOutput 
@@ -87,8 +114,8 @@ export default class ShellService {
             })
 
             child.on('error', (error) => {
-                logger.error('Command execution error', { 
-                    command, 
+                this.logger.error('Command execution error', { 
+                    bin, 
                     args, 
                     error: error.message 
                 })
