@@ -49,10 +49,16 @@ const hooks: LifecycleHook[] = Object.values(mods)
 
 lifecycle.add(...hooks)
 
-await lifecycle.register()
 
-await lifecycle.load()
-
-await lifecycle.boot()
-
-program.parse()
+program
+    .hook('preAction', async () => {
+        await lifecycle.register()
+        
+        await lifecycle.load()
+        
+        await lifecycle.boot()
+    })
+    .hook('postAction', async () => {
+        await lifecycle.shutdown()
+    })
+    .parse()
