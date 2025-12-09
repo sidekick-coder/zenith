@@ -73,7 +73,7 @@ router.post('/:id/toggle', async ({ params, acl }) => {
 
     await modules.toggle(params.id)
 
-    await server.booter.boot()
+    await server.reload()
 })
 
 router.post('/:id/migrate', async ({ params, acl }) => {
