@@ -95,6 +95,7 @@ export function Model<Table extends keyof Database>(table: Table, primaryKey: ke
 
                 return row as any
             }
+            
 
             public static async findOneOrFail<T>(this: new () => T, o?: ModelFindOptions<Table>): Promise<T> {
                 const constructor = this as any
@@ -133,6 +134,20 @@ export function Model<Table extends keyof Database>(table: Table, primaryKey: ke
                 const row = await queries.findOneOrFail(table, {
                     serialize: row => constructor.serialize(row),
                     where: (qb: any) => qb(primaryKey as string, '=', id)
+                }) as any
+
+                await emitHook(constructor, 'serialized', row)
+                await emitHook(constructor, 'afterFind', row)
+
+                return row as any
+            }
+
+            public static async findBy<T>(this: new () => T, column: keyof Database[Table], value: any): Promise<T> {
+                const constructor = this as any
+
+                const row = await queries.findOneOrFail(table, {
+                    serialize: row => constructor.serialize(row),
+                    where: (qb: any) => qb(column as string, '=', value)
                 }) as any
 
                 await emitHook(constructor, 'serialized', row)
