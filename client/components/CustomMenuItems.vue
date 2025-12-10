@@ -70,7 +70,8 @@ const schema = v.object({
 })
 
 async function load() {
-    const metas = di.get<Record<string, any>>('user:metas') || {}
+    const state = di.get<Record<string, any>>('state') || {}
+    const metas = state['user:metas'] || {}
     menuExtras.value = metas['admin-ui:menu-extras'] ? metas['admin-ui:menu-extras'] : []
 }
 

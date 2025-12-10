@@ -18,6 +18,10 @@ import {
     SidebarRail
 } from '#client/components/ui/sidebar'
 
+defineOptions({
+    inheritAttrs: false
+})
+
 const props = defineProps({
     items: {
         type: Array as () => MenuItem[],

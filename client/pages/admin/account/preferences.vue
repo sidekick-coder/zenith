@@ -54,9 +54,8 @@ async function load() {
         return
     }
 
-    const metas = di.get<Record<string, any>>('user:metas')
-
-    console.log('metas', metas)
+    const state = di.get<Record<string, any>>('state') || {}
+    const metas = state['user:metas'] || {}
 
     loading.value = true
 
