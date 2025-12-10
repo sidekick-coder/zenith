@@ -64,12 +64,12 @@ const toggling = ref(false)
 async function toggle(item: any) {
     toggling.value = true
 
-    const [error] = await $fetch.try(`/api/modules/${item.id}/toggle`, { method: 'POST', })
+    await $fetch.try(`/api/modules/${item.id}/toggle`, { method: 'POST', })
 
-    if (error) {
-        toggling.value = false
-        return
-    }
+    // await server restart
+    await $server.online({
+        timeout: 60000,
+    })
 
     setTimeout(() => {
         window.location.reload()

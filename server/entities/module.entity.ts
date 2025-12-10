@@ -6,11 +6,11 @@ import { composeWith } from '#shared/utils/compose.ts'
 
 export default class Module extends composeWith(Base) {
     public makePath(...parts: string[]) {
-        return basePath('modules', this.name, ...parts)
+        return basePath('modules', this.id, ...parts)
     }
 
     public staticPath(...parts: string[]) {
-        return join('/static', 'modules', this.name, ...parts)
+        return join('/static', 'modules', this.id, ...parts)
     }
 
     public load(){

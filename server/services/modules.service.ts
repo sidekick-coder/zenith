@@ -67,6 +67,7 @@ export default class ModulesService {
             const manifestPath = path.join(folder, name, 'module.json')
 
             if (!fs.existsSync(manifestPath)) {
+                this.logger.warn(`No manifest found for module '${name}', skipping`)
                 continue
             }
 
@@ -117,6 +118,11 @@ export default class ModulesService {
 
             const modImport = await import(url.href)
             const ModClass = modImport.default || modImport
+
+            if (ModClass.prototype instanceof Module === false) {
+                this.logger.error(`Module class for '${manifest.id}' does not extend Module base class`)
+                continue
+            }
 
             const modInstance = new ModClass() as Module
 
