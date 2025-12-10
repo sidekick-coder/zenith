@@ -40,16 +40,23 @@ export default class HasManythroughService<T extends keyof Database, P extends k
         this.debug = payload.debug ?? false
     }
 
-    public async list() {
-        let query = db.selectFrom(this.targetTable).selectAll(this.targetTable) as any
+    public query(){
+        let query = db.selectFrom(this.targetTable) as any
 
         query = query
+            .selectAll(this.targetTable)
             .innerJoin(
                 this.pivotTable as any,
                 `${this.targetTable as string}.${String(this.targetPrimaryKey)}`,
                 `${this.pivotTable as string}.${String(this.pivotTargetKey)}`
             )
             .where(`${this.pivotTable as string}.${String(this.pivotSourceKey)}`, '=', this.sourceId)
+
+        return query
+    }
+
+    public async list() {
+        const query = this.query()
 
         if (this.debug) {
             console.log(query.compile())

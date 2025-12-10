@@ -311,7 +311,6 @@ export default class ViteService extends compose(Hooks) {
 
         state.set('head', {
             title: config.get('app.name') || 'Zenith',
-            titleTemplate: '%s - ' + (config.get('app.name') || 'Zenith'),
             htmlAttrs: { 
                 lang: config.get('app.lang') || 'en',
                 class: state.get('preferences:dark_mode') ? 'dark' : 'light'
