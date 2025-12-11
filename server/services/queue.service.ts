@@ -17,7 +17,7 @@ export default class QueueService {
         return this.intervalId !== null
     }
 
-    public addDirectory(dir: string) {
+    public addDir(dir: string) {
         if (this.dirs.includes(dir)) {
             return
         }

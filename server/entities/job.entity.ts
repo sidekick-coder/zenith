@@ -1,7 +1,8 @@
-import queue from '#server/facades/queue.facade.ts'
 import { composeWith } from '#shared/utils/compose.ts'
 import Base from '#shared/entities/job.entity.ts'
 import { Model } from '#server/mixins/model.mixin.ts'
+import di from '#server/facades/di.facade.ts'
+import type QueueService from '#server/services/queue.service.ts'
 
 export default class Job extends composeWith(Base, Model('jobs')) {
     public async handle(_data: any): Promise<any> {
@@ -9,6 +10,8 @@ export default class Job extends composeWith(Base, Model('jobs')) {
     }
 
     public static async dispatch(data: any) {
+        const queue = di.get<QueueService>('QueueService')
+
         const constructor = this as typeof Job & { queueId?: string }
 
         let queueId = 'default'
