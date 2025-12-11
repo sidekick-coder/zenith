@@ -189,10 +189,16 @@ export function Model<Table extends keyof Database>(table: Table, primaryKey: ke
                 const rows  = []
 
                 for await (const value of values) {
+                    await emitHook(constructor, 'beforeCreate', value)
+
                     const row = await queries.create(table, {
                         values: value,
                         serialize: row => constructor.serialize(row),
                     })
+
+                    await emitHook(constructor, 'afterCreate', row)
+                    await emitHook(constructor, 'serialized', row)
+                    await emitHook(constructor, 'afterFind', row)
 
                     rows.push(row)
                 }
@@ -207,12 +213,16 @@ export function Model<Table extends keyof Database>(table: Table, primaryKey: ke
 
                 await emitHook(constructor, 'beforeUpdate', values, o.where)
 
-                return queries.update(table, {
+                const row = await queries.update(table, {
                     debug: o.debug,
                     where: o.where,
                     values: values,
                     serialize: row => constructor.serialize(row),
                 }) as any
+
+                await emitHook(constructor, 'afterUpdate', row)
+
+                return row
             }
 
             public static updateById<T>(this: new () => T, id: any, values: ModelUpdateOptions<Table>['values'], options?: { debug?: boolean }): Promise<T> {
@@ -225,8 +235,14 @@ export function Model<Table extends keyof Database>(table: Table, primaryKey: ke
                 }) as any
             }
 
-            public static destroy<T>(this: new () => T, o?: ModelDestroyOptions<Table>): void {
-                return queries.destroy(table, o) as any
+            public static async destroy<T>(this: new () => T, o?: ModelDestroyOptions<Table>): Promise<void> {
+                const constructor = this as any
+
+                await emitHook(constructor, 'beforeDestroy', o)
+
+                await queries.destroy(table, o)
+
+                await emitHook(constructor, 'afterDestroy', o)
             }
 
             public static firstOrCreate<T>(this: new () => T, o: ModelFirstOrCreateOptions<Table>): T {
@@ -253,26 +269,50 @@ export function Model<Table extends keyof Database>(table: Table, primaryKey: ke
                 }) as any
             }
 
-            public static destroyById<T>(this: new () => T, id: any): void {
-                return queries.destroy(table, {
+            public static async destroyById<T>(this: new () => T, id: any): Promise<void> {
+                const constructor = this as any
+                const options = {
                     query: (qb: any) => qb.where(primaryKey as string, '=', id)
-                }) as any
+                }
+
+                await emitHook(constructor, 'beforeDestroy', options)
+
+                await queries.destroy(table, options)
+
+                await emitHook(constructor, 'afterDestroy', options)
             }
 
             public async save() {
+                const constructor = (this as any).constructor
+                const values = omit(this as any, [primaryKey as string])
+
+                await emitHook(constructor, 'beforeSave', this, values)
+
                 await queries.update(table, {
                     where: (qb: any) => qb(primaryKey, '=', (this as any)[primaryKey]),
-                    values: omit(this as any, [primaryKey as string]),
+                    values: values,
                 })
+
+                await emitHook(constructor, 'afterSave', this)
             }
 
             public async destroy() {
+                const constructor = (this as any).constructor
+
+                await emitHook(constructor, 'beforeDestroy', this)
+
                 await queries.destroy(table, {
                     query: qb => (qb as any).where(primaryKey, '=', (this as any).id)
                 })
+
+                await emitHook(constructor, 'afterDestroy', this)
             }
 
             public async softDelete() {
+                const constructor = (this as any).constructor
+
+                await emitHook(constructor, 'beforeSoftDelete', this)
+
                 const rows = await queries.softDelete(table, {
                     query: qb => (qb as any).where(primaryKey, '=', (this as any).id)
                 })
@@ -280,6 +320,8 @@ export function Model<Table extends keyof Database>(table: Table, primaryKey: ke
                 const row = rows[0]
 
                 Object.assign(this as any, row)
+
+                await emitHook(constructor, 'afterSoftDelete', this)
             }
         }
     }

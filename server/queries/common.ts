@@ -8,7 +8,7 @@ export type InsertFrom<T extends keyof Database> = ReturnType<typeof db.insertIn
 export type UpdateFrom<T extends keyof Database> = ReturnType<typeof db.updateTable<T>>
 export type DeleteFrom<T extends keyof Database> = ReturnType<typeof db.deleteFrom<T>>
 
-export const now = ()  => sql`CURRENT_TIMESTAMP`
+export const now = ()  => sql<string>`CURRENT_TIMESTAMP`
 
 export interface SerializeOptions<T extends keyof Database> {
     serialize?: (row: Selectable<Database[T]>) => any
