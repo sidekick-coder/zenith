@@ -36,7 +36,7 @@ const props = defineProps({
     },
     fetchMethod: {
         type: String,
-        default: 'POST'
+        default: 'DELETE'
     },
     toastOnSuccess: {
         type: String,

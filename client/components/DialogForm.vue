@@ -50,13 +50,18 @@ const props = defineProps({
         type: [String, Function] as PropType<string | ((data: any) => Promise<any>)>,
         default: null,
     },
+    fetchMethod: {
+        type: String,
+        default: 'POST',
+    },
+    /** @deprecated use fetchMethod instead */
+    method: {
+        type: String,
+        default: null,
+    },
     handle: {
         type: Function as PropType<(data: v.InferInput<T>) => Promise<any>>,
         default: null,
-    },
-    method: {
-        type: String,
-        default: 'POST',
     },
     fields: {
         type: Object as () => Record<keyof v.InferInput<T>, FormField | ((data: any) => FormField)>,
@@ -114,7 +119,7 @@ function doFetch(data: v.InferInput<T>) {
     }
 
     return $fetch(props.fetch as string, {
-        method: props.method,
+        method:  props.method || props.fetchMethod,
         data,
     })
 }
