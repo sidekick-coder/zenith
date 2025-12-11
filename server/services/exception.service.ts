@@ -1,6 +1,7 @@
 import type { Response } from 'express'
 import BaseException from '#server/exceptions/base.ts'
 import logger from '#server/facades/logger.facade.ts'
+import env from '#server/facades/env.facade.ts'
 
 export default class ExceptionService {
     public ignoreCodeErrors: number[] = [404]
@@ -17,6 +18,7 @@ export default class ExceptionService {
             return response.status(error.statusCode).json({
                 error: error.name,
                 message: error.message,
+                stack: env.development ? error.stack : undefined,
             })
         }
 

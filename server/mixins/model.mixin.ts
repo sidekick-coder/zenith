@@ -101,6 +101,7 @@ export function Model<Table extends keyof Database>(table: Table, primaryKey: ke
                 const constructor = this as any
 
                 const row = await queries.findOneOrFail(table, {
+                    name: o?.name ?? constructor.name,
                     query: o?.query,
                     serialize: row => constructor.serialize(row),
                 })
@@ -132,6 +133,7 @@ export function Model<Table extends keyof Database>(table: Table, primaryKey: ke
                 const constructor = this as any
 
                 const row = await queries.findOneOrFail(table, {
+                    name: constructor.name,
                     serialize: row => constructor.serialize(row),
                     where: (qb: any) => qb(primaryKey as string, '=', id)
                 }) as any
@@ -213,10 +215,15 @@ export function Model<Table extends keyof Database>(table: Table, primaryKey: ke
 
                 await emitHook(constructor, 'beforeUpdate', values, o.where)
 
-                const row = await queries.update(table, {
+                await queries.update(table, {
                     debug: o.debug,
                     where: o.where,
                     values: values,
+                    serialize: row => constructor.serialize(row),
+                })
+
+                const row = await queries.findOneOrFail(table, {
+                    where: o.where,
                     serialize: row => constructor.serialize(row),
                 }) as any
 
