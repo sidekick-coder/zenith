@@ -25,7 +25,20 @@ import {
 } from '#client/components/ui/sidebar'
 import Icon from '#client/components/Icon.vue'
 
+interface Link {
+    label: string
+    to: string
+    icon?: string
+}
+
 const emit = defineEmits(['logout'])
+
+defineProps({
+    links: {
+        type: Array as () => Link[],
+        default: () => [],
+    },
+})
 
 const { isMobile } = useSidebar()
 
@@ -140,11 +153,17 @@ function handleLogout() {
                             />
                         </DropdownMenuItem>
                     </DropdownMenuGroup>
-                    <DropdownMenuGroup>
+                    <DropdownMenuGroup
+                        v-for="link in links"
+                        :key="link.to"
+                    >
                         <DropdownMenuItem as-child>
-                            <RouterLink to="/admin/account/preferences">
-                                <Icon name="Settings" />
-                                {{ $t('Preferences') }}
+                            <RouterLink :to="link.to">
+                                <Icon
+                                    v-if="link.icon"
+                                    :name="link.icon"
+                                />
+                                {{ $t(link.label) }}
                             </RouterLink>
                         </DropdownMenuItem>
                     </DropdownMenuGroup>

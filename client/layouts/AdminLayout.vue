@@ -233,7 +233,16 @@ onMounted(() => {
             <SidebarFooter>
                 <slot name="footer" />
 
-                <AdminLayoutUserMenu @logout="onLogout" />
+                <AdminLayoutUserMenu 
+                    :links="[
+                        {
+                            label: $t('Preferences'),
+                            to: '/admin/account/preferences',
+                            icon: 'Settings',
+                        }
+                    ]"
+                    @logout="onLogout" 
+                />
             </SidebarFooter>
         </Sidebar>
 

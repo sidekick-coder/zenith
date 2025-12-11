@@ -6,13 +6,9 @@ import { $t } from '#shared/lang.ts'
 import { useMenu } from '#client/composables/useMenu.ts'
 import di from '#client/utils/di.ts'
 import {
-    SidebarGroup,
-    SidebarGroupLabel,
     SidebarMenu,
     SidebarMenuItem,
     SidebarMenuButton,
-    SidebarMenuSubItem,
-    SidebarMenuSub 
 } from '#client/components/ui/sidebar'
 import Icon from '#client/components/Icon.vue'
 

@@ -10,12 +10,14 @@ import setupGuard from './guards/setup.guard'
 
 export interface Router extends VueRouter {
     auto: typeof auto;
+    
 }
 
 
 interface AutoOptions {
     guards?: NavigationGuard[] | ((record: RouteRecordRaw) => NavigationGuard[]);
     strip?: (string | RegExp)[];
+    exclude?: (string | RegExp)[];
     prefix?: string;
     refine?: (records: RouteRecordRaw[]) => RouteRecordRaw[];
 }
@@ -24,6 +26,15 @@ export function auto(imports: Record<string, DefineComponent | (() => Promise<De
     let routes: RouteRecordRaw[] = []
 
     for (const [filename, component] of Object.entries(imports)) {
+
+        if (options.exclude?.some(rule =>
+            typeof rule === 'string'
+                ? filename.includes(rule)
+                : rule.test(filename)
+        )) {
+            continue
+        }
+
         let parts = filename
             .replace(/\.vue$/, '')
             .split('/')
@@ -37,6 +48,7 @@ export function auto(imports: Record<string, DefineComponent | (() => Promise<De
 
                 return p
             })
+
 
         // Strip specific segments
         if (options.strip?.length) {
