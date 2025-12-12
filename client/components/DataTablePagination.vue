@@ -3,7 +3,7 @@ import { computed } from 'vue'
 import Icon from './Icon.vue'
 import Select from './Select.vue'
 import DropdownMenu from './ui/dropdown-menu/DropdownMenu.vue'
-import { DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuItem } from './ui/dropdown-menu'
+import { DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from './ui/dropdown-menu'
 import { Button } from '#client/components/ui/button'
 
 const page = defineModel('page', {
@@ -126,7 +126,7 @@ function createArray(from: number, to: number): number[] {
                         class="w-3 h-3 sm:w-4 sm:h-4"
                     />
                 </Button>
-                <DropdownMenu v-if="!visiblePages.includes(1)">
+                <DropdownMenu v-if="!visiblePages.includes(1) && totalPages > 0">
                     <DropdownMenuTrigger as-child>
                         <Button
                             variant="outline"
@@ -159,7 +159,7 @@ function createArray(from: number, to: number): number[] {
                 >
                     {{ pageNumber }}
                 </Button>
-                <DropdownMenu v-if="!visiblePages.includes(totalPages)">
+                <DropdownMenu v-if="!visiblePages.includes(totalPages) && totalPages > 0">
                     <DropdownMenuTrigger as-child>
                         <Button
                             variant="outline"
