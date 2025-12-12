@@ -290,10 +290,6 @@ export default class MigratorService {
             migrations = migrations.slice(0, filters.steps)
         }
 
-
-        console.log(migrations)
-
-
         if (migrations.length === 0) {
             return []
         }
