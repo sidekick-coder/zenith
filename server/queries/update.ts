@@ -16,6 +16,8 @@ export async function updateDefault<T extends keyof Database, O extends UpdateOp
     const values = options?.values || []
     let query = db.updateTable(table) as any
 
+    query = query.set(values).returningAll()
+
     if (options?.query) {
         query = options.query(query)
     }
@@ -28,8 +30,7 @@ export async function updateDefault<T extends keyof Database, O extends UpdateOp
         console.log(query.compile())
     }
 
-    let rows: any[] = await query.set(values).returningAll()
-        .execute()
+    let rows: any[] = await query.execute()
 
     if (options?.serialize) {
         rows = rows.map(options.serialize)
