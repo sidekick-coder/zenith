@@ -41,22 +41,31 @@ env.load()
 
 const mods = await importAll(basePath('server/hooks'))
 
+const exclude = [
+    'AppLifecycleHook',
+    'ViteLifecycleHook',
+    'ModulesClientLifecycleHook',
+    'QueueLifecycleHook'
+]
+
 const hooks: LifecycleHook[] = Object.values(mods)
     .map(m => m.default || m)
     .filter((HookClass: any) => HookClass.prototype instanceof LifecycleHook)
     .map((HookClass: any) => new HookClass())
-    .filter(hook => !['AppLifecycleHook', 'ViteLifecycleHook', 'ModulesClientLifecycleHook'].includes(hook.hook_id))
 
 lifecycle.add(...hooks)
-
 
 program
     .hook('preAction', async () => {
         await lifecycle.register()
         
-        await lifecycle.load()
+        await lifecycle.load({
+            exclude
+        })
         
-        await lifecycle.boot()
+        await lifecycle.boot({
+            exclude
+        })
     })
     .hook('postAction', async () => {
         await lifecycle.shutdown()

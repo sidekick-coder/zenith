@@ -72,8 +72,8 @@ export default class LifecycleService {
         }
     }
 
-    public async register(): Promise<void> {
-        for (const hook of this.list()) {
+    public async register(options?: ListOptions): Promise<void> {
+        for (const hook of this.list(options)) {
             const [error] = await tryCatch(() => hook.onRegister())
             
             if (error) {
@@ -88,8 +88,8 @@ export default class LifecycleService {
         }
     }
 
-    public async load(): Promise<void> {
-        for (const hook of this.list()) {
+    public async load(options?: ListOptions): Promise<void> {
+        for (const hook of this.list(options)) {
             const [error] = await tryCatch(() => hook.onLoad())
             
             if (error) {
