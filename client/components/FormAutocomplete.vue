@@ -2,7 +2,7 @@
 import { Check, ChevronsUpDown } from 'lucide-vue-next'
 import { useField } from 'vee-validate'
 import { watchDebounced } from '@vueuse/core'
-import { ref  } from 'vue'
+import { computed, ref  } from 'vue'
 import type { PropType } from 'vue'
 import Icon from './Icon.vue'
 import Separator from './ui/separator/Separator.vue'
@@ -113,6 +113,34 @@ const search = defineModel('search', {
     default: '',
 })
 
+const formated = computed(() => {
+    return options.value
+        .map(o => props.serialize(o))
+        .map(o => ({
+            label: findLabel(o),
+            subtitle: findSubtitle(o),
+            avatar: findAvatar(o),
+            value: findValue(o),
+            initials: findAvatarInitial(o),
+        }))
+})
+
+const selectedFormated = computed(() => {
+    if (!selectedObject.value) {
+        return null
+    }
+
+    const o = props.serialize(selectedObject.value)
+
+    return {
+        label: findLabel(o),
+        subtitle: findSubtitle(o),
+        avatar: findAvatar(o),
+        value: findValue(o),
+        initials: findAvatarInitial(o),
+    }
+})
+
 function findLabel(option: any) {
     return option[props.labelKey] || option[props.valueKey] || option
 }
@@ -148,9 +176,13 @@ function select(option: any) {
         return
     }
 
-    selectedObject.value = option
+    const item = options.value
+        .map(o => props.serialize(o))
+        .find((o: any) => findValue(o) === option.value)
 
-    setValue(findValue(option))
+    selectedObject.value = item
+
+    setValue(item ? findValue(item) : null)
 }
 
 // fetch
@@ -163,7 +195,7 @@ async function loadSelected(){
 
     const [error, response] = await tryCatch(() => {
         if (typeof props.fetchOption === 'string') {
-            return $fetch<any>(props.fetchOption.replace(':value', value.value as any), {
+            return $fetch.get(props.fetchOption.replace(':value', value.value as any), {
                 method: 'GET',
             })
         }
@@ -188,13 +220,13 @@ async function load() {
 
     await loadSelected()
 
-    const [error, response] = await tryCatch(() => $fetch<any>(props.fetch as string, {
+    const [error, response] = await $fetch.try<any>(props.fetch as string, {
         method: 'GET',
         query: {
             search: search.value,
             limit: 5,
         }
-    }))
+    })
 
     if (error) {
         console.error('Failed to load options:', error)
@@ -238,7 +270,7 @@ if (props.fetch) {
                             :disabled="disabled"
                         >
                             <div
-                                v-if="selectedObject"
+                                v-if="selectedFormated"
                                 class="flex items-center gap-2 text-left"
                             >
                                 <div
@@ -247,16 +279,16 @@ if (props.fetch) {
                                 >
                                     <slot
                                         name="avatar"
-                                        :option="selectedObject"
+                                        :option="selectedFormated"
                                     >
                                         <Avatar class="size-6">
                                             <AvatarImage
-                                                v-if="findAvatar(selectedObject)"
-                                                :src="findAvatar(selectedObject)"
-                                                :alt="findLabel(selectedObject)"
+                                                v-if="selectedFormated.avatar"
+                                                :src="selectedFormated.avatar"
+                                                :alt="selectedFormated.label"
                                             />
                                             <AvatarFallback>
-                                                {{ findAvatarInitial(selectedObject) }}
+                                                {{ selectedFormated.initials }}
                                             </AvatarFallback>
                                         </Avatar>
                                     </slot>
@@ -264,19 +296,19 @@ if (props.fetch) {
                                 <div class="flex flex-col items-start flex-1">
                                     <slot
                                         name="label"
-                                        :option="selectedObject"
+                                        :option="selectedFormated"
                                     >
-                                        {{ findLabel(selectedObject) }}
+                                        {{ selectedFormated.label }}
                                     </slot>
                                     <div
-                                        v-if="findSubtitle(selectedObject)"
-                                        class="text-sm text-muted-foreground"
+                                        v-if="subtitleKey"
+                                        class="text-sm text-muted-foreground white-space-normal break-words truncate max-w-sm"
                                     >
                                         <slot
                                             name="subtitle"
                                             :option="selectedObject"
                                         >
-                                            {{ findSubtitle(selectedObject) }}
+                                            {{ selectedFormated.subtitle || '-' }}
                                         </slot>
                                     </div>
                                 </div>
@@ -328,9 +360,9 @@ if (props.fetch) {
                         </template>
 
                         <ComboboxItem
-                            v-for="o in options"
-                            :key="findValue(o)"
-                            :value="findValue(o)"
+                            v-for="o in formated"
+                            :key="o.value"
+                            :value="o.value"
                             @click="select(o)"
                         >
                             <div
@@ -343,12 +375,12 @@ if (props.fetch) {
                                 >
                                     <Avatar class="size-6">
                                         <AvatarImage
-                                            v-if="findAvatar(o)"
-                                            :src="findAvatar(o)"
-                                            :alt="findLabel(o)"
+                                            v-if="o.avatar"
+                                            :src="o.avatar"
+                                            :alt="o.label"
                                         />
                                         <AvatarFallback>
-                                            {{ findAvatarInitial(o) }}
+                                            {{ o.initials }}
                                         </AvatarFallback>
                                     </Avatar>
                                 </slot>
@@ -358,17 +390,17 @@ if (props.fetch) {
                                     name="label"
                                     :option="o"
                                 >
-                                    {{ findLabel(o) }}
+                                    {{ o.label }}
                                 </slot>
                                 <div
-                                    v-if="findSubtitle(o)"
+                                    v-if="subtitleKey"
                                     class="text-sm text-muted-foreground"
                                 >
                                     <slot
                                         name="subtitle"
                                         :option="o"
                                     >
-                                        {{ findSubtitle(o) }}
+                                        {{ o.subtitle || '-' }}
                                     </slot>
                                 </div>
                             </div>

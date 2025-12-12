@@ -65,4 +65,32 @@ export default class FetchService {
     public async try<T = any>(url: string, options: FetchOptions = {}) {
         return tryCatch(() => this.fetch<T>(url, options))
     }
+
+    public async get<T = any>(url: string, options: FetchOptions = {}) {
+        return this.fetch<T>(this.buildUrl(url, options.query), {
+            ...options,
+            method: 'GET',
+        })
+    }
+
+    public async post<T = any>(url: string, options: FetchOptions = {}) {
+        return this.fetch<T>(this.buildUrl(url, options.query), {
+            ...options,
+            method: 'POST',
+        })
+    }
+
+    public async put<T = any>(url: string, options: FetchOptions = {}) {
+        return this.fetch<T>(this.buildUrl(url, options.query), {
+            ...options,
+            method: 'PUT',
+        })
+    }
+
+    public async delete<T = any>(url: string, options: FetchOptions = {}) {
+        return this.fetch<T>(this.buildUrl(url, options.query), {
+            ...options,
+            method: 'DELETE',
+        })
+    }
 }
