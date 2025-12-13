@@ -101,8 +101,8 @@ export function Model<Table extends keyof Database>(table: Table, primaryKey: ke
                 const constructor = this as any
 
                 const row = await queries.findOneOrFail(table, {
+                    ...o,
                     name: o?.name ?? constructor.name,
-                    query: o?.query,
                     serialize: row => constructor.serialize(row),
                 })
 
