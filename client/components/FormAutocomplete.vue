@@ -39,7 +39,7 @@ const props = defineProps({
     },
     subtitleKey: {
         type: String,
-        default: 'subtitle',
+        default: null,
     },
     avatarKey: {
         type: String,
