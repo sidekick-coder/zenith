@@ -122,8 +122,8 @@ export default class LifecycleService {
         }
     }
 
-    public async shutdown(): Promise<void> {
-        for (const hook of this.list()) {
+    public async shutdown(options?: ListOptions): Promise<void> {
+        for (const hook of this.list(options)) {
             const [error] = await tryCatch(() => hook.onShutdown())
             
             if (error) {

@@ -42,7 +42,7 @@ export default class LoggerWinsonService extends LoggerService {
             }
 
             if (typeof value === 'object') {
-                result += '\n' + this.print(value, indent + 2)
+                result += '\n' + LoggerWinsonService.print(value, indent + 2)
                 continue
             }
 
@@ -91,7 +91,7 @@ export default class LoggerWinsonService extends LoggerService {
         result += ` ${message}`
 
         if (Object.keys(rest).length > 0) {
-            result += '\n' + chalk.gray(this.print(rest).trim())
+            result += '\n' + chalk.gray(LoggerWinsonService.print(rest).trim())
         }
 
         if (stack) {

@@ -103,6 +103,7 @@ program.command('serve')
             'arte',
             'node_modules',
             'commands',
+            'migrations',
             'tmp',
             'root',
             'client',

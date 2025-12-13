@@ -79,6 +79,8 @@ program
         })
     })
     .hook('postAction', async () => {
-        await lifecycle.shutdown()
+        await lifecycle.shutdown({
+            exclude
+        })
     })
     .parse()

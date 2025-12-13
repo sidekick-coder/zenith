@@ -1,66 +1,75 @@
-import fs from 'fs'
 import { program } from 'commander'
-import { basePath, serverPath } from '#server/utils/paths.ts'
-import db from '#server/facades/db.facade.ts'
-import cli from '#server/services/cli.service.ts'
-
-async function runSeed(seedPath: string, seedName: string, moduleName?: string): Promise<void> {
-    const moduleInfo = moduleName ? ` (module: ${moduleName})` : ''
-    console.log(`Running seed: ${seedName}${moduleInfo}`)
-    
-    // Import the seed file
-    const seedModule = await import(seedPath)
-    
-    if (!seedModule.run || typeof seedModule.run !== 'function') {
-        throw new Error(`Seed file ${seedName} must export a 'run' function`)
-    }
-    
-    // Run the seed
-    await seedModule.run(db)
-    
-    console.log(`✓ Completed seed: ${seedName}${moduleInfo}`)
-}
-
-function findSeedPath(seedName: string, moduleName?: string): string | null {
-    const extensions = ['.ts', '.js', '.seed.ts', '.seed.js']
-
-    if (moduleName) {
-        for (const ext of extensions) {
-            const moduleSeedPath = basePath(`modules/${moduleName}/server/seeds/${seedName}${ext}`)
-            if (fs.existsSync(moduleSeedPath)) {
-                return moduleSeedPath
-            }
-        }
-        return null
-    }
-
-    // Check general seeds directory first
-    for (const ext of extensions) {
-        const generalSeedPath = serverPath(`seeds/${seedName}${ext}`)
-
-        if (fs.existsSync(generalSeedPath)) {
-            return generalSeedPath
-        }
-    }
-
-    return null
-}
+import { confirm } from '@inquirer/prompts'
+import seeder from '#server/facades/seeder.facade.ts'
+import logger from '#server/facades/logger.facade.ts'
+import { table } from '#server/utils/cliUi.ts'
 
 program.command('seed:run')
     .helpGroup('database')
     .description('Run database seed files')
-    .argument('<seedName>', 'Name of the seed file to run')
-    .option('-m, --module <moduleName>', 'Run seed only from specific module')
-    .action(cli.with(['db'], async (seedName, options) => {
-        const { module: moduleName } = options
-        
-        const seedPath = findSeedPath(seedName, moduleName)
+    .option('-m, --module <moduleName>', 'Filter seeds by module name')
+    .option('-r, --root', 'Run only root seeds')
+    .option('-n, --name <names...>', 'Filter seeds by name(s)')
+    .option('-y, --yes', 'Skip confirmation prompt')
+    .action(async (options) => {
+        const seeds = await seeder.list({
+            module: options.module,
+            root: options.root,
+            name: options.name
+        })
 
-        // If module is specified, only look in that module
-        if (!seedPath) {
-            console.log(`No seed file found named '${seedName}'`)
+        if (seeds.length === 0) {
+            logger.info('No seeds found matching the filters')
             return
         }
 
-        await runSeed(seedPath, seedName, moduleName)
-    }))
+        table(seeds, [
+            {
+                label: 'Name',
+                value: 'name'
+            },
+            {
+                label: 'Module',
+                value: 'module',
+                width: 20,
+            },
+        ])
+
+        if (!options.yes) {
+            const confirmation = await confirm({ 
+                message: `Do you want to run ${seeds.length} seed(s)?`,
+                default: false
+            })
+
+            if (!confirmation) {
+                logger.info('Cancelled')
+                return
+            }
+        }
+
+        const results = await seeder.run({
+            module: options.module,
+            root: options.root,
+            name: options.name
+        })
+
+        let successCount = 0
+        let failedCount = 0
+
+        for (const result of results) {
+            const moduleInfo = result.module ? ` (${result.module})` : ' (root)'
+            
+            if (result.result === 'success') {
+                logger.info(`✓ ${result.filename}${moduleInfo}`)
+                successCount++
+            }
+            
+            if (result.result === 'failed') {                
+                logger.error(`Error running ${result.filename}${moduleInfo}`, result.error)
+                
+                failedCount++
+            }
+        }
+        
+        logger.info(`Completed: ${successCount} succeeded, ${failedCount} failed`)
+    })
