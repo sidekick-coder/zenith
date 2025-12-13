@@ -4,9 +4,9 @@ import path from 'path'
 import { set } from 'lodash-es'
 import Base from '#shared/services/config.service.ts'
 import { configPath } from '#server/utils/paths.ts'
-import { importGlob } from '#server/utils/importAll.ts'
 import env from '#server/facades/env.facade.ts'
 import logger from '#server/facades/logger.facade.ts'
+import type LoggerService from '#shared/services/logger.service.ts'
 
 interface LoadOptions {
     debug?: boolean
@@ -15,11 +15,12 @@ interface LoadOptions {
 export default class ConfigService extends Base {
     private configDir: string
     public debug = false
-    private logger = logger.child({ label: 'config' })
+    private logger: LoggerService
 
     constructor(configDir?: string) {
         super()
         this.configDir = configDir ?? configPath()
+        this.logger = logger.child({ label: 'config' })
     }
 
 
