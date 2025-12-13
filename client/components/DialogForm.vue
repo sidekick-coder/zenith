@@ -1,5 +1,5 @@
 <script lang="ts">
-export function defineFormFields(field: Record<string, FormField | ((data: any) => FormField)>) {
+export function defineFormFields<T extends Record<string, FormField | ((data: any) => FormField)>>(field: T) {
     return field
 }
 

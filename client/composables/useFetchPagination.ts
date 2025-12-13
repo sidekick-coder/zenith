@@ -13,6 +13,8 @@ export interface UseFetchPaginationOptions {
     immediate?: boolean
 }
 
+const hydrated = new Set<string>()
+
 export function useFetchPagination<T = any>(url: string, options: UseFetchPaginationOptions = {}) {
     let key = url
 
@@ -110,9 +112,14 @@ export function useFetchPagination<T = any>(url: string, options: UseFetchPagina
 
     if (options.immediate !== false) {
         onMounted(async () => {
-            if (!items.value.length) {
-                await load()
+            if (!hydrated.has(key) && items.value.length) {
+                hydrated.add(key)
+                return
             }
+
+            hydrated.add(key)
+
+            await load()
         })
 
         onServerPrefetch(async () => {
