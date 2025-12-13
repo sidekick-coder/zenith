@@ -94,6 +94,10 @@ const props = defineProps({
         type: Function as PropType<(row: any) => T>,
         default: (row: any) => row as T,
     },
+    refine: {
+        type: Function as PropType<(rows: T[]) => T[]>,
+        default: null,
+    },
 })
 
 const emit = defineEmits<{
@@ -178,6 +182,7 @@ const shouldBreak = computed(() => {
 if (props.fetch) {
     const pagination = useFetchPagination<T>(props.fetch, {
         serialize: props.serialize,
+        refine: props.refine,
         limit: limitModel.value,
         query: { 
             ...props.fetchQuery,
