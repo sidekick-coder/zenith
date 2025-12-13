@@ -85,7 +85,7 @@ export default class QueueService {
             return
         }
 
-        this.logger.debug('job completed', { 
+        this.logger.info('job completed', { 
             job,
             result 
         })
@@ -169,8 +169,7 @@ export default class QueueService {
         }))
 
         if (error) {
-            this.logger.info('failed to load pending jobs skipping start')
-            this.logger.debug(error)
+            this.logger.error('failed to load pending jobs skipping start', error)
             return
         }
 

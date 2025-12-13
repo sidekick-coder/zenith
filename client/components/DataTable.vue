@@ -440,6 +440,7 @@ defineExpose({
                         width: c.width ? c.width + 'px' : 'auto',
                         height: 'var(--datatable-td-height, 3rem)'
                     }"
+                    class="whitespace-normal"
                 >
                     <slot
                         :name="`row-${c.id}`"
