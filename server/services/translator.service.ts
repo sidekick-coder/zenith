@@ -92,7 +92,8 @@ export default class TranslatorService extends Base {
         const pattern = /\$t\((?:'([^']+)'|"([^"]+)")(?:,\s*(?:\[.*?\]|\{.*?\}))?\)/g
 
         for (const file of files) {
-            const content = await readFile(file, 'utf-8')
+            const filename = resolve(directory, file)
+            const content = await readFile(filename, 'utf-8')
             const matches = content.matchAll(pattern)
 
             for (const match of matches) {
