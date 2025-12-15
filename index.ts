@@ -7,7 +7,10 @@ import { basePath } from '#server/utils/paths.ts'
 import LifecycleHook from '#shared/entities/lifecycleHook.entity.ts'
 import LoggerService from '#shared/services/logger.service.ts'
 
+env.load()
+
 di.set(LoggerService, LoggerWinsonService.create({
+    level: env.get('LOG_LEVEL', 'info'),
     transports: [
         LoggerWinsonService.console(),
         LoggerWinsonService.file(basePath('storage/logs/error.log'), 'error'),
@@ -15,7 +18,6 @@ di.set(LoggerService, LoggerWinsonService.create({
     ]
 }))
 
-env.load()
 
 const mods = await importAll(basePath('server/hooks'))
 

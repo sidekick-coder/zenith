@@ -58,12 +58,12 @@ export default class EnvService {
         return this.get('NODE_ENV') === 'test'
     }
 
-    public get<K extends keyof EnvType>(key: K): EnvType[K] {
+    public get<K extends keyof EnvType>(key: K, defaultValue?: any): EnvType[K] {
         if (!this.env) {
             this.load()
         }
 
-        return this.env![key]
+        return this.env![key] !== undefined ? this.env![key] : defaultValue
     }
 
     public set<K extends keyof EnvType>(key: K, value: EnvType[K]) {

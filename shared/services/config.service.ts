@@ -1,4 +1,4 @@
-import { get, set, unset } from 'lodash-es'
+import { get, set, has, unset } from 'lodash-es'
 
 interface Entry {
     key: string
@@ -52,15 +52,23 @@ export default class ConfigService {
     }
 
     public has(key: string): boolean {
+        const entry = this.entries.get(key)
+
+        if (entry) {
+            return true
+        }
+
         if (!key.includes('.')) {
-            return this.entries.has(key)
+            return false
         }
 
         const primary = key.split('.')[0]
         const primaryEntry = this.entries.get(primary)
 
         if (!primaryEntry) {
-            return false
+            const entry = this.entries.get(key)
+            
+            return entry ? true : false
         }
 
         const value = primaryEntry.value
@@ -69,13 +77,10 @@ export default class ConfigService {
             return false
         }
 
-        const result = get(value, key.substring(primary.length + 1))
-
-        return result !== undefined
+        return has(value, key.substring(primary.length + 1))
     }
 
     public get<T = any | undefined>(key: string, defaultValue?: any): T {
-
         const entry = this.entries.get(key)
 
         if (entry) {

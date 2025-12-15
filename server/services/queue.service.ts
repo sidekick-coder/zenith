@@ -5,13 +5,24 @@ import { tryCatch } from '#shared/utils/tryCatch.ts'
 import { basePath } from '#server/utils/paths.ts'
 import { importAll } from '#server/utils/importAll.ts'
 import type { Constructor } from '#shared/utils/compose.ts'
+import LoggerService from '#shared/services/logger.service.ts'
 
 export default class QueueService {
-    public logger = logger.child({ label: 'queue' })
     public jobs: Job[] = []
     public jobConstructors = new Map<string, typeof Job>()
     public intervalId: NodeJS.Timeout | null = null
     public dirs = [basePath('server', 'jobs')]
+    public logger: LoggerService
+    public debug = false
+
+    constructor(data: Partial<QueueService> = {}) {
+        this.logger = data.logger || new LoggerService()
+        this.debug = data.debug || false
+
+        if (this.debug) {
+            this.logger.debug('initialized in debug mode')
+        }
+    }
 
     public get started() {
         return this.intervalId !== null
@@ -33,7 +44,10 @@ export default class QueueService {
             data,
         })
 
-        this.logger.info('add job', { job })
+        if (this.debug) {
+            this.logger.debug('add job', { job })
+        }
+
     }
 
     public async process(payload: Job) {
@@ -67,7 +81,10 @@ export default class QueueService {
             return
         }
 
-        this.logger.debug('job started', { job })
+        if (this.debug) {
+            this.logger.debug('job started', { job })
+        }
+
 
         await Job.updateById(job.id, { status: 'in_progress' })
 
@@ -99,7 +116,8 @@ export default class QueueService {
 
         clearInterval(this.intervalId)
         this.intervalId = null
-        this.logger.info('queue processing stopped')
+        
+        this.logger.info('service stopped')
     }
 
     public start(){
@@ -107,7 +125,9 @@ export default class QueueService {
             return
         }
 
-        this.logger.info('starting queue processing')
+        this.logger.info('started', {
+            jobs: this.jobConstructors.size
+        })
 
         let running = false
 
@@ -158,10 +178,13 @@ export default class QueueService {
 
             this.jobConstructors.set(queueId, constructor as any)
 
-            this.logger.debug('registered job constructor', { 
-                filename, 
-                queueId 
-            })
+            if (this.debug) {
+                this.logger.debug('register job', { 
+                    filename, 
+                    queueId 
+                })
+            }
+
         }
 
         const [error, all] = await tryCatch(async () => await Job.list({
@@ -183,7 +206,10 @@ export default class QueueService {
 
         }
 
-        this.logger.info(`loaded ${all.length} pending jobs`)
+        if (this.debug) {
+            this.logger.debug(`loaded ${all.length} pending jobs`)
+        }
+
     }
 
     public async loadAndStart() {
