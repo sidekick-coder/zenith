@@ -1,5 +1,6 @@
 import { readFile, writeFile } from 'fs/promises'
 import { resolve, join } from 'path'
+import { existsSync } from 'fs'
 import { program } from 'commander'
 import { input } from '@inquirer/prompts'
 import { glob } from 'glob'
@@ -67,19 +68,38 @@ program.command('translations:scan')
 
         console.log(chalk.green(`Found ${translationKeys.size} unique translation keys`))
 
+        const outputPath = resolve(outputFilename)
+        
+        // Check if file exists and load existing translations
+        let existingTranslations: Record<string, string> = {}
+        if (existsSync(outputPath)) {
+            console.log(chalk.blue(`Loading existing translations from: ${outputPath}`))
+            const existingContent = await readFile(outputPath, 'utf-8')
+            existingTranslations = JSON.parse(existingContent)
+        }
+
+        // Merge translations: preserve existing values, add new keys with empty strings
         const translationObject: Record<string, string> = {}
-        Array.from(translationKeys).sort()
+        Array.from(translationKeys).forEach(key => {
+            translationObject[key] = existingTranslations[key] ?? ''
+        })
+
+        // Sort keys alphabetically
+        const sortedTranslations: Record<string, string> = {}
+        Object.keys(translationObject).sort()
             .forEach(key => {
-                translationObject[key] = ''
+                sortedTranslations[key] = translationObject[key]
             })
 
-        const outputPath = resolve(outputFilename)
         await writeFile(
             outputPath,
-            JSON.stringify(translationObject, null, 2),
+            JSON.stringify(sortedTranslations, null, 2),
             'utf-8'
         )
 
+        const newKeysCount = Array.from(translationKeys).filter(key => !(key in existingTranslations)).length
+        
         console.log(chalk.green(`✓ Translation keys written to: ${outputPath}`))
-        console.log(chalk.dim(`  Keys: ${translationKeys.size}`))
+        console.log(chalk.dim(`  Total keys: ${translationKeys.size}`))
+        console.log(chalk.dim(`  New keys: ${newKeysCount}`))
     })
