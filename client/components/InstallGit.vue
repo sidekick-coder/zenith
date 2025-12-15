@@ -90,7 +90,7 @@ watch(() => values.repository, (newVal) => {
                 <FormTextField
                     name="repository"
                     :label="$t('Repository URL')"
-                    :placeholder="$t('https://github.com/user/repo.git')"
+                    placeholder="https://github.com/user/repo.git"
                     :description="$t('Git repository URL (HTTPS or SSH)')"
                 />
 
@@ -104,7 +104,7 @@ watch(() => values.repository, (newVal) => {
                 <FormTextarea
                     name="key"
                     :label="$t('SSH Private Key')"
-                    :placeholder="$t('-----BEGIN PRIVATE KEY-----')"
+                    placeholder="-----BEGIN PRIVATE KEY-----"
                     :description="$t('Optional: SSH private key for private repositories')"
                     :rows="8"
                 />
