@@ -94,6 +94,7 @@ program.command('serve')
             'shared',
             'server',
             'modules',
+            'langs',
             'index.ts',
             '.env'
         ]

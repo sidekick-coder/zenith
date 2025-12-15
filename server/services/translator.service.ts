@@ -31,6 +31,10 @@ export default class TranslatorService extends Base {
         if (this.debug) {
             this.logger.debug('discovered translation files',  Object.fromEntries(this.sources))
         }
+
+        // default is en
+        this.sources.set('en-US', this.sources.get('en-US') || [])
+        this.localeLoaders.set('en-US', async () => this.loadLocale('en-US'))
     }
 
     public loadLocale(locale: string): Record<string, string> {

@@ -33,6 +33,11 @@ interface HandleOptions {
 }
 
 export interface ViteServiceEvents {
+    'vite:before-render': {
+        options: RenderOptions;
+        state: Map<string, any>;
+        vite: ViteService;
+    }
     'vite:render': {
         head: El;
         html: El;
@@ -245,6 +250,12 @@ export default class ViteService extends compose(Hooks) {
         for (const [key, value] of Object.entries(options.state || {})) {
             state.set(key, value)
         }
+
+        await this.emitAsync('vite:before-render', {
+            options,
+            state,
+            vite: this,
+        })
 
         const rendered = await this.entrypoint.render({
             url: options.url,

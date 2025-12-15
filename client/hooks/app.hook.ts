@@ -5,9 +5,7 @@ import Vue3TouchEvents from 'vue3-touch-events'
 import App from '../App.vue'
 import di from '../utils/di'
 import LifecycleHook from '#shared/entities/lifecycleHook.entity.ts'
-import { $t } from '#shared/lang.ts'
 import logger from '#client/facades/logger.facade.ts'
-
 
 export default class AppLifecycleHook extends LifecycleHook {
     public order = 999

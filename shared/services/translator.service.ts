@@ -39,6 +39,13 @@ export default class TranslatorService {
     }
 
     public t(key: string, args: Record<string, string> = {}): string {
+        if (!this.entries.has(key) && this.debug) {
+            this.logger.debug(`missing translation for key "${key}"`, {
+                key,
+                locale: this.locale
+            })
+        }
+
         const entry = this.entries.get(key) || key
 
         let translation = entry
@@ -53,8 +60,8 @@ export default class TranslatorService {
 
         return translation
     }
-    
-    public async load(locale: string){
+
+    public async getEntries(locale: string): Promise<Record<string, string>> {
         const cache = this.cache.get(locale)!
         
         if (cache && this.debug) {
@@ -65,9 +72,7 @@ export default class TranslatorService {
         }
         
         if (cache) {
-            this.entries = new Map<string, string>(Object.entries(cache))
-            this.locale = locale
-            return
+            return cache
         }
 
         const loader = this.localeLoaders.get(locale)
@@ -81,15 +86,21 @@ export default class TranslatorService {
 
         this.cache.set(locale, entries)
 
-        this.entries = new Map<string, string>(Object.entries(entries))
-        
-        this.locale = locale
-
         if (this.debug) {
             this.logger.debug(`load locale ${locale}`, {
                 locale,
                 keys: Object.keys(entries).length
             })
         }
+
+        return entries
+    }
+    
+    public async load(locale: string){
+        const entries = await this.getEntries(locale)
+        
+        this.entries = new Map<string, string>(Object.entries(entries))
+        
+        this.locale = locale
     }
 }

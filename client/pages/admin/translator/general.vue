@@ -3,9 +3,7 @@ import { onMounted, ref } from 'vue'
 import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/valibot'
 import { toast } from 'vue-sonner'
-import { $t } from '#shared/lang.ts'
 import { $fetch } from '#client/utils/fetcher.ts'
-
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '#client/components/ui/card'
 import Button from '#client/components/Button.vue'
 import SettingLayout from '#client/layouts/SettingLayout.vue'
@@ -13,7 +11,8 @@ import PageTitle from '#client/components/PageTitle.vue'
 import PageSubtitle from '#client/components/PageSubtitle.vue'
 import schemas from '#shared/validators/index.ts'
 import Icon from '#client/components/Icon.vue'
-import FormTextField from '#client/components/FormTextField.vue'
+import FormSelect from '#client/components/FormSelect.vue'
+import translator from '#client/facades/translator.facade.ts'
 
 const loading = ref(false)
 const saving = ref(false)
@@ -109,11 +108,16 @@ onMounted(() => {
                         </CardDescription>
                     </CardHeader>
                     <CardContent class="space-y-4">
-                        <FormTextField
+                        <FormSelect
                             name="defaultLocale"
+                            label-key="label"
+                            value-key="value"
                             :label="$t('Default Locale')"
                             :disabled="loading || saving"
-                            placeholder="en-US"
+                            :options="translator.locales.map(l => ({
+                                label: l,
+                                value: l
+                            }))"
                         />
                     </CardContent>
                 </Card>

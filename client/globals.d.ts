@@ -12,6 +12,7 @@ declare global {
     var __STATE__: Record<string, any> | undefined
     var config: ConfigService | undefined // only on dev
     var di: DIService | undefined // only on dev
+    var $t: (key: string, ...args: any[]) => string
 }
 
 declare module 'vue' {
