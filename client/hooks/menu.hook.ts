@@ -19,6 +19,30 @@ export default class MenuLifecycleHook extends LifecycleHook {
         })
 
         menu.add({
+            id: 'preferences-menu-items',
+            label: $t('Items'),
+            to: '/admin/menu/items',
+            layout: 'setting',
+            group: $t('Menu'),
+        })
+        
+        menu.add({
+            id: 'preferences-menu-groups',
+            label: $t('Groups'),
+            to: '/admin/menu/groups',
+            layout: 'setting',
+            group: $t('Menu'),
+        })
+
+        menu.add({
+            id: 'preferences-menu-custom',
+            label: $t('Custom'),
+            to: '/admin/menu/custom',
+            layout: 'setting',
+            group: $t('Menu'),
+        })
+
+        menu.add({
             id: 'users',
             label: $t('Users'),
             to: '/admin/users',
