@@ -5,7 +5,7 @@ import type { ComponentExposed } from 'vue-component-type-helpers'
 import { Files } from 'lucide-vue-next'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from './ui/card'
 import DataTable, { defineColumns } from '#client/components/DataTable.vue'
-import { $t } from '#shared/lang.ts'
+
 import { $fetch } from '#client/utils/fetcher.ts'
 import Button from '#client/components/Button.vue'
 import Icon from '#client/components/Icon.vue'

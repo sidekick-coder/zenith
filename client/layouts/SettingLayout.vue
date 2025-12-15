@@ -7,7 +7,7 @@ import {
     SidebarMenu,
     SidebarMenuItem,SidebarMenuButton
 } from '#client/components/ui/sidebar'
-import { $t } from '#shared/lang.ts'
+
 import { useMenu } from '#client/composables/useMenu.ts'
 import Icon from '#client/components/Icon.vue'
 import di from '#client/utils/di.ts'

@@ -3,7 +3,7 @@ import { ref } from 'vue'
 import { useForm } from 'vee-validate'
 import { toast } from 'vue-sonner'
 import { useRouter } from 'vue-router'
-import { $t } from '#shared/lang.ts'
+
 import { $fetch } from '#client/utils/fetcher.ts'
 import {
     Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter 

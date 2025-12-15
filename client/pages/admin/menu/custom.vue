@@ -11,7 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '#clie
 import Button from '#client/components/Button.vue'
 import Icon from '#client/components/Icon.vue'
 import AlertButton from '#client/components/AlertButton.vue'
-import { $t } from '#shared/lang.ts'
+
 import { $fetch } from '#client/utils/fetcher.ts'
 import di from '#client/utils/di.ts'
 import { tryCatch } from '#shared/utils/tryCatch.ts'

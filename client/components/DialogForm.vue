@@ -14,7 +14,7 @@ import type { BaseSchema } from 'valibot'
 import ClientOnly from './ClientOnly.vue'
 import FormAutoFieldList from './FormAutoFieldList.vue'
 import type { FormField } from './FormAutoFieldList.vue'
-import { $t } from '#shared/lang.ts'
+
 import { $fetch } from '#client/utils/fetcher.ts'
 import Button from '#client/components/Button.vue'
 import {

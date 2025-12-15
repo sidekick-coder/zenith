@@ -14,7 +14,7 @@ import { tryCatch } from '#shared/utils/tryCatch.ts'
 import { $fetch } from '#client/utils/fetcher.ts'
 import FormTextField from '#client/components/FormTextField.vue'
 import CardContent from '#client/components/ui/card/CardContent.vue'
-import { $t } from '#shared/lang.ts'
+
 import FormSelect from '#client/components/FormSelect.vue'
 const isLoading = ref(false)
 const isTestLoading = ref(false)

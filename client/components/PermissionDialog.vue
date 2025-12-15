@@ -6,7 +6,7 @@ import { ref, watch } from 'vue'
 import FormTextarea from './FormTextarea.vue'
 import ClientOnly from './ClientOnly.vue'
 import FormSelect from './FormSelect.vue'
-import { $t } from '#shared/lang.ts'
+
 import FormTextField from '#client/components/FormTextField.vue'
 import { $fetch } from '#client/utils/fetcher.ts'
 import Button from '#client/components/Button.vue'

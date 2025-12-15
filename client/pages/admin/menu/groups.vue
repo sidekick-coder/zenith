@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted, ref, computed } from 'vue'
 import { toast } from 'vue-sonner'
-import { $t } from '#shared/lang.ts'
+
 import { $fetch } from '#client/utils/fetcher.ts'
 import DataTable, { defineColumns } from '#client/components/DataTable.vue'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '#client/components/ui/card'

@@ -9,7 +9,7 @@ import {
 } from '#client/components/ui/card'
 import FormTextField from '#client/components/FormTextField.vue'
 import Button from '#client/components/Button.vue'
-import { $t } from '#shared/lang.ts'
+
 import { $fetch } from '#client/utils/fetcher.ts'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
 import type User from '#shared/entities/user.entity.ts'

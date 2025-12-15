@@ -1,7 +1,7 @@
 import LifecycleHook from '#shared/entities/lifecycleHook.entity.ts'
 import { useMenu } from '#client/composables/useMenu.ts'
 import config from '#client/facades/config.facade.ts'
-import { $t } from '#shared/lang.ts'
+
 
 export default class MenuLifecycleHook extends LifecycleHook {
     public async onLoad(): Promise<void> {

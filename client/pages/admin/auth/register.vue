@@ -10,7 +10,7 @@ import { tryCatch } from '#shared/utils/tryCatch.ts'
 import { Button } from '#client/components/ui/button'
 import FormTextField from '#client/components/FormTextField.vue'
 import AuthLayout from '#client/layouts/AuthLayout.vue'
-import { $t } from '#shared/lang.ts'
+
 
 const isLoading = ref(false)
 

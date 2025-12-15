@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { $t } from '#shared/lang.ts'
+
 import { $fetch } from '#client/utils/fetcher.ts'
 import { $file } from '#client/utils/file.ts'
 import { tryCatch } from '#shared/utils/tryCatch.ts'

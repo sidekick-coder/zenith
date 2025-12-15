@@ -10,7 +10,7 @@ import CardHeader from '#client/components/ui/card/CardHeader.vue'
 import CardTitle from '#client/components/ui/card/CardTitle.vue'
 import Switch from '#client/components/ui/switch/Switch.vue'
 
-import { $t } from '#shared/lang.ts'
+
 import { $fetch } from '#client/utils/fetcher'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
 import Dialog from '#client/components/ui/dialog/Dialog.vue'

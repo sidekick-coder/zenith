@@ -5,7 +5,7 @@ import {
 } from 'vue'
 import { useRouteQuery } from '@vueuse/router'
 import AppLayout from '#client/layouts/AppLayout.vue'
-import { $t } from '#shared/lang.ts'
+
 import Tabs from '#client/components/ui/tabs/Tabs.vue'
 import TabsList from '#client/components/ui/tabs/TabsList.vue'
 import TabsTrigger from '#client/components/ui/tabs/TabsTrigger.vue'

@@ -15,7 +15,7 @@ import CardHeader from '#client/components/ui/card/CardHeader.vue'
 import CardTitle from '#client/components/ui/card/CardTitle.vue'
 import { $fetch } from '#client/utils/fetcher.ts'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
-import { $t } from '#shared/lang.ts'
+
 import type { Drive } from '#client/types.ts'
 import CardFooter from '#client/components/ui/card/CardFooter.vue'
 

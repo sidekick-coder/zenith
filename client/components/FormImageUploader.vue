@@ -12,7 +12,7 @@ import {
 import FileUploader from '#client/components/FileUploader.vue'
 import Button from '#client/components/Button.vue'
 import Icon from '#client/components/Icon.vue'
-import { $t } from '#shared/lang.ts'
+
 import { tryCatch } from '#shared/utils/tryCatch.ts'
 
 defineProps({

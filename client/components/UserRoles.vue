@@ -3,7 +3,7 @@ import { ref, computed } from 'vue'
 import type { ComponentExposed } from 'vue-component-type-helpers'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card'
 import DataTable, { defineColumns } from '#client/components/DataTable.vue'
-import { $t } from '#shared/lang.ts'
+
 import Button from '#client/components/Button.vue'
 import Icon from '#client/components/Icon.vue'
 import type Role from '#shared/entities/role.entity.ts'

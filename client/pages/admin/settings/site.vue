@@ -9,7 +9,7 @@ import {
 import { toast } from 'vue-sonner'
 import { useRouter } from 'vue-router'
 import { ChevronDown } from 'lucide-vue-next'
-import { $t } from '#shared/lang.ts'
+
 import FormTextField from '#client/components/FormTextField.vue'
 import { $fetch } from '#client/utils/fetcher.ts'
 import Button from '#client/components/Button.vue'

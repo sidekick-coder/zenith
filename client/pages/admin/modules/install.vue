@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useRouteQuery } from '@vueuse/router'
-import { $t } from '#shared/lang.ts'
+
 import SettingLayout from '#client/layouts/SettingLayout.vue'
 import PageSubtitle from '#client/components/PageSubtitle.vue'
 import PageTitle from '#client/components/PageTitle.vue'

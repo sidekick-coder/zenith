@@ -5,7 +5,7 @@ import Icon from './Icon.vue'
 import { Input } from '#client/components/ui/input'
 import { Button } from '#client/components/ui/button'
 import { cn } from '#client/lib/utils'
-import { $t } from '#shared/lang.ts'
+
 
 defineOptions({
     inheritAttrs: false,

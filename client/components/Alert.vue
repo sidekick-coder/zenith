@@ -11,7 +11,7 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger,
 } from '#client/components/ui/alert-dialog'
-import { $t } from '#shared/lang.ts'
+
 
 defineProps({
     title: {

@@ -2,7 +2,7 @@
 import { computed, onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { useRouteQuery } from '@vueuse/router'
-import { $t } from '#shared/lang.ts'
+
 import $fetch from '#client/facades/fetch.facade.ts'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
 import SettingLayout from '#client/layouts/SettingLayout.vue'

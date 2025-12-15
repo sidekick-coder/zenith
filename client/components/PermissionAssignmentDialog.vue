@@ -4,7 +4,7 @@ import { toTypedSchema } from '@vee-validate/valibot'
 import { ref } from 'vue'
 import ClientOnly from './ClientOnly.vue'
 import FormAutocomplete from './FormAutocomplete.vue'
-import { $t } from '#shared/lang.ts'
+
 import { $fetch } from '#client/utils/fetcher.ts'
 import Button from '#client/components/Button.vue'
 import {

@@ -2,7 +2,7 @@
 import { ref  } from 'vue'
 import { toast } from 'vue-sonner'
 import DataTable, { defineColumns } from '#client/components/DataTable.vue'
-import { $t } from '#shared/lang.ts'
+
 import AppLayout from '#client/layouts/AppLayout.vue'
 import Button from '#client/components/Button.vue'
 import Icon from '#client/components/Icon.vue'

@@ -34,7 +34,7 @@ import {
 } from '#client/components/ui/sidebar'
 import { $fetch } from '#client/utils/fetcher.ts'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
-import { $t } from '#shared/lang.ts'
+
 import type { MenuItem } from '#client/composables/useMenu.ts'
 import acl from '#client/facades/acl.facade.ts'
 import config from '#client/facades/config.facade.ts'

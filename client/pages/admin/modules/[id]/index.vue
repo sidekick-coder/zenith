@@ -13,7 +13,7 @@ import CardDescription from '#client/components/ui/card/CardDescription.vue'
 import CardHeader from '#client/components/ui/card/CardHeader.vue'
 import CardTitle from '#client/components/ui/card/CardTitle.vue'
 
-import { $t } from '#shared/lang.ts'
+
 import { $fetch } from '#client/utils/fetcher.ts'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
 import { CardFooter } from '#client/components/ui/card/index.ts'

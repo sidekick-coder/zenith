@@ -2,7 +2,7 @@
 import { ref } from 'vue'
 import { useField } from 'vee-validate'
 import { toast } from 'vue-sonner'
-import { $t } from '#shared/lang.ts'
+
 import { $fetch } from '#client/utils/fetcher.ts'
 import { $file } from '#client/utils/file.ts'
 import { tryCatch } from '#shared/utils/tryCatch.ts'

@@ -3,7 +3,7 @@ import { useForm } from 'vee-validate'
 import * as v from 'valibot'
 import { toTypedSchema } from '@vee-validate/valibot'
 import { ref } from 'vue'
-import { $t } from '#shared/lang.ts'
+
 import FormTextField from '#client/components/FormTextField.vue'
 import { $fetch } from '#client/utils/fetcher.ts'
 import Button from '#client/components/Button.vue'

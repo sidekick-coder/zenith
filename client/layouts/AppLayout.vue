@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 import AdminLayout from './AdminLayout.vue'
 import { BreadcrumbItem } from '#client/components/ui/breadcrumb'
-import { $t } from '#shared/lang.ts'
+
 import { useMenu } from '#client/composables/useMenu.ts'
 import di from '#client/utils/di.ts'
 import {

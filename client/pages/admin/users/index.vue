@@ -2,7 +2,7 @@
 import { ref } from 'vue'
 import { toast } from 'vue-sonner'
 import DataTable, { defineColumns } from '#client/components/DataTable.vue'
-import { $t } from '#shared/lang.ts'
+
 import AppLayout from '#client/layouts/AppLayout.vue'
 import { $fetch } from '#client/utils/fetcher.ts'
 import { tryCatch } from '#shared/utils/tryCatch.ts'

@@ -4,7 +4,7 @@ import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/valibot'
 import { toast } from 'vue-sonner'
 import * as v from 'valibot'
-import { $t } from '#shared/lang.ts'
+
 import { $fetch } from '#client/utils/fetcher.ts'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
 import FormTextField from '#client/components/FormTextField.vue'

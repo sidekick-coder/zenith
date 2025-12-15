@@ -14,7 +14,7 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger,
 } from '#client/components/ui/alert-dialog'
-import { $t } from '#shared/lang.ts'
+
 import { $fetch } from '#client/utils/fetcher.ts'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
 

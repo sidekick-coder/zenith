@@ -2,7 +2,7 @@
 import { onMounted, ref, watch, computed } from 'vue'
 import { useLocalStorage } from '@vueuse/core'
 import type { MenuItem } from '#client/composables/useMenu.ts'
-import { $t } from '#shared/lang.ts'
+
 </script>
 
 <script setup lang="ts">

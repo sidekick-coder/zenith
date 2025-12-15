@@ -4,7 +4,7 @@ import { useForm } from 'vee-validate'
 import * as v from 'valibot'
 import { toTypedSchema } from '@vee-validate/valibot'
 import { useRouter } from 'vue-router'
-import { $t } from '#shared/lang.ts'
+
 import { $fetch } from '#client/utils/fetcher.ts'
 import {
     Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter 

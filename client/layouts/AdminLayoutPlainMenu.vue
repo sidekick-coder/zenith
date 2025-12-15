@@ -1,7 +1,7 @@
 <script lang="ts">
 import { computed } from 'vue'
 import type { MenuItem } from '#client/composables/useMenu.ts'
-import { $t } from '#shared/lang.ts'
+
 </script>
 
 <script setup lang="ts">

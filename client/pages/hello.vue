@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { $t } from '#shared/lang.ts'
+
 import Button from '#client/components/Button.vue'
 import Icon from '#client/components/Icon.vue'
 import auth from '#client/facades/auth.facade.ts'

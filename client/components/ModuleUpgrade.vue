@@ -8,7 +8,7 @@ import { Input } from './ui/input'
 import { Label } from './ui/label'
 import Icon from './Icon.vue'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
-import { $t } from '#shared/lang.ts'
+
 import { $server } from '#client/utils/server.ts'
 
 const props = defineProps<{ 

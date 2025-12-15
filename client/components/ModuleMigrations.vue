@@ -7,7 +7,7 @@ import DataTable, { defineColumns } from './DataTable.vue'
 import { CardHeader, CardTitle } from './ui/card'
 import AlertButton from './AlertButton.vue'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
-import { $t } from '#shared/lang.ts'
+
 
 defineOptions({
     inheritAttrs: false,

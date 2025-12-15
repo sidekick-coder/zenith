@@ -1,7 +1,7 @@
 <script setup lang="ts" generic="T extends Record<string, any>">
 import type { PropType } from 'vue'
 import DataTable from '#client/components/DataTable.vue'
-import { $t } from '#shared/lang.ts'
+
 import ClientOnly from '#client/components/ClientOnly.vue'
 import Button from '#client/components/Button.vue'
 import Icon from '#client/components/Icon.vue'

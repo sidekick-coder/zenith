@@ -3,7 +3,7 @@ import { onMounted, ref } from 'vue'
 import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/valibot'
 import { toast } from 'vue-sonner'
-import { $t } from '#shared/lang.ts'
+
 import { $fetch } from '#client/utils/fetcher.ts'
 import { Card, CardContent, CardHeader, CardTitle } from '#client/components/ui/card'
 import Button from '#client/components/Button.vue'

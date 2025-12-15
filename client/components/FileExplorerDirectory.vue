@@ -3,7 +3,7 @@ import type { ColumnDef } from '@tanstack/vue-table'
 import { computed } from 'vue'
 import Icon from '#client/components/Icon.vue'
 import DataTable from '#client/components/DataTable.vue'
-import { $t } from '#shared/lang.ts'
+
 
 
 interface Props<T> {

@@ -13,7 +13,7 @@ import DialogTitle from '#client/components/ui/dialog/DialogTitle.vue'
 import DialogTrigger from '#client/components/ui/dialog/DialogTrigger.vue'
 import DriveExplorer from '#client/components/DriveExplorer.vue'
 import DriveEntry from '#shared/entities/driveEntry.entity.ts'
-import { $t } from '#shared/lang.ts'
+
 
 defineOptions({ inheritAttrs: false })
 
