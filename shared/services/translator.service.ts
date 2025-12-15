@@ -3,6 +3,7 @@ import LoggerService from './logger.service.ts'
 export default class TranslatorService {
     public entries: Map<string, string>
     public locale: string
+    public localeLoaders: Map<string, () => Promise<Record<string, string>>>
     public debug: boolean = false
     public logger: LoggerService
     public cache: Map<string, Record<string, string>>
@@ -13,10 +14,15 @@ export default class TranslatorService {
         this.debug = data.debug || false
         this.cache = data.cache || new Map<string, Record<string, string>>()
         this.logger = data.logger || new LoggerService()
+        this.localeLoaders = new Map<string, () => Promise<Record<string, string>>>()
 
         if (this.debug) {
             this.logger.debug('initialized in debug mode', { locale: this.locale })
         }
+    }
+
+    public get locales(): string[] {
+        return Array.from(this.localeLoaders.keys())
     }
 
     public list(): { key: string; value: string }[] {
@@ -47,13 +53,8 @@ export default class TranslatorService {
 
         return translation
     }
-
-    public loadLocale(locale: string): Record<string, string> {
-        // To be implemented in subclasses
-        throw new Error('Method not implemented.')
-    }
-
-    public load(locale: string){
+    
+    public async load(locale: string){
         const cache = this.cache.get(locale)!
         
         if (cache && this.debug) {
@@ -68,8 +69,17 @@ export default class TranslatorService {
             this.locale = locale
             return
         }
+
+        const loader = this.localeLoaders.get(locale)
+
+        if (!loader) {
+            this.logger.warn(`no loader found for locale "${locale}"`)
+            return {}
+        }
         
-        const entries = this.loadLocale(locale)
+        const entries = await loader()
+
+        this.cache.set(locale, entries)
 
         this.entries = new Map<string, string>(Object.entries(entries))
         

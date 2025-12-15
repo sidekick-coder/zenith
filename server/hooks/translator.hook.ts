@@ -1,6 +1,7 @@
 import config from '#server/facades/config.facade.ts'
 import di from '#server/facades/di.facade.ts'
 import TranslatorService from '#server/services/translator.service.ts'
+import ViteService from '#server/services/vite.service.ts'
 import LifecycleHook from '#shared/entities/lifecycleHook.entity.ts'
 import LoggerService from '#shared/services/logger.service.ts'
 
@@ -14,11 +15,22 @@ export default class TrasnlatorLifecycleHook extends LifecycleHook {
         })
 
         service.discover()
-
-        service.load(config.get('translator.defaultLocale', 'en'))
         
         globalThis.$t = service.t.bind(service)
 
         di.set(TranslatorService, service)
+    }
+
+    public async onLoad(): Promise<void> {
+        const service = di.get<TranslatorService>(TranslatorService)
+        const vite = di.get<ViteService>(ViteService)
+        const defaultLocale = config.get('translator.defaultLocale', 'en')
+
+        await service.load(defaultLocale)
+
+        vite.addDependency('translator', {
+            locale: defaultLocale,
+            entries: Object.fromEntries(service.entries.entries()),
+        })
     }
 }

@@ -54,9 +54,10 @@ const onSubmit = handleSubmit(async (data) => {
         return
     }
 
+    toast.success($t('Translator settings saved successfully'))
     setTimeout(() => {
         saving.value = false
-        toast.success($t('Translator settings saved successfully'))
+        window.location.reload()
     }, 500)
 })
 
@@ -109,7 +110,7 @@ onMounted(() => {
                     </CardHeader>
                     <CardContent class="space-y-4">
                         <FormTextField
-                            name="defaultLang"
+                            name="defaultLocale"
                             :label="$t('Default Locale')"
                             :disabled="loading || saving"
                             placeholder="en-US"

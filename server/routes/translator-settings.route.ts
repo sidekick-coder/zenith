@@ -27,7 +27,7 @@ router.put('/', async ({ body, acl }) => {
 
     config.set('translator', data)
 
-    translator.load(data.defaultLang || 'en')
+    translator.load(data.defaultLocale || 'en')
 
     return config.get('translator', {})
 })

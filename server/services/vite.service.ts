@@ -5,6 +5,7 @@ import { createLogger, createServer as createViteServer  } from 'vite'
 import type { ViteDevServer } from 'vite'
 import express from 'express'
 import type { Request, Response } from 'express'
+// eslint-disable-next-line import/extensions
 import { transformHtmlTemplate } from '@unhead/vue/server'
 import CookieService from './cookie.service.ts'
 import env from '#server/facades/env.facade.ts'

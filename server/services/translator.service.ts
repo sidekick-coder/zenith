@@ -24,6 +24,10 @@ export default class TranslatorService extends Base {
             this.sources.set(locale, source)
         }
 
+        for (const locale of this.sources.keys()) {
+            this.localeLoaders.set(locale, async () => this.loadLocale(locale))
+        }
+
         if (this.debug) {
             this.logger.debug('discovered translation files',  Object.fromEntries(this.sources))
         }
