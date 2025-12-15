@@ -78,10 +78,10 @@ export default class TranslatorService extends Base {
             ignore.push(...exclude)
         }
 
-        const files = await glob('**/*.{vue,ts,js}', {
-            cwd: resolvedDirectory,
-            absolute: true,
-            ignore: ignore,
+        const files: string[] = await fg.sync('**/*.{js,ts,vue}', {
+            cwd: directory,
+            ignore,
+            onlyFiles: true
         })
 
         if (this.debug) {
@@ -89,14 +89,14 @@ export default class TranslatorService extends Base {
         }
 
         const keys = new Set<string>()
-        const pattern = /\$t\(['"]([^'"]+)['"]\)/g
+        const pattern = /\$t\((?:'([^']+)'|"([^"]+)")(?:,\s*(?:\[.*?\]|\{.*?\}))?\)/g
 
         for (const file of files) {
             const content = await readFile(file, 'utf-8')
             const matches = content.matchAll(pattern)
 
             for (const match of matches) {
-                keys.add(match[1])
+                keys.add(match[1] || match[2])
             }
         }
 
