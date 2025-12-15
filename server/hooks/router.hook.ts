@@ -9,6 +9,7 @@ import authSilenceMiddleware from '#server/middlewares/authSilence.middleware.ts
 import authorizationMiddleware from '#server/middlewares/authorization.middleware.ts'
 
 export default class RouterLifecycleHook extends LifecycleHook {
+    public order = 97
     public async onRegister(): Promise<void> {
         const router = new RouterRegister({
             debug: config.get('router.debug') || config.get('app.debug') || false,

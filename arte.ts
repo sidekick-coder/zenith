@@ -24,6 +24,26 @@ process.on('unhandledRejection', (reason: any, promise) => {
 })
 
 
+env.load()
+
+const mods = await importAll(basePath('server/hooks'))
+
+const exclude = [
+    'AppLifecycleHook',
+    'ViteLifecycleHook',
+    'ModulesClientLifecycleHook',
+    'QueueLifecycleHook'
+]
+
+const hooks: LifecycleHook[] = Object.values(mods)
+    .map(m => m.default || m)
+    .filter((HookClass: any) => HookClass.prototype instanceof LifecycleHook)
+    .map((HookClass: any) => new HookClass())
+
+lifecycle.add(...hooks)
+
+await lifecycle.register()
+
 await importAll(basePath('server/commands'))
 
 const modulesPath = basePath('modules')
@@ -48,27 +68,10 @@ for await (const name of moduleNames) {
     }
 }
 
-env.load()
-
-const mods = await importAll(basePath('server/hooks'))
-
-const exclude = [
-    'AppLifecycleHook',
-    'ViteLifecycleHook',
-    'ModulesClientLifecycleHook',
-    'QueueLifecycleHook'
-]
-
-const hooks: LifecycleHook[] = Object.values(mods)
-    .map(m => m.default || m)
-    .filter((HookClass: any) => HookClass.prototype instanceof LifecycleHook)
-    .map((HookClass: any) => new HookClass())
-
-lifecycle.add(...hooks)
 
 program
     .hook('preAction', async () => {
-        await lifecycle.register()
+       
         
         await lifecycle.load({
             exclude

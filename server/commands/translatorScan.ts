@@ -5,6 +5,7 @@ import { program } from 'commander'
 import { input } from '@inquirer/prompts'
 import { glob } from 'glob'
 import chalk from 'chalk'
+import translator from '#server/facades/translator.facade.ts'
 
 program.command('translations:scan')
     .helpGroup('translations')
@@ -14,6 +15,7 @@ program.command('translations:scan')
     .option('-i, --ignore <patterns...>', 'Additional patterns to ignore')
     .action(async (options) => {
         let directory = options.directory
+        let output = options.output
 
         if (!directory) {
             directory = await input({
@@ -22,84 +24,56 @@ program.command('translations:scan')
             })
         }
 
-        let outputFilename = options.output
-
-        if (!outputFilename) {
-            outputFilename = await input({
+        if (!output) {
+            output = await input({
                 message: 'Enter the output filename:',
                 default: 'translations.json',
             })
         }
 
-        const resolvedDirectory = resolve(directory)
-        console.log(chalk.blue(`Scanning directory: ${resolvedDirectory}`))
+        directory = resolve(directory)
+        output = resolve(output)
 
-        const defaultIgnorePatterns = [
-            '**/node_modules/**',
-            '**/dist/**',
-            '**/storage/**',
-            '**/client-dist/**',
-            '**/tmp/**',
-            '**/*.d.ts',
-        ]
-
-        const customIgnorePatterns = options.ignore || []
-        const allIgnorePatterns = [...defaultIgnorePatterns, ...customIgnorePatterns]
-
-        const files = await glob('**/*.{vue,ts,js}', {
-            cwd: resolvedDirectory,
-            absolute: true,
-            ignore: allIgnorePatterns,
+        const keys = await translator.scan({
+            directory: directory,
+            exclude: options.ignore
         })
 
-        console.log(chalk.blue(`Found ${files.length} files to scan`))
+        console.log(chalk.green('keys founded: ', Object.keys(keys).length))
 
-        const translationKeys = new Set<string>()
-        const pattern = /\$t\(['"]([^'"]+)['"]\)/g
+        const result = new Map<string, string>()
 
-        for (const file of files) {
-            const content = await readFile(file, 'utf-8')
-            const matches = content.matchAll(pattern)
+        if (output.endsWith('.json') && existsSync(output)) {
+            const text = await readFile(output, 'utf-8')
+            const json = JSON.parse(text)
 
-            for (const match of matches) {
-                translationKeys.add(match[1])
-            }
-        }
-
-        console.log(chalk.green(`Found ${translationKeys.size} unique translation keys`))
-
-        const outputPath = resolve(outputFilename)
-        
-        // Check if file exists and load existing translations
-        let existingTranslations: Record<string, string> = {}
-        if (existsSync(outputPath)) {
-            console.log(chalk.blue(`Loading existing translations from: ${outputPath}`))
-            const existingContent = await readFile(outputPath, 'utf-8')
-            existingTranslations = JSON.parse(existingContent)
-        }
-
-        // Merge translations: preserve existing values, add new keys with empty strings
-        const translationObject: Record<string, string> = {}
-        Array.from(translationKeys).forEach(key => {
-            translationObject[key] = existingTranslations[key] ?? ''
-        })
-
-        // Sort keys alphabetically
-        const sortedTranslations: Record<string, string> = {}
-        Object.keys(translationObject).sort()
-            .forEach(key => {
-                sortedTranslations[key] = translationObject[key]
+            Object.entries<string>(json).forEach(([key, value]) => {
+                result.set(key, value)
             })
 
+            console.log(chalk.green('existing keys: ', Object.keys(json).length))
+        }
+
+        for (const key of Object.keys(keys)) {
+            if (result.has(key)) continue
+
+            result.set(key, '')
+        }
+        
+        // Sort keys alphabetically
+        const sorted: Record<string, string> = {}
+
+        Array.from(result.keys())
+            .sort()
+            .forEach(key => {
+                sorted[key] = result.get(key) || ''
+            })
+
+        console.log(chalk.green('final keys count: ', Object.keys(sorted).length))
+
         await writeFile(
-            outputPath,
-            JSON.stringify(sortedTranslations, null, 2),
+            output,
+            JSON.stringify(sorted, null, 2),
             'utf-8'
         )
-
-        const newKeysCount = Array.from(translationKeys).filter(key => !(key in existingTranslations)).length
-        
-        console.log(chalk.green(`✓ Translation keys written to: ${outputPath}`))
-        console.log(chalk.dim(`  Total keys: ${translationKeys.size}`))
-        console.log(chalk.dim(`  New keys: ${newKeysCount}`))
     })
