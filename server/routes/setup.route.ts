@@ -1,7 +1,7 @@
 import BaseException from '#server/exceptions/base.ts'
 import root from '#server/facades/router.facade.ts'
 import config from '#server/facades/config.facade.ts'
-import { $t } from '#shared/lang.ts'
+
 import migrator from '#server/facades/migrator.facade.ts'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
 import db from '#server/facades/db.facade.ts'

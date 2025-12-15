@@ -3,7 +3,7 @@ import BaseException from '#server/exceptions/base.ts'
 import rootRouter from '#server/facades/router.facade.ts'
 import authMiddleware from '#server/middlewares/auth.middleware.ts'
 import validator from '#shared/services/validator.service.ts'
-import { $t } from '#shared/lang.ts' 
+ 
 import schemas from '#shared/validators/index.ts'
 import User from '#server/entities/user.entity.ts'
 
