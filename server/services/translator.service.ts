@@ -3,6 +3,7 @@ import path from 'path'
 import { readFile } from 'fs/promises'
 import { resolve } from 'path'
 import { glob } from 'glob'
+import fg from 'fast-glob'
 import { basePath } from '#server/utils/paths.ts'
 import Base from '#shared/services/translator.service.ts'
 
@@ -15,13 +16,10 @@ export default class TranslatorService extends Base {
     public sources = new Map<string, string[]>()
 
     public discover(){
-        const files = [] as string[]
-        
-        fs.readdirSync(basePath('langs')).forEach(file => {
-            if(file.endsWith('.json')){
-                files.push(basePath('langs', file))
-            }
-        })
+        const files: string[] = fg.sync([
+            basePath('langs', '*.json'),
+            basePath('modules', '**', 'langs', '*.json'),
+        ], { deep: 3 })
 
         for (const file of files) {
             const locale = path.basename(file, '.json')
