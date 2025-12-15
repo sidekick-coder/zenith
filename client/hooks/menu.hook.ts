@@ -126,6 +126,14 @@ export default class MenuLifecycleHook extends LifecycleHook {
             layout: 'setting',
             to: '/admin/settings/pwa'
         })
+        
+        menu.add({
+            id: 'translator-general',
+            group: $t('Translator'),
+            label: $t('General'),
+            layout: 'setting',
+            to: '/admin/translator/general'
+        })
 
         const hide = config.get<string>('menu.hide', '').split(',')
             .map((s: string) => s.trim())

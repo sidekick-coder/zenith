@@ -15,6 +15,7 @@ import * as fileUploadSession from './fileUploadSession.validator.ts'
 import * as auth from './auth.validator.ts'
 import * as metadata from './metadata.validator.ts'
 import * as file from './file.validator.ts'
+import * as translator from './translator.validator.ts'
 
 const schemas = {
     metadata,
@@ -36,6 +37,7 @@ const schemas = {
     pwa,
     auth,
     file,
+    translator,
 }
 
 export default schemas

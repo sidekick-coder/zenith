@@ -5,7 +5,6 @@ import Base from '#shared/services/translator.service.ts'
 
 export default class TranslatorService extends Base {
     public sources = new Map<string, string[]>()
-    public cache = new Map<string, Record<string, string>>()
 
     public discover(){
         const files = [] as string[]
@@ -24,15 +23,9 @@ export default class TranslatorService extends Base {
 
             this.sources.set(locale, source)
         }
-
-        console.log(Array.from(this.sources.entries()))
     }
 
-    private loadLocale(locale: string): Record<string, string> {
-        if (this.cache.has(locale)) {
-            return this.cache.get(locale)!
-        }
-
+    public loadLocale(locale: string): Record<string, string> {
         const files = this.sources.get(locale)
 
         if (!files) {
@@ -45,17 +38,7 @@ export default class TranslatorService extends Base {
             Object.assign(entries, JSON.parse(fs.readFileSync(file, 'utf-8')))
         }
 
-        this.cache.set(locale, entries)
-
         return entries
     }
-
-
-    public load(locale: string){
-        const entries = this.loadLocale(locale)
-
-        this.entries = new Map<string, string>(Object.entries(entries))
-        
-        this.locale = locale
-    }
+   
 }
