@@ -72,6 +72,7 @@ export default class TranslatorService extends Base {
             '**/storage/**',
             '**/client-dist/**',
             '**/tmp/**',
+            '**/root/**',
             '**/*.d.ts',
         ]
 

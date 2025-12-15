@@ -1,9 +1,8 @@
 import { readFile, writeFile } from 'fs/promises'
-import { resolve, join } from 'path'
+import { resolve } from 'path'
 import { existsSync } from 'fs'
 import { program } from 'commander'
 import { input } from '@inquirer/prompts'
-import { glob } from 'glob'
 import chalk from 'chalk'
 import translator from '#server/facades/translator.facade.ts'
 
@@ -13,6 +12,7 @@ program.command('translations:scan')
     .option('-d, --directory <directory>', 'Directory to scan')
     .option('-o, --output <output>', 'Output filename')
     .option('-i, --ignore <patterns...>', 'Additional patterns to ignore')
+    .option('-e, --exclude-keys-from-file <file>', 'JSON file containing keys to exclude from final output')
     .action(async (options) => {
         let directory = options.directory
         let output = options.output
@@ -42,6 +42,20 @@ program.command('translations:scan')
         console.log(chalk.green('keys founded: ', Object.keys(keys).length))
 
         const result = new Map<string, string>()
+        const excludedKeys = new Set<string>()
+
+        if (options.excludeKeysFromFile) {
+            const excludeFilePath = resolve(options.excludeKeysFromFile)
+            const excludeText = await readFile(excludeFilePath, 'utf-8')
+            const excludeJson = JSON.parse(excludeText)
+            
+            Object.keys(excludeJson).forEach(key => {
+                excludedKeys.add(key)
+            })
+
+            console.log(chalk.yellow('excluded keys: ', excludedKeys.size))
+            
+        }
 
         if (output.endsWith('.json') && existsSync(output)) {
             const text = await readFile(output, 'utf-8')
@@ -56,6 +70,7 @@ program.command('translations:scan')
 
         for (const key of Object.keys(keys)) {
             if (result.has(key)) continue
+            if (excludedKeys.has(key)) continue
 
             result.set(key, '')
         }
