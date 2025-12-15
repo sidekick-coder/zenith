@@ -23,6 +23,10 @@ export default class TranslatorService extends Base {
 
             this.sources.set(locale, source)
         }
+
+        if (this.debug) {
+            this.logger.debug('discovered translation files',  Object.fromEntries(this.sources))
+        }
     }
 
     public loadLocale(locale: string): Record<string, string> {

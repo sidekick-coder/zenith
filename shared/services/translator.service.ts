@@ -55,20 +55,20 @@ export default class TranslatorService {
 
     public load(locale: string){
         const cache = this.cache.get(locale)!
-
+        
+        if (cache && this.debug) {
+            this.logger.debug(`load locale "${locale}" from cache`, {
+                locale,
+                length: Object.keys(cache).length
+            })
+        }
+        
         if (cache) {
-            if (this.debug) {
-                this.logger.debug(`load locale "${locale}" from cache`, {
-                    locale,
-                    length: Object.keys(cache).length
-                })
-            }
-
             this.entries = new Map<string, string>(Object.entries(cache))
             this.locale = locale
             return
         }
-
+        
         const entries = this.loadLocale(locale)
 
         this.entries = new Map<string, string>(Object.entries(entries))
@@ -76,9 +76,9 @@ export default class TranslatorService {
         this.locale = locale
 
         if (this.debug) {
-            this.logger.debug(`load locale "${locale}" `, {
+            this.logger.debug(`load locale ${locale}`, {
                 locale,
-                length: Object.keys(cache).length
+                keys: Object.keys(entries).length
             })
         }
     }

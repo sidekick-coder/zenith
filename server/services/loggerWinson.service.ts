@@ -1,19 +1,8 @@
 import winston from 'winston'
 import chalk from 'chalk'
 import LoggerService from '#shared/services/logger.service.ts'
-import { storagePath } from '#server/utils/paths.ts'
 
 const { format } = winston
-
-interface Payload {
-    logger?: winston.Logger
-    level?: string
-}
-
-interface CreateOptions {
-    level?: string
-    transports?: winston.transport[]
-}
 
 export default class LoggerWinsonService extends LoggerService {
     private logger: winston.Logger
@@ -160,6 +149,7 @@ export default class LoggerWinsonService extends LoggerService {
 
     public child(options: any): LoggerService {
         const childLogger = this.logger.child(options)
+        
         return new LoggerWinsonService(childLogger)
     }
 }
