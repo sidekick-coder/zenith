@@ -32,9 +32,13 @@ const props = defineProps({
         type: String,
         default: null
     },
+    fetchUpdateMethod: {
+        type: String,
+        default: 'PUT'
+    },
     actions: {
         type: Array as PropType<Array<'create' | 'edit' | 'destroy'>> ,
-        default: () => ['edit', 'destroy'],
+        default: () => ['create', 'edit', 'destroy'],
     },
 })
 
@@ -44,7 +48,7 @@ const { items, loading, load } = useFetchPagination(props.fetch, {
 
 const columns = defineModel('columns', {
     type: Array as PropType<Array<any>>,
-    default: undefined,
+    default: () => [],
 })
 
 const fields = defineModel('fields', {
@@ -135,8 +139,8 @@ defineExpose({
 
                     <DialogForm 
                         v-if="actions.includes('edit')"
-                        :fetch="parse(fetch || '', row)"
-                        method="PUT"
+                        :fetch="parse(fetch + '/:id', row)"
+                        :method="fetchUpdateMethod"
                         :title="$t('Edit')"
                         :description="$t('Fill in the details below to edit')"
                         :fields="fieldsEdit || fields"
