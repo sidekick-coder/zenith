@@ -4,10 +4,12 @@ import logger from '#server/facades/logger.facade.ts'
 
 export class ErrorService {
     public handle(error: Error, response: Response) {
-        logger.error('Error occurred while processing request', {
-            error: error.message,
-            stack: error.stack,
+        Object.assign(error, { 
+            timestamp: new Date().toISOString(),
+            response
         })
+
+        logger.error('Error occurred while processing request', error)
 
         if (error instanceof BaseException) {
             return response.status(error.statusCode).json({
