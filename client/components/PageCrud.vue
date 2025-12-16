@@ -36,6 +36,10 @@ const props = defineProps({
         type: String,
         default: 'PUT'
     },
+    viewTo: {
+        type: String,
+        default: null
+    },
     actions: {
         type: Array as PropType<Array<'create' | 'edit' | 'destroy'>> ,
         default: () => ['create', 'edit', 'destroy'],
@@ -136,6 +140,15 @@ defineExpose({
                         name="prepend-actions"
                         :row="row"
                     />
+
+                    <Button
+                        v-if="viewTo"
+                        size="icon"
+                        variant="ghost"
+                        :to="parse(viewTo, row)"
+                    >
+                        <Icon name="Eye" />
+                    </Button>
 
                     <DialogForm 
                         v-if="actions.includes('edit')"

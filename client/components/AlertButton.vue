@@ -40,7 +40,7 @@ const props = defineProps({
     },
     toastOnSuccess: {
         type: String,
-        default: ''
+        default: $t('Deleted successfully.')
     },
 })
 
