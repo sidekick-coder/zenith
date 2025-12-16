@@ -4,10 +4,9 @@ import { toast } from 'vue-sonner'
 import * as v from 'valibot'
 import PageTitle from '#client/components/PageTitle.vue'
 import PageSubtitle from '#client/components/PageSubtitle.vue'
-import SettingLayout from '#client/layouts/SettingLayout.vue'
+import AccountSettingLayout from '#client/layouts/AccountSettingLayout.vue'
 import DataTable, { defineColumns } from '#client/components/DataTable.vue'
 import DialogForm, { defineFormFields } from '#client/components/DialogForm.vue'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '#client/components/ui/card'
 import Button from '#client/components/Button.vue'
 import Icon from '#client/components/Icon.vue'
 import AlertButton from '#client/components/AlertButton.vue'
@@ -151,7 +150,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <SettingLayout>
+    <AccountSettingLayout>
         <div class="mb-6 flex">
             <div class="flex-1">
                 <PageTitle>{{ $t('Custom menu items') }}</PageTitle>
@@ -207,5 +206,5 @@ onMounted(() => {
                 </div>
             </template>
         </DataTable>
-    </SettingLayout>
+    </AccountSettingLayout>
 </template>

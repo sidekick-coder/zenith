@@ -237,7 +237,7 @@ onMounted(() => {
                     :links="[
                         {
                             label: $t('Preferences'),
-                            to: '/admin/account/preferences',
+                            to: '/admin/menu/items',
                             icon: 'Settings',
                         }
                     ]"

@@ -43,7 +43,7 @@ export default class RouterLifecycleHook extends LifecycleHook {
         
         router.addRoute({
             path: '/admin/settings',
-            redirect: '/admin/account/preferences',
+            redirect: '/admin/settings/auth',
         })
 
         const homeRoute = config.get('site.home_route_path', '/hello')

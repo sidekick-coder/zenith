@@ -40,8 +40,6 @@ export default class TrasnlatorLifecycleHook extends LifecycleHook {
             state.set('translator:locales', service.locales)
             state.set('translator:locale', locale)
             state.set('translator:entries', await service.getEntries(locale))
-
-            console.log('Translator entries loaded for locale:', locale)
         })
     }
 }

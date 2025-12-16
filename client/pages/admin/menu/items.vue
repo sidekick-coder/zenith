@@ -4,7 +4,6 @@ import { toast } from 'vue-sonner'
 
 import { $fetch } from '#client/utils/fetcher.ts'
 import DataTable, { defineColumns } from '#client/components/DataTable.vue'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '#client/components/ui/card'
 import { Switch } from '#client/components/ui/switch'
 import Button from '#client/components/Button.vue'
 import Icon from '#client/components/Icon.vue'
@@ -13,7 +12,7 @@ import { useMenu } from '#client/composables/useMenu.ts'
 import auth from '#client/facades/auth.facade.ts'
 import PageTitle from '#client/components/PageTitle.vue'
 import PageSubtitle from '#client/components/PageSubtitle.vue'
-import SettingLayout from '#client/layouts/SettingLayout.vue'
+import AccountSettingLayout from '#client/layouts/AccountSettingLayout.vue'
 
 const loading = ref(false)
 const saving = ref(false)
@@ -114,7 +113,7 @@ function toggleMenu(id: string) {
 </script>
 
 <template>
-    <SettingLayout>
+    <AccountSettingLayout>
         <div class="mb-6 flex">
             <div class="flex-1">
                 <PageTitle>{{ $t('Menu items') }}</PageTitle>
@@ -158,5 +157,5 @@ function toggleMenu(id: string) {
                 </div>
             </template>
         </DataTable>
-    </SettingLayout>
+    </AccountSettingLayout>
 </template>
