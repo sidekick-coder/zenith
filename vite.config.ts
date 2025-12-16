@@ -39,6 +39,6 @@ export default defineConfig({
                 '**/.env.*', // Ignores all .env-related files (e.g., .env.local, .env.development)
                 '**/vite.config.*', // Ignores Vite config files
             ]
-        }
+        },
     }
 })

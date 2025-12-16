@@ -31,7 +31,7 @@ export default class TrasnlatorLifecycleHook extends LifecycleHook {
 
         vite.on('vite:before-render', async ({ state }: ViteServiceEvents['vite:before-render']) => {
             let locale = config.get('translator.defaultLocale', 'en-US')
-            const metas = state.get('user:metas')
+            const metas = state.get('user:metas') || {}
 
             if (metas['locale']) {
                 locale = metas['locale']
