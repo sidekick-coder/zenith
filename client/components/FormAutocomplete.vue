@@ -104,9 +104,6 @@ const selectedObject = defineModel<any>('selectedObject', {
     // default: () => props.initialOption,
 })
 
-if (props.initialOption) {
-    selectedObject.value = props.initialOption
-}
 
 const options = defineModel('options', {
     type: Array as () => T[],
@@ -260,6 +257,20 @@ if (props.fetch) {
         debounce: 1000,
     })
 }
+
+
+if (props.initialOption) {
+    selectedObject.value = props.initialOption
+}
+
+if (!props.fetch && !props.initialOption && value.value) {
+    const selected = formated.value.find((o: any) => o.value === value.value)
+
+    if (selected) {
+        select(selected)
+    }
+}
+
 </script>
 
 <template>
