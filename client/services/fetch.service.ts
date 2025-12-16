@@ -31,7 +31,7 @@ export default class FetchService {
             return url
         }
 
-        const queryString = new URLSearchParams(query).toString()
+        const queryString = new URLSearchParams(JSON.parse(JSON.stringify(query))).toString()
 
         return url + (url.includes('?') ? '&' : '?') + queryString
     }
