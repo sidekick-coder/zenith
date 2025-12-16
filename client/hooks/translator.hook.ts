@@ -13,8 +13,7 @@ export default class TranslatorLifecycleHook extends LifecycleHook {
         
         const service = new TranslatorService({
             locale: locale,
-            debug: true,
-            // debug: config.getOne(['translator.debug', 'app.debug'], false),
+            debug: config.getOne(['translator.debug', 'app.debug'], false),
             entries: new Map(Object.entries(entries)),
             logger: logger.child({ label: 'translator' })
         })
