@@ -24,6 +24,10 @@ import AvatarFallback from '#client/components/ui/avatar/AvatarFallback.vue'
 import $fetch from '#client/facades/fetch.facade.ts'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
 
+defineOptions({
+    inheritAttrs: false,
+})
+
 const props = defineProps({
     name: {
         type: String,
@@ -84,6 +88,12 @@ const props = defineProps({
     serialize: {
         type: Function as PropType<(option: any) => T>,
         default: (option: any) => option as T,
+    },
+    listAttrs: {
+        type: Object as PropType<Record<string, any>>,
+        default: () => ({
+            portable: false,
+        }),
     },
 })
 
@@ -253,14 +263,16 @@ if (props.fetch) {
 </script>
 
 <template>
-    <FormField :name>
+    <FormField :name="props.name">
         <FormItem class="flex flex-col">
             <FormLabel v-if="label">
                 {{ label }}
             </FormLabel>
+            
             <Combobox
-                :ignore-filter="true"
+                :ignore-filter="!!fetch"
                 :disabled="disabled"
+                :by="valueKey"
             >
                 <ComboboxAnchor as-child>
                     <ComboboxTrigger as-child>
@@ -334,7 +346,7 @@ if (props.fetch) {
                 <ComboboxList
                     align="start"
                     class="w-md"
-                    @focus-outside.prevent
+                    v-bind="listAttrs"
                 >
                     <div class="relative w-full items-center">
                         <ComboboxInput
@@ -347,7 +359,7 @@ if (props.fetch) {
                         {{ $t('No results') }}
                     </ComboboxEmpty>
 
-                    <ComboboxGroup>
+                    <ComboboxGroup class="max-h-60 overflow-y-auto">
                         <template v-if="clearable">
                             <ComboboxItem
                                 :value="null"
