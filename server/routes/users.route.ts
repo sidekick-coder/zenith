@@ -6,18 +6,36 @@ import validator from '#shared/services/validator.service.ts'
  
 import schemas from '#shared/validators/index.ts'
 import User from '#server/entities/user.entity.ts'
+import db from '#server/facades/db.facade.ts'
 
 const router = rootRouter.use(authMiddleware)
     .prefix('/api/users')
     .group()
 
-router.get('/', async ({ acl, query }) => {
-    acl.authorize('read', 'User')
+router.get('/', async (ctx) => {
+    ctx.acl.authorize('read', 'User')
 
-    const payload = validator.validate(query, schemas.pagination.schema)
+    const payload = validator.validate(ctx.query, v => v.intersect([
+        schemas.pagination.schema,
+        v.object({
+            search: v.optional(v.string()),
+        })
+    ]))
+
+    let query = db.selectFrom('users')
+        .selectAll()
+        .where(undeleted)
+
+    if (payload.search) {
+        query = query.where(eb => eb.or([
+            eb('name', 'like', `%${payload.search}%`),
+            eb('username', 'like', `%${payload.search}%`),
+            eb('email', 'like', `%${payload.search}%`),
+        ]))
+    }
 
     return User.paginate({
-        query: q => q.selectAll().where(undeleted),
+        query: () => query,
         page: payload.page,
         limit: payload.limit,
     })
