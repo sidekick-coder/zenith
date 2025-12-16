@@ -14,6 +14,7 @@ export interface HasManythroughServicePayload<T extends keyof Database, P extend
     pivotTargetKey: keyof Database[P]
 
     debug?: boolean
+    attachPayload?: Partial<Insertable<Database[P]>>
 }
 
 export default class HasManythroughService<T extends keyof Database, P extends keyof Database> {
@@ -24,6 +25,7 @@ export default class HasManythroughService<T extends keyof Database, P extends k
     public pivotTable: P
     public pivotSourceKey: keyof Database[P]
     public pivotTargetKey: keyof Database[P]
+    public attachPayload?: Partial<Insertable<Database[P]>>
    
 
     public debug = false
@@ -38,6 +40,7 @@ export default class HasManythroughService<T extends keyof Database, P extends k
         this.pivotTargetKey = payload.pivotTargetKey
 
         this.debug = payload.debug ?? false
+        this.attachPayload = payload.attachPayload
     }
 
     public query(){
@@ -71,6 +74,7 @@ export default class HasManythroughService<T extends keyof Database, P extends k
         const values: any = {
             [this.pivotSourceKey]: this.sourceId,
             [this.pivotTargetKey]: targetId,
+            ...this.attachPayload,
             ...payload,
         }
 

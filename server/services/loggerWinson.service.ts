@@ -13,11 +13,36 @@ export default class LoggerWinsonService extends LoggerService {
         this.logger = logger
     }
 
-    public static print(object: any, indent: number = 0): string {
+    public static print(
+        object: any,
+        indent: number = 0,
+        seen = new WeakSet<object>()
+    ): string {
         let result = ''
 
+        if (object === null) {
+            return 'null\n'
+        }
+
+        if (typeof object !== 'object') {
+            return String(object) + '\n'
+        }
+
+        if (seen.has(object)) {
+            return '[Circular]\n'
+        }
+
+        seen.add(object)
+
         for (const key in object) {
-            const value = object[key]
+            let value: any
+
+            try {
+                value = object[key]
+            } catch {
+                result += `${'|'.padEnd(indent + 1, '-')} ${key}: [Unreadable]\n`
+                continue
+            }
 
             if (indent > 0) {
                 result += '|' + '-'.repeat(indent) + ' '
@@ -26,22 +51,34 @@ export default class LoggerWinsonService extends LoggerService {
             result += key + ': '
 
             if (typeof value === 'function') {
-                result += '[Object Function]\n'
+                result += '[Function]\n'
+                continue
+            }
+
+            if (value === null) {
+                result += 'null\n'
                 continue
             }
 
             if (typeof value === 'object') {
-                result += '\n' + LoggerWinsonService.print(value, indent + 2)
+                if (indent >= 10) {
+                    result += '[Max depth reached]\n'
+                    continue
+                }
+
+                result += '\n' + LoggerWinsonService.print(value, indent + 2, seen)
                 continue
             }
 
-            result += value + '\n'
+            try {
+                result += String(value) + '\n'
+            } catch {
+                result += '[Unserializable]\n'
+            }
         }
 
         return result
     }
-
-
     
     public static format(data: any) {
         const { raw, level, message, timestamp, label, stack, ...rest } = data
