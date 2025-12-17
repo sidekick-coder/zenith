@@ -58,7 +58,7 @@ export default class HasManythroughService<T extends keyof Database, P extends k
         return query
     }
 
-    public async list() {
+    public async list(): Promise<Selectable<Database[T]>[]> {
         const query = this.query()
 
         if (this.debug) {
