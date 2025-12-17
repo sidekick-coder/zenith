@@ -88,6 +88,7 @@ export default class ModulesService {
                 version: json.version,
                 description: json.description,
                 enabled: config.get(`modules.enabled.${name}`, false),
+                dependencies: json.dependencies || {}
             }))
 
             if (this.debug) {
@@ -96,10 +97,39 @@ export default class ModulesService {
         }
     }
 
+    public getManifestSortedByDependency(): ModuleManifest[] {
+        const manifests = Array.from(this.manifests.values())
+        const map = new Map(manifests.map(m => [m.id, m]))
+        const visited = new Set<string>()
+        const sorted: ModuleManifest[] = []
+
+        const visit = (m: ModuleManifest) => {
+            if (visited.has(m.id)) return
+            visited.add(m.id)
+
+            for (const dep of Object.keys(m.dependencies || {})) {
+                const depManifest = map.get(dep)
+                if (depManifest) {
+                    visit(depManifest)
+                }
+            }
+
+            sorted.push(m)
+        }
+
+        for (const m of manifests) {
+            visit(m)
+        }
+
+        return sorted
+    }
+
     public async loadModulesInstances(){
         this.mods = []
+
+        const manifests = this.getManifestSortedByDependency()
         
-        for (const manifest of this.manifests.values()) {
+        for (const manifest of manifests) {
             if (!manifest.enabled) {
                 continue
             }
