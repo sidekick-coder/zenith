@@ -89,10 +89,13 @@ const limit = defineModel('limit', {
 async function load() {
     if (loading.value) return
 
-    window.scrollTo({
-        top: 0, 
-        behavior: 'smooth' 
-    })
+    if (typeof window !== 'undefined') {
+        window.scrollTo({
+            top: 0, 
+            behavior: 'smooth' 
+        })
+    }
+
 
     loading.value = true 
 

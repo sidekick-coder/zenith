@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, onServerPrefetch, ref, watch  } from 'vue'
-import type { Ref } from 'vue'
+import { computed, onMounted } from 'vue'
 import { get } from 'lodash-es'
 import {
     Select,
@@ -16,7 +15,6 @@ import Button from './Button.vue'
 import $fetch from '#client/facades/fetch.facade.ts'
 import { cn } from '#client/lib/utils.ts'
 import logger from '#client/facades/logger.facade.ts'
-import { useState } from '#client/composables/useState.ts'
 
 const props = defineProps({
     id: {
