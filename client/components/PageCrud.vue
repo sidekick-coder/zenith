@@ -28,6 +28,10 @@ const props = defineProps({
         type: String,
         default: null
     },
+    fetchQuery: {
+        type: Object as PropType<Record<string, any>>,
+        default: null
+    },
     fetchDestroy: {
         type: String,
         default: null
@@ -48,6 +52,7 @@ const props = defineProps({
 
 const { items, loading, load } = useFetchPagination(props.fetch, {
     serialize: props.serialize,
+    query: props.fetchQuery,
 })
 
 const columns = defineModel('columns', {
