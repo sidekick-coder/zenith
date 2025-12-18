@@ -1,6 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 import { pathToFileURL } from 'url'
+import { error } from 'console'
 import ModuleInstallerService from './moduleInstaller.service.ts'
 import ModuleUpgraderService from './moduleUpgrader.service.ts'
 import ModuleBuilderService from './moduleBuilder.service.ts'
@@ -95,6 +96,12 @@ export default class ModulesService {
                 this.logger.debug(`discovered module '${name}'`, json)
             }
         }
+
+        if (this.debug) {
+            this.logger.debug(`Discovered ${this.mods.length} modules`, {
+                modules: Array.from(this.manifests.keys())
+            })
+        }
     }
 
     public getManifestSortedByDependency(): ModuleManifest[] {
@@ -137,6 +144,11 @@ export default class ModulesService {
             const file = path.join(basePath('modules'), manifest.id, 'server/module.server.ts')
         
             if (!await fs.promises.stat(file).catch(() => false)) {
+
+                if (this.debug) {
+                    this.logger.debug(`No server module file found for '${manifest.id}', skipping`)
+                }
+
                 continue
             }
 
@@ -146,8 +158,12 @@ export default class ModulesService {
                 url.searchParams.set('t', Date.now().toString())
             }
 
-            const modImport = await import(url.href)
-            const ModClass = modImport.default || modImport
+            const [error, ModClass] = await tryCatch(() => import(url.href).then(m => m.default || m))
+
+            if (error) {
+                this.logger.error(`Failed to import module class for '${manifest.id}'`, error)
+                continue
+            }
 
             if (ModClass.prototype instanceof Module === false) {
                 this.logger.error(`Module class for '${manifest.id}' does not extend Module base class`)
@@ -159,6 +175,12 @@ export default class ModulesService {
             modInstance.setData(manifest)
 
             this.mods.push(modInstance)
+        }
+
+        if (this.debug) {
+            this.logger.debug(`Loaded ${this.mods.length} modules`, {
+                modules: this.mods.map(m => m.id)
+            })
         }
     }
 
