@@ -3,6 +3,7 @@ import auth from '#server/facades/auth.facade.ts'
 import BaseException from '#server/exceptions/base.ts'
 import validator from '#shared/services/validator.service.ts'
 import config from '#server/facades/config.facade.ts'
+import schemas from '#shared/validators/index.ts'
 
 router.post('/api/auth/login', async ({ body, cookie }) => {
     const token = cookie.get('Authorization')
@@ -49,11 +50,7 @@ router.post('/api/auth/register', async ({ body, cookie }) => {
         throw new BaseException('Already logged in', 400)
     }
 
-    const credentials = validator.validate(body, v => v.object({
-        username: v.string(),
-        email: v.string(),
-        password: v.string(),
-    }))
+    const credentials = validator.validate(body, schemas.user.create)
 
     const result = await auth.register(credentials)
 

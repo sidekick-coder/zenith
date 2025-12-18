@@ -10,6 +10,8 @@ import hasher from '#server/facades/hasher.facade.ts'
 import { firstOrCreate } from '#server/queries/firstOrCreate.ts'
 import { Metadata } from '#server/mixins/metadata.mixin.ts'
 import MetadataService from '#server/services/metadata.service.ts'
+import validator from '#shared/services/validator.service.ts'
+import BaseException from '#server/exceptions/base.ts'
 
 export default class User extends composeWith(
     BaseUser,
@@ -27,13 +29,33 @@ export default class User extends composeWith(
     }
 
     public static boot(){
-        this.on('beforeInsert', async (user: User) => {
+        this.on('beforeCreate', async (user: User) => {
+            // prevent usernames with special characters and/or like email addresses
+            const usernameIsValid = validator.isValid(user.username, v => v.pipe(
+                v.string(),
+                v.regex(/^[a-zA-Z0-9_]+$/)
+            ))
+
+            if (!usernameIsValid) {
+                throw new BaseException('Username can only contain letters, numbers, and underscores', 400)
+            }
+
             if (user.password) {
                 user.password = await hasher.hash(user.password)
             }
         })
 
         this.on('beforeUpdate', async (user: User) => {
+            // prevent usernames with special characters and/or like email addresses
+            const usernameIsValid = validator.isValid(user.username, v => v.pipe(
+                v.string(),
+                v.regex(/^[a-zA-Z0-9_]+$/)
+            ))
+
+            if (!usernameIsValid) {
+                throw new BaseException('Username can only contain letters, numbers, and underscores', 400)
+            }
+            
             if (user.password) {
                 user.password = await hasher.hash(user.password)
             }
