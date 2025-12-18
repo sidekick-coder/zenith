@@ -27,6 +27,8 @@ export type ModelDestroyOptions<T extends keyof Database> = DestroyOptions<T>
 export type ModelFirstOrCreateOptions<T extends keyof Database> = Omit<FirstOrCreateOptions<T>, 'serialize'>
 export type ModelUpdateOrCreateOptions<T extends keyof Database> = Omit<UpdateOrCreateOptions<T>, 'serialize'>
 
+export type ModelEntity = ReturnType<ReturnType<typeof Model<any>>>
+
 export function Model<Table extends keyof Database>(table: Table, primaryKey: keyof Database[Table] = 'id' as any) {
     return function ModelExtend<TBase extends Constructor>(Base: TBase) {
         return class extends Base {            
