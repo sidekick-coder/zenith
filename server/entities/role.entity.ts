@@ -4,8 +4,27 @@ import Permission from '#server/entities/permission.entity.ts'
 import PermissionAssignment from '#server/entities/permissionAssignment.entity.ts'
 import Base from '#shared/entities/role.entity.ts'
 import { composeWith } from '#shared/utils/compose.ts'
+import HasManythroughService from '#server/services/hasManythrough.service.ts'
 
 export default class Role extends composeWith(Base, Model('roles')) {
+
+    public get $permissions() {
+        return new HasManythroughService({
+            sourceId: String(this.id),
+                    
+            targetTable: 'permissions',
+            targetPrimaryKey: 'id',
+        
+            pivotTable: 'permissions_assignments',
+            pivotTargetKey: 'permission_id',
+            pivotSourceKey: 'assignable_id',
+
+            attachPayload: {
+                assignable_type: 'role'
+            }
+        })
+    }
+
     public permissions?: Permission[]
 
     public async createPermission(data: ModelCreateOptions<'permissions'>['values']) {

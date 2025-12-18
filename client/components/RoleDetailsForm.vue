@@ -24,7 +24,7 @@ const model = defineModel<Role>({
 })
 
 
-const { handleSubmit, setValues } = useForm({
+const { handleSubmit, resetForm } = useForm({
     name: 'details',
     validationSchema: toTypedSchema(schemas.role.update), 
 })
@@ -32,7 +32,12 @@ const { handleSubmit, setValues } = useForm({
 async function load(){
     loading.value = true
 
-    setValues(model.value)
+    resetForm({
+        values: {
+            name: model.value.name,
+            description: model.value.description,
+        }
+    })
 
     setTimeout(() => {
         loading.value = false
@@ -55,10 +60,8 @@ const onSubmit = handleSubmit(async (form) => {
         return
     }
 
-    model.value = {
-        ...model.value,
-        ...form 
-    }
+    model.value.name = form.name || model.value.name
+    model.value.description = form.description || model.value.description
 
     setTimeout(() => {
         saving.value = false

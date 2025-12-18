@@ -265,7 +265,7 @@ export function Model<Table extends keyof Database>(table: Table, primaryKey: ke
                 }) as any
             }
 
-            public static updateOrCreate<T>(this: new () => T, o: ModelUpdateOrCreateOptions<Table>): T {
+            public static updateOrCreate<T>(this: new (...args: any[]) => T, o: ModelUpdateOrCreateOptions<Table>): T {
                 const constructor = this as any
                  
                 return queries.updateOrCreate(table, {

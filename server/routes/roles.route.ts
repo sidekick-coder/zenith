@@ -25,20 +25,13 @@ router.get('/', async ({ acl, query }) => {
 })
 
 router.get('/:id', async ({ params, acl }) => {
-    const row = await db.selectFrom('roles')
-        .selectAll()
-        .where('id', '=', Number(params.id))
-        .executeTakeFirst()
-
-    if (!row) {
-        throw new BaseException('Role not found', 404)
-    }
-
-    const role = new Role(row)
+    const roleId = validator.validate(params.id, schemas.query.number)
+    
+    const role = await Role.findOrFail(roleId)
 
     acl.authorize('read', role)
 
-    return new Role(row)
+    return role
 })
 
 router.post('/', async ({ body, acl }) => {

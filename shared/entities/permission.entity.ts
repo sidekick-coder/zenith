@@ -9,7 +9,7 @@ export default class Permission extends compose(BaseEntity) {
     public origin: string
     public subject: string
     public action: string
-    public conditions: string | null = null
+    public conditions: string | null | Record<string, any> = null
 
     public get editable() {
         return this.origin === 'custom'
@@ -20,7 +20,13 @@ export default class Permission extends compose(BaseEntity) {
             return {}
         }
 
-        const [error, json] = tryCatch.sync(() => JSON.parse(this.conditions!))
+        const [error, json] = tryCatch.sync(() => {
+            if (typeof this.conditions === 'string') {
+                return JSON.parse(this.conditions as string)
+            }
+            
+            return this.conditions as Record<string, any>
+        })
 
         return error ? {} : json
     }

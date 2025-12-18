@@ -70,6 +70,7 @@ onMounted(load)
         ]"
     >
         <Tabs
+            v-if="role"
             v-model="tab"
             default-value="details" 
         >

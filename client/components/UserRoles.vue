@@ -2,12 +2,12 @@
 import { ref, computed } from 'vue'
 import type { ComponentExposed } from 'vue-component-type-helpers'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card'
+import DialogForm from './DialogForm.vue'
+import AlertButton from './AlertButton.vue'
 import DataTable, { defineColumns } from '#client/components/DataTable.vue'
 
 import Button from '#client/components/Button.vue'
 import Icon from '#client/components/Icon.vue'
-import type Role from '#shared/entities/role.entity.ts'
-
 
 const props = defineProps({
     userId: {
@@ -19,7 +19,6 @@ const props = defineProps({
 const tableRef = ref<ComponentExposed<typeof DataTable>>()
 const url = computed(() => `/api/users/${props.userId}/roles`)
 
-const items = ref<Role[]>([])
 const loading = ref(false)
 
 const columns = defineColumns([
@@ -57,6 +56,23 @@ async function load(){
                 </CardDescription>
             </div>
             <div class="flex items-center gap-2">
+                <DialogForm
+                    :fetch="`/api/users/${props.userId}/roles`"
+                    :fields="{
+                        role_id: {
+                            component: 'autocomplete',
+                            fetch: '/api/roles',
+                            labelKey: 'name',
+                            valueKey: 'id'
+                        }
+                    }"
+                    @submit="load"
+                >
+                    <Button>
+                        {{ $t('Add new') }}
+                    </Button>
+                </DialogForm>
+
                 <Button
                     variant="outline"
                     :disabled="loading"
@@ -70,7 +86,6 @@ async function load(){
         <CardContent>
             <DataTable 
                 ref="tableRef"
-                v-model:rows="items"
                 v-model:loading="loading"
                 :columns="columns"
                 :fetch="url"
@@ -84,6 +99,14 @@ async function load(){
                         >
                             <Icon name="eye" />
                         </Button>
+                        <AlertButton
+                            variant="ghost"
+                            size="sm"
+                            :fetch="`/api/users/${props.userId}/roles/${row.id}`"
+                            @fetched="load"
+                        >
+                            <Icon name="trash" />
+                        </AlertButton>
                     </div>
                 </template>
             </DataTable>
