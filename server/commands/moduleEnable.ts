@@ -1,19 +1,32 @@
 import { program } from 'commander'
+import { checkbox } from '@inquirer/prompts'
 import modules from '#server/facades/modules.facade.ts'
-import build from '#server/facades/server.facade.ts'
-import config from '#server/facades/config.facade.ts'
 
 program.command('module:enable')
     .helpGroup('module')
-    .argument('<module>', 'Module to enable')
-    .option('-b, --build', 'Build after enabling the module', false)
-    .action(async (name, options) => {
-        await config.load()
+    .option('-m, --module <module>', 'Modules to enable, comma separated')
+    .action(async (options) => {
+        let mods = [] as string[]
 
-        await modules.enable(name)
-
-        if (options.build){
-            await build.build()
+        if (options.module) {
+            mods = options.module.split(',')
         }
-        
+
+        if (!mods.length) {
+            const all = await modules.list({
+                enabled: false
+            })
+
+            mods = await checkbox({
+                message: 'Select modules to enable',
+                choices: all.map(m => ({
+                    name: m.name,
+                    value: m.name
+                }))
+            })
+        }
+
+        for (const name of mods) {
+            await modules.enable(name)
+        }
     })

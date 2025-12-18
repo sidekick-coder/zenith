@@ -1,18 +1,32 @@
 import { program } from 'commander'
+import { checkbox } from '@inquirer/prompts'
 import modules from '#server/facades/modules.facade.ts'
-import config from '#server/facades/config.facade.ts'
-import build from '#server/facades/server.facade.ts'
 
 program.command('module:disable')
     .helpGroup('module')
-    .argument('<module>', 'Module to disable')
-    .option('-b, --build', 'Run build after disabling the module', false)
-    .action(async (name, options) => {
-        await config.load()
-        
-        await modules.disable(name)
+    .option('-m, --module <module>', 'Modules to disable, comma separated')
+    .action(async (options) => {
+        let mods = [] as string[]
 
-        if (options.build) {
-            await build.build()
+        if (options.module) {
+            mods = options.module.split(',')
+        }
+
+        if (!mods.length) {
+            const all = await modules.list({
+                enabled: true
+            })
+
+            mods = await checkbox({
+                message: 'Select modules to disable',
+                choices: all.map(m => ({
+                    name: m.name,
+                    value: m.name
+                }))
+            })
+        }
+
+        for (const name of mods) {
+            await modules.disable(name)
         }
     })
