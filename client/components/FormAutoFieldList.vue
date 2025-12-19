@@ -10,6 +10,7 @@ export interface FormField {
         | 'color-picker'
         | 'string-list-input'
         | 'multi-select'
+        | 'json-input'
         | 'hidden'
     [key: string]: any
 }
@@ -31,6 +32,7 @@ import FormImageUploader from './FormImageUploader.vue'
 import FormColorPicker from './FormColorPicker.vue'
 import FormStringListInput from './FormStringListInput.vue'
 import FormMultiSelect from './FormMultiSelect.vue'
+import FormJsonInput from './FormJsonInput.vue'
 import FormTextField from '#client/components/FormTextField.vue'
 
 const props = defineProps({
@@ -107,6 +109,12 @@ const components = computed(() => {
 
         <FormMultiSelect
             v-else-if="field.component === 'multi-select'"
+            :name="field.name"
+            v-bind="field.props"    
+        />
+
+        <FormJsonInput
+            v-else-if="field.component === 'json-input'"
             :name="field.name"
             v-bind="field.props"    
         />
