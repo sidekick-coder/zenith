@@ -200,7 +200,7 @@ onMounted(() => {
                     </div>
 
                     <div
-                        v-if="selected && !Array.isArray(selected)"
+                        v-else-if="selected && !Array.isArray(selected)"
                         class="flex flex-col"
                     >
                         <span>{{ selected.label }}</span>

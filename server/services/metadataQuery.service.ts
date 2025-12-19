@@ -49,6 +49,10 @@ export default class MetadataQueryService<T extends keyof Database> {
             if (condition.exists === true) {
                 return true
             }
+
+            if (condition.in) {
+                return true
+            }
         }
 
         return false
@@ -100,6 +104,13 @@ export default class MetadataQueryService<T extends keyof Database> {
                     eb.eb('value', '=', condition)
                 ])
                 continue
+            }
+
+            if (condition.in) {
+                query = query.and([
+                    eb.eb('name', '=', name),
+                    eb.eb('value', 'in', condition.in)
+                ])
             }
 
             if (condition.is_null !== undefined) {

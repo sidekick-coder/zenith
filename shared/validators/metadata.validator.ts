@@ -27,6 +27,8 @@ export const filter = validator.create(v => v.object({
     )),
 }))
 
+export const record = () => validator.create(v => v.record(v.string(), filter))
+
 export const query = <T extends keyof Database>(table: T, foreignKey: keyof Database[T]) => validator.create(v => v.pipe(
     v.record(v.string(), v.any()),
     v.transform((data) => {

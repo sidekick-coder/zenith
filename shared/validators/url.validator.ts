@@ -1,7 +1,7 @@
 import { format } from 'date-fns'
 import { get, set } from 'lodash-es'
-import { object as vObject  } from 'valibot'
-import type { ObjectEntries } from 'valibot'
+import { object as vObject, any as vAny  } from 'valibot'
+import type { AnySchema, BaseSchema, BaseSchemaAsync, ObjectEntries } from 'valibot'
 import qs from 'qs'
 import validator from '#shared/services/validator.service.ts'
 
@@ -37,23 +37,17 @@ export const datetime = () => validator.create(v => v.pipe(
     }),
 ))
 
-export const array = () => validator
+export const array = <T extends BaseSchema<any, any, any>>(schema: T = vAny() as any as T) => validator
     .create(v => v.pipe(
         v.union([v.string(), v.array(v.string())]),
         v.transform(value => Array.isArray(value) ? value : value.split(',')),
+        v.array(schema),
     ))
 
 export const arrayNumber = () => validator
     .create(v => v.pipe(
-        v.string(),
-        v.transform(value => {
-            if (!value) return []
-            
-            return value
-                .split(',')
-                .map(v => v.trim())
-                .map(Number)
-        }),
+        array(),
+        v.transform(value => value.map(Number)),
     ))
 
 export const object = () => {
