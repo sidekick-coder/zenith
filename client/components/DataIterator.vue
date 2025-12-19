@@ -6,7 +6,7 @@ import DataTablePagination from './DataTablePagination.vue'
 import Icon from './Icon.vue'
 import { cn } from '#client/lib/utils.ts'
 import type Pagination from '#shared/entities/pagination.entity.ts'
-import { $fetch } from '#client/utils/fetcher.ts'
+import $fetch from '#client/facades/fetch.facade.ts'
 
 export interface DataIteratorFetchParams {
     page: number
@@ -112,7 +112,7 @@ async function load() {
     }
 
     if (typeof props.fetch === 'string') {
-        response = await $fetch<Pagination>(props.fetch, {
+        response = await $fetch.get<Pagination>(props.fetch, {
             method: 'GET',
             query: {
                 page: page.value,

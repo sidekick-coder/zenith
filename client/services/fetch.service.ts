@@ -1,4 +1,5 @@
 import { toast } from 'vue-sonner'
+import qs from 'qs'
 import { $t } from '#shared/lang'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
 
@@ -31,9 +32,9 @@ export default class FetchService {
             return url
         }
 
-        const queryString = new URLSearchParams(JSON.parse(JSON.stringify(query))).toString()
+        const queryString = qs.stringify(query, { arrayFormat: 'brackets' })
 
-        return url + (url.includes('?') ? '&' : '?') + queryString
+        return url + '?' + queryString
     }
 
     protected buildRequestInit(options: FetchOptions): RequestInit {
@@ -67,28 +68,28 @@ export default class FetchService {
     }
 
     public async get<T = any>(url: string, options: FetchOptions = {}) {
-        return this.fetch<T>(this.buildUrl(url, options.query), {
+        return this.fetch<T>(url, {
             ...options,
             method: 'GET',
         })
     }
 
     public async post<T = any>(url: string, options: FetchOptions = {}) {
-        return this.fetch<T>(this.buildUrl(url, options.query), {
+        return this.fetch<T>(url, {
             ...options,
             method: 'POST',
         })
     }
 
     public async put<T = any>(url: string, options: FetchOptions = {}) {
-        return this.fetch<T>(this.buildUrl(url, options.query), {
+        return this.fetch<T>(url, {
             ...options,
             method: 'PUT',
         })
     }
 
     public async delete<T = any>(url: string, options: FetchOptions = {}) {
-        return this.fetch<T>(this.buildUrl(url, options.query), {
+        return this.fetch<T>(url, {
             ...options,
             method: 'DELETE',
         })

@@ -1,3 +1,4 @@
+import qs from 'qs'
 import type { Handler,  Middleware } from '../contracts/router.contract.ts'
 
 type RouteMethod = 'get' 
@@ -60,17 +61,7 @@ export default class Route {
             return query
         }
 
-        const pairs = queryString.split('&')
-
-        for (const pair of pairs) {
-            const [key, value] = pair.split('=')
-
-            if (key) {
-                query[decodeURIComponent(key)] = value ? decodeURIComponent(value) : ''
-            }
-        }
-
-        return query
+        return qs.parse(queryString)
     }
 
     public toJSON() {
