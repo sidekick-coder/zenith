@@ -8,31 +8,16 @@ const router = useRouter()
 
 const all = router.getRoutes()
 
-const keepAliveRoutes = all.filter(route => route.meta.keepAlive)
-
-const keepAliveComponents = keepAliveRoutes
-    .filter(route => route.components && route.components.default)
-    .map(route => {
-        const c = route.components?.default
-
-        if (!c) return null
-
-        if (typeof c === 'object' && 'name' in c && typeof c.name === 'string') {
-            return c.name
-        }
-
-        logger.warn('A keep-alive route component is missing a name that is required for keep-alive functionality.', { route: c })
-
-        return null
-    })
-    .filter(name => name !== null) as string[]
-
+const keepAliveInclude = all
+    .filter(route => route.meta.keepAlive)
+    .map(r => Array.isArray(r.meta.keepAlive) ? r.meta.keepAlive : [r.meta.keepAlive])
+    .flat()
 </script>
 <template>
     <Toaster />
     <suspense>
         <router-view v-slot="{ Component }">
-            <keep-alive :include="keepAliveComponents">
+            <keep-alive :include="keepAliveInclude">
                 <component :is="Component" />
             </keep-alive>
         </router-view>
