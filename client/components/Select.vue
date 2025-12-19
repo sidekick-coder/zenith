@@ -73,6 +73,14 @@ const props = defineProps({
         type: Boolean,
         default: false,
     },
+    badge: {
+        type: Boolean,
+        default: false,
+    },
+    colorKey: {
+        type: String,
+        default: 'color',
+    },
 })
 
 const model = defineModel<any>({ 
@@ -84,6 +92,7 @@ const formated = computed(() => options.value.map(option => ({
     label: findLabel(option),
     value: findValue(option),
     description: findDescription(option),
+    color: findColor(option),
 })))
 
 const options = defineModel('options', {
@@ -112,6 +121,13 @@ function findDescription(option: any) {
         return null
     }
     return get(option, props.descriptionKey)
+}
+
+function findColor(option: any) {
+    if (!props.colorKey) {
+        return null
+    }
+    return get(option, props.colorKey)
 }
 
 function findFetchOptions(response: any) {
@@ -212,7 +228,17 @@ onMounted(() => {
                             :key="o.value"
                             :value="o.value"
                         >
-                            <div class="flex flex-col">
+                            <div
+                                v-if="badge"
+                                class="px-2 py-1 rounded-md text-xs font-medium"
+                                :style="{ backgroundColor: o.color || '#3b82f6', color: 'white' }"
+                            >
+                                {{ o.label }}
+                            </div>
+                            <div
+                                v-if="!badge"
+                                class="flex flex-col"
+                            >
                                 <span>{{ o.label }}</span>
                                 <span
                                     v-if="descriptionKey"
