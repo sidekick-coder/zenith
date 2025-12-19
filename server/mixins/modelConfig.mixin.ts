@@ -72,6 +72,10 @@ export default function ModelConfig(key: string, options: Options = {}) {
                     throw new BaseException('Readonly config model')
                 }
 
+                if (!item.id) {
+                    throw new Error('Entity item requires an id')
+                }
+
                 const constructor = this as any as ConfigModel
 
                 const map = config.get<Record<string, any>>(key) || {}
