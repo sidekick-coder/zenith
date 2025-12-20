@@ -4,7 +4,7 @@ import logger from '#server/facades/logger.facade.ts'
 import env from '#server/facades/env.facade.ts'
 
 export default class ExceptionService {
-    public ignoreCodeErrors: number[] = [404, 403]
+    public ignoreCodeErrors: number[] = []
     public handle(error: Error, response: Response) {
 
         Object.assign(error, { 

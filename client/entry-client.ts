@@ -1,10 +1,10 @@
 import { createHead } from '@unhead/vue/client'
+import type { App } from 'vue'
 import di from './utils/di'
 import ModulesService from './services/modules.service.ts'
 import ModulesBrowserService from './services/modulesBrowser.service.ts'
 import ModulesDevService from './services/modulesDev.service.ts'
-import app from './facades/app.facade.ts'
-import router from './facades/router.facade.ts'
+import type { Router } from './router.ts'
 import FetchBrowserService from './services/fetchBrowser.service.ts'
 import FetchService from './services/fetch.service.ts'
 import config from '#client/facades/config.facade'
@@ -36,19 +36,20 @@ await lifecycle.load()
 
 await lifecycle.boot()
 
-await router.isReady()
+const app = di.get<App>('app')
 
 const head = createHead({
     init: window.__STATE__?.head ? [window.__STATE__.head] : []
 })
 
+
 app.use(head)
 
 app.mount('#app')
 
-// if ('serviceWorker' in navigator) {
-//     window.addEventListener('load', () => {
-//         navigator.serviceWorker.register('/sw.js')
-//             .catch(err => console.error('sw failed:', err))
-//     })
-// }
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+            .catch(err => console.error('sw failed:', err))
+    })
+}

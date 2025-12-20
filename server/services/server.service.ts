@@ -16,7 +16,6 @@ export default class ServerService {
     public async build() {
         
         const common: UserConfig = {
-            publicDir: 'client/public',
             resolve: { 
                 alias: {
                     '#client': basePath('client'),
@@ -48,7 +47,7 @@ export default class ServerService {
             build: {
                 outDir: basePath('client-dist/browser'),
                 rollupOptions: { 
-                    input: { app: 'client/index.html', },
+                    input: { app: 'client/entry-client.ts', },
                 },
             },
         }))

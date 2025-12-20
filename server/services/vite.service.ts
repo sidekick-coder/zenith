@@ -14,7 +14,6 @@ import logger from '#server/facades/logger.facade.ts'
 import { basePath } from '#server/utils/paths.ts'
 import router from '#server/facades/router.facade.ts'
 import auth from '#server/facades/auth.facade.ts'
-import assets from '#server/facades/assets.facade.ts'
 import type User from '#server/entities/user.entity.ts'
 import Permission from '#server/entities/permission.entity.ts'
 import ConfigService from '#shared/services/config.service.ts'
@@ -180,7 +179,17 @@ export default class ViteService extends compose(Hooks) {
             .attr('name', 'viewport')
             .attr('content', 'width=device-width, initial-scale=1')
 
-        if (env.get('NODE_ENV') !== 'production') {
+        // favicon
+        head.child('link')
+            .attr('rel', 'icon')
+            .attr('href', '/favicon.ico')
+
+        // pwa manifest
+        head.child('link')
+            .attr('rel', 'manifest')
+            .attr('href', '/pwa.json')
+
+        if (env.development) {
             head
                 .child('link')
                 .attr('rel', 'stylesheet')
@@ -188,7 +197,6 @@ export default class ViteService extends compose(Hooks) {
             
             head
                 .child('script')
-                .attr('defer', '')
                 .attr('type', 'module')
                 .attr('src', '/client/entry-client.ts')
 
@@ -206,23 +214,31 @@ export default class ViteService extends compose(Hooks) {
             return
         }
 
-        const index = manifest['client/index.html']
+        let entry = null 
 
-        if (!index) {
-            this.logger.error('Vite manifest is missing client/index.html entry')
+        for (const [key, value] of Object.entries<any>(manifest)) {
+            if (value.isEntry) {
+                entry = value as any
+                break
+            }
+
+        }
+
+        if (!entry) {
+            this.logger.error('Vite manifest is missing entry file')
             return
         }
 
-        index.css?.forEach( (file: string) => {
+        entry.css?.forEach( (file: string) => {
             head.child('link')
                 .attr('rel', 'stylesheet')
                 .attr('href', `/${file}`)
         })
 
         head.child('script')
-            .attr('defer', '')
             .attr('type', 'module')
-            .attr('src', `/${index.file}`)
+            .attr('crossorigin')
+            .attr('src', `/${entry.file}`)
     }
 
     public async render(options: RenderOptions): Promise<string> {

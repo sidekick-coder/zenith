@@ -1,6 +1,6 @@
 export default class El {
     public name: string
-    public attrs: Map<string, string>
+    public attrs: Map<string, string | undefined>
     public children: El[]
     public innerText: string | null = null
 
@@ -16,7 +16,7 @@ export default class El {
         return child
     }
 
-    public attr(key: string, value: string) {
+    public attr(key: string, value?: string) {
         this.attrs.set(key, value)
 
         return this
@@ -39,6 +39,11 @@ export default class El {
 
 
         for (const [key, value] of this.attrs.entries()) {
+            if (value === undefined) {
+                output += ` ${key}`
+                continue
+            }
+            
             output += ` ${key}="${value}"`
         }
 

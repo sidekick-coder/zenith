@@ -1,5 +1,6 @@
-globalThis.imports = globalThis.imports || {}
+import 'iconify-icon'
 
+globalThis.imports = globalThis.imports || {}
 
 globalThis.imports['vue'] = () => import('vue')
 globalThis.imports['reka-ui'] = () => import('reka-ui')

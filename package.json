@@ -11,6 +11,7 @@
         "#modules/*": "./modules/*"
     },
     "scripts": {
+        "start": "node arte serve",
         "dev": "node arte serve -w",
         "build": "node arte build",
         "lint": "eslint",

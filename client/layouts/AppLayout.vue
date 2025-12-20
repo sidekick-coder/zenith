@@ -71,11 +71,7 @@ const menu = computed(() => {
         :menu
         :breadcrumbs
     >
-        <ClientOnly v-if="clientOnly">
-            <slot />
-        </ClientOnly>
-
-        <slot v-else />
+        <slot />
 
         <template #footer>
             <SidebarMenu>

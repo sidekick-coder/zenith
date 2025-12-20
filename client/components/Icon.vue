@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import 'iconify-icon'
 import { computed } from 'vue'
 import { kebabCase } from 'lodash-es'
 
