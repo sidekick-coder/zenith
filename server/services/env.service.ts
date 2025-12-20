@@ -23,10 +23,20 @@ const schema = v.object({
     ZARTE: v.optional(boolean, 'false'),
     NODE_ENV: v.optional(v.union([v.literal('development'), v.literal('production'), v.literal('test')]), 'development'),
     LOG_LEVEL: v.optional(v.picklist(['error', 'warn', 'info', 'debug']), 'info'),
-    CONFIG: configSchema,
-    CONFIG_DEBUG: v.optional(boolean, 'false'),
     LIFECYCLE_DEBUG: v.optional(boolean, 'false'),
     CLIENT_CONFIG: configSchema,
+    
+    CONFIG: configSchema,
+    CONFIG_DEBUG: v.optional(boolean, 'false'),
+    CONFIG_DRIVER: v.optional(v.picklist(['fs', 's3']), 'fs'),
+    CONFIG_FS_PATH: v.optional(v.string(), basePath('storage', 'config')),
+    CONFIG_S3_BUCKET: v.optional(v.string()),
+    CONFIG_S3_REGION: v.optional(v.string()),
+    CONFIG_S3_ACCESS_KEY_ID: v.optional(v.string()),
+    CONFIG_S3_SECRET_ACCESS_KEY: v.optional(v.string()),
+    CONFIG_S3_SESSION_TOKEN: v.optional(v.string()),
+    CONFIG_S3_ENDPOINT: v.optional(v.string()),
+    CONFIG_S3_PREFIX: v.optional(v.string(), ''),
 })
 
 type EnvType = v.InferOutput<typeof schema>

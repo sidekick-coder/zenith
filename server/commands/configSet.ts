@@ -6,9 +6,7 @@ program.command('config:set')
     .argument('<key>', 'Configuration key to retrieve')
     .argument('<value>', 'Value to set')
     .action(async (key, value) => {
-        await config.load()
-
-        config.set(key, value, true)
+        config.set(key, value)
 
         console.log(value)
     })

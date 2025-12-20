@@ -20,7 +20,8 @@ export default class ConfigFSService extends ConfigService {
     public logger: LoggerService
     public debug = false
 
-    public init(options: InitiOptions = {}) {
+    constructor(options: InitiOptions = {}) {
+        super()
         this.debug = options.debug ?? false
         this.directory = options.directory ?? configPath()
         this.logger = options.logger ?? logger.child({ label: 'config' })

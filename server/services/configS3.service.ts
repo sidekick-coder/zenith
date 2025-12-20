@@ -1,7 +1,144 @@
-import type { ConfigLoader } from './config.service.ts'
+import { set } from 'lodash-es'
+import ConfigService from '#shared/services/config.service.ts'
+import type LoggerService from '#shared/services/logger.service.ts'
+import env from '#server/facades/env.facade.ts'
+import logger from '#server/facades/logger.facade.ts'
+import S3Drive from '#server/gateways/driveS3.gateway.ts'
+import type { S3DriveConfig } from '#server/gateways/driveS3.gateway.ts'
+import { tryCatch } from '#shared/utils/tryCatch.ts'
 
-export default class ConfigS3Loader implements ConfigLoader {
+interface InitiOptions extends Omit<S3DriveConfig, 'name' | 'description'> {
+    prefix?: string
+    debug?: boolean
+    logger?: LoggerService
+}
+
+export default class ConfigS3Service extends ConfigService {
+    public prefix = ''
+    public logger: LoggerService
+    public debug = false
+    public drive: S3Drive
+
+    constructor(options: InitiOptions) {
+        super()
+
+        this.debug = options.debug ?? false
+        this.prefix = options.prefix ?? ''
+        this.logger = options.logger ?? logger.child({ label: 'config-s3' })
+
+        this.drive = new S3Drive({
+            id: 'config-s3',
+            name: 'config-s3',
+            config: {
+                bucket: options.bucket,
+                region: options.region,
+                accessKeyId: options.accessKeyId,
+                secretAccessKey: options.secretAccessKey,
+                sessionToken: options.sessionToken,
+                endpoint: options.endpoint,
+            }
+        })
+
+        if (this.debug) {
+            this.logger.info('service initialized in debug mode')
+        }
+    }
+
+    private parseKey(fullKey: string): { filename: string; key: string } {
+        const [filename, ...rest] = fullKey.split('.')
+
+        return {
+            filename,
+            key: rest.join('.')
+        }
+    }
+
     public async load() {
-        return {}
+        this.clear()
+
+        const prefix = this.prefix.replace(/^\/|\/$/g, '')
+
+        const entries = await this.drive.list(prefix || undefined)
+
+        for (const entry of entries) {
+            if (!entry.name.endsWith('.json')) {
+                continue
+            }
+
+            const filename = entry.name
+
+            const filepath = prefix ? `${prefix}/${filename}` : filename
+
+            const [error, data] = await tryCatch(async () => {
+                const buf = await this.drive.read(filepath)
+
+                const text = Buffer.from(buf).toString('utf-8')
+
+                return JSON.parse(text)
+            })
+
+            if (error) {
+                this.logger.error(`failed to load config file ${filename}`, error)
+                continue
+            }
+
+            const key = filename.replace(/\.json$/, '')
+
+            super.set(key, data)
+
+            if (this.debug) {
+                this.logger.info(`loaded config file: ${filename}`)
+            }
+        }
+
+        this.loadFromEntries(Object.entries(env.get('CONFIG') || {}), 'env')
+
+        if (this.debug) {
+            this.logger.info('config loaded in debug mode')
+        }
+    }
+
+    public set(fullKey: string, value: any, source = 'runtime'): void {
+        super.set(fullKey, value, source)
+
+        const { filename, key } = this.parseKey(fullKey)
+
+        let values = this.get(filename)
+
+        if (!key) {
+            values = value
+        }
+
+        if (key && values) {
+            set(values, key, value)
+        }
+
+        const cleanPrefix = this.prefix.replace(/^\/|\/$/g, '')
+
+        const filePath = cleanPrefix ? `${cleanPrefix}/${filename}.json` : `${filename}.json`
+
+        const body = Buffer.from(JSON.stringify(values, null, 4))
+
+        this.drive.write(filePath, body as unknown as Uint8Array).catch(err => {
+            this.logger.error('failed to write config to s3', err)
+        })
+    }
+
+    public unset(fullKey: string): void {
+        const { filename, key } = this.parseKey(fullKey)
+
+        const values = this.get(filename)
+
+        set(values, key, undefined)
+
+        const cleanPrefix = this.prefix.replace(/^\/|\/$/g, '')
+
+        const filePath = cleanPrefix ? `${cleanPrefix}/${filename}.json` : `${filename}.json`
+
+        this.drive.write(filePath, Buffer.from(JSON.stringify(values, null, 4)) as unknown as Uint8Array).catch(err => {
+            this.logger.error('failed to write config to s3', err)
+        })
+
+        super.unset(fullKey)
     }
 }
