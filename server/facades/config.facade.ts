@@ -1,7 +1,6 @@
-import ConfigService from '#server/services/config.service.ts'
+import di from './di.facade.ts'
+import ConfigService from '#shared/services/config.service.ts'
 
-const config = new ConfigService()
-
-config.load()
+const config = di.proxy<ConfigService>(ConfigService)
 
 export default config

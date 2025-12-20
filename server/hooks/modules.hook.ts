@@ -5,12 +5,16 @@ import RouterSevice from '#server/services/router.service.ts'
 import RouterRegister from '#server/services/routerRegister.service.ts'
 import type { RouterRegisterEntry } from '#server/services/routerRegister.service.ts'
 import modules from '#server/facades/modules.facade.ts'
-import ViteService from '#server/services/vite.service.ts'
-import type { ViteServiceEvents } from '#server/services/vite.service.ts'
 import env from '#server/facades/env.facade.ts'
+import config from '#server/facades/config.facade.ts'
 
 export default class ModulesLifecycleHook extends LifecycleHook {
     public async onRegister(): Promise<void> {
+
+        modules.init({
+            debug: config.getOne(['modules.debug', 'app.debug'], false),
+        })
+
         await modules.discover()
 
         await modules.loadModulesInstances()

@@ -7,26 +7,20 @@ import env from '#server/facades/env.facade.ts'
 import di from '#server/facades/di.facade.ts'
 import LoggerService from '#shared/services/logger.service.ts'
 import LoggerWinsonService from '#server/services/loggerWinson.service.ts'
-import lifecycle from '#server/facades/lifecycle.facade.ts'
+import LifecycleService from '#shared/services/lifecycle.service.ts'
 import LifecycleHook from '#shared/entities/lifecycleHook.entity.ts'
 
-di.set(LoggerService, LoggerWinsonService.create({
+const logger = LoggerWinsonService.create({
     transports: [
         LoggerWinsonService.console(),
         LoggerWinsonService.file(basePath('storage/logs/error.log'), 'error'),
         LoggerWinsonService.file(basePath('storage/logs/combined.log')),
     ]
-}))
-
-// handle unhandled rejections
-process.on('unhandledRejection', (reason: any, promise) => {
-    console.error('Unhandled Rejection at:', promise, 'reason:', reason)
 })
 
+di.set(LoggerService, logger)
 
 env.load()
-
-const mods = await importAll(basePath('server/hooks'))
 
 const exclude = [
     'AppLifecycleHook',
@@ -34,6 +28,13 @@ const exclude = [
     'ModulesClientLifecycleHook',
     'QueueLifecycleHook'
 ]
+
+const lifecycle = new LifecycleService({
+    debug: env.get('LIFECYCLE_DEBUG'),
+    logger: logger.child({ label: 'lifecycle' }),
+})
+
+const mods = await importAll(basePath('server/hooks'))
 
 const hooks: LifecycleHook[] = Object.values(mods)
     .map(m => m.default || m)
@@ -71,8 +72,6 @@ for await (const name of moduleNames) {
 
 program
     .hook('preAction', async () => {
-       
-        
         await lifecycle.load({
             exclude
         })

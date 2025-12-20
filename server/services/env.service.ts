@@ -24,6 +24,8 @@ const schema = v.object({
     NODE_ENV: v.optional(v.union([v.literal('development'), v.literal('production'), v.literal('test')]), 'development'),
     LOG_LEVEL: v.optional(v.picklist(['error', 'warn', 'info', 'debug']), 'info'),
     CONFIG: configSchema,
+    CONFIG_DEBUG: v.optional(boolean, 'false'),
+    LIFECYCLE_DEBUG: v.optional(boolean, 'false'),
     CLIENT_CONFIG: configSchema,
 })
 

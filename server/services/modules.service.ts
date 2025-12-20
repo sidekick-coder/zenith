@@ -38,12 +38,12 @@ export default class ModulesService {
     public mods: (Module & LifecycleHook)[] = []
     public logger = logger.child({ label: 'modules' })
     public debug = false
-
-    constructor(data: Partial<ModulesService> = {}) {
+    
+    public init(data: Partial<ModulesService> = {}) {
         this.manifests = data.manifests || new Map<string, ModuleManifest>()
         this.logger = data.logger || logger.child({ label: 'modules' })
         this.debug = data.debug || false
-
+    
         this.installer = data.installer || new ModuleInstallerService()
         this.upgrader = data.upgrader || new ModuleUpgraderService()
         this.builder = data.builder || new ModuleBuilderService()

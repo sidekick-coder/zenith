@@ -2,56 +2,64 @@
 import fs from 'fs'
 import path from 'path'
 import { set } from 'lodash-es'
-import Base from '#shared/services/config.service.ts'
+import ConfigService from '#shared/services/config.service.ts'
 import { configPath } from '#server/utils/paths.ts'
 import env from '#server/facades/env.facade.ts'
 import logger from '#server/facades/logger.facade.ts'
 import type LoggerService from '#shared/services/logger.service.ts'
+import { tryCatch } from '#shared/utils/tryCatch.ts'
 
-
-export interface ConfigLoader {
-    load(): Record<string, any>
-}
 interface InitiOptions {
-    configDir?: string
+    directory?: string
     debug?: boolean
     logger?: LoggerService
-    loaders?: ConfigLoader[]
 }
 
-export default class ConfigService extends Base {
-    public configDir: string
-    public debug = false
+export default class ConfigFSService extends ConfigService {
+    public directory: string
     public logger: LoggerService
-    public loaders: ConfigLoader[] = []
-
-    constructor(options: InitiOptions = {}) {
-        super()
-        this.init(options)
-    }
+    public debug = false
 
     public init(options: InitiOptions = {}) {
         this.debug = options.debug ?? false
-        this.configDir = options.configDir ?? configPath()
+        this.directory = options.directory ?? configPath()
         this.logger = options.logger ?? logger.child({ label: 'config' })
-        this.loaders = options.loaders ?? []
 
         if (this.debug) {
             this.logger.info('service initialized in debug mode')
         }
     }
 
-    public load() {
+    public async load() {
         this.clear()
 
-        const fileNames = fs.readdirSync(this.configDir).filter(file => file.endsWith('.json'))
+        const files = await fs.promises.readdir(this.directory)
 
-        for (const filename of fileNames) {
-            const filePath = path.join(this.configDir, filename)
-            const config = JSON.parse(fs.readFileSync(filePath, 'utf-8'))
+        for (const filename of files) {
+            if (!filename.endsWith('.json')) {
+                continue
+            }
+
+            const filePath = path.join(this.directory, filename)
+
+            const [error, json] = await tryCatch(async () => {
+                const text = await fs.promises.readFile(filePath, 'utf-8')
+                
+                return JSON.parse(text)
+            })
+
+            if (error) {
+                this.logger.error(`failed to load config file ${filename}`, error)
+                continue
+            }
+            
             const key = path.basename(filename, '.json')
 
-            super.set(key, config)
+            super.set(key, json)
+
+            if (this.debug) {
+                this.logger.info(`loaded config file: ${filename}`)
+            }
         }
         
         this.loadFromEntries(Object.entries(env.get('CONFIG') || {}), 'env')
@@ -85,7 +93,7 @@ export default class ConfigService extends Base {
             set(values, key, value)
         }
         
-        const filePath = path.join(this.configDir, `${filename}.json`)
+        const filePath = path.join(this.directory, `${filename}.json`)
 
         if (!fs.existsSync(path.dirname(filePath))) {
             fs.mkdirSync(path.dirname(filePath), { recursive: true })
@@ -101,7 +109,7 @@ export default class ConfigService extends Base {
 
         set(values, key, undefined)
 
-        const filePath = path.join(this.configDir, `${filename}.json`)
+        const filePath = path.join(this.directory, `${filename}.json`)
 
         if (!fs.existsSync(path.dirname(filePath))) {
             fs.mkdirSync(path.dirname(filePath), { recursive: true })

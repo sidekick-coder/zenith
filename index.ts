@@ -31,7 +31,7 @@ const logger = LoggerWinsonService.create({
 di.set(LoggerService, logger)
 
 const lifecycle = new LifecycleService({
-    debug: config.get('lifecycle.debug') || config.get('app.debug'),
+    debug: env.get('LIFECYCLE_DEBUG'),
     logger: logger.child({ label: 'lifecycle' }),
 })
 

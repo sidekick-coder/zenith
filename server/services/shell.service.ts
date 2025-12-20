@@ -1,6 +1,7 @@
 import { spawn } from 'child_process'
 import { da } from '@faker-js/faker'
 import rootLogger from '../facades/logger.facade.ts'
+import type LoggerService from '#shared/services/logger.service.ts'
 
 const logger = rootLogger.child({ label: 'shell' })
 
@@ -12,9 +13,9 @@ interface CommandOptions {
 
 export default class ShellService {
     public debug: boolean
-    public logger: typeof logger
+    public logger: LoggerService
 
-    constructor(data: Partial<ShellService> = {}) {
+    public init(data: Partial<ShellService> = {}) {
         this.debug = data.debug || false
         this.logger = data.logger || logger.child({ label: 'shell' })
 
@@ -22,6 +23,7 @@ export default class ShellService {
             this.logger.debug('initialized in debug mode')
         }
     }
+
     /**
      * Execute a shell command and return a promise
      */
