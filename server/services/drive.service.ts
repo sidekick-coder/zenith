@@ -9,6 +9,7 @@ import DriveConfig from '#server/entities/driveConfig.entity.ts'
 import type LoggerService from '#shared/services/logger.service.ts'
 import logger from '#server/facades/logger.facade.ts'
 import DriveFS from '#server/gateways/driveFS.gateway.ts'
+import config from '#server/facades/config.facade.ts'
 
 interface ValidateUploadOptions {
     mime_types: string
@@ -200,8 +201,9 @@ export default class DriveService {
             if (this.debug) {
                 this.logger.debug(`drive loaded ${c.id} (${c.type})`)
             }
-
         }
+
+        this.selected = config.get('drive.default')
     }
 
     public async createDefaultDrives(){

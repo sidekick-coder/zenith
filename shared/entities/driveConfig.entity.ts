@@ -48,6 +48,7 @@ export default class DriveConfig {
     public id: string
     public name: string
     public type: string
+    public is_default: boolean
     public config: Record<string, any>
 
     constructor(data: DriveConfig){

@@ -6,6 +6,7 @@ import BaseDrive from '#server/gateways/driveBase.gateway.ts'
 import validator from '#shared/services/validator.service.ts'
 import encrypt from '#server/facades/encrypt.facade.ts'
 import BaseException from '#server/exceptions/base.ts'
+import { basePath } from '#server/utils/paths.ts'
 
 export interface DriveFSConfig {
     directory: string
@@ -28,10 +29,14 @@ export default class DriveFS extends BaseDrive {
         if (!this.valid) {
             throw new BaseException($t('Invalid drive configuration'))
         }
+
+        if (!fs.existsSync(this.rootPath)) {
+            throw new BaseException($t('Drive root path does not exist'))
+        }
     }
 
     protected get rootPath(): string {
-        return (this.config as DriveFSConfig).directory
+        return basePath(this.config.directory as string)
     }
 
     public exists: BaseDrive['exists'] = async (filename) => {

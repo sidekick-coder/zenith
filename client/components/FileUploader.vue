@@ -92,14 +92,9 @@ async function createSession(file: File){
 }
 
 async function upload(file: File, url: string) {
-    // Upload file using session URL
-    const form = new FormData()
-    
-    form.append('file', file)
-
     return await $fetch(url, {
-        method: 'POST',
-        body: form,
+        method: 'PUT',
+        body: file,
     })
 }
 

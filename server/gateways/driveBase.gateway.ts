@@ -55,7 +55,7 @@ export default class BaseDrive {
         throw error
     }
 
-    public readStream(filename: string) {
+    public readStream(filename: string): Promise<NodeJS.ReadableStream> {
         const error = new Error('Method not implemented.')
 
         Object.assign(error, { filename })

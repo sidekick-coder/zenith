@@ -77,7 +77,7 @@ export default class DriveS3 extends BaseDrive {
 
         this._client = new S3Client({
             region: config.region,
-            endpoint: config.endpoint,
+            endpoint: config.endpoint,            
             credentials: {
                 accessKeyId: config.accessKeyId,
                 secretAccessKey: config.secretAccessKey,
@@ -261,7 +261,11 @@ export default class DriveS3 extends BaseDrive {
         const expiresMs = ms(options?.expires || '30m') || 30 * 60 * 1000
         const expiresSeconds = Math.max(1, Math.round(expiresMs / 1000))
 
-        return getSignedUrl(this.client, new PutObjectCommand({ Bucket: this.bucket,
-            Key }), { expiresIn: expiresSeconds })
+        const command = new PutObjectCommand({
+            Bucket: this.bucket,
+            Key,
+        })
+
+        return getSignedUrl(this.client, command, { expiresIn: expiresSeconds })
     }
 }

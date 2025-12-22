@@ -11,6 +11,7 @@ import { tryCatch } from '#shared/utils/tryCatch.ts'
 import { AuthorizationMiddleware } from '#server/middlewares/authorization.middleware.ts'
 import DriveConfig from '#server/entities/driveConfig.entity.ts'
 import RouterResourceConfigService from '#server/services/routerResourceConfig.service.ts'
+import config from '#server/facades/config.facade.ts'
 
 const router = rootRouter.use(authMiddleware)
     .prefix('/api/drives')
@@ -32,6 +33,22 @@ resource.on('afterSave', () => drive.load())
 resource.on('afterDestroy', () => drive.load())
 
 resource.register(router)
+
+router.post('/:id/set-default', async ({ params, acl }) => {
+    const current = drive.use(params.id)
+
+    if (!current) {
+        throw new BaseException($t('Drive not found'), 404)
+    }
+
+    acl.authorize('write', 'Config', {
+        key: 'drive.default'
+    })
+
+    config.set('drive.default', params.id)
+
+    await drive.load()
+})
 
 router.get('/:id/entries', async ({ params, query, acl }) => {
     const current = drive.use(params.id)
@@ -120,11 +137,6 @@ async function downloadStream(url: string) {
     const size = Number(response.headers.get('content-length')) || undefined
     const contentType = response.headers.get('content-type') || 'application/octet-stream'
 
-    console.log({
-        size,
-        contentType
-    })
-
     return {
         stream: response.body as unknown as NodeJS.ReadableStream,
         size,
@@ -134,62 +146,34 @@ async function downloadStream(url: string) {
 
 rootRouter
     .prefix('/api/drives')
-    .post('/:id/upload/*', async ({ acl, params, query, upload }) => {
+    .put('/:id/upload/*', async ({ acl, params, query, request, response }) => {
         const filename = validator.validate(params['*'], v => v.string())
         const current = drive.use(params.id)
-        const file = await upload.single('file')
-        const url = query.url as string | undefined
-    
         const key = validator.validate(query.key, v => v.optional(v.string()))
-    
-        if (!file && !url) {
-            throw new BaseException('No file or URL provided', 400)
+        let size = null as number | null
+        
+        if (request.headers['content-length']) {
+            size = Number(request.headers['content-length'])
         }
 
         if (!key) {
-            acl.authorize('create', 'DriveEntry', { filename })
+            throw new BaseException('Upload key is required', 400)
         }
 
-        if (file) {
-            if (key) {
-                const data = encrypt.verifyUrl(key)
-
-                current.validateUpload(data, {
-                    mimetype: mime.getType(file.originalname) || 'application/octet-stream',
-                    size: file.size
-                })
-            }
-
-            const stream = fs.createReadStream(file.path)
-        
-            await current.writeStream(filename, stream)
-
-            return { success: true }
-        
+        if (!size || size <= 0) {
+            throw new BaseException('Content-Length header is required for upload', 400)
         }
 
-        if (url) {
+        const data = encrypt.verifyUrl(key)
 
-            const remote = await downloadStream(url)
+        current.validateUpload(data, {
+            mimetype: mime.getType(filename) || 'application/octet-stream',
+            size: size,
+        })
+    
+        await current.writeStream(filename, request)
 
-            if (key) {
-                const data = encrypt.verifyUrl(key)
-
-                current.validateUpload(data,
-                    {
-                        mimetype: remote.contentType!,
-                        size: remote.size! 
-                    },
-                )
-            }
-
-            await current.writeStream(filename, Readable.fromWeb(remote.stream as any))
-
-            return { success: true }
-
-        }
-
-        throw new BaseException('No file or URL provided', 400)
+        return { success: true }
     })
 
 

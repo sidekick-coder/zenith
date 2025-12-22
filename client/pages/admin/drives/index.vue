@@ -19,6 +19,7 @@ const { items, total, loading, load, reset } = useFetchPagination<Drive>('/api/d
 })
 
 const generating = ref(false)
+const settingDefault = ref<Record<string, boolean>>({})
 
 const columns = defineColumns<Drive>([
     {
@@ -58,6 +59,22 @@ async function generateDefaults(){
         reset()
     }, 1000)
 
+}
+
+async function setDefault(drive: Drive) {
+    settingDefault.value[drive.id] = true
+
+    const [error] = await $fetch.try(`/api/drives/${drive.id}/set-default`, {
+        method: 'POST'
+    })
+
+    if (error) {
+        settingDefault.value[drive.id] = false
+        return
+    }
+
+    settingDefault.value[drive.id] = false
+    reset()
 }
 </script>
 <template>
@@ -125,7 +142,9 @@ async function generateDefaults(){
             <template #row-default="{ row }">
                 <div class="flex items-center justify-start h-full">
                     <Switch
-                        :model-value="!!row.default"
+                        :model-value="!!row.is_default"
+                        :disabled="settingDefault[row.id]"
+                        @update:model-value="setDefault(row)"
                     />
                 </div>
             </template>

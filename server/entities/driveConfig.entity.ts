@@ -1,6 +1,7 @@
 import ModelConfig from '#server/mixins/modelConfig.mixin.ts'
 import { composeWith } from '#shared/utils/compose.ts'
 import Base from '#shared/entities/driveConfig.entity.ts'
+import config from '#server/facades/config.facade.ts'
 
 export default class DriveConfig extends composeWith(
     Base,
@@ -13,6 +14,7 @@ export default class DriveConfig extends composeWith(
         instance.name = row.name || row.id
         instance.type = row.type
         instance.config = row.config || {}
+        instance.is_default = config.get('drive.default') === row.id
 
         return instance as any
     }
