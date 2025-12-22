@@ -37,7 +37,7 @@ function streamToUint8Array(stream: any): Promise<Uint8Array> {
     })
 }
 
-export default class S3Drive extends BaseDrive {
+export default class DriveS3 extends BaseDrive {
     protected bucket: string
     protected client: S3Client
 

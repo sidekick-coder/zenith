@@ -113,6 +113,21 @@ export default function ModelConfig(key: string, options: Options = {}) {
                 return constructor.findOrFail(id) as any
             }
 
+            public static async updateOrCreate<T>(this: new (...args: any[]) => T, id: string, data: Partial<T>): Promise<void> {
+                const constructor = this.constructor as any as ConfigModel
+
+                const existing = await constructor.find(id)
+
+                if (existing) {
+                    return constructor.update(id, data as any) as any
+                }
+
+                return constructor.create({ 
+                    ...(data as any),
+                    id 
+                }) as any
+            }
+
             public static async destroy<T>(this: new (...args: any[]) => T, id: string): Promise<void> {
                 if (options.readonly) {
                     throw new BaseException('Readonly config model')

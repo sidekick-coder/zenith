@@ -28,7 +28,18 @@ const resource = new RouterResourceConfigService(DriveConfig, {
     middleware: { all: manage },
 })
 
+resource.on('afterSave', () => drive.load())
+resource.on('afterDestroy', () => drive.load())
+
 resource.register(router)
+
+router.get('/:id/entries', async ({ params, query, acl }) => {
+    const current = drive.use(params.id)
+
+    acl.authorize('read', 'Drive', current)
+
+    return current.list(query.folder as string)
+})
 
 router.post('/generate-defaults', async ({ acl }) => {
     acl.authorize('create', 'Drive')

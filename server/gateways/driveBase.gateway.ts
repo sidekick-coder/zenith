@@ -55,12 +55,31 @@ export default class BaseDrive {
         throw error
     }
 
+    public readStream(filename: string) {
+        const error = new Error('Method not implemented.')
+
+        Object.assign(error, { filename })
+
+        throw error
+    }
+
     public write(filename: string, data: Uint8Array): Promise<void> {
         const error = new Error('Method not implemented.')
 
         Object.assign(error, { 
             filename,
             data 
+        })
+
+        throw error
+    }
+
+    public writeStream(filename: string, stream: NodeJS.ReadableStream): Promise<void> {
+        const error = new Error('Method not implemented.')
+
+        Object.assign(error, { 
+            filename,
+            stream 
         })
 
         throw error

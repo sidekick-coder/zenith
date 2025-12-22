@@ -1,11 +1,14 @@
 import fs from 'fs'
-import type DriveContract from '#server/contracts/drive.contract.ts'
 import DriveEntry from '#shared/entities/driveEntry.entity.ts'
 import BaseException from '#server/exceptions/base.ts'
-import config from '#server/facades/config.facade.ts'
-import FilesystemDrive from '#server/gateways/filesystemDrive.gateway.ts'
 import type { DriveUrlOptions } from '#server/contracts/drive.contract.ts'
 import { storagePath } from '#server/utils/paths.ts'
+import BaseDrive from '#server/gateways/driveBase.gateway.ts'
+import DriveS3 from '#server/gateways/driveS3.gateway.ts'
+import DriveConfig from '#server/entities/driveConfig.entity.ts'
+import type LoggerService from '#shared/services/logger.service.ts'
+import logger from '#server/facades/logger.facade.ts'
+import DriveFS from '#server/gateways/driveFS.gateway.ts'
 
 interface ValidateUploadOptions {
     mime_types: string
@@ -13,10 +16,12 @@ interface ValidateUploadOptions {
 }
 
 export default class DriveService {
-    public drives: Map<string, DriveContract> = new Map()
+    public gateways: Map<string, typeof BaseDrive>
+    public drives: Map<string, BaseDrive> = new Map()
     public selected?: string
     public defaultDrive?: string
     public debug = false
+    public logger: LoggerService
 
     public get current() {
         if (!this.selected) return undefined 
@@ -32,9 +37,14 @@ export default class DriveService {
         this.selected = data.selected || this.selected
         this.debug = data.debug || this.debug
         this.drives = data.drives || this.drives
+        this.logger = data.logger || logger.child({ label: 'drive' })
+        this.gateways = new Map<string, typeof BaseDrive>()
+
+        this.gateways.set('s3', DriveS3)
+        this.gateways.set('fs', DriveFS)
     }
 
-    public listDrives(): (DriveContract & { default: boolean })[] {
+    public listDrives() {
         return Array.from(this.drives.values()).map(drive => ({
             ...drive,
             default: drive.id === this.defaultDrive
@@ -170,52 +180,49 @@ export default class DriveService {
         return this.current.delete(filename)
     }
 
-    public getDrive<T extends DriveContract>(id: string): T{
-        const drive = this.drives.get(id)
-        
-        if (!drive) {
-            throw new BaseException('Drive not found')
-        }
-
-        return drive as T
-    }
-
-    public load(){
+    public async load(){
         this.drives.clear()
 
-        const items = config.get('drive.disks', {})
+        const configs = await DriveConfig.list()
 
-        for (const [id, item] of Object.entries<any>(items)) {
-            if (item.driver === 'filesystem') {
-                const drive = new FilesystemDrive(id, item) as any
-                
-                this.drives.set(id, drive)
+        for (const c of configs) {
+            const gatewayClass = this.gateways.get(c.type)
+
+            if (!gatewayClass) {
+                this.logger.warn(`Drive gateway for type "${c.type}" not found`)
+                continue
             }
 
-            if (item.default) {
-                this.selected = id
-                this.defaultDrive = id
+            const gateway = new gatewayClass(c)
+
+            this.drives.set(c.id, gateway)
+
+            if (this.debug) {
+                this.logger.debug(`drive loaded ${c.id} (${c.type})`)
             }
+
         }
     }
 
-    public createDefaultDrives(){
-        config.set('drive.disks.storage', {
-            'driver': 'filesystem',
-            'default': true,
-            'path': storagePath('drive'),
-            'name': 'Storage',
-            'description': 'Storage directory'
-        })
-        
-        config.set('drive.disks.root', {
-            'driver': 'filesystem',
-            'path': '/',
-            'name': 'Root',
-            'description': 'Root directory'
+    public async createDefaultDrives(){
+
+        await DriveConfig.updateOrCreate('storage', {
+            name: 'Storage',
+            type: 'fs',
+            config: {
+                directory: storagePath('drive')
+            }
         })
 
-        this.load()
+        await DriveConfig.updateOrCreate('root', {
+            name: 'Root',
+            type: 'fs',
+            config: {
+                directory: '/'
+            }
+        })
+
+        await this.load()
     }
 
     public validateUpload(options: ValidateUploadOptions, file: { mimetype: string, size: number },) {

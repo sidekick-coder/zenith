@@ -34,11 +34,9 @@ const tabs = [
         component: defineAsyncComponent(() => import('#client/components/DriveConfig.vue')),
     },
     {
-        id: 'explorer',
-        label: $t('Explorer'),
-        component: defineAsyncComponent(() => Promise.resolve({
-            template: '<div>Explorer content coming soon...</div>'
-        })),
+        id: 'entries',
+        label: $t('Entries'),
+        component: defineAsyncComponent(() => import('#client/components/DriveEntries.vue')),
     }
 ]
 

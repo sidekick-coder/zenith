@@ -37,11 +37,6 @@ const columns = defineColumns<Drive>([
         label: $t('Name'),
         field: 'name'
     },
-    {
-        id: 'description',
-        label: $t('Description'),
-        field: 'description',
-    },
     { id: 'actions' }
 ])
 

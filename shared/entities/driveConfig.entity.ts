@@ -1,4 +1,4 @@
-export const TYPES = [
+export const TYPES = () => [
     {
         id: 'fs',
         label: $t('File System'),
@@ -41,7 +41,10 @@ export const TYPES = [
     }
 ]
 export default class DriveConfig {
-    public static TYPES = TYPES
+    public static get TYPES() {
+        return TYPES()
+    }
+    
     public id: string
     public name: string
     public type: string
@@ -52,7 +55,7 @@ export default class DriveConfig {
     }
 
     public get config_fields() {
-        const option = TYPES.find(opt => opt.id === this.type)
+        const option = DriveConfig.TYPES.find(opt => opt.id === this.type)
 
         return option ? option.config_fields : {}
     }
