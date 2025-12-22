@@ -8,31 +8,27 @@ import authMiddleware from '#server/middlewares/auth.middleware.ts'
 import encrypt from '#server/facades/encrypt.facade.ts'
 import validator from '#shared/services/validator.service.ts'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
+import { AuthorizationMiddleware } from '#server/middlewares/authorization.middleware.ts'
+import DriveConfig from '#server/entities/driveConfig.entity.ts'
+import RouterResourceConfigService from '#server/services/routerResourceConfig.service.ts'
 
 const router = rootRouter.use(authMiddleware)
     .prefix('/api/drives')
     .group()
 
-router.get('/', async ({ acl }) => {
-    acl.authorize('read', 'Drive')
-
-    const drives = drive.listDrives()
-
-    return { items: drives }
-})
-
-router.get('/:id', async ({ params, acl }) => {
-    const drives = drive.listDrives()
-    const driveData = drives.find(d => d.id === params.id)
-    
-    if (!driveData) {
-        throw new Error('Drive not found')
+const manage = AuthorizationMiddleware.create({
+    action: 'manage',
+    resource: 'Config',
+    conditions: {
+        key: 'drive.disks'
     }
-
-    acl.authorize('read', 'Drive', driveData)
-    
-    return driveData
 })
+
+const resource = new RouterResourceConfigService(DriveConfig, {
+    middleware: { all: manage },
+})
+
+resource.register(router)
 
 router.post('/generate-defaults', async ({ acl }) => {
     acl.authorize('create', 'Drive')

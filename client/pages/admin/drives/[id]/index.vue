@@ -18,79 +18,59 @@ import { tryCatch } from '#shared/utils/tryCatch.ts'
 
 import type { Drive } from '#client/types.ts'
 import CardFooter from '#client/components/ui/card/CardFooter.vue'
+import type DriveConfig from '#shared/entities/driveConfig.entity.ts'
 
 const route = useRoute()
 const router = useRouter()
 const driveId = route.params.id as string
 
-const drive = ref<Drive & { metas: { name?: string; description?: string; editable?: boolean } }>({
-    id: '',
-    metas: {}
-})
-const isLoading = ref(true)
+const drive = ref<DriveConfig>()
+const loading = ref(true)
+const saving = ref(false)
 
-const { setValues, handleSubmit } = useForm({
-    validationSchema: toTypedSchema(
-        v.object({
-            id: v.string(),
-            name: v.string(),
-            description: v.string(),
-        })
-    ),
-    initialValues: {
-        id: '',
-        name: '',
-        description: ''
-    }
-})
+const { setValues, handleSubmit } = useForm()
 
 async function loadDrive() {
-    isLoading.value = true
+    loading.value = true
     
     const [error, response] = await tryCatch(() => $fetch(`/api/drives/${driveId}`, { method: 'GET' }))
 
     if (error) {
         console.error('Failed to load drive:', error)
-        isLoading.value = false
+        loading.value = false
         return
     }
 
     drive.value = response as typeof drive.value
     
     // Set form values
-    setValues({
-        id: drive.value.id,
-        name: drive.value.metas.name || '',
-        description: drive.value.metas.description || ''
-    })
+    setValues(response)
     
-    isLoading.value = false
+    loading.value = false
 }
 
 function goToExplorer() {
     router.push(`/admin/drives/${driveId}/explorer`)
 }
 
-const onSubmit = handleSubmit(async (values) => {
-    toast.warning($t('This feature is not implemented yet.'))
-    // const [error, response] = await tryCatch(() => $fetch(`/api/drives/${driveId}`, {
-    //     method: 'PUT',
-    //     body: {
-    //         id: values.id,
-    //         metas: {
-    //             name: values.name,
-    //             description: values.description
-    //         }
-    //     }
-    // }))
+const onSubmit = handleSubmit(async (data) => {
+    saving.value = true
 
-    // if (error) {
-    //     console.error('Failed to update drive:', error)
-    //     return
-    // }
+    const [error] = await $fetch.try(`/api/drives/${driveId}`, {
+        method: 'PUT',
+        data
+    })
 
-    // drive.value = response as typeof drive.value
-    // $t('Drive updated successfully')
+    if (error) {
+        saving.value = false
+        console.error('Failed to update drive:', error)
+        return
+    }
+
+    setTimeout(() => {
+        toast.success('Drive updated successfully')
+        saving.value = false
+    }, 500)
 })
 
 onMounted(loadDrive)
@@ -98,13 +78,8 @@ onMounted(loadDrive)
 
 <template>
     <AppLayout>
-        <form
-            class="container mx-auto"
-            @submit.prevent="onSubmit"
-        >
-            <Card 
-                v-if="!isLoading"
-            >
+        <form @submit.prevent="onSubmit">
+            <Card v-if="!loading">
                 <CardHeader>
                     <CardTitle>
                         {{ $t('Drive Details') }}
@@ -123,13 +98,6 @@ onMounted(loadDrive)
                     <FormTextField
                         name="name"
                         :label="$t('Name')"
-                        :readonly="!drive.metas.editable"
-                    />
-                    
-                    <FormTextField
-                        name="description"
-                        :label="$t('Description')"
-                        :readonly="!drive.metas.editable"
                     />
 
                     <div class="pt-4" />
@@ -142,21 +110,12 @@ onMounted(loadDrive)
                     />
 
                     <Button 
-                        v-if="drive.metas.editable"
                         type="submit"
+                        :loading="saving"
                         :label="$t('Save')"
                     />
                 </CardFooter>
             </Card>
-            
-            <div 
-                v-if="isLoading" 
-                class="flex justify-center items-center h-64"
-            >
-                <div class="text-lg">
-                    {{ $t('Loading...') }}
-                </div>
-            </div>
         </form>
     </AppLayout>
 </template>
