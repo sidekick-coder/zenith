@@ -11,6 +11,8 @@ import { $fetch } from '#client/utils/fetcher.ts'
 import AlertButton from '#client/components/AlertButton.vue'
 import Switch from '#client/components/ui/switch/Switch.vue'
 import { useFetchPagination } from '#client/composables/useFetchPagination.ts'
+import DialogForm from '#client/components/DialogForm.vue'
+import DriveConfig from '#shared/entities/driveConfig.entity.ts'
 
 const { items, total, loading, load, reset } = useFetchPagination<Drive>('/api/drives', {
     limit: 20,
@@ -77,6 +79,35 @@ async function generateDefaults(){
                 >
                     {{ $t('Generate Default Drives') }}
                 </AlertButton>
+
+                <DialogForm
+                    :title="$t('Add New')"
+                    :description="$t('Create a new drive by filling out the form below')"
+                    :fields="{
+                        id: {
+                            component: 'text-field',
+                            label: 'ID'
+                        },
+                        name: {
+                            component: 'text-field',
+                            label: $t('Name')
+                        },
+                        driver: {
+                            component: 'select',
+                            label: $t('Driver'),
+                            options: DriveConfig.TYPES,
+                            labelKey: 'label',
+                            valueKey: 'id',
+                        },
+                    }"
+                    fetch="/api/drives"
+                    @submit="reset"
+                >
+                    <Button>
+                        {{ $t('Add new') }}
+                    </Button>
+                </DialogForm>
+
                 <Button
                     variant="outline"
                     size="icon"
@@ -106,13 +137,6 @@ async function generateDefaults(){
 
             <template #row-actions="{ row }">
                 <div class="flex items-center gap-2 justify-end">
-                    <Button
-                        variant="ghost"
-                        :to="`/admin/drives/${row.id}/explorer`"
-                        size="sm"
-                    >
-                        <Icon name="folder" />
-                    </Button>
                     <Button
                         variant="ghost"
                         :to="`/admin/drives/${row.id}`"
