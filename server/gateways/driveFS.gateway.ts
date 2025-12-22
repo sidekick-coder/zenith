@@ -5,35 +5,46 @@ import DriveEntity from '#shared/entities/driveEntry.entity.ts'
 import BaseDrive from '#server/gateways/driveBase.gateway.ts'
 import validator from '#shared/services/validator.service.ts'
 import encrypt from '#server/facades/encrypt.facade.ts'
+import BaseException from '#server/exceptions/base.ts'
 
 export interface DriveFSConfig {
     directory: string
 }
 
 export default class DriveFS extends BaseDrive {
-    protected rootPath: string
+    private schema = validator.create((v) => v.object({
+        directory: v.pipe(v.string(), v.minLength(1)),
+    }))
 
     constructor(data: Pick<BaseDrive, 'id' | 'name' | 'description' | 'config'>) {
         super(data)
-
-        const config = this.validateConfig(data.config)
-
-        this.rootPath = config.directory
     }
 
-    private validateConfig(config: Record<string, any>): DriveFSConfig {
-        return validator.validate(config, (v) => v.object({
-            directory: v.pipe(v.string(), v.minLength(1)),
-        }))
+    public get valid(): boolean {
+        return validator.isValid(this.config, this.schema)
+    }
+
+    private checkValid(): void {
+        if (!this.valid) {
+            throw new BaseException($t('Invalid drive configuration'))
+        }
+    }
+
+    protected get rootPath(): string {
+        return (this.config as DriveFSConfig).directory
     }
 
     public exists: BaseDrive['exists'] = async (filename) => {
+        this.checkValid()
+        
         return fs.promises.access(join(this.rootPath, filename))
             .then(() => true)
             .catch(() => false)
     }
 
     public list: BaseDrive['list'] = async (folder) => {
+        this.checkValid()
+        
         const filepath = folder ? join(this.rootPath, folder) : this.rootPath
 
         if (!(await this.exists(relative(this.rootPath, filepath)))) {
@@ -70,6 +81,8 @@ export default class DriveFS extends BaseDrive {
     }
 
     public find: BaseDrive['find'] = async (filename) => {
+        this.checkValid()
+        
         const filepath = filename.startsWith('/') ? filename : '/' + filename
 
         const entries = await this.list(path.dirname(filepath))
@@ -84,6 +97,8 @@ export default class DriveFS extends BaseDrive {
     }
 
     public async mkdir(filename: string): Promise<void> {
+        this.checkValid()
+        
         if (!(await this.exists(path.dirname(filename)))) {
             await this.mkdir(path.dirname(filename))
         }
@@ -94,6 +109,8 @@ export default class DriveFS extends BaseDrive {
     }
 
     public read: BaseDrive['read'] = async (filename) => {
+        this.checkValid()
+        
         const filePath = join(this.rootPath, filename)
         
         const buffer = await fs.promises.readFile(filePath)
@@ -102,6 +119,8 @@ export default class DriveFS extends BaseDrive {
     }
 
     public async readStream(filename: string) {
+        this.checkValid()
+        
         const filePath = join(this.rootPath, filename)
         
         const stream = fs.createReadStream(filePath)
@@ -110,6 +129,8 @@ export default class DriveFS extends BaseDrive {
     }
 
     public write: BaseDrive['write'] = async (filename, data) => {
+        this.checkValid()
+        
         if (!await this.exists(path.dirname(filename))) {
             await this.mkdir(path.dirname(filename))
         }
@@ -120,6 +141,8 @@ export default class DriveFS extends BaseDrive {
     }
 
     public async writeStream(filename: string, stream: NodeJS.ReadableStream): Promise<void> {
+        this.checkValid()
+        
         if (!await this.exists(path.dirname(filename))) {
             await this.mkdir(path.dirname(filename))
         }
@@ -137,6 +160,8 @@ export default class DriveFS extends BaseDrive {
     }
 
     public delete: BaseDrive['delete'] = async (filename) => {
+        this.checkValid()
+        
         const filePath = join(this.rootPath, filename)
 
         const isDirectory = await fs.promises.stat(filePath)
@@ -152,6 +177,8 @@ export default class DriveFS extends BaseDrive {
     }
 
     public url: BaseDrive['url'] = async (filename, options) => {
+        this.checkValid()
+        
         const filepath = filename.startsWith('/') ? filename : `/${filename}`
 
         return encrypt.url(`/api/drives/${this.id}/stream${filepath}`, {
@@ -160,6 +187,8 @@ export default class DriveFS extends BaseDrive {
     }
 
     public uploadUrl: BaseDrive['uploadUrl'] = async (filename, options) => {
+        this.checkValid()
+        
         const filepath = filename.startsWith('/') ? filename : `/${filename}`
 
         return encrypt.url(`/api/drives/${this.id}/upload${filepath}`, {

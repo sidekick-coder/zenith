@@ -14,6 +14,7 @@ import { Upload } from '@aws-sdk/lib-storage'
 import DriveEntity from '#shared/entities/driveEntry.entity.ts'
 import BaseDrive from '#server/gateways/driveBase.gateway.ts'
 import validator from '#shared/services/validator.service.ts'
+import BaseException from '#server/exceptions/base.ts'
 
 export interface S3DriveConfig {
     bucket: string
@@ -38,17 +39,43 @@ function streamToUint8Array(stream: any): Promise<Uint8Array> {
 }
 
 export default class DriveS3 extends BaseDrive {
-    protected bucket: string
-    protected client: S3Client
+    private schema = validator.create((v) => v.object({
+        bucket: v.pipe(v.string(), v.minLength(1)),
+        region: v.optional(v.string()),
+        accessKeyId: v.pipe(v.string(), v.minLength(1)),
+        secretAccessKey: v.pipe(v.string(), v.minLength(1)),
+        sessionToken: v.optional(v.string()),
+        endpoint: v.optional(v.string()),
+    }))
+
+    private _client?: S3Client
 
     constructor(data: Pick<BaseDrive, 'id' | 'name' | 'description' | 'config'>) {
         super(data)
+    }
 
-        const config = this.validateConfig(data.config)
+    public get valid(): boolean {
+        return validator.isValid(this.config, this.schema)
+    }
 
-        this.bucket = config.bucket
+    private checkValid(): void {
+        if (!this.valid) {
+            throw new BaseException($t('Invalid drive configuration'))
+        }
+    }
 
-        this.client = new S3Client({
+    protected get bucket(): string {
+        return (this.config as S3DriveConfig).bucket
+    }
+
+    protected get client(): S3Client {
+        if (this._client) {
+            return this._client
+        }
+
+        const config = this.config as S3DriveConfig
+
+        this._client = new S3Client({
             region: config.region,
             endpoint: config.endpoint,
             credentials: {
@@ -57,20 +84,13 @@ export default class DriveS3 extends BaseDrive {
                 sessionToken: config.sessionToken,
             }
         })
-    }
 
-    private validateConfig(config: Record<string, any>): S3DriveConfig {
-        return validator.validate(config, (v) => v.object({
-            bucket: v.pipe(v.string(), v.minLength(1)),
-            region: v.optional(v.string()),
-            accessKeyId: v.pipe(v.string(), v.minLength(1)),
-            secretAccessKey: v.pipe(v.string(), v.minLength(1)),
-            sessionToken: v.optional(v.string()),
-            endpoint: v.optional(v.string()),
-        }))
+        return this._client
     }
 
     public exists: BaseDrive['exists'] = async (filename) => {
+        this.checkValid()
+        
         const Key = filename.startsWith('/') ? filename.slice(1) : filename
 
         return this.client.send(new HeadObjectCommand({ Bucket: this.bucket,
@@ -80,6 +100,8 @@ export default class DriveS3 extends BaseDrive {
     }
 
     public list: BaseDrive['list'] = async (folder) => {
+        this.checkValid()
+        
         const Prefix = folder ? (folder.startsWith('/') ? folder.slice(1) : folder) : undefined
 
         const resp = await this.client.send(new ListObjectsV2Command({ Bucket: this.bucket,
@@ -111,6 +133,8 @@ export default class DriveS3 extends BaseDrive {
     }
 
     public find: BaseDrive['find'] = async (filename) => {
+        this.checkValid()
+        
         const filepath = filename.startsWith('/') ? filename : '/' + filename
 
         const entries = await this.list(filepath.startsWith('/') ? filepath.slice(1).replace(/\\/g, '/') : filepath)
@@ -125,11 +149,15 @@ export default class DriveS3 extends BaseDrive {
     }
 
     public async mkdir(_filename: string): Promise<void> {
+        this.checkValid()
+        
         // S3 is object storage; directories are implicit. Create a zero-byte object with trailing slash to emulate directory if needed.
         return Promise.resolve()
     }
 
     public read: BaseDrive['read'] = async (filename) => {
+        this.checkValid()
+        
         const Key = filename.startsWith('/') ? filename.slice(1) : filename
 
         const resp = await this.client.send(new GetObjectCommand({
@@ -143,6 +171,8 @@ export default class DriveS3 extends BaseDrive {
     }
 
     public async readStream(filename: string) {
+        this.checkValid()
+        
         const Key = filename.startsWith('/') ? filename.slice(1) : filename
 
         const command = new GetObjectCommand({ 
@@ -158,6 +188,8 @@ export default class DriveS3 extends BaseDrive {
     }
 
     public write: BaseDrive['write'] = async (filename, data) => {
+        this.checkValid()
+        
         const Key = filename.startsWith('/') ? filename.slice(1) : filename
 
         await this.client.send(new PutObjectCommand({ 
@@ -168,6 +200,8 @@ export default class DriveS3 extends BaseDrive {
     }
 
     public async writeStream(filename: string, stream: NodeJS.ReadableStream): Promise<void> {
+        this.checkValid()
+        
         const Key = filename.startsWith('/') ? filename.slice(1) : filename
 
         const upload = new Upload({
@@ -183,6 +217,8 @@ export default class DriveS3 extends BaseDrive {
     }
 
     public delete: BaseDrive['delete'] = async (filename) => {
+        this.checkValid()
+        
         const Key = filename.startsWith('/') ? filename.slice(1) : filename
 
         if (Key.endsWith('/')) {
@@ -206,6 +242,8 @@ export default class DriveS3 extends BaseDrive {
     }
 
     public url: BaseDrive['url'] = async (filename, options) => {
+        this.checkValid()
+        
         const Key = filename.startsWith('/') ? filename.slice(1) : filename
 
         const expiresMs = ms(options?.expires || '30m') || 30 * 60 * 1000
@@ -216,6 +254,8 @@ export default class DriveS3 extends BaseDrive {
     }
 
     public uploadUrl: BaseDrive['uploadUrl'] = async (filename, options) => {
+        this.checkValid()
+        
         const Key = filename.startsWith('/') ? filename.slice(1) : filename
 
         const expiresMs = ms(options?.expires || '30m') || 30 * 60 * 1000
