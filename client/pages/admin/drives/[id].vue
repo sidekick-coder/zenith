@@ -17,11 +17,9 @@ import PageSubtitle from '#client/components/PageSubtitle.vue'
 import { $fetch } from '#client/utils/fetcher.ts'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
 import { $t } from '#shared/lang'
-import type { Drive } from '#client/types.ts'
-import type DriveConfig from '#shared/entities/driveConfig.entity.ts'
+import DriveConfig from '#shared/entities/driveConfig.entity.ts'
 
 const route = useRoute()
-const router = useRouter()
 const driveId = computed(() => route.params.id as string)
 
 const drive = ref<DriveConfig>()
@@ -33,9 +31,7 @@ const tabs = [
     {
         id: 'config',
         label: $t('Config'),
-        component: defineAsyncComponent(() => Promise.resolve({
-            template: '<div>Config content coming soon...</div>'
-        })),
+        component: defineAsyncComponent(() => import('#client/components/DriveConfig.vue')),
     },
     {
         id: 'explorer',
@@ -59,7 +55,7 @@ async function loadDrive() {
         return
     }
 
-    drive.value = response as typeof drive.value
+    drive.value = new DriveConfig(response)
     
     // Set form values
     setValues(response)
@@ -185,7 +181,7 @@ onMounted(loadDrive)
                     >
                         <component
                             :is="t.component"
-                            :drive-id="drive.id"
+                            :drive="drive"
                         />
                     </TabsContent>
                 </Tabs>

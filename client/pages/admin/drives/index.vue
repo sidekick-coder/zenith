@@ -92,9 +92,9 @@ async function generateDefaults(){
                             component: 'text-field',
                             label: $t('Name')
                         },
-                        driver: {
+                        type: {
                             component: 'select',
-                            label: $t('Driver'),
+                            label: $t('Type'),
                             options: DriveConfig.TYPES,
                             labelKey: 'label',
                             valueKey: 'id',
@@ -137,6 +137,15 @@ async function generateDefaults(){
 
             <template #row-actions="{ row }">
                 <div class="flex items-center gap-2 justify-end">
+                    <AlertButton
+                        variant="ghost"
+                        size="sm"
+                        :fetch="`/api/drives/${row.id}`"
+                        @fetched="load"
+                    >
+                        <Icon name="trash" />
+                    </AlertButton>
+
                     <Button
                         variant="ghost"
                         :to="`/admin/drives/${row.id}`"

@@ -27,7 +27,7 @@ export default class ConfigFSService extends ConfigService {
         this.logger = options.logger ?? logger.child({ label: 'config' })
 
         if (this.debug) {
-            this.logger.info('service initialized in debug mode')
+            this.logger.debug('service initialized in debug mode')
         }
     }
 
@@ -59,14 +59,14 @@ export default class ConfigFSService extends ConfigService {
             super.set(key, json)
 
             if (this.debug) {
-                this.logger.info(`loaded config file: ${filename}`)
+                this.logger.debug(`loaded config file: ${filename}`)
             }
         }
         
         this.loadFromEntries(Object.entries(env.get('CONFIG') || {}), 'env')
 
         if (this.debug) {
-            this.logger.info('config loaded in debug mode')
+            this.logger.debug('config loaded in debug mode')
         }
     }
 

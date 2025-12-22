@@ -8,6 +8,7 @@ export const TYPES = [
                 component: 'text-field',
                 label: $t('Directory'),
                 description: $t('The directory path where files will be stored.'),
+                hint: $t('Relative to the application root or absolute path, e.g., :0  or :1', ['/var/zenith/uploads', 'storage/uploads']),
             }
         }
     },
@@ -19,22 +20,22 @@ export const TYPES = [
             accessKeyId: {
                 component: 'text-field',
                 label: $t('Access Key ID'),
-                description: $t('Your AWS access key ID.'),
+                hint: $t('Your AWS access key ID.'),
             },
             secretAccessKey: {
-                component: 'password-field',
+                component: 'text-field',
                 label: $t('Secret Access Key'),
-                description: $t('Your AWS secret access key.'),
+                hint: $t('Your AWS secret access key.'),
             },
             bucket: {
                 component: 'text-field',
                 label: $t('Bucket Name'),
-                description: $t('The name of the S3 bucket to store files in.'),
+                hint: $t('The name of the S3 bucket to store files in.'),
             },
             region: {
                 component: 'text-field',
                 label: $t('Region'),
-                description: $t('The AWS region where your bucket is located.'),
+                hint: $t('The AWS region where your bucket is located.'),
             }
         }
     }
