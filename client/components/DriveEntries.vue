@@ -3,6 +3,7 @@ import { ref, watch, onMounted } from 'vue'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '#client/components/ui/card'
 import DataTable, { defineColumns } from '#client/components/DataTable.vue'
 import Icon from '#client/components/Icon.vue'
+import Button from '#client/components/Button.vue'
 import { $fetch } from '#client/utils/fetcher.ts'
 import { $t } from '#shared/lang'
 import type DriveConfig from '#shared/entities/driveConfig.entity.ts'
@@ -48,6 +49,11 @@ const columns = defineColumns<DriveEntry>([
         id: 'mimetype',
         label: $t('Type'),
         width: 200
+    },
+    {
+        id: 'actions',
+        label: $t('Actions'),
+        width: 100
     }
 ])
 
@@ -83,6 +89,24 @@ function onRowClick(entry: DriveEntry) {
     }
 }
 
+function viewFolder(entry: DriveEntry) {
+    if (entry.type === 'directory') {
+        folder.value = entry.path
+        load()
+    }
+}
+
+function goBack() {
+    if (!folder.value) {
+        return
+    }
+    
+    const parts = folder.value.split('/').filter(Boolean)
+    parts.pop()
+    folder.value = parts.join('/')
+    load()
+}
+
 function formatSize(bytes?: number) {
     if (!bytes) {
         return ''
@@ -112,6 +136,25 @@ onMounted(() => {
             <CardDescription>
                 {{ $t('Browse and manage files in this drive') }}
             </CardDescription>
+            <div
+                v-if="folder"
+                class="flex items-center gap-2 mt-4"
+            >
+                <Button
+                    variant="outline"
+                    size="sm"
+                    @click="goBack"
+                >
+                    <Icon
+                        name="ArrowLeft"
+                        class="w-4 h-4 mr-2"
+                    />
+                    {{ $t('Back') }}
+                </Button>
+                <div class="text-sm text-muted-foreground">
+                    {{ $t('Current path') }}: <span class="font-mono">{{ folder || '/' }}</span>
+                </div>
+            </div>
         </CardHeader>
         <CardContent>
             <DataTable
@@ -140,6 +183,20 @@ onMounted(() => {
                     <div class="text-muted-foreground text-sm">
                         {{ row.metas?.mimetype || '-' }}
                     </div>
+                </template>
+
+                <template #row-actions="{ row }">
+                    <Button
+                        v-if="row.type === 'directory'"
+                        variant="ghost"
+                        size="sm"
+                        @click.stop="viewFolder(row)"
+                    >
+                        <Icon
+                            name="FolderOpen"
+                            class="w-4 h-4"
+                        />
+                    </Button>
                 </template>
             </DataTable>
         </CardContent>
