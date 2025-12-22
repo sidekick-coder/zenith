@@ -86,6 +86,11 @@ function onRowClick(entry: DriveEntry) {
     if (entry.type === 'directory') {
         folder.value = entry.path
         load()
+        return
+    }
+    
+    if (entry.type === 'file') {
+        openFile(entry)
     }
 }
 
@@ -94,6 +99,11 @@ function viewFolder(entry: DriveEntry) {
         folder.value = entry.path
         load()
     }
+}
+
+function openFile(entry: DriveEntry) {
+    const url = `/api/drives/${props.drive.id}/open/${entry.path}`
+    window.open(url, '_blank')
 }
 
 function goBack() {
@@ -194,6 +204,17 @@ onMounted(() => {
                     >
                         <Icon
                             name="FolderOpen"
+                            class="w-4 h-4"
+                        />
+                    </Button>
+                    <Button
+                        v-if="row.type === 'file'"
+                        variant="ghost"
+                        size="sm"
+                        @click.stop="openFile(row)"
+                    >
+                        <Icon
+                            name="ExternalLink"
                             class="w-4 h-4"
                         />
                     </Button>

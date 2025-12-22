@@ -41,6 +41,21 @@ router.get('/:id/entries', async ({ params, query, acl }) => {
     return current.list(query.folder as string)
 })
 
+router.get('/:id/open/:*', async ({ params, acl, response }) => {
+    const filename = validator.validate(params['*'], v => v.string())
+    const id = params.id
+    
+    const current = drive.use(id)
+
+    acl.authorize('read', 'DriveEntry', { filename })
+
+    const url = await current.url(filename, {
+        expires: '15m',
+    })
+
+    response.redirect(url)
+})
+
 router.post('/generate-defaults', async ({ acl }) => {
     acl.authorize('create', 'Drive')
 
