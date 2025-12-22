@@ -5,6 +5,8 @@ import QueueSevice from '#server/services/queue.service.ts'
 import LifecycleHook from '#shared/entities/lifecycleHook.entity.ts'
 
 export default class QueueLifecycleHook extends LifecycleHook {
+    public order = 3
+    
     public async onRegister(): Promise<void> {
         const queue = new QueueSevice({
             debug: config.getOne(['queue.debug', 'app.debug'], false),

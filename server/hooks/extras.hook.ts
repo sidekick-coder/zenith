@@ -12,6 +12,7 @@ import LifecycleHook from '#shared/entities/lifecycleHook.entity.ts'
 import ConfigService from '#shared/services/config.service.ts'
 
 export default class ExtrasLifecycleHook extends LifecycleHook {
+    public order = 3
     public async onRegister(): Promise<void> {
         const config = di.get<ConfigService>(ConfigService)
 

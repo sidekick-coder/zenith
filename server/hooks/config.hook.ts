@@ -8,6 +8,7 @@ import LifecycleHook from '#shared/entities/lifecycleHook.entity.ts'
 import ConfigService from '#shared/services/config.service.ts'
 
 export default class ConfigLifecycleHook extends LifecycleHook {
+    public order = 1
     public async onRegister(): Promise<void> {
         let service: ConfigService | null = null
 

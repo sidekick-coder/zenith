@@ -7,6 +7,7 @@ import LifecycleHook from '#shared/entities/lifecycleHook.entity.ts'
 import LoggerService from '#shared/services/logger.service.ts'
 
 export default class TrasnlatorLifecycleHook extends LifecycleHook {
+    public order = 3
     public async onRegister(): Promise<void> {
         const logger = di.get<LoggerService>(LoggerService)
 

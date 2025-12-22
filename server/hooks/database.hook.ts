@@ -4,6 +4,7 @@ import DatabaseService from '#server/services/database.service.ts'
 import LifecycleHook from '#shared/entities/lifecycleHook.entity.ts'
 
 export default class DatabaseLifecycleHook extends LifecycleHook {
+    public order = 2
     public async onRegister(): Promise<void> {
         const service = new DatabaseService({
             dialect: DatabaseService.memoryDialect,

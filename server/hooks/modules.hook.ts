@@ -9,6 +9,8 @@ import env from '#server/facades/env.facade.ts'
 import config from '#server/facades/config.facade.ts'
 
 export default class ModulesLifecycleHook extends LifecycleHook {
+    public order = 3
+    
     public async onRegister(): Promise<void> {
 
         modules.init({

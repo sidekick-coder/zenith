@@ -4,6 +4,7 @@ import DriveService from '#server/services/drive.service.ts'
 import LifecycleHook from '#shared/entities/lifecycleHook.entity.ts'
 
 export default class DriveLifecycleHook extends LifecycleHook {
+    public order = 3
     public async onRegister(): Promise<void> {
         const service = new DriveService({
             debug: config.get('drive.debug') || config.get('app.debug'),

@@ -8,6 +8,7 @@ import type { ViteServiceEvents } from '#server/services/vite.service.ts'
 import env from '#server/facades/env.facade.ts'
 
 export default class ModulesClientLifecycleHook extends LifecycleHook {
+    public order = 3
     public mods: (Module & LifecycleHook)[] = []
 
     public async onRegister(): Promise<void> {}
