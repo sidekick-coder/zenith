@@ -1,6 +1,24 @@
+import { set } from 'lodash-es'
 import BelongsTo from './belongsTo.relation.ts'
 import BaseRelation from './base.relation.ts'
 import File from '#server/entities/file.entity.ts'
+
+export class LoadFileMetas extends BaseRelation {
+    public fileKey: string
+    public property: string
+
+    constructor(fileKey: string = 'file', property: string = 'url') {
+        super()
+        this.fileKey = fileKey
+        this.property = property
+    }
+
+    public async load(entities: any[]) {
+        const files: File[] = entities.map(e => e[this.fileKey]).filter((f): f is File => f instanceof File)
+
+        await File.load(files, 'metas')
+    }
+}
 
 export class LoadFileUrl extends BaseRelation {
     public fileKey: string
@@ -20,10 +38,9 @@ export class LoadFileUrl extends BaseRelation {
                 await file.loadUrl()
             } 
 
-            entity[this.property] = file ? file.url : null
+            set(entity, this.property, file ? file.url : null)
         }
     }
-
 }
 
 export default class BelongsToFile extends BelongsTo {
@@ -40,7 +57,11 @@ export default class BelongsToFile extends BelongsTo {
         })
     }
 
-    public static url(fileProperty: string = 'file', property: string = 'url') {
-        return new LoadFileUrl(fileProperty, property)
+    public url(property: string = 'url') {
+        return new LoadFileUrl(this.property, property)
+    }
+
+    public metas(property: string = 'metas') {
+        return new LoadFileMetas(this.property, property)
     }
 }

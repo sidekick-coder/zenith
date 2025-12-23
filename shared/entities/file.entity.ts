@@ -12,7 +12,7 @@ export default class File extends compose(BaseEntity, Timestamp, SoftDelete) {
 
     // dynamic
     public url?: string
-    public metas?: Record<string, string | null>
+    public metas?: Record<string, any>
 
     public isImage(): boolean {
         return this.mimetype.startsWith('image/')

@@ -8,16 +8,31 @@ import drive from '#server/facades/drive.facade.ts'
 import { HooksStatic } from '#server/mixins/hooks.mixin.ts'
 import type { DriveUrlOptions } from '#server/contracts/drive.contract.ts'
 import MetadataService from '#server/services/metadata.service.ts'
+import HasMetas from '#server/relations/hasMetas.relation.ts'
+import { Relation } from '#server/mixins/relations.mixin.ts'
 
 interface URLCache {
     url: string
     expires: number
 }
 
+const FileRelations = {
+    metas: new HasMetas({
+        table: 'files',
+        tableKey: 'id',
+
+        targetTable: 'file_metas',
+        targetKey: 'file_id',
+
+        property: 'metas',
+    })
+}
+
 export default class File extends composeWith(
     Base,
     HooksStatic,
     Model('files'),
+    Relation(FileRelations),
     Metadata('file_metas', 'file_id')
 ) {
 
