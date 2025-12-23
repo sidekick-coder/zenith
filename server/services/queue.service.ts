@@ -70,10 +70,11 @@ export default class QueueService {
         const [errorData, json] = tryCatch.sync(() => job.data ? JSON.parse(job.data) : {})
 
         if (errorData) {
-            this.logger.error('failed to parse job data', { 
-                job,
-                error: errorData,
-            })
+
+            Object.assign(errorData, { job_id: job.id })
+            
+            this.logger.error('failed to parse job data', errorData)
+
             await Job.updateById(job.id, { 
                 status: 'failed',
                 error: 'Invalid job data' 
@@ -90,10 +91,14 @@ export default class QueueService {
 
         const [error, result] = await tryCatch(() => job.handle(json))
 
+        job.status = error ? 'failed' : 'completed'
+        job.result = result ? JSON.stringify(result) : null
+        job.error = error ? JSON.stringify(error) : null
+
         await Job.updateById(job.id, {
-            status: error ? 'failed' : 'completed',
-            result: result ? JSON.stringify(result) : null,
-            error: error ? JSON.stringify(error) : null,
+            status: job.status,
+            result: job.result,
+            error: job.error,
         })
 
         if (error) {
@@ -104,7 +109,7 @@ export default class QueueService {
 
         this.logger.info('job completed', { 
             job,
-            result 
+            result
         })
         
     }

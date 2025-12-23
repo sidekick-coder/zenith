@@ -38,7 +38,7 @@ export default class TranslatorService {
         return items
     }
 
-    public t(key: string, args: Record<string, string> | Array<string> = {}): string {
+    public t(key: string, args: any = {}): string {
         if (!this.entries.has(key) && this.debug) {
             this.logger.debug(`missing translation for key "${key}"`, {
                 key,

@@ -21,6 +21,14 @@ export default class MetadataService {
             return value.slice(5) === 'true'
         }
 
+        if (typeof value === 'string' && value.startsWith('number:')) {
+            return Number(value.slice(7))
+        }
+        
+        if (typeof value === 'string' && value.startsWith('string:')) {
+            return value.slice(7)
+        }
+
         return value
     }
 
