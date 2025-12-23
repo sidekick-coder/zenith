@@ -1,65 +1,97 @@
-import { randomUUID } from 'crypto'
-import mime from 'mime'
-import { undeleted } from '#server/queries/index.ts'
-import drive from '#server/facades/drive.facade.ts'
+import sharp from 'sharp'
 import File from '#server/entities/file.entity.ts'
-import DriveEntry from '#shared/entities/driveEntry.entity.ts'
-
-interface CreatePayload {
-    file: Express.Multer.File
-    drive?: string
-    metadata?: Record<string, any>
-}
+import FileMeta from '#server/entities/fileMeta.entity.ts'
+import drive from '#server/facades/drive.facade.ts'
 
 export default class FileService {
+    async extract(fileId: File['id']) {
+        const file = await File.findOrFail(fileId)
+        const buffer = await drive.use(file.drive).read(file.filename)
 
-    public async url(payload: File | File['id']) {
+        const result: Record<string, any> = {}
 
-        let file: File | undefined
+        const metadata = await sharp(buffer).rotate()
+            .metadata()
 
-        if (typeof payload === 'number') {
-            file = await File.findOrFail({
-                query: qb => qb.selectAll()
-                    .where('id', '=', payload)
-                    .where(undeleted),
+        const data: Pick<FileMeta, 'name' | 'file_id' | 'value'>[] = []
+
+        if (metadata.width) {
+            result.width = metadata.width
+
+            data.push({
+                name: 'width',
+                file_id: file.id,
+                value: `number:${metadata.width}`,
             })
-        } 
-
-        if (payload instanceof File) {
-            file = payload
         }
 
-        if (!file) {
-            return undefined
+        if (metadata.height) {
+            result.height = metadata.height
+
+            data.push({
+                name: 'height',
+                file_id: file.id,
+                value: `number:${metadata.height}`,
+            })
         }
 
-        return drive.use(file.drive).url(file.filename, { expires: '1h' })
+        if (metadata.format) {
+            result.format = metadata.format
+
+            data.push({
+                name: 'format',
+                file_id: file.id,
+                value: `string:${metadata.format}`,
+            })
+        }
+
+        if (metadata.size) {
+            result.size = metadata.size
+
+            data.push({
+                name: 'size',
+                file_id: file.id,
+                value: `number:${metadata.size}`,
+            })
+        }        
+
+        if (metadata.space) {
+            result.space = metadata.space
+
+            data.push({
+                name: 'space',
+                file_id: file.id,
+                value: `string:${metadata.space}`,
+            })
+        }
+
+        if (metadata.density) {
+            result.density = metadata.density
+
+            data.push({
+                name: 'density',
+                file_id: file.id,
+                value: `number:${metadata.density}`,
+            })
+        }
+
+        const metas: FileMeta[] = []
+
+        for (const item of data) {
+            const result = await FileMeta.updateOrCreate({
+                where: eb => eb.and({
+                    file_id: item.file_id,
+                    name: item.name,
+                }),
+                values: item,
+            })
+
+            metas.push(result)
+        }
+
+        return {
+            metas: result,
+            fileMetas: metas,
+        }
     }
-
-    public async create(options: CreatePayload) {
-        const file = options.file
-        
-        let current = drive
-        
-        if (options.drive) {
-            current = drive.use(options.drive)
-        }
-        
-        const mimetype = mime.getType(file.originalname)
-        const ext = mime.getExtension(mimetype || '') || file.originalname.split('.').pop()
-        const filename = randomUUID() + (ext ? `.${ext}` : '')
-        
-        await current.write(filename, file.buffer)
-        
-        const entity = await File.create({
-            client_name: file.originalname,
-            drive: current.selected!,
-            mimetype: mimetype || file.mimetype,
-            metadata: options.metadata ? JSON.stringify(options.metadata) : null,
-            filename: filename,
-        })
-        
-        return entity
-    }
-
 }

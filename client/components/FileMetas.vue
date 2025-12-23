@@ -22,9 +22,7 @@ const props = defineProps({
     },
 })
 
-const url = computed(() => `/api/files/${props.fileId}/metas`)
-
-const { items, total, loading, load, reset } = useFetchPagination<FileMeta>(url, {
+const { items, total, loading, load, reset } = useFetchPagination<FileMeta>(`/api/files/${props.fileId}/metas`, {
     serialize: row => FileMeta.from(row),
     limit: 20,
 })
