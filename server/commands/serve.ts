@@ -152,7 +152,5 @@ program.command('serve')
             logger.debug('Watcher is ready')
             reload()
         })
-
         
-    }
-    )
+    })

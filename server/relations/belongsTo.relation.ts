@@ -1,3 +1,4 @@
+import BaseRelation from './base.relation.ts'
 import db from '#server/facades/db.facade.ts'
 
 interface BelongsToOptions {
@@ -11,7 +12,7 @@ interface BelongsToOptions {
     serialize?: (row: any) => any
 }
 
-export default class BelongsTo {
+export default class BelongsTo extends BaseRelation {
     public table: string
     public tableKey: string
     
@@ -22,6 +23,7 @@ export default class BelongsTo {
     public serialize: (row: any) => any
 
     constructor(options: BelongsToOptions) {
+        super()
         this.table = options.table
         this.tableKey = options.tableKey
         

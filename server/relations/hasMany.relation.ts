@@ -1,10 +1,11 @@
+import type { Database } from '#server/contracts/database.contract'
 import db from '#server/facades/db.facade.ts'
 
 interface HasManyOptions {
-    table: string
+    table: keyof Database
     tableKey: string
     
-    targetTable: string
+    targetTable: keyof Database
     targetKey: string
 
     property: string
