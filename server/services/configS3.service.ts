@@ -125,13 +125,24 @@ export default class ConfigS3Service extends ConfigService {
     }
 
     public unset(fullKey: string): void {
+        const cleanPrefix = this.prefix.replace(/^\/|\/$/g, '')
+
+        if (!fullKey.includes('.')) {
+            const filePath = cleanPrefix ? `${cleanPrefix}/${fullKey}.json` : `${fullKey}.json`
+
+            this.drive.delete(filePath)
+                .catch(err => {
+                    this.logger.error('failed to delete config from s3', err)
+                })
+            return
+        }
+
         const { filename, key } = this.parseKey(fullKey)
 
         const values = this.get(filename)
 
         set(values, key, undefined)
 
-        const cleanPrefix = this.prefix.replace(/^\/|\/$/g, '')
 
         const filePath = cleanPrefix ? `${cleanPrefix}/${filename}.json` : `${filename}.json`
 

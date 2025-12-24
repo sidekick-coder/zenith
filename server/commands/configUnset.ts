@@ -5,7 +5,5 @@ program.command('config:unset')
     .helpGroup('config')
     .argument('<key>', 'Configuration key to retrieve')
     .action(async (key) => {
-        await config.load()
-
         config.unset(key)
     })
