@@ -114,7 +114,7 @@ export default function ModelConfig(key: string, options: Options = {}) {
             }
 
             public static async updateOrCreate<T>(this: new (...args: any[]) => T, id: string, data: Partial<T>): Promise<void> {
-                const constructor = this.constructor as any as ConfigModel
+                const constructor = this as any as ConfigModel
 
                 const existing = await constructor.find(id)
 

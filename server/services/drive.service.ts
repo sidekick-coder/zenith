@@ -208,21 +208,17 @@ export default class DriveService {
 
     public async createDefaultDrives(){
 
-        await DriveConfig.updateOrCreate('storage', {
-            name: 'Storage',
+        await DriveConfig.updateOrCreate('storage-uploads', {
+            name: 'Uploads',
             type: 'fs',
             config: {
-                directory: storagePath('drive')
+                directory: storagePath('uploads')
             }
         })
 
-        await DriveConfig.updateOrCreate('root', {
-            name: 'Root',
-            type: 'fs',
-            config: {
-                directory: '/'
-            }
-        })
+        if (!config.get('drive.default')) {
+            config.set('drive.default', 'storage-uploads')
+        }
 
         await this.load()
     }
