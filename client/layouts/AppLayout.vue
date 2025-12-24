@@ -11,7 +11,6 @@ import {
     SidebarMenuButton,
 } from '#client/components/ui/sidebar'
 import Icon from '#client/components/Icon.vue'
-import ClientOnly from '#client/components/ClientOnly.vue'
 
 export interface BreadcrumbItem {
     label: string;
@@ -26,10 +25,6 @@ defineProps({
         default: true,
     },
     hideBreadcrumbs: {
-        type: Boolean,
-        default: false,
-    },
-    clientOnly: {
         type: Boolean,
         default: false,
     },

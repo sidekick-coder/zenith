@@ -233,6 +233,10 @@ export default class ViteService extends compose(Hooks) {
     }
 
     public async render(options: RenderOptions): Promise<string> {
+        if (env.development) {
+            await this.loadEntryNode()
+        }
+
         if (!this.entrypoint) {
             throw new Error('Vite entrypoint not loaded')
         }

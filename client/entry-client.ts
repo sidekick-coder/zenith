@@ -37,13 +37,15 @@ await lifecycle.load()
 await lifecycle.boot()
 
 const app = di.get<App>('app')
+const router = di.get<Router>('router')
 
 const head = createHead({
     init: window.__STATE__?.head ? [window.__STATE__.head] : []
 })
 
-
 app.use(head)
+
+await router.isReady()
 
 app.mount('#app')
 
