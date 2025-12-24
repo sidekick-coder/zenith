@@ -6,6 +6,7 @@ import { basePath } from '#server/utils/paths.ts'
 import { importAll } from '#server/utils/importAll.ts'
 import type { Constructor } from '#shared/utils/compose.ts'
 import LoggerService from '#shared/services/logger.service.ts'
+import db from '#server/facades/db.facade.ts'
 
 export default class QueueService {
     public jobs: Job[] = []
@@ -28,6 +29,20 @@ export default class QueueService {
         return this.intervalId !== null
     }
 
+    private async ensureTable() {
+        await db.schema
+            .createTable('jobs')
+            .ifNotExists()
+            .addColumn('id', 'varchar(36)', (col) => col.primaryKey())
+            .addColumn('status', 'varchar(20)', (col) => col.notNull())
+            .addColumn('queue_id', 'varchar(100)', (col) => col.notNull())
+            .addColumn('data', 'text')
+            .addColumn('result', 'text')
+            .addColumn('error', 'text')
+            .addTimestampColumns()
+            .execute()
+    }
+
     public addDir(dir: string) {
         if (this.dirs.includes(dir)) {
             return
@@ -37,6 +52,8 @@ export default class QueueService {
     }
 
     public async add(key: string, data: any) {
+        await this.ensureTable()
+
         const job = await Job.create({
             id: randomUUID(),
             queue_id: key,
@@ -51,6 +68,8 @@ export default class QueueService {
     }
 
     public async process(payload: Job) {
+        await this.ensureTable()
+
         const jobConstructor = this.jobConstructors.get(payload.queue_id)
 
         if (!jobConstructor) {
@@ -138,6 +157,8 @@ export default class QueueService {
 
         const cb = async () => {
             if (running) return 
+            
+            await this.ensureTable()
 
             running = true
 
@@ -157,6 +178,8 @@ export default class QueueService {
     }
 
     public async load(){
+        await this.ensureTable()
+
         this.jobs = [] // reset jobs
 
         // load constructors

@@ -1,7 +1,6 @@
 import type LoggerService from './logger.service.ts'
 
 export interface LoadOptions {
-    config: Record<string, any>;
     container: Record<string, any>;
     logger: LoggerService;
     router: any;
@@ -9,6 +8,7 @@ export interface LoadOptions {
 
 export interface RenderOptions {
     url: string;
+    config: Record<string, any>;
     cookies: Record<string, string>;
     state: Record<string, any>;
 }
@@ -28,6 +28,7 @@ export default class ViteEntryPointService {
         // implementation here
         return {
             html: '',
+            head: null,
             state: {}
         }
     }

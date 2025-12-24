@@ -59,6 +59,10 @@ router.post('/database', async ({ body }) => {
 
     config.set('setup.database', true)
 
+    console.log({
+        setup: config.get('setup')
+    })
+
     return { status: 200, }
 })
 

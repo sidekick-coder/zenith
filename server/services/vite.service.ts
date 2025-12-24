@@ -52,7 +52,6 @@ export default class ViteService extends compose(Hooks) {
     public entrypoint: ViteEntryPointService | null = null
     public debug: boolean
     public state: Map<string, any>
-    public clientConfig: ConfigService
     public clientContainer: DIService
 
     constructor(data: Partial<ViteService> = {}) {
@@ -61,7 +60,6 @@ export default class ViteService extends compose(Hooks) {
         this.state = new Map<string, any>()
         this.debug = data.debug ?? false
 
-        this.clientConfig = new ConfigService()
         this.clientContainer = new DIService()
 
         if (this.debug) {
@@ -105,17 +103,10 @@ export default class ViteService extends compose(Hooks) {
             throw new Error('Failed to load Vite entrypoint')
         }
 
-        this.clientConfig.loadFromEntries(Object.entries(env.get('CLIENT_CONFIG') || {}), 'env')
-
-        this.clientConfig.set('site', config.get('site', {}))
-        this.clientConfig.set('branding', config.get('branding', {}))
-        this.clientConfig.set('auth', config.get('auth', {}))
-        this.clientConfig.set('setup', config.get('setup') || {})
-        this.clientConfig.set('cookie.prefix', config.get('cookie.prefix', ''))
+       
 
         const options = {
             logger: this.logger,
-            config: this.clientConfig.toRecord(),
             container: this.clientContainer.toRecord(),
             router: router
         }
@@ -267,15 +258,19 @@ export default class ViteService extends compose(Hooks) {
             state.set(key, value)
         }
 
+        
+
         await this.emitAsync('vite:before-render', {
             options,
             state,
+            clientConfig: options.config,
             vite: this,
         })
 
         const rendered = await this.entrypoint.render({
             url: options.url,
             cookies: options.cookies || {},
+            config: options.config,
             state: Object.fromEntries(state),
         })
 
@@ -287,7 +282,7 @@ export default class ViteService extends compose(Hooks) {
         head.child('script').html(`
             window.__STATE__ = ${JSON.stringify(Object.fromEntries(state))};
             window.__CONTAINER__ = ${JSON.stringify(this.clientContainer.toRecord())};
-            window.__CONFIG__ = ${JSON.stringify(this.clientConfig.toRecord())};
+            window.__CONFIG__ = ${JSON.stringify(options.config)};
         `)
 
         body.child('div')
@@ -345,10 +340,21 @@ export default class ViteService extends compose(Hooks) {
             }
         })
 
+        const clientConfig = new ConfigService()
+
+        clientConfig.loadFromEntries(Object.entries(env.get('CLIENT_CONFIG') || {}), 'env')
+
+        clientConfig.set('site', config.get('site', {}))
+        clientConfig.set('branding', config.get('branding', {}))
+        clientConfig.set('auth', config.get('auth', {}))
+        clientConfig.set('setup', config.get('setup') || {})
+        clientConfig.set('cookie.prefix', config.get('cookie.prefix', ''))
+
         const options: RenderOptions = {
             url,
             cookies: cookie.toRecord(),
             state: Object.fromEntries(state),
+            config: clientConfig.toRecord(),
         }
 
         const [error, html] = await tryCatch( () => this.render(options) )

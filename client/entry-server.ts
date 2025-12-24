@@ -36,7 +36,6 @@ export async function importDynamicModule(modulePath: string) {
 export default class EntryNode extends ViteEntryPointService {
     public load: ViteEntryPointService['load'] = async (options) => {
         di.loadFromRecord(options.container || {})
-        config.loadFromRecord(options.config || {})
 
         const serviceOptions = {
             debug: config.get('modules.debug') || config.get('app.debug')
@@ -58,6 +57,7 @@ export default class EntryNode extends ViteEntryPointService {
     }
 
     public render: ViteEntryPointService['render'] = async (context) => {
+        config.loadFromRecord(context.config || {})
         di.set('state', context.state || {})
         di.set('cookies', context.cookies)
         
