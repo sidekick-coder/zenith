@@ -30,28 +30,36 @@ di.set(ModulesService, useBrowserService
     : new ModulesDevService(serviceOptions)
 )
 
-await lifecycle.register()
-
-await lifecycle.load()
-
-await lifecycle.boot()
-
-const app = di.get<App>('app')
-const router = di.get<Router>('router')
-
-const head = createHead({
-    init: window.__STATE__?.head ? [window.__STATE__.head] : []
-})
-
-app.use(head)
-
-await router.isReady()
-
-app.mount('#app')
-
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js')
-            .catch(err => console.error('sw failed:', err))
+async function main(){
+    await lifecycle.register()
+    
+    await lifecycle.load()
+    
+    await lifecycle.boot()
+    
+    const app = di.get<App>('app')
+    const router = di.get<Router>('router')
+    
+    const head = createHead({
+        init: window.__STATE__?.head ? [window.__STATE__.head] : []
     })
+    
+    app.use(head)
+    
+    await router.isReady()
+    
+    app.mount('#app')
+    
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/sw.js')
+                .catch(err => console.error('sw failed:', err))
+        })
+    }
 }
+
+
+
+main().catch(err => {
+    console.error('Error during app initialization:', err)
+})
