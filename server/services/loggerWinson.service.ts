@@ -136,6 +136,15 @@ export default class LoggerWinsonService extends LoggerService {
         })
     }
 
+    public static consoleJson(){
+        return new winston.transports.Console({
+            format: format.combine(
+                format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
+                format.json()
+            ),
+        })
+    }
+
     public static file(filename: string, level: string = 'info'){
         return new winston.transports.File({
             filename,

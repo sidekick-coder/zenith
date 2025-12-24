@@ -1,4 +1,3 @@
-import config from '#server/facades/config.facade.ts'
 import di from '#server/facades/di.facade.ts'
 import env from '#server/facades/env.facade.ts'
 import LoggerWinsonService from '#server/services/loggerWinson.service.ts'
@@ -19,13 +18,16 @@ process.on('uncaughtException', (error: Error) => {
 
 env.load()
 
+const transports: any[] = [
+    LoggerWinsonService.file(basePath('storage/logs/error.log'), 'error'),
+    LoggerWinsonService.file(basePath('storage/logs/combined.log')),
+]
+
+transports.push(env.development ? LoggerWinsonService.console() : LoggerWinsonService.consoleJson())
+
 const logger = LoggerWinsonService.create({
     level: env.get('LOG_LEVEL', 'info'),
-    transports: [
-        LoggerWinsonService.console(),
-        LoggerWinsonService.file(basePath('storage/logs/error.log'), 'error'),
-        LoggerWinsonService.file(basePath('storage/logs/combined.log')),
-    ]
+    transports: transports
 })
 
 di.set(LoggerService, logger)
