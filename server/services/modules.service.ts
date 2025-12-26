@@ -278,7 +278,10 @@ export default class ModulesService {
             fs.mkdirSync(rootDir, { recursive: true })
         }
 
-        logger.info(`Preparing symlinks for module '${moduleName}'`)
+        if (this.debug) {
+            logger.debug(`preparing symlinks for module '${moduleName}'`)
+        }
+
 
         const symlinks = [
             { 
@@ -320,7 +323,11 @@ export default class ModulesService {
 
         for (const { source, target } of symlinks) {
             if (fs.existsSync(target)) {
-                logger.debug(`Target directory '${path.relative(basePath(), target)}' exist, skipping symlink`)
+                
+                if (this.debug) {
+                    logger.debug(`Target directory '${path.relative(basePath(), target)}' exist, skipping symlink`)
+                }
+
                 continue
             }
 
@@ -340,10 +347,16 @@ export default class ModulesService {
                 throw new Error(`Failed to create symlink: ${symlinkError.message}`)
             }
 
-            logger.debug(`Created symlink: ${path.basename(source)} -> ${target}`)
+            if (this.debug) {
+                logger.debug(`created symlink: ${path.basename(source)} -> ${target}`)
+            }
+
         }
 
-        logger.info(`Symlinks prepared for module '${moduleName}'`)
+        if (this.debug) {
+            logger.debug(`Symlinks prepared for module '${moduleName}'`)
+        }
+
     }
 
     public async uninstall(moduleName: string, options: UninstallOptions = {}) {

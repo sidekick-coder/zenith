@@ -44,8 +44,12 @@ router.post('/database', async ({ body }) => {
     const connection = db.createConnection(driver, options)
 
     
-    config.set('database.connections.default', connection)
-    config.set('database.default', 'default')
+    config.set('database', {
+        default: 'default',
+        connections: {
+            default: connection
+        }
+    })
 
     const [error] = await tryCatch(async () => {
         await db.load('default')
