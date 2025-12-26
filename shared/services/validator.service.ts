@@ -1,4 +1,5 @@
 import * as v from 'valibot'
+import BaseException from '#server/exceptions/base.ts'
 
 export type Valibot = typeof v
 
@@ -50,7 +51,7 @@ export class ValidatorService {
         
             const message = messages.length ? messages.join(', ') : 'Validation failed'
         
-            const error = new Error(message)
+            const error = new BaseException(message, 422)
         
             error.name = 'ValidationError'
         
