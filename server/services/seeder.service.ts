@@ -87,8 +87,10 @@ export default class SeederService {
 
         if (filters?.name) {
             const names = Array.isArray(filters.name) ? filters.name : [filters.name]
-            seeds = seeds.filter(s => names.includes(s.name))
+            
+            seeds = seeds.filter(s => names.some(name => s.name.includes(name)))
         }
+
 
         return seeds
     }
