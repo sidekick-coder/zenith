@@ -258,9 +258,7 @@ export function Model<Table extends keyof Database>(table: Table, primaryKey: ke
                 const constructor = this as any
 
                 return queries.firstOrCreate(table, {
-                    debug: o.debug,
-                    select: o.select,
-                    values: o.values,
+                    ...o,
                     serialize: row => constructor.serialize(row),
                 }) as any
             }

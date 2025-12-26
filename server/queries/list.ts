@@ -1,3 +1,4 @@
+import type { ExpressionBuilder, ExpressionWrapper } from 'kysely'
 import type { SelectFrom, SerializeOptions, SerializableResult } from './common.ts'
 import type { Database } from '#server/contracts/database.contract.ts'
 import db from '#server/facades/db.facade.ts'
@@ -6,6 +7,7 @@ export interface ListOptions<T extends keyof Database>  extends SerializeOptions
     limit?: number
     offset?: number
     debug?: boolean
+    where?: (qb: ExpressionBuilder<Database, T>) => ExpressionWrapper<Database, T, any>
     query?: (qb: SelectFrom<T>) => SelectFrom<T>
 }
 
@@ -14,6 +16,10 @@ export async function list<T extends keyof Database, O extends ListOptions<T>>(t
 
     if (options?.query) {
         query = options.query(db.selectFrom(table)) 
+    }
+
+    if (options?.where) {
+        query = query.where((eb: any) => options.where!(eb))
     }
 
     if (options?.limit) {
