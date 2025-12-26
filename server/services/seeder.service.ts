@@ -6,6 +6,7 @@ import { tryCatch } from '#shared/utils/tryCatch.ts'
 import db from '#server/facades/db.facade.ts'
 
 export interface Seed {
+    id: string
     name: string
     module: string | null
     filePath: string
@@ -38,10 +39,10 @@ export default class SeederService {
             if (!entry.endsWith('.js') && !entry.endsWith('.ts')) continue
 
             const fullPath = path.join(rootFolder, entry)
-            const filename = path.basename(entry, path.extname(entry))
 
             allSeeds.push({
-                name: filename,
+                id: fullPath,
+                name: path.basename(entry, path.extname(entry)),
                 module: null,
                 filePath: fullPath,
             })
@@ -61,10 +62,10 @@ export default class SeederService {
                 if (!entry.endsWith('.js') && !entry.endsWith('.ts')) continue
 
                 const fullPath = path.join(seedPath, entry)
-                const filename = path.basename(entry, path.extname(entry))
 
                 allSeeds.push({
-                    name: filename,
+                    id: fullPath,
+                    name: path.basename(entry, path.extname(entry)),
                     module: mod.name,
                     filePath: fullPath,
                 })
@@ -92,16 +93,16 @@ export default class SeederService {
         return seeds
     }
 
-    public async runFile(fileName: string): Promise<SeedResult> {
+    public async runFile(id: string): Promise<SeedResult> {
         const seeds = await this.list()
-        const seed = seeds.find(s => s.name === fileName)
+        const seed = seeds.find(s => s.id === id)
 
         if (!seed) {
             return {
-                filename: fileName,
+                filename: id,
                 module: null,
                 result: 'failed',
-                errorMessage: `Seed ${fileName} not found`
+                errorMessage: `Seed ${id} not found`
             }
         }
 
@@ -109,7 +110,7 @@ export default class SeederService {
 
         if (error) {
             return {
-                filename: fileName,
+                filename: id,
                 module: seed.module,
                 result: 'failed',
                 errorMessage: `Failed to load seed: ${error instanceof Error ? error.message : String(error)}`,
@@ -119,10 +120,10 @@ export default class SeederService {
 
         if (!seedModule.run || typeof seedModule.run !== 'function') {
             return {
-                filename: fileName,
+                filename: id,
                 module: seed.module,
                 result: 'failed',
-                errorMessage: `Seed file ${fileName} must export a 'run' function`
+                errorMessage: `Seed file ${id} must export a 'run' function`
             }
         }
 
@@ -155,7 +156,7 @@ export default class SeederService {
         const results: SeedResult[] = []
 
         for (const seed of seeds) {
-            const result = await this.runFile(seed.name)
+            const result = await this.runFile(seed.id)
             
             results.push(result)
             
