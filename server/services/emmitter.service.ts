@@ -37,7 +37,7 @@ export default class EmmitterService {
         const id = options?.id || createId()
 
         if (options?.unique) {
-            const exists = this.handlers.some(h => h.event === event && h.listener === listener)
+            const exists = this.handlers.some(h => (h.event === event && h.listener === listener) || h.id === id)
             
             if (exists) {
                 return
