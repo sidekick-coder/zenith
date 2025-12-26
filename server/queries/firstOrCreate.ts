@@ -18,11 +18,9 @@ export async function firstOrCreate<T extends keyof Database, O extends FirstOrC
         serialize: options?.serialize,
         where: options?.where,
         query: () => {
-            let query: any = db.selectFrom(table)
-
-            if (options?.select) {
-                query = options.select(query)
-            }
+            let query: any = options?.select 
+                ? options.select(db.selectFrom(table)) 
+                : db.selectFrom(table).selectAll()
 
             if (options?.where) {
                 query = query.where((eb: any) => options.where!(eb))
