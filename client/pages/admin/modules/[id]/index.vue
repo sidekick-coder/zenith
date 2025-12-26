@@ -100,6 +100,7 @@ async function runSeeds() {
     
     if (error) {
         console.error('Failed to run seeds:', error)
+        isSeeding.value = false
         return
     }
     

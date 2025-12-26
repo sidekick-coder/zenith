@@ -13,6 +13,7 @@ import server from '#server/facades/server.facade.ts'
 import config from '#server/facades/config.facade.ts'
 import encrypt from '#server/facades/encrypt.facade.ts'
 import schemas from '#shared/validators/index.ts'
+import seeder from '#server/facades/seeder.facade.ts'
 
 const router = root.use(authMiddleware)
     .prefix('/api/modules')
@@ -147,7 +148,9 @@ router.post('/:id/seed', async ({ params, acl }) => {
         throw new BaseException('Module not found', 404)
     }
 
-    await modules.runSeeds(params.id)
+    await seeder.run({
+        module: params.id,
+    })
 
     return { success: true }
 })

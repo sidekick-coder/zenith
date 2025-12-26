@@ -1,18 +1,12 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import Button from '#client/components/Button.vue'
 import SettingLayout from '#client/layouts/SettingLayout.vue'
 
-import Card from '#client/components/ui/card/Card.vue'
-import CardDescription from '#client/components/ui/card/CardDescription.vue'
-import CardFooter from '#client/components/ui/card/CardFooter.vue'
-import CardHeader from '#client/components/ui/card/CardHeader.vue'
-import CardTitle from '#client/components/ui/card/CardTitle.vue'
 import Switch from '#client/components/ui/switch/Switch.vue'
 
 
 import { $fetch } from '#client/utils/fetcher'
-import { tryCatch } from '#shared/utils/tryCatch.ts'
 import Dialog from '#client/components/ui/dialog/Dialog.vue'
 import DialogContent from '#client/components/ui/dialog/DialogContent.vue'
 import DialogHeader from '#client/components/ui/dialog/DialogHeader.vue'
