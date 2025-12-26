@@ -1,4 +1,5 @@
 import { Readable } from 'stream'
+import path from 'path'
 import ms from 'ms'
 import {
     S3Client,
@@ -66,8 +67,13 @@ export default class DriveS3 extends BaseDrive {
     }
 
     protected get prefix(): string {
-        const configPrefix = (this.config as S3DriveConfig).prefix || ''
-        return configPrefix
+        if (!this.config?.prefix) return ''
+
+        if (!this.config?.prefix.endsWith('/')) {
+            return this.config.prefix + '/'
+        }
+
+        return this.config.prefix
     }
 
     private getKey(filename: string): string {
@@ -123,7 +129,9 @@ export default class DriveS3 extends BaseDrive {
         const contents = resp.Contents || []
 
         for (const obj of contents) {
-            const key = obj.Key || ''
+            let key = obj.Key || ''
+
+            key = key.replace(this.prefix, '')
 
             const isDirectory = key.endsWith('/')
 

@@ -58,7 +58,7 @@ router.get('/:id/entries', async ({ params, query, acl }) => {
     return current.list(query.folder as string)
 })
 
-router.get('/:id/open/:*', async ({ params, acl, response }) => {
+router.get('/:id/open/*', async ({ params, acl, response }) => {
     const filename = validator.validate(params['*'], v => v.string())
     const id = params.id
     
