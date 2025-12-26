@@ -11,19 +11,23 @@ import {
 } from '@aws-sdk/client-s3'
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 import { Upload } from '@aws-sdk/lib-storage'
+import type { InferOutput } from 'valibot'
 import DriveEntity from '#shared/entities/driveEntry.entity.ts'
 import BaseDrive from '#server/gateways/driveBase.gateway.ts'
 import validator from '#shared/services/validator.service.ts'
 import BaseException from '#server/exceptions/base.ts'
 
-export interface S3DriveConfig {
-    bucket: string
-    region?: string
-    accessKeyId: string
-    secretAccessKey: string
-    sessionToken?: string
-    endpoint?: string
-}
+const schema = validator.create((v) => v.object({
+    bucket: v.pipe(v.string(), v.minLength(1)),
+    region: v.optional(v.string()),
+    accessKeyId: v.pipe(v.string(), v.minLength(1)),
+    secretAccessKey: v.pipe(v.string(), v.minLength(1)),
+    sessionToken: v.optional(v.string()),
+    endpoint: v.optional(v.string()),
+    prefix: v.optional(v.string()),
+}))
+
+export type S3DriveConfig = InferOutput<typeof schema>
 
 function streamToUint8Array(stream: any): Promise<Uint8Array> {
     if (!stream || typeof stream !== 'object' || typeof stream.on !== 'function') {
@@ -39,14 +43,7 @@ function streamToUint8Array(stream: any): Promise<Uint8Array> {
 }
 
 export default class DriveS3 extends BaseDrive {
-    private schema = validator.create((v) => v.object({
-        bucket: v.pipe(v.string(), v.minLength(1)),
-        region: v.optional(v.string()),
-        accessKeyId: v.pipe(v.string(), v.minLength(1)),
-        secretAccessKey: v.pipe(v.string(), v.minLength(1)),
-        sessionToken: v.optional(v.string()),
-        endpoint: v.optional(v.string()),
-    }))
+    private schema = schema
 
     private _client?: S3Client
 
@@ -66,6 +63,20 @@ export default class DriveS3 extends BaseDrive {
 
     protected get bucket(): string {
         return (this.config as S3DriveConfig).bucket
+    }
+
+    protected get prefix(): string {
+        const configPrefix = (this.config as S3DriveConfig).prefix || ''
+        return configPrefix
+    }
+
+    private getKey(filename: string): string {
+        const cleanFilename = filename.startsWith('/') ? filename.slice(1) : filename
+        if (!this.prefix) {
+            return cleanFilename
+        }
+        const cleanPrefix = this.prefix.endsWith('/') ? this.prefix : `${this.prefix}/`
+        return `${cleanPrefix}${cleanFilename}`
     }
 
     protected get client(): S3Client {
@@ -91,7 +102,7 @@ export default class DriveS3 extends BaseDrive {
     public exists: BaseDrive['exists'] = async (filename) => {
         this.checkValid()
         
-        const Key = filename.startsWith('/') ? filename.slice(1) : filename
+        const Key = this.getKey(filename)
 
         return this.client.send(new HeadObjectCommand({ Bucket: this.bucket,
             Key }))
@@ -102,7 +113,7 @@ export default class DriveS3 extends BaseDrive {
     public list: BaseDrive['list'] = async (folder) => {
         this.checkValid()
         
-        const Prefix = folder ? (folder.startsWith('/') ? folder.slice(1) : folder) : undefined
+        const Prefix = folder ? this.getKey(folder) : this.prefix || undefined
 
         const resp = await this.client.send(new ListObjectsV2Command({ Bucket: this.bucket,
             Prefix }))
@@ -158,7 +169,7 @@ export default class DriveS3 extends BaseDrive {
     public read: BaseDrive['read'] = async (filename) => {
         this.checkValid()
         
-        const Key = filename.startsWith('/') ? filename.slice(1) : filename
+        const Key = this.getKey(filename)
 
         const resp = await this.client.send(new GetObjectCommand({
             Bucket: this.bucket,
@@ -173,7 +184,7 @@ export default class DriveS3 extends BaseDrive {
     public async readStream(filename: string) {
         this.checkValid()
         
-        const Key = filename.startsWith('/') ? filename.slice(1) : filename
+        const Key = this.getKey(filename)
 
         const command = new GetObjectCommand({ 
             Bucket: this.bucket,
@@ -190,7 +201,7 @@ export default class DriveS3 extends BaseDrive {
     public write: BaseDrive['write'] = async (filename, data) => {
         this.checkValid()
         
-        const Key = filename.startsWith('/') ? filename.slice(1) : filename
+        const Key = this.getKey(filename)
 
         await this.client.send(new PutObjectCommand({ 
             Bucket: this.bucket,
@@ -202,7 +213,7 @@ export default class DriveS3 extends BaseDrive {
     public async writeStream(filename: string, stream: NodeJS.ReadableStream): Promise<void> {
         this.checkValid()
         
-        const Key = filename.startsWith('/') ? filename.slice(1) : filename
+        const Key = this.getKey(filename)
 
         const upload = new Upload({
             client: this.client,
@@ -219,7 +230,7 @@ export default class DriveS3 extends BaseDrive {
     public delete: BaseDrive['delete'] = async (filename) => {
         this.checkValid()
         
-        const Key = filename.startsWith('/') ? filename.slice(1) : filename
+        const Key = this.getKey(filename)
 
         if (Key.endsWith('/')) {
             const resp = await this.client.send(new ListObjectsV2Command({ Bucket: this.bucket,
@@ -244,7 +255,7 @@ export default class DriveS3 extends BaseDrive {
     public url: BaseDrive['url'] = async (filename, options) => {
         this.checkValid()
         
-        const Key = filename.startsWith('/') ? filename.slice(1) : filename
+        const Key = this.getKey(filename)
 
         const expiresMs = ms(options?.expires || '30m') || 30 * 60 * 1000
         const expiresSeconds = Math.max(1, Math.round(expiresMs / 1000))
@@ -256,7 +267,7 @@ export default class DriveS3 extends BaseDrive {
     public uploadUrl: BaseDrive['uploadUrl'] = async (filename, options) => {
         this.checkValid()
         
-        const Key = filename.startsWith('/') ? filename.slice(1) : filename
+        const Key = this.getKey(filename)
 
         const expiresMs = ms(options?.expires || '30m') || 30 * 60 * 1000
         const expiresSeconds = Math.max(1, Math.round(expiresMs / 1000))

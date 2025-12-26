@@ -14,8 +14,8 @@ export const TYPES = () => [
     },
     {
         id: 's3',
-        label: $t('Amazon S3'),
-        description: $t('Store files on Amazon S3 cloud storage.'),
+        label: 'S3',
+        description: $t('Store files on an S3-compatible service like AWS S3, DigitalOcean Spaces, etc.'),
         config_fields: {
             accessKeyId: {
                 component: 'text-field',
@@ -36,7 +36,17 @@ export const TYPES = () => [
                 component: 'text-field',
                 label: $t('Region'),
                 hint: $t('The AWS region where your bucket is located.'),
-            }
+            },
+            prefix: {
+                component: 'text-field',
+                label: $t('Prefix'),
+                hint: $t('An optional prefix (folder path) to store files under in the bucket.'),
+            },
+            endpoint: {
+                component: 'text-field',
+                label: $t('Endpoint URL'),
+                hint: $t('Optional custom endpoint URL for S3-compatible services.'),
+            },
         }
     }
 ]
