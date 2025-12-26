@@ -96,7 +96,7 @@ export default class ModulesService {
         }
 
         if (this.debug) {
-            this.logger.debug(`Discovered ${this.mods.length} modules`, {
+            this.logger.debug(`Discovered ${this.manifests.size} modules`, {
                 modules: Array.from(this.manifests.keys())
             })
         }
