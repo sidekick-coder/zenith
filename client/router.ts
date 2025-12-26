@@ -80,11 +80,9 @@ export function auto(imports: Record<string, DefineComponent | (() => Promise<De
             component: component as DefineComponent,
             beforeEnter: [] as NavigationGuard[],
         }
-
-        const guards = [] as NavigationGuard[]
         
         if (options.guards && Array.isArray(options.guards)) {
-            guards.push(...options.guards)
+            record.beforeEnter = options.guards
         }
 
         if (options.guards && typeof options.guards === 'function') {

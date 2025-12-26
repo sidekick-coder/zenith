@@ -46,6 +46,13 @@ export default class RouterLifecycleHook extends LifecycleHook {
             redirect: '/admin/settings/auth',
         })
 
+        
+    }
+
+    public async onBoot(): Promise<void> {
+        const router = di.get<Router>('router')
+        const app = di.get<App>('app')
+
         const homeRoute = config.get('site.home_route_path', '/hello')
             
         const route = router.resolve(homeRoute)
@@ -58,11 +65,6 @@ export default class RouterLifecycleHook extends LifecycleHook {
                 name: 'home',
             })
         }
-    }
-
-    public async onBoot(): Promise<void> {
-        const router = di.get<Router>('router')
-        const app = di.get<App>('app')
 
         router.addRoute({
             path: '/:pathMatch(.*)*',

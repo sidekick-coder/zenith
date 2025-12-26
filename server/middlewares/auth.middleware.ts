@@ -19,7 +19,14 @@ export class AuthMiddleware implements Middleware {
         }
 
         if (!token) {
-            throw new BaseException('Authentication token is missing', 401)
+            const error = new BaseException('Authentication token is missing', 401)
+
+            Object.assign(error, {
+                url: ctx.request?.originalUrl,
+                method: ctx.request?.method,
+            })
+            
+            throw error
         }
 
         const user = await auth.authenticate(token)

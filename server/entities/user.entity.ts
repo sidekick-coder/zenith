@@ -12,6 +12,7 @@ import { Metadata } from '#server/mixins/metadata.mixin.ts'
 import MetadataService from '#server/services/metadata.service.ts'
 import validator from '#shared/services/validator.service.ts'
 import BaseException from '#server/exceptions/base.ts'
+import emmitter from '#server/facades/emmitter.facade.ts'
 
 export default class User extends composeWith(
     BaseUser,
@@ -59,6 +60,10 @@ export default class User extends composeWith(
             if (user.password) {
                 user.password = await hasher.hash(user.password)
             }
+        })
+
+        this.on('afterCreate', async (user: User) => {
+            emmitter.emit('user:after-create', { user })
         })
     }
 

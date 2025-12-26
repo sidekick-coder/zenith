@@ -17,6 +17,7 @@ const isLoading = ref(false)
 const { handleSubmit } = useForm({
     validationSchema: toTypedSchema(
         v.object({
+            name: v.pipe(v.string(), v.minLength(3)),
             username: v.pipe(v.string(), v.minLength(3)),
             email: v.pipe(v.string(), v.email()),
             password: v.pipe(v.string(), v.minLength(6)),
@@ -34,11 +35,7 @@ const onSubmit = handleSubmit(async (data) => {
 
     const [error] = await tryCatch(() => $fetch('/api/auth/register', {
         method: 'POST',
-        data: {
-            username: data.username,
-            email: data.email,
-            password: data.password,
-        },
+        data: data,
     }))
 
     if (error) {
@@ -64,6 +61,14 @@ const onSubmit = handleSubmit(async (data) => {
             @submit.prevent="onSubmit"
         >
             <div class="grid gap-6">
+                <FormTextField
+                    name="name"
+                    :label="$t('Name')"
+                    :placeholder="$t('Enter your name')"
+                    autocomplete="name"
+                    autofocus
+                />
+
                 <FormTextField
                     name="username"
                     :label="$t('Username')"

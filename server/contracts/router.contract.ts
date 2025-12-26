@@ -1,3 +1,4 @@
+import type { Request, Response } from 'express'
 import type UploadService from '#server/services/upload.service.ts'
 import type CookieService from '#shared/services/cookie.service.ts'
 
@@ -9,6 +10,8 @@ export interface HttpContextBase {
     body: any
     cookie: CookieService
     upload: UploadService
+    request: Request;
+    response: Response;
     [key: string]: any; // Allow additional properties
 }
 
