@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { ref, computed } from 'vue'
 import { format } from 'date-fns'
-import { createCalendar, toCalendarDate,fromDate,  toCalendar, getLocalTimeZone } from '@internationalized/date'
+import { fromDate,  getLocalTimeZone } from '@internationalized/date'
 import type { DateValue } from '@internationalized/date'
 import Icon from './Icon.vue'
 import { Calendar } from '#client/components/ui/calendar'
@@ -26,6 +26,10 @@ const props = defineProps({
     mode: {
         type: String as () => 'date' | 'datetime',
         default: 'date'
+    },
+    clearable: {
+        type: Boolean,
+        required: false
     }
 })
 
@@ -64,6 +68,13 @@ function updateDateTime() {
     model.value = date
 }
 
+function clearDate(event: Event) {
+    event.stopPropagation()
+    model.value = null
+    hours.value = '00'
+    minutes.value = '00'
+}
+
 const calendarValue = computed({
     get() {
         if (!model.value) {
@@ -92,7 +103,7 @@ const calendarValue = computed({
             hours.value = date.getHours()
                 .toString()
                 .padStart(2, '0')
-                
+
             minutes.value = date.getMinutes().toString()
                 .padStart(2, '0')
             
@@ -124,6 +135,12 @@ const calendarValue = computed({
                     class="mr-2 h-4 w-4"
                 />
                 {{ displayValue }}
+                <Icon
+                    v-if="clearable && model"
+                    name="x"
+                    class="ml-auto h-4 w-4 opacity-50 hover:opacity-100"
+                    @click="clearDate"
+                />
             </Button>
         </PopoverTrigger>
         <PopoverContent class="w-auto p-0">

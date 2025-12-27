@@ -26,10 +26,6 @@ defineProps({
         type: Boolean,
         default: null
     },
-    mode: {
-        type: String as () => 'date' | 'datetime',
-        default: 'date'
-    },
     readonly: {
         type: Boolean,
         default: null
@@ -51,7 +47,6 @@ defineProps({
                     v-bind="$attrs"
                     :model-value="componentField.modelValue"
                     :disabled
-                    :mode="mode"
                     @blur="componentField.onBlur"
                     @update:model-value="componentField['onUpdate:modelValue']"
                 />
