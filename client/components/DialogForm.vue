@@ -11,6 +11,7 @@ import { toTypedSchema } from '@vee-validate/valibot'
 import { computed, ref, watch  } from 'vue'
 import type { PropType } from 'vue'
 import type { BaseSchema } from 'valibot'
+import { toast } from 'vue-sonner'
 import ClientOnly from './ClientOnly.vue'
 import FormAutoFieldList from './FormAutoFieldList.vue'
 import type { FormField } from './FormAutoFieldList.vue'
@@ -70,6 +71,10 @@ const props = defineProps({
     submitText: {
         type: String,
         default: $t('Save'),
+    },
+    toastOnSuccess: {
+        type: String,
+        default: null,
     },
 })
 
@@ -144,6 +149,10 @@ const onSubmit = handleSubmit(async (data) => {
         loading.value = false
         console.error(error)
         return
+    }
+
+    if (props.toastOnSuccess) {
+        toast.success(props.toastOnSuccess)
     }
     
     setTimeout(() => {
