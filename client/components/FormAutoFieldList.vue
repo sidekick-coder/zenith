@@ -11,6 +11,7 @@ export interface FormField {
         | 'string-list-input'
         | 'multi-select'
         | 'json-input'
+        | 'date-picker'
         | 'hidden'
     [key: string]: any
 }
@@ -33,6 +34,7 @@ import FormColorPicker from './FormColorPicker.vue'
 import FormStringListInput from './FormStringListInput.vue'
 import FormMultiSelect from './FormMultiSelect.vue'
 import FormJsonInput from './FormJsonInput.vue'
+import FormDatePicker from './FormDatePicker.vue'
 import FormTextField from '#client/components/FormTextField.vue'
 
 const props = defineProps({
@@ -115,6 +117,12 @@ const components = computed(() => {
 
         <FormJsonInput
             v-else-if="field.component === 'json-input'"
+            :name="field.name"
+            v-bind="field.props"    
+        />
+
+        <FormDatePicker
+            v-else-if="field.component === 'date-picker'"
             :name="field.name"
             v-bind="field.props"    
         />
