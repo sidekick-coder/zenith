@@ -22,13 +22,13 @@ defineProps({
         type: String,
         default: null
     },
-    placeholder: {
-        type: String,
-        default: null
-    },
     disabled: {
         type: Boolean,
         default: null
+    },
+    mode: {
+        type: String as () => 'date' | 'datetime',
+        default: 'date'
     },
     readonly: {
         type: Boolean,
@@ -48,9 +48,10 @@ defineProps({
             <FormLabel>{{ label }}</FormLabel>
             <FormControl>
                 <DatePicker
+                    v-bind="$attrs"
                     :model-value="componentField.modelValue"
-                    :placeholder
                     :disabled
+                    :mode="mode"
                     @blur="componentField.onBlur"
                     @update:model-value="componentField['onUpdate:modelValue']"
                 />
