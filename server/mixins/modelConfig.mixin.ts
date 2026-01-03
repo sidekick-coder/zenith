@@ -84,6 +84,8 @@ export default function ModelConfig(key: string, options: Options = {}) {
                     throw new Error('Entity item already exists')
                 }
 
+                await HooksStatic.emit(this, 'beforeCreate', item)
+
                 map[item.id] = { ...item } as any
 
                 delete map[item.id].id
@@ -105,6 +107,8 @@ export default function ModelConfig(key: string, options: Options = {}) {
                 if (!map[id]) {
                     throw new Error('Entity item not found')
                 }
+
+                await HooksStatic.emit(this, 'beforeUpdate', data)
 
                 Object.assign(map[id], data)
 
