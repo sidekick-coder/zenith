@@ -16,7 +16,6 @@ interface LoadOptions {
 }
 
 export default class EncryptService {
-    public static readonly DI_KEY = 'encrypt'
     private readonly algorithm = 'aes-256-cbc'
     private key: Buffer | null = null
     private debug = false

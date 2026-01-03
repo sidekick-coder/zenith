@@ -10,7 +10,7 @@ import config from '#server/facades/config.facade.ts'
 import { importAll } from '#server/utils/importAll.ts'
 
 export default class ModulesLifecycleHook extends LifecycleHook {
-    public order = 3
+    public order = 4
     public hooks: Map<string, LifecycleHook> = new Map()
     
     public async onRegister(): Promise<void> {

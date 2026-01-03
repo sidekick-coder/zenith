@@ -30,10 +30,10 @@ export default function ModelConfig(key: string, options: Options = {}) {
                 const items = []
 
                 for (const [id, k] of Object.entries(map)) {
-                    const item = constructor.serialize({
+                    const item = constructor.serialize(JSON.parse(JSON.stringify({
                         ...k, 
                         id 
-                    })
+                    })))
 
                     items.push(item)
                 }
@@ -48,7 +48,13 @@ export default function ModelConfig(key: string, options: Options = {}) {
 
                 const all = await constructor.list()
 
-                const item = all.find(i => (i as any).id === id)
+                const data = all.find(i => (i as any).id === id)
+
+                if (!data) {
+                    return null
+                }
+
+                const item = JSON.parse(JSON.stringify(data))
 
                 await HooksStatic.emit(this, 'afterFind', item)
 
