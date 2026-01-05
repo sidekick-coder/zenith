@@ -104,6 +104,7 @@ program.command('serve')
             'arte',
             'node_modules',
             'commands',
+            'seeds',
             'migrations',
             'tmp',
             'root',

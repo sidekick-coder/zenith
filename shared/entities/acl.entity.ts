@@ -12,6 +12,7 @@ export default class Acl {
         const permissions = data.permissions || []
         const perms = permissions.map((permission) => Permission.from(permission))
 
+        
         this.permissions = perms
         this.debug = data.debug || false
         this.logger = data.logger || new LoggerService().child({ label: 'acl' })
