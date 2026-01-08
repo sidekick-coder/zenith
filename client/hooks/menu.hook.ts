@@ -10,39 +10,6 @@ export default class MenuLifecycleHook extends LifecycleHook {
     }
 
     public async onLoad(): Promise<void> {
-        // menu.add({
-        //     id: 'account-preferences',
-        //     label: $t('Preferences'),
-        //     to: '/admin/account/preferences',
-        //     icon: 'UserCog',
-        //     layout: 'account-setting',
-        //     group: $t('General')
-        // })
-
-        // menu.add({
-        //     id: 'preferences-menu-items',
-        //     label: $t('Items'),
-        //     to: '/admin/menu/items',
-        //     layout: 'setting',
-        //     group: $t('Menu'),
-        // })
-        
-        // menu.add({
-        //     id: 'preferences-menu-groups',
-        //     label: $t('Groups'),
-        //     to: '/admin/menu/groups',
-        //     layout: 'setting',
-        //     group: $t('Menu'),
-        // })
-
-        // menu.add({
-        //     id: 'preferences-menu-custom',
-        //     label: $t('Custom'),
-        //     to: '/admin/menu/custom',
-        //     layout: 'setting',
-        //     group: $t('Menu'),
-        // })
-
         menu.add({
             id: 'users',
             label: $t('Users'),
@@ -82,6 +49,14 @@ export default class MenuLifecycleHook extends LifecycleHook {
             to: '/admin/files',
             icon: 'File',
             group: $t('Storage')
+        })
+        
+        menu.add({
+            id: 'mailer-gateways',
+            label: $t('Mailers'),
+            to: '/admin/mailers',
+            icon: 'Mail',
+            group: $t('Email')
         })
 
     }
