@@ -6,6 +6,7 @@ import config from '#server/facades/config.facade.ts'
 import type BaseMailer from '#server/gateways/mailerBase.gateway.ts'
 import MailerConfig from '#server/entities/mailerConfig.entity.ts'
 import type { MailerSendPayload } from '#server/gateways/mailerBase.gateway.ts'
+import { tryCatch } from '#shared/utils/tryCatch.ts'
 
 export default class MailerService {
     public gateways: Map<string, typeof BaseMailer> = new Map()
@@ -38,6 +39,16 @@ export default class MailerService {
         this.gateways.set(type, gateway)
     }
 
+    private instantiate(config: MailerConfig) {
+        const gateway = this.gateways.get(config.type)
+
+        if (!gateway) {
+            throw new BaseException('Gateway not found')
+        }
+
+        return new gateway(config)
+    }
+
     public async load(data: Partial<MailerService> = {}){
         this.debug = data.debug !== undefined ? data.debug : this.debug
         this.logger = data.logger || this.logger
@@ -54,7 +65,12 @@ export default class MailerService {
                 continue
             }
 
-            const instance = new gateway(c)
+            const [error, instance] = await tryCatch(() => this.instantiate(c))
+
+            if (error) {
+                this.logger.error('Failed to instantiate mailer gateway', error)
+                continue
+            }
 
             this.instances.set(c.id, instance)
 
@@ -86,6 +102,14 @@ export default class MailerService {
             throw new BaseException('No mailer gateway selected')
         }
 
-        return this.current.send(payload)
+        const [error, result] = await tryCatch(() => this.current!.send(payload))
+
+        if (error) {
+            Object.assign(error, { payload })
+            this.logger.error('Failed to send email', error)
+            throw error
+        }
+
+        return result
     }
 }

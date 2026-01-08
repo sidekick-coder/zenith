@@ -27,6 +27,11 @@ export const GATEWAYS = () => [
                 label: $t('Use Secure Connection (TLS)'),
                 hint: $t('Whether to use a secure TLS connection.'),
             },
+            from: {
+                component: 'text-field',
+                label: $t('Default From Address'),
+                hint: $t('The default email address that emails will be sent from.'),
+            },
         }
     },
 ]

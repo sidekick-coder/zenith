@@ -64,7 +64,7 @@ watch(() => props.mailer, (newDrive) => {
                 {{ $t('Configuration') }}
             </CardTitle>
             <CardDescription>
-                {{ $t('Configure drive settings') }}
+                {{ $t('Configure gateway settings') }}
             </CardDescription>
         </CardHeader>
         <CardContent>
