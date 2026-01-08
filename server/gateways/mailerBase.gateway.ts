@@ -1,3 +1,8 @@
+export interface MailerSendPayload {
+    to: string
+    subject: string
+    body: string
+}
 export default class BaseMailer {
     public id: string
     public name: string
@@ -11,14 +16,10 @@ export default class BaseMailer {
         this.config = data.config
     }
 
-    public send(to: string, subject: string, body: string): Promise<void> {
+    public send(payload: MailerSendPayload): Promise<void> {
         const error = new Error('Method not implemented.')
 
-        Object.assign(error, { 
-            to,
-            subject,
-            body 
-        })
+        Object.assign(error, payload)
 
         throw error
     }
