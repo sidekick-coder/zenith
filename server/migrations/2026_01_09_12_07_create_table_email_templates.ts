@@ -7,7 +7,7 @@ export async function up(db: Kysely<any>): Promise<void> {
         .addIdColumn()
         .addColumn('name', 'varchar', (col) => col.notNull())
         .addColumn('subject', 'varchar', (col) => col.notNull())
-        .addColumn('body', 'text', (col) => col.notNull())
+        .addColumn('body', 'text')
         .addTimestampColumns()
         .addSoftDeleteColumn()
         .execute()

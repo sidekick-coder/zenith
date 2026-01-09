@@ -56,7 +56,15 @@ export default class MenuLifecycleHook extends LifecycleHook {
             label: $t('Mailers'),
             to: '/admin/mailers',
             icon: 'Mail',
-            group: $t('Email')
+            group: $t('Mail')
+        })
+        
+        menu.add({
+            id: 'mailer-templates',
+            label: $t('Templates'),
+            to: '/admin/email-templates',
+            icon: 'Mail',
+            group: $t('Mail')
         })
 
     }

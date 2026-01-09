@@ -7,7 +7,7 @@ program.command('migration:down')
     .description('Rollback executed migrations')
     .option('-s, --step <number>', 'Number of migrations to rollback', Number)
     .option('-m, --module <string>', 'Filter by module name')
-    .option('-r, --root ', 'Run migration on root database')
+    .option('-r, --root', 'Run migration on root database')
     .action(cli.with('all', async (options: { step?: number, module?: string, root?: boolean }) => {
         const results = await migrator.down(options.step, {
             module: options.module,

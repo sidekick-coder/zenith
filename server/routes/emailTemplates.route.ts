@@ -59,7 +59,7 @@ router.post('/', async ({ body, acl }) => {
     const payload = validator.validate(body, (v) => v.object({
         name: v.pipe(v.string(), v.minLength(3)),
         subject: v.pipe(v.string(), v.minLength(1)),
-        body: v.pipe(v.string(), v.minLength(1)),
+        body: v.optional(v.pipe(v.string(), v.minLength(1))),
     }))
 
     const row = await db.insertInto('email_templates').values(payload)
