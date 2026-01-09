@@ -93,6 +93,20 @@ export interface JobTable extends TimestampTable {
   error: string | null
 }
 
+export interface EmailTemplateTable extends TimestampTable, SoftDeleteTable {
+  id: Generated<number>
+  name: string
+  subject: string
+  body: string
+}
+
+export interface EmailTemplateMetaTable extends TimestampTable, SoftDeleteTable {
+  id: Generated<number>
+  template_id: number
+  name: string
+  value: string
+}
+
 export interface Database  {
   users: UserTable
   user_metas: UserMetaTable
@@ -109,6 +123,9 @@ export interface Database  {
   permissions_assignments: PermissionAssignmentTable
 
   jobs: JobTable
+
+  email_templates: EmailTemplateTable
+  email_template_metas: EmailTemplateMetaTable
 }
 
 export {}
