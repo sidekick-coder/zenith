@@ -1,5 +1,3 @@
-import BaseException from '#server/exceptions/base.ts'
-import db from '#server/facades/db.facade.ts'
 import { undeleted } from '#server/queries/index.ts'
 import rootRouter from '#server/facades/router.facade.ts'
 import authMiddleware from '#server/middlewares/auth.middleware.ts'
@@ -56,31 +54,15 @@ router.get('/:id', async ({ params, acl, query: routeQuery }) => {
 router.post('/', async ({ body, acl }) => {
     acl.authorize('create', 'EmailTemplate')
 
-    const payload = validator.validate(body, (v) => v.object({
-        name: v.pipe(v.string(), v.minLength(3)),
-        subject: v.pipe(v.string(), v.minLength(1)),
-        body: v.optional(v.pipe(v.string(), v.minLength(1))),
-    }))
+    const payload = validator.validate(body, schemas.emailTemplate.create)
 
-    const row = await db.insertInto('email_templates').values(payload)
-        .returningAll()
-        .executeTakeFirst()
-
-    if (!row) {
-        throw new BaseException('Failed to create email template', 500)
-    }
-
-    return new EmailTemplate(row)
+    return EmailTemplate.create(payload)
 })
 
 router.patch('/:id', async ({ params, body, acl }) => {
     const id = validator.validate(params.id, schemas.query.number)
 
-    const payload = validator.validate(body, (v) => v.object({
-        name: v.optional(v.pipe(v.string(), v.minLength(3))),
-        subject: v.optional(v.pipe(v.string(), v.minLength(1))),
-        body: v.optional(v.pipe(v.string(), v.minLength(1))),
-    }))
+    const payload = validator.validate(body, schemas.emailTemplate.update)
 
     const template = await EmailTemplate.findOrFail(id)
 
@@ -103,4 +85,16 @@ router.delete('/:id', async ({ params, acl }) => {
     await template.softDelete()
 
     return template
+})
+
+router.post('/preview', async ({ body, acl, response }) => {
+    const payload = validator.validate(body, v => v.object({
+        engine: v.nullish(v.picklist(['raw', 'html', 'mjml'])),
+        subject: v.pipe(v.string(), v.minLength(1)),
+        body: v.nullish(v.string()),
+    }))
+
+    response.setHeader('Content-Type', 'text/html')
+
+    return payload.body
 })

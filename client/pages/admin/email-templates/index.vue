@@ -34,9 +34,31 @@ const fields = defineFormFields({
         component: 'text-field',
         label: $t('Name'),
     },
+    key: {
+        component: 'text-field',
+        label: $t('Key'),
+    },
     subject: {
         component: 'text-field',
         label: $t('Subject'),
+    },
+    engine: {
+        component: 'select',
+        label: $t('Engine'),
+        options: [
+            { 
+                label: 'Raw', 
+                value: 'raw' 
+            },
+            { 
+                label: 'HTML', 
+                value: 'html' 
+            },
+            { 
+                label: 'MJML', 
+                value: 'mjml' 
+            },
+        ],
     },
 })
 

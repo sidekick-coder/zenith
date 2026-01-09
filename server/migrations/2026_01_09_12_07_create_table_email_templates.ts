@@ -12,6 +12,7 @@ export async function up(db: Kysely<any>): Promise<void> {
         .addColumn('body', 'text')
         .addTimestampColumns()
         .addSoftDeleteColumn()
+        .addUniqueConstraint('email_templates_key_unique', ['key', 'deleted_at'])
         .execute()
 }
 

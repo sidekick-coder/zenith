@@ -97,7 +97,9 @@ export interface EmailTemplateTable extends TimestampTable, SoftDeleteTable {
   id: Generated<number>
   name: string
   subject: string
-  body: string
+  key: string
+  body: string | null
+  engine: string | null
 }
 
 export interface EmailTemplateMetaTable extends TimestampTable, SoftDeleteTable {
