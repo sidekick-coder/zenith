@@ -88,6 +88,9 @@ router.delete('/:id', async ({ params, acl }) => {
 })
 
 router.post('/preview', async ({ body, acl, response }) => {
+
+    acl.authorize('create', 'EmailTemplate')
+
     const payload = validator.validate(body, v => v.object({
         engine: v.nullish(v.picklist(['raw', 'html', 'mjml'])),
         subject: v.pipe(v.string(), v.minLength(1)),
