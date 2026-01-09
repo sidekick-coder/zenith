@@ -350,14 +350,14 @@ export default class MigratorService {
         return results
     }
 
-    public async fresh(filters: ListFilters = {}): Promise<MigrationResult[]> {
+    public async fresh(filters: ListFilters & { steps?: number } = {}): Promise<MigrationResult[]> {
         const downResults = await this.rollback(filters)
         
         if (downResults.some(r => r.result === 'failed')) {
             return downResults
         }
 
-        const upResults = await this.latest(filters)
+        const upResults = await this.migrate(filters)
         
         return upResults
     }
