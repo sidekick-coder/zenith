@@ -5,6 +5,7 @@ import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/valibot'
 import * as v from 'valibot'
 import { toast } from 'vue-sonner'
+import { watchDebounced } from '@vueuse/core'
 import AppLayout from '#client/layouts/AppLayout.vue'
 import Button from '#client/components/Button.vue'
 import Icon from '#client/components/Icon.vue'
@@ -19,6 +20,7 @@ import $fetch from '#client/facades/fetch.facade.ts'
 import { $t } from '#shared/lang'
 import EmailTemplate from '#shared/entities/emailTemplate.entity.ts'
 import schemas from '#shared/validators/index.ts'
+import JsonInput from '#client/components/JsonInput.vue'
 
 const route = useRoute()
 const templateId = computed(() => route.params.id as string)
@@ -26,17 +28,44 @@ const templateId = computed(() => route.params.id as string)
 const template = ref<EmailTemplate>()
 const loading = ref(true)
 const saving = ref(false)
-const iframeKey = ref(0)
-const iframeRef = ref<HTMLIFrameElement>()
 const previewFormRef = ref<HTMLFormElement>()
-
+const context = ref('')
 const { setValues, handleSubmit, values } = useForm({
     validationSchema: toTypedSchema(schemas.emailTemplate.update),
 })
 
+const subject = computed(() => {
+    if (!values.subject) {
+        return ''
+    }
+
+    return EmailTemplate.compile(values.subject, JSON.parse(context.value || '{}'))
+})
+
+
 function refreshPreview() {
     if (previewFormRef.value) {
         previewFormRef.value.submit()
+    }
+}
+
+async function loadContext() {
+    const [error, response] = await $fetch.try(`/api/email-templates/${templateId.value}/metas`, {
+        method: 'GET',
+        query: {
+            limit: 1,
+            name: 'preview-context'
+        }
+    })
+
+    if (error) {
+        return
+    }
+
+    const meta = response.items[0]
+    
+    if (meta && meta.value) {
+        context.value = meta.value.startsWith('json:') ? meta.value.slice(5) : meta.value
     }
 }
 
@@ -57,16 +86,25 @@ async function load() {
     
     setTimeout(() => {
         loading.value = false
-        setTimeout(() => {
-            refreshPreview()
-        }, 100)
+        
+        setTimeout(refreshPreview, 100)
     }, 500)
+}
+
+async function saveContext() {
+    await $fetch.try(`/api/email-templates/${templateId.value}/metas`, {
+        method: 'POST',
+        data: {
+            name: 'preview-context',
+            value: `json:${context.value}`
+        }
+    })
 }
 
 const onSubmit = handleSubmit(async (data) => {
     saving.value = true
 
-    const { id, ...payload } = data
+    const payload = data
 
     const [error] = await $fetch.try(`/api/email-templates/${templateId.value}`, {
         method: 'PATCH',
@@ -85,6 +123,12 @@ const onSubmit = handleSubmit(async (data) => {
 })
 
 onMounted(load)
+onMounted(loadContext)
+watchDebounced(context, saveContext, { debounce: 500 })
+watchDebounced(values, refreshPreview, { 
+    debounce: 500,
+    deep: true 
+})
 </script>
 
 <template>
@@ -170,7 +214,14 @@ onMounted(load)
                                 name="body"
                                 :label="$t('Body')"
                                 :rows="15"
-                                @blur="refreshPreview"
+                            />
+
+                            <JsonInput
+                                v-model="context"
+                                mode="text"
+                                :label="$t('Context')"
+                                :rows="5"
+                                :hint="$t('The JSON context used to render the email preview')"
                             />
 
                             <div class="flex gap-3 pt-4 justify-end">
@@ -214,8 +265,8 @@ onMounted(load)
                                 <div class="text-sm font-medium mb-2">
                                     {{ $t('Subject') }}
                                 </div>
-                                <div class="text-sm text-muted-foreground border rounded p-5">
-                                    {{ template.subject }}
+                                <div class="border rounded px-4 py-2 bg-white text-black">
+                                    {{ subject }}
                                 </div>
                             </div>
                             <div>
@@ -244,12 +295,16 @@ onMounted(load)
                                         name="body"
                                         class="hidden"
                                     />
+                                    <textarea
+                                        :value="context"
+                                        name="context"
+                                        class="hidden"
+                                    />
                                 </form>
                                 <iframe
                                     ref="iframeRef"
                                     name="preview-iframe"
                                     class="w-full border rounded min-h-[400px] bg-white"
-                                    sandbox="allow-scripts allow-same-origin"
                                 />
                             </div>
                         </div>

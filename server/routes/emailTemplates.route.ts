@@ -1,3 +1,4 @@
+import Handlebars from 'handlebars'
 import { undeleted } from '#server/queries/index.ts'
 import rootRouter from '#server/facades/router.facade.ts'
 import authMiddleware from '#server/middlewares/auth.middleware.ts'
@@ -95,9 +96,22 @@ router.post('/preview', async ({ body, acl, response }) => {
         engine: v.nullish(v.picklist(['raw', 'html', 'mjml'])),
         subject: v.pipe(v.string(), v.minLength(1)),
         body: v.nullish(v.string()),
+        context: v.nullish(v.any())
     }))
+
+    let context = payload.context || {}
+
+    if (typeof context === 'string') {
+        context = JSON.parse(context)
+    }
+
+    const template = Handlebars.compile(payload.body || '')
+
+    const html = template(context)
+
+    console.log(context)
 
     response.setHeader('Content-Type', 'text/html')
 
-    return payload.body
+    return html
 })
