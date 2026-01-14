@@ -1,0 +1,70 @@
+<mjml>
+  <mj-head>
+    <mj-title>{{ t 'Welcome' }}</mj-title>
+    <mj-preview>{{ t 'Welcome aboard! We are excited to have you.' }}</mj-preview>
+    <mj-attributes>
+      <mj-all font-family="'Helvetica Neue', Helvetica, Arial, sans-serif"></mj-all>
+      <mj-text font-weight="400" font-size="16px" color="#000000" line-height="24px"></mj-text>
+      <mj-section padding="0px"></mj-section>
+    </mj-attributes>
+    <mj-style inline="inline">
+      .link-nostyle { color: inherit; text-decoration: none }
+    </mj-style>
+  </mj-head>
+  <mj-body background-color="#F7F7F8">
+    <!-- Hero Section -->
+    <mj-section background-color="#2D2D35" padding="50px 20px">
+      <mj-column>
+        <mj-text align="center" font-size="36px" font-weight="bold" color="#ffffff">
+          {{ t 'Welcome' }}
+        </mj-text>
+        <mj-text align="center" font-size="18px" color="#ffffff" padding-top="20px">
+          {{ t 'We are thrilled to have you on board' }}
+        </mj-text>
+      </mj-column>
+    </mj-section>
+
+    <!-- Content Section -->
+    <mj-section background-color="#ffffff" padding="40px 20px">
+      <mj-column>
+        <mj-text font-size="20px" font-weight="bold" color="#1F1F25">
+          {{ t 'Hi there,' }}
+        </mj-text>
+        <mj-text padding-top="20px">
+          {{ t 'Thank you for joining :name! Your account has been successfully created, and you are all set to explore the platform.' name=user.name }}
+        </mj-text>
+      </mj-column>
+    </mj-section>
+
+    <!-- CTA Button -->
+    <mj-section background-color="#ffffff" padding="0px 20px 40px 20px">
+      <mj-column>
+        <mj-button background-color="#2D2D35" color="#FCFCFC" font-size="16px" font-weight="bold" padding="15px 30px" border-radius="10px" href="{{site.url}}">
+          {{ t 'Get Started' }}
+        </mj-button>
+      </mj-column>
+    </mj-section>
+
+    <!-- Support Section -->
+    <mj-section background-color="#F7F7F8" padding="30px 20px">
+      <mj-column>
+        <mj-text align="center" color="#7C7C87">
+          {{ t 'Need help? Feel free to reach out to our support team at' }}
+          <a href="mailto:{{site.support_email}}" style="color: #2D2D35; text-decoration: none;">{{site.support_email}}</a>
+        </mj-text>
+      </mj-column>
+    </mj-section>
+
+    <!-- Footer -->
+    <mj-section background-color="#1F1F25" padding="30px 20px">
+      <mj-column>
+        <mj-text align="center" color="#FCFCFC" font-size="14px">
+         © {{ date _today 'year' }} {{ t 'All rights reserved.' }} {{ site.name }}
+        </mj-text>
+        <mj-text align="center" color="#7C7C87" font-size="12px" padding-top="10px">
+          {{ t 'You received this email because you created an account on :name.' name=site.name }}
+        </mj-text>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>

@@ -29,10 +29,11 @@ applyTo: '**/*.vue'
 - use $fetch from '#client/utils/fetcher.ts' for API calls
 
 ## Display texts
-- always use $t function from `#shared/lang.ts` to texts that are displayed to the user
+- always use $t that are accessible for globaly
 - use $t('Text') for static texts
 - use $t('Text :0', [value]) for dynamic texts
 - use $t('Text :0 :1', [value1,value2]) for dynamic texts
+- this fn comes from shared/services/translator.service.ts
 
 ## Props
 - use defineProps to define props

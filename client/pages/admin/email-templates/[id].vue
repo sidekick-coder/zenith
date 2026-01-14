@@ -237,7 +237,7 @@ watchDebounced(values, refreshPreview, {
                 </Card>
             </div>
 
-            <div class="w-full xl:w-6/12 flex flex-col space-y-6">
+            <div class="w-full xl:w-6/12 flex flex-col space-y-6 min-h-full">
                 <Card v-if="template">
                     <CardHeader>
                         <CardTitle>
@@ -304,7 +304,7 @@ watchDebounced(values, refreshPreview, {
                                 <iframe
                                     ref="iframeRef"
                                     name="preview-iframe"
-                                    class="w-full border rounded min-h-[400px] bg-white"
+                                    class="w-full border rounded min-h-[500px] bg-white"
                                 />
                             </div>
                         </div>

@@ -1,4 +1,5 @@
 import Handlebars from 'handlebars'
+import mjml from 'mjml'
 import { undeleted } from '#server/queries/index.ts'
 import rootRouter from '#server/facades/router.facade.ts'
 import authMiddleware from '#server/middlewares/auth.middleware.ts'
@@ -105,13 +106,19 @@ router.post('/preview', async ({ body, acl, response }) => {
         context = JSON.parse(context)
     }
 
-    const template = Handlebars.compile(payload.body || '')
+    let result = EmailTemplate.compile(payload.body || '', context)
 
-    const html = template(context)
+    if (payload.engine === 'mjml') {
+        result = mjml(result, {}).html
+    }
 
-    console.log(context)
+    if (['html', 'mjml'].includes(payload.engine || '')) {
+        response.setHeader('Content-Type', 'text/html')
+    }
 
-    response.setHeader('Content-Type', 'text/html')
+    if (payload.engine === 'raw' || !payload.engine) {
+        response.setHeader('Content-Type', 'text/plain')
+    }
 
-    return html
+    return result
 })

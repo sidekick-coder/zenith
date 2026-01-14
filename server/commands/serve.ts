@@ -106,6 +106,7 @@ program.command('serve')
             'commands',
             'seeds',
             'migrations',
+            'templates',
             'tmp',
             'root',
             'client',
