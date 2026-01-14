@@ -35,12 +35,19 @@ export default class MenuSettingLifecycleHook extends LifecycleHook {
         })
 
         menu.add({
-            id: 'branding',
-            label: $t('Branding'),
-            icon: 'Palette',
+            id: 'site-general',
+            label: $t('General'),
             layout: 'setting',
-            group: $t('General'),
-            to: '/admin/settings/branding'
+            group: $t('Site'),
+            to: '/admin/site/general'
+        })
+
+        menu.add({
+            id: 'site-colors',
+            label: $t('Colors'),
+            layout: 'setting',
+            group: $t('Site'),
+            to: '/admin/site/colors'
         })
 
         menu.add({
