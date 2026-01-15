@@ -1,3 +1,4 @@
+import mjml from 'mjml'
 import { Model } from '#server/mixins/model.mixin.ts'
 import Base from '#shared/entities/emailTemplate.entity.ts'
 import { composeWith } from '#shared/utils/compose.ts'
@@ -39,6 +40,20 @@ export default class EmailTemplate extends composeWith(
         }
     
         return super.compile.call(this, payload, finalContext)
+    }
+
+    public render(context: Record<string, any> = {}): { subject: string; html: string } {
+        const subject = EmailTemplate.compile(this.subject, context)
+        let html = EmailTemplate.compile(this.body || '', context)
+
+        if (this.engine === 'mjml') {
+            html = mjml(html, {}).html
+        }
+
+        return { 
+            subject,
+            html
+        }
     }
 
 }

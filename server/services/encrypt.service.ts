@@ -39,6 +39,8 @@ export default class EncryptService {
         return `${iv.toString('hex')}:${encrypted}`
     }
 
+    
+
     public decrypt(options: string): string {
         if (!this.key) {
             throw new Error('Encryption key not set in configuration (app.key).')
@@ -54,6 +56,18 @@ export default class EncryptService {
         decrypted += decipher.final('utf8')
 
         return decrypted
+    }
+
+    public encryptObject(obj: any): string {
+        const jsonString = JSON.stringify(obj)
+
+        return this.encrypt(jsonString)
+    }
+
+    public decryptObject<T>(encryptedString: string): T {
+        const jsonString = this.decrypt(encryptedString)
+
+        return JSON.parse(jsonString) as T
     }
 
     public url(path: string, options?: URLOptions): string {

@@ -2,6 +2,11 @@ import hasher from '#server/facades/hasher.facade.ts'
 import db from '#server/facades/db.facade.ts'
 import TokenService from '#server/services/token.service.ts'
 import User from '#server/entities/user.entity.ts'
+import EmailTemplate from '#server/entities/emailTemplate.entity.ts'
+import mailer from '#server/facades/mailer.facade.ts'
+import encrypt from '#server/facades/encrypt.facade.ts'
+import env from '#server/facades/env.facade.ts'
+import { tryCatch } from '#shared/utils/tryCatch.ts'
 
 export interface LoginCredentials {
     uuid: string
@@ -15,11 +20,7 @@ export interface RegisterCredentials {
 }
 
 export interface AuthResult {
-    user: {
-        id: number
-        username: string
-        email: string
-    } | null
+    user: User | null
     token?: string
     success: boolean
     message: string
@@ -170,5 +171,55 @@ export default class AuthService {
 
     async logout(tokenValue: string): Promise<boolean> {
         return this.tokenService.revokeToken(tokenValue)
+    }
+
+    async forgetPassword(email: string) {
+        const user = await User.findByUUID(email)
+
+        if (!user) {
+            return false
+        }
+
+        const template = await EmailTemplate.findByOrFail('key', 'password_reset')
+
+        const token = encrypt.encryptObject({
+            expire_at: Date.now() + 3600 * 1000, // 1 hour expiration
+            user_id: user.id,
+        })
+
+        const url = new URL('/auth/reset-password', env.get('APP_URL'))
+
+        url.searchParams.append('token', token)
+
+        const compiled = template.render({ 
+            user,
+            reset_url: url.toString()
+        })
+
+        await mailer.send({
+            to: user.email,
+            subject: compiled.subject,
+            body: compiled.html,
+        })
+    }
+
+    async resetPassword(token: string, newPassword: string): Promise<boolean> {
+        const [error, payload] = await tryCatch(() => 
+            encrypt.decryptObject<{ expire_at: number, user_id: number }>(token)
+        )
+
+        if (error) {
+            return false
+        }
+
+        if (Date.now() > payload.expire_at) {
+            return false
+        }
+
+        const user = await User.findOrFail(payload.user_id)
+
+        await User.updateById(user.id, { password: newPassword })  
+
+        return true
     }
 }

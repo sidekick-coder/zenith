@@ -82,3 +82,34 @@ router.post('/auth/logout', async ({ cookie }) => {
         message: 'Logged out' 
     }
 })
+
+router.post('/api/auth/forget-password', async ({ body }) => {
+    const data = validator.validate(body, v => v.object({
+        email: v.pipe(v.string(), v.email()),
+    }))
+
+    await auth.forgetPassword(data.email)
+
+    return {
+        success: true,
+        message: $t('Password reset email sent')
+    }
+})
+
+router.post('/api/auth/reset-password', async ({ body }) => {
+    const data = validator.validate(body, v => v.object({
+        token: v.string(),
+        password: v.pipe(v.string(), v.minLength(6)),
+    }))
+
+    const success = await auth.resetPassword(data.token, data.password)
+
+    if (!success) {
+        throw new BaseException($t('Invalid or expired password reset token'), 400)
+    }
+
+    return {
+        success: true,
+        message: $t('Password reset successful')
+    }
+})
