@@ -174,7 +174,7 @@ export default class AuthService {
     }
 
     async forgetPassword(email: string) {
-        const user = await User.findByUUID(email)
+        const user = await User.findByEmail(email)
 
         if (!user) {
             return false
@@ -183,7 +183,7 @@ export default class AuthService {
         const template = await EmailTemplate.findByOrFail('key', 'password_reset')
 
         const token = encrypt.encryptObject({
-            expire_at: Date.now() + 3600 * 1000, // 1 hour expiration
+            expire_at: Date.now() + (1000 * 60 * 10), // 10 minutes expiration
             user_id: user.id,
         })
 
@@ -217,6 +217,11 @@ export default class AuthService {
         }
 
         const user = await User.findOrFail(payload.user_id)
+
+        console.log('Resetting password for user:', {
+            name: user.username,
+            password: newPassword
+        })
 
         await User.updateById(user.id, { password: newPassword })  
 

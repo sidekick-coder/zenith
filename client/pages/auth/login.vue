@@ -63,13 +63,23 @@ const onSubmit = handleSubmit(async (data) => {
                     autofocus
                 />
 
-                <FormTextField
-                    name="password"
-                    type="password"
-                    label="Password"
-                    placeholder="Password"
-                    autocomplete="current-password"
-                />
+                <div class="space-y-2">
+                    <FormTextField
+                        name="password"
+                        type="password"
+                        label="Password"
+                        placeholder="Password"
+                        autocomplete="current-password"
+                    />
+                    <div class="text-right">
+                        <router-link
+                            to="/auth/forget-password" 
+                            class="text-sm underline"
+                        >
+                            {{ $t('Forgot password?') }}
+                        </router-link>
+                    </div>
+                </div>
 
                 <Button
                     type="submit"
@@ -91,7 +101,7 @@ const onSubmit = handleSubmit(async (data) => {
             >
                 {{ $t("Don't have an account?") }}
                 <a 
-                    href="/admin/auth/register" 
+                    href="/auth/register" 
                     class="underline"
                 >
                     {{ $t('Sign up') }}

@@ -20,20 +20,19 @@ export default class RouterLifecycleHook extends LifecycleHook {
 
         router.beforeEach(setupGuard)
 
+        router.auto(import.meta.glob<DefineComponent>('../pages/admin/**/*.vue',), {
+            strip: ['pages'],
+            guards: [authGuard]
+        })
+
+        router.auto(import.meta.glob<DefineComponent>('../pages/auth/**/*.vue',), {
+            strip: ['pages'],
+            guards: [guestGuard],
+        })
+
         router.auto(import.meta.glob<DefineComponent>('../pages/**/*.vue',), {
             strip: ['pages'],
-            guards: record => {
-                    
-                if (record.path === '/admin/auth/login') {
-                    return [guestGuard]
-                }
-        
-                if (record.path.startsWith('/admin')) {
-                    return [authGuard]
-                }
-        
-                return []
-            }
+            exclude: ['/admin', '/auth'],
         })
         
         router.addRoute({

@@ -10,7 +10,7 @@ const isLoggedIn = computed(() => auth.user)
 const canAccessDashboard = computed(() => acl.can('read', 'AdminDashboard'))
 
 async function handleLogout() {
-    await auth.logout({ redirect: '/admin/auth/login' })
+    await auth.logout({ redirect: '/auth/login' })
 }
 </script>
 
@@ -82,7 +82,7 @@ async function handleLogout() {
                     <Button
                         v-if="!isLoggedIn"
                         class="shadow-lg hover:shadow-xl transition-all duration-300"
-                        to="/admin/auth/login"
+                        to="/auth/login"
                     >
                         <Icon
                             class="mr-2"

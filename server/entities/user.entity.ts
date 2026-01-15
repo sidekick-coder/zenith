@@ -30,42 +30,34 @@ export default class User extends composeWith(
         })
     }
 
-    public static boot(){
-        this.on('beforeCreate', async (user: User) => {
+    public static async beforeSave(user: Partial<User>) {
+        if (user.username) {
             // prevent usernames with special characters and/or like email addresses
             const usernameIsValid = validator.isValid(user.username, v => v.pipe(
                 v.string(),
                 v.regex(/^[a-zA-Z0-9_]+$/)
             ))
-
+    
             if (!usernameIsValid) {
                 throw new BaseException('Username can only contain letters, numbers, and underscores', 400)
             }
-
-            if (user.password) {
-                user.password = await hasher.hash(user.password)
-            }
-        })
-
-        this.on('beforeUpdate', async (user: User) => {
-            // prevent usernames with special characters and/or like email addresses
-            const usernameIsValid = validator.isValid(user.username, v => v.pipe(
-                v.string(),
-                v.regex(/^[a-zA-Z0-9_]+$/)
-            ))
-
-            if (!usernameIsValid) {
-                throw new BaseException('Username can only contain letters, numbers, and underscores', 400)
-            }
+        }
             
-            if (user.password) {
-                user.password = await hasher.hash(user.password)
-            }
-        })
+        if (user.password) {
+            user.password = await hasher.hash(user.password)
+        }
+    }
 
-        this.on('afterCreate', async (user: User) => {
-            emmitter.emit('user:after-create', { user })
-        })
+    public static async afterCreate(user: User) {
+        emmitter.emit('user:after-create', { user })
+    }
+
+    public static boot(){
+        this.on('beforeCreate', this.beforeSave)
+
+        this.on('beforeUpdate', this.beforeSave)
+
+        this.on('afterCreate', this.afterCreate)
     }
 
     public async loadRoles(){
@@ -123,17 +115,22 @@ export default class User extends composeWith(
 
     public static async findByEmail(email: string) {
         return await this.findOne({
-            query: q => q.where('email', '=', email).where(undeleted)
+            where: eb => eb.and([
+                eb('email', '=', email),
+                undeleted(eb)
+            ])
         })
     }
 
     public static async findByUUID(uuid: string) {
         return await this.findOne({
-            query: q => q.where((eb) => eb.or([
-                eb('email', '=', uuid),
-                eb('username', '=', uuid),
+            where: eb => eb.and([
+                eb.or([
+                    eb('email', '=', uuid),
+                    eb('username', '=', uuid),
+                ]),
                 undeleted(eb)
-            ]))
+            ])
         })
     }
 
@@ -178,7 +175,9 @@ export default class User extends composeWith(
 
     public async addRole(role: Role) {
         await firstOrCreate('user_roles', {
-            select: q => q.where('user_id', '=', this.id).where('role_id', '=', role.id),
+            select: q => q.selectAll()
+                .where('user_id', '=', this.id)
+                .where('role_id', '=', role.id),
             values: {
                 user_id: this.id,
                 role_id: role.id

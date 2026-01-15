@@ -117,7 +117,7 @@ const onSubmit = handleSubmit(async (data) => {
             <div class="text-center text-sm">
                 {{ $t('Already have an account?') }}
                 <a 
-                    href="/admin/auth/login" 
+                    href="/auth/login" 
                     class="underline"
                 >
                     {{ $t('Sign in') }}

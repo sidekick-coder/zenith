@@ -7,7 +7,7 @@ export interface AuthGuardOptions {
 }
 
 export function createAuthGuard(options: AuthGuardOptions): NavigationGuard {
-    const exclude = options.exclude || ['/admin/auth/login', '/admin/auth/register']
+    const exclude = options.exclude || ['/auth/login', '/auth/register']
     
     return (to) => {
         if (!auth.user && !exclude.includes(to.path)) {
@@ -17,7 +17,7 @@ export function createAuthGuard(options: AuthGuardOptions): NavigationGuard {
 }
 
 const authGuard = createAuthGuard({ 
-    redirect: '/admin/auth/login',
+    redirect: '/auth/login',
 })
 
 export default authGuard

@@ -18,10 +18,14 @@ export default class ExceptionService {
             status: response.statusCode,
         })
         
-        logger.error('Error occurred while processing request', error)
         
-
+        
         if (error instanceof BaseException) {
+
+            if (!this.ignoreCodeErrors.includes(error.statusCode)) {
+                logger.error('Error occurred while processing request', error)
+            }
+
             return response.status(error.statusCode).json({
                 error: error.name,
                 message: error.message,
