@@ -13,6 +13,7 @@ import MetadataService from '#server/services/metadata.service.ts'
 import validator from '#shared/services/validator.service.ts'
 import BaseException from '#server/exceptions/base.ts'
 import emmitter from '#server/facades/emmitter.facade.ts'
+import { undeleted } from '#server/queries/softDelete.ts'
 
 export default class User extends composeWith(
     BaseUser,
@@ -120,11 +121,18 @@ export default class User extends composeWith(
         this.permissions = permissions
     }
 
+    public static async findByEmail(email: string) {
+        return await this.findOne({
+            query: q => q.where('email', '=', email).where(undeleted)
+        })
+    }
+
     public static async findByUUID(uuid: string) {
         return await this.findOne({
             query: q => q.where((eb) => eb.or([
                 eb('email', '=', uuid),
                 eb('username', '=', uuid),
+                undeleted(eb)
             ]))
         })
     }

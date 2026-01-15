@@ -16,6 +16,7 @@ import type {
 } from '#server/queries/index.ts'
 import type Pagination from '#shared/entities/pagination.entity.ts'
 import type { Constructor } from '#shared/utils/compose.ts'
+import db from '#server/facades/db.facade.ts'
 
 export type ModelListOptions<T extends keyof Database> = Omit<ListOptions<T>, 'serialize'>
 export type ModelFindOptions<T extends keyof Database> = Omit<FindOneOptions<T>, 'serialize'|'orderBy'>
@@ -43,6 +44,10 @@ export function Model<Table extends keyof Database>(table: Table, primaryKey: ke
                 Object.assign(instance as any, row)
 
                 return instance as any
+            }
+
+            public static select() {
+                return db.selectFrom(table)
             }
 
             // 'this' is the concrete constructor (e.g. Food), so the return type is inferred correctly.
@@ -150,6 +155,21 @@ export function Model<Table extends keyof Database>(table: Table, primaryKey: ke
                 const constructor = this as any
 
                 const row = await queries.findOneOrFail(table, {
+                    serialize: row => constructor.serialize(row),
+                    where: (qb: any) => qb(column as string, '=', value)
+                }) as any
+
+                await emitHook(constructor, 'serialized', row)
+                await emitHook(constructor, 'afterFind', row)
+
+                return row as any
+            }
+
+            public static async findByOrFail<T>(this: new () => T, column: keyof Database[Table], value: any): Promise<T> {
+                const constructor = this as any
+
+                const row = await queries.findOneOrFail(table, {
+                    name: constructor.name,
                     serialize: row => constructor.serialize(row),
                     where: (qb: any) => qb(column as string, '=', value)
                 }) as any

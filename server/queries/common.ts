@@ -3,7 +3,10 @@ import type { Selectable, SelectQueryBuilder, ExpressionBuilder as KExpressionBu
 import db from '#server/facades/db.facade.ts'
 import type { Database } from '#server/contracts/database.contract.ts'
 
-export type SelectFrom<T extends keyof Database> = ReturnType<typeof db.selectFrom<T>>
+export type SelectFrom<T extends keyof Database> =
+    ReturnType<typeof db.selectFrom<T>>
+    | SelectQueryBuilder<Database, T, any>
+
 export type InsertFrom<T extends keyof Database> = ReturnType<typeof db.insertInto<T>>
 export type UpdateFrom<T extends keyof Database> = ReturnType<typeof db.updateTable<T>>
 export type DeleteFrom<T extends keyof Database> = ReturnType<typeof db.deleteFrom<T>>
