@@ -38,28 +38,6 @@ export default class TranslatorService {
         return items
     }
 
-    public t(key: string, args: any = {}): string {
-        if (!this.entries.has(key) && this.debug) {
-            this.logger.debug(`missing translation for key "${key}"`, {
-                key,
-                locale: this.locale
-            })
-        }
-
-        const entry = this.entries.get(key) || key
-
-        let translation = entry
-
-        if (!Object.keys(args).length) {
-            return translation
-        }
-
-        Object.entries(args).forEach(([aKey, aValue]) => {
-            translation = translation.replace(`:${aKey}`, aValue)
-        })
-
-        return translation
-    }
 
     public async getEntries(locale: string): Promise<Record<string, string>> {
         const cache = this.cache.get(locale)!
@@ -102,5 +80,50 @@ export default class TranslatorService {
         this.entries = new Map<string, string>(Object.entries(entries))
         
         this.locale = locale
+    }
+
+    public t(key: string, args: any = {}): string {
+        if (!this.entries.has(key) && this.debug) {
+            this.logger.debug(`missing translation for key "${key}"`, {
+                key,
+                locale: this.locale
+            })
+        }
+
+        const entry = this.entries.get(key) || key
+
+        let translation = entry
+
+        if (!Object.keys(args).length) {
+            return translation
+        }
+
+        Object.entries(args).forEach(([aKey, aValue]) => {
+            translation = translation.replace(`:${aKey}`, aValue)
+        })
+
+        return translation
+    }
+
+    public date(data: string | number | Date){
+        const date = new Date(data)
+
+        return date.toLocaleDateString(this.locale, {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
+        })
+    }
+
+    public datetime(data: string | number | Date){
+        const date = new Date(data)
+
+        return date.toLocaleString(this.locale, {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+        })
     }
 }

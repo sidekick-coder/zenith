@@ -28,5 +28,9 @@ export default class TranslatorLifecycleHook extends LifecycleHook {
 
 
         globalThis.$t = service.t.bind(service)
+        globalThis.$t = service.t.bind(service)
+        globalThis.$dt = service.datetime.bind(service)
+        globalThis.$d = service.date.bind(service)
+        globalThis.$translator = service
     }
 }

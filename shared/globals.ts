@@ -4,5 +4,8 @@ import type TranslatorService from './services/translator.service.ts'
 export {}
 
 declare global {
+    var $translator: TranslatorService
     var $t: TranslatorService['t']
+    var $d: TranslatorService['date']
+    var $dt: TranslatorService['datetime']
 }

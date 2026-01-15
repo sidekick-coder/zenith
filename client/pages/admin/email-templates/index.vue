@@ -15,16 +15,16 @@ const columns = defineColumns<EmailTemplate>([
         field: 'name',
     },
     {
-        label: $t('Subject'),
-        field: 'subject',
+        label: $t('Key'),
+        field: 'key',
     },
     {
         label: $t('Created At'),
-        field: row => row.created_at,
+        field: row => $dt(row.created_at),
     },
     {
         label: $t('Updated At'),
-        field: row => row.updated_at,
+        field: row => $dt(row.updated_at),
     },
     { id: 'actions' }
 ])
@@ -71,6 +71,7 @@ const fields = defineFormFields({
             :title="$t('Email Templates')"
             :columns="columns"
             :fields="fields"
+            :actions="['create', 'destroy']"
             view-to="/admin/email-templates/:id"
         />
     </AppLayout>
