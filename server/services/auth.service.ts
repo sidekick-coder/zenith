@@ -182,14 +182,15 @@ export default class AuthService {
 
         const template = await EmailTemplate.findByOrFail('key', 'password_reset')
 
-        const token = encrypt.encryptObject({
-            expire_at: Date.now() + (1000 * 60 * 10), // 10 minutes expiration
+        const tokenData = await this.tokenService.createToken({
             user_id: user.id,
+            type: 'password_reset',
+            expires_in_hours: 1 / 6 // 10 minutes (1/6 of an hour)
         })
 
         const url = new URL('/auth/reset-password', env.get('APP_URL'))
 
-        url.searchParams.append('token', token)
+        url.searchParams.append('token', tokenData.token)
 
         const compiled = template.render({ 
             user,
@@ -204,26 +205,24 @@ export default class AuthService {
     }
 
     async resetPassword(token: string, newPassword: string): Promise<boolean> {
-        const [error, payload] = await tryCatch(() => 
-            encrypt.decryptObject<{ expire_at: number, user_id: number }>(token)
-        )
+        const tokenData = await this.tokenService.findToken(token)
 
-        if (error) {
+        if (!tokenData || tokenData.type !== 'password_reset') {
             return false
         }
 
-        if (Date.now() > payload.expire_at) {
+        const isValid = await this.tokenService.isTokenValid(token)
+
+        if (!isValid) {
             return false
         }
 
-        const user = await User.findOrFail(payload.user_id)
+        const user = await User.findOrFail(tokenData.user_id)
 
-        console.log('Resetting password for user:', {
-            name: user.username,
-            password: newPassword
-        })
+        await User.updateById(user.id, { password: newPassword })
 
-        await User.updateById(user.id, { password: newPassword })  
+        // Revoke the password reset token after successful use
+        await this.tokenService.revokeToken(token)
 
         return true
     }
