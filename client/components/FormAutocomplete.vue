@@ -231,7 +231,7 @@ async function load() {
         method: 'GET',
         query: {
             search: search.value,
-            limit: 5,
+            limit: 50,
         }
     })
 
