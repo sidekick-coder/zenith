@@ -39,13 +39,12 @@ export default class HasMetas {
         
         if (!ids.size) return
 
-        const query = db.selectFrom(this.targetTable as any) as any
+        let query = db.selectFrom(this.targetTable as any) as any
+
+        query = query.selectAll().where(this.targetKey, 'in', Array.from(ids))
 
         // Assumes your models have a standard .list() or .where()
-        const results = await query.selectAll()
-            .where(this.targetKey, 'in', Array.from(ids))
-            .execute()
-
+        const results = await query.execute()
             
         entities.forEach(e => {
             const rows = results.filter((r: any) => r[this.targetKey] === e[this.tableKey])
