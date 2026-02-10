@@ -17,6 +17,12 @@ export async function run(): Promise<void> {
             key: 'password_reset',
             filename: serverPath('templates/emails/password_reset.mjml'),
         },
+        {
+            name: 'Verify Email',
+            subject: 'Verify Your Email Address',
+            key: 'verify_email',
+            filename: serverPath('templates/emails/verify_email.mjml'),
+        },
     ]
 
     for await (const item of items) {
