@@ -4,9 +4,7 @@ import TokenService from '#server/services/token.service.ts'
 import User from '#server/entities/user.entity.ts'
 import EmailTemplate from '#server/entities/emailTemplate.entity.ts'
 import mailer from '#server/facades/mailer.facade.ts'
-import encrypt from '#server/facades/encrypt.facade.ts'
 import env from '#server/facades/env.facade.ts'
-import { tryCatch } from '#shared/utils/tryCatch.ts'
 import { undeleted } from '#server/queries/softDelete.ts'
 
 export interface LoginCredentials {

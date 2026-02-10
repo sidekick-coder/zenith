@@ -20,8 +20,6 @@ export interface CreateTokenData {
 }
 
 export default class TokenService {
-    public static readonly DI_KEY = 'token'
-
     /**
      * Generate a secure random token using crypto
      */
