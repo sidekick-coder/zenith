@@ -7,6 +7,7 @@ import mailer from '#server/facades/mailer.facade.ts'
 import encrypt from '#server/facades/encrypt.facade.ts'
 import env from '#server/facades/env.facade.ts'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
+import { undeleted } from '#server/queries/softDelete.ts'
 
 export interface LoginCredentials {
     uuid: string
@@ -39,14 +40,14 @@ export default class AuthService {
                 eb('email', '=', uuid),
                 eb('username', '=', uuid),
             ]))
-            .where('deleted_at', 'is', null)
+            .where(undeleted)
             .executeTakeFirst()
 
         if (!user) {
             return {
                 user: null,
                 success: false,
-                message: 'Invalid credentials'
+                message: $t('Invalid credentials')
             }
         }
 
@@ -56,7 +57,15 @@ export default class AuthService {
             return {
                 user: null,
                 success: false,
-                message: 'Invalid credentials'
+                message: $t('Invalid credentials')
+            }
+        }
+
+        if (!user.verified_at) {
+            return {
+                user: null,
+                success: false,
+                message: $t('Please verify your email before logging in')
             }
         }
 
@@ -68,11 +77,12 @@ export default class AuthService {
         })
 
         return {
-            user: {
+            user: User.from({
                 id: user.id,
                 username: user.username,
-                email: user.email
-            },
+                email: user.email,
+                verified_at: user.verified_at
+            }),
             token: token.token,
             success: true,
             message: 'Login successful'
@@ -158,11 +168,12 @@ export default class AuthService {
         })
 
         return {
-            user: {
+            user: User.from({
                 id: newUser.id!,
                 username: newUser.username,
-                email: newUser.email
-            },
+                email: newUser.email,
+                verified_at: newUser.verified_at
+            }),
             token: token.token,
             success: true,
             message: 'Registration successful'

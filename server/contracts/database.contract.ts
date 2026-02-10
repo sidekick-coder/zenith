@@ -14,6 +14,7 @@ export interface UserTable extends TimestampTable, SoftDeleteTable {
   username: string
   email: string
   password: string
+  verified_at?: Date | string | null
 }
 
 export interface UserMetaTable extends TimestampTable, SoftDeleteTable {

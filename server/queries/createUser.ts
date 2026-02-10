@@ -12,6 +12,7 @@ export interface UserPayload {
     email: string
     username: string
     password: string
+    verified_at?: Date | string | null
 }
 
 function userExists(email: string, username: string) {
@@ -36,6 +37,7 @@ export async function createUser(payload: UserPayload) {
         email: payload.email,
         username: payload.username,
         password: await hasher.hash(payload.password),
+        verified_at: payload.verified_at || null
     }
 
     await emmitter.emitAndWait('user:before-create', { user: userData })

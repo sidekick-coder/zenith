@@ -81,7 +81,8 @@ router.post('/user', async ({ body }) => {
         name: payload.name,
         username: payload.username,
         email: payload.email,
-        password: payload.password
+        password: payload.password,
+        verified_at: new Date(),
     })
 
     await createUserPermission(user.id, {
