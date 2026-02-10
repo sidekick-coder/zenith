@@ -28,7 +28,6 @@ export interface AuthResult {
 }
 
 export default class AuthService {
-    public static readonly DI_KEY = 'auth'
     private tokenService = new TokenService()
 
     async login(credentials: LoginCredentials): Promise<AuthResult> {

@@ -1,7 +1,6 @@
 import bcrypt from 'bcrypt'
 
 export default class HashService {
-    public static readonly DI_KEY = 'hasher'
     private readonly saltRounds = 12
 
     public hash(value: string): Promise<string> {
