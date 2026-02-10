@@ -4,6 +4,7 @@ import BaseException from '#server/exceptions/base.ts'
 import validator from '#shared/services/validator.service.ts'
 import config from '#server/facades/config.facade.ts'
 import schemas from '#shared/validators/index.ts'
+import env from '#server/facades/env.facade.ts'
 
 router.post('/api/auth/login', async ({ body, cookie }) => {
     const token = cookie.get('Authorization')
@@ -58,11 +59,6 @@ router.post('/api/auth/register', async ({ body, cookie }) => {
         throw new BaseException(result.message, 400)
     }
 
-    cookie.set('Authorization', result.token!, {
-        httpOnly: true,
-        sameSite: true,
-    })
-
     return result
 })
 
@@ -112,4 +108,27 @@ router.post('/api/auth/reset-password', async ({ body }) => {
         success: true,
         message: $t('Password reset successful')
     }
+})
+
+router.get('/api/auth/verify-email', async ({ query, response }) => {
+    const token = validator.validate(query.token, v => v.string())
+
+    const result = await auth.verifyEmail(token)
+
+    const url = new URL('/auth/message', env.get('APP_URL'))
+
+    if (!result) {
+        url.searchParams.append('title', $t('Email Verification Failed'))
+        url.searchParams.append('message', $t('Invalid or expired email verification token'))
+
+        response.redirect(url.toString())
+        return
+    }
+
+    url.searchParams.append('title', $t('Email Verified'))
+    url.searchParams.append('message', $t('Email verified successfully'))
+
+    response.redirect(url.toString())
+
+    return
 })

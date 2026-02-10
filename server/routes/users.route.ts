@@ -7,6 +7,7 @@ import validator from '#shared/services/validator.service.ts'
 import schemas from '#shared/validators/index.ts'
 import User from '#server/entities/user.entity.ts'
 import db from '#server/facades/db.facade.ts'
+import auth from '#server/facades/auth.facade.ts'
 
 const router = rootRouter.use(authMiddleware)
     .prefix('/api/users')
@@ -127,4 +128,18 @@ router.delete('/:id', async ({ params, acl }) => {
     await user.softDelete()
 
     return user
+})
+
+router.post('/:id/retry-email-verification', async ({ params, acl }) => {
+    const id = validator.validate(params.id, schemas.query.number)
+
+    const user = await User.findOrFail(id)
+
+    acl.authorize('update', user)
+
+    if (user.verified_at) {
+        throw new BaseException('User is already verified', 400)
+    }
+
+    await auth.sendVerifyEmail(user.email)
 })

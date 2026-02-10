@@ -141,7 +141,7 @@ export default class AuthService {
                 eb('email', '=', email),
                 eb('username', '=', username),
             ]))
-            .where('deleted_at', 'is', null)
+            .where(undeleted)
             .executeTakeFirst()
 
         if (existingUser) {
@@ -160,12 +160,7 @@ export default class AuthService {
             password: await this.hashPassword(password)
         })
 
-        // Create auth token for the new user
-        const token = await this.tokenService.createToken({
-            user_id: newUser.id!,
-            type: 'auth',
-            expires_in_hours: 24
-        })
+        await this.sendVerifyEmail(newUser.email)
 
         return {
             user: User.from({
@@ -174,7 +169,6 @@ export default class AuthService {
                 email: newUser.email,
                 verified_at: newUser.verified_at
             }),
-            token: token.token,
             success: true,
             message: 'Registration successful'
         }
@@ -182,6 +176,69 @@ export default class AuthService {
 
     async logout(tokenValue: string): Promise<boolean> {
         return this.tokenService.revokeToken(tokenValue)
+    }
+
+    async sendVerifyEmail(email: string) {
+        const user = await User.findByEmail(email)
+
+        if (!user) {
+            return false
+        }
+
+        if (user.verified_at) {
+            return false
+        }
+
+        const template = await EmailTemplate.findByOrFail('key', 'verify_email')
+
+        const tokenData = await this.tokenService.createToken({
+            user_id: user.id,
+            type: 'email_verification',
+            expires_in_hours: 24
+        })
+
+        const url = new URL('/api/auth/verify-email', env.get('APP_URL'))
+
+        url.searchParams.append('token', tokenData.token)
+
+        const compiled = template.render({ 
+            user,
+            verify_url: url.toString()
+        })
+
+        await mailer.send({
+            to: user.email,
+            subject: compiled.subject,
+            body: compiled.html,
+        })
+
+        return true
+    }
+
+    async verifyEmail(token: string): Promise<boolean> {
+        const tokenData = await this.tokenService.findToken(token)
+
+        if (!tokenData || tokenData.type !== 'email_verification') {
+            return false
+        }
+
+        const isValid = await this.tokenService.isTokenValid(token)
+
+        if (!isValid) {
+            return false
+        }
+
+        const user = await User.findOrFail(tokenData.user_id)
+
+        if (user.verified_at) {
+            return false
+        }
+
+        await User.updateById(user.id, { verified_at: new Date() })
+
+        await this.tokenService.revokeToken(token)
+
+        return true
     }
 
     async forgetPassword(email: string) {

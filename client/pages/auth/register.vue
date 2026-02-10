@@ -5,12 +5,14 @@ import { toTypedSchema } from '@vee-validate/valibot'
 import * as v from 'valibot'
 import { ref } from 'vue'
 import { toast } from 'vue-sonner'
+import { useRouter } from 'vue-router'
 import { $fetch } from '#client/utils/fetcher'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
 import { Button } from '#client/components/ui/button'
 import FormTextField from '#client/components/FormTextField.vue'
 import AuthLayout from '#client/layouts/AuthLayout.vue'
 
+const router = useRouter()
 
 const isLoading = ref(false)
 
@@ -46,7 +48,13 @@ const onSubmit = handleSubmit(async (data) => {
     toast.success($t('Account created successfully!'))
 
     setTimeout(() => {
-        window.location.href = '/'
+        router.push({
+            path: '/auth/message',
+            query: {
+                title: $t('Account Created'),
+                message: $t('Your account has been created successfully. Please check your email to verify your account before logging in.'),
+            }
+        })
     }, 500)
 })
 </script>

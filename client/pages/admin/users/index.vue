@@ -11,18 +11,20 @@ import Button from '#client/components/Button.vue'
 import Icon from '#client/components/Icon.vue'
 import AlertButton from '#client/components/AlertButton.vue'
 import ClientOnly from '#client/components/ClientOnly.vue'
-import type User from '#shared/entities/user.entity.ts'
+import User from '#shared/entities/user.entity.ts'
 import { useFetchPagination } from '#client/composables/useFetchPagination.ts'
 
 const loading = ref(false)
 
 const { items, total, load, reset } = useFetchPagination<User>('/api/users', {
     limit: 20,
+    serialize: row => User.from(row),
 })
 
 const deletingItems = ref<number[]>([])
+const verifyingItems = ref<number[]>([])
 
-const columns = defineColumns([
+const columns = defineColumns<User>([
     {
         id: 'id',
         label: 'ID',
@@ -44,6 +46,11 @@ const columns = defineColumns([
         label: 'Email',
         field: 'email',
     },
+    {
+        id: 'verified_at',
+        label: $t('Verified'),
+        field: 'verified_at',
+    },
     { id: 'actions' }
 ])
 
@@ -62,6 +69,25 @@ async function destroy(id: number) {
         toast.success($t('User deleted successfully.'))
         reset()
     }, 1000)
+}
+
+async function verify(id: number) {
+    verifyingItems.value.push(id)
+    
+    const [error] = await tryCatch(() => $fetch(`/api/users/${id}/retry-email-verification`, { method: 'POST', }))
+
+    if (error) {
+        verifyingItems.value = verifyingItems.value.filter(item => item !== id)
+        return
+    }
+
+    toast.success($t('Verification email sent successfully.'))
+
+    setTimeout(() => {
+        verifyingItems.value = verifyingItems.value.filter(item => item !== id)
+    }, 1000)
+
+
 }
 </script>
 <template>
@@ -95,6 +121,24 @@ async function destroy(id: number) {
             v-model:loading="loading"
             :columns="columns"
         >
+            <template #row-verified_at="{ row }">
+                <div
+                    v-if="row.verified_at"
+                    class="text-sm text-muted-foreground"
+                >
+                    {{ $dt(row.verified_at) }}
+                </div>
+                <Button
+                    v-if="!row.verified_at"
+                    variant="outline"
+                    size="sm"
+                    :loading="verifyingItems.includes(row.id)"
+                    @click="verify(row.id)"
+                >
+                    {{ $t('Resend Email') }}
+                </Button>
+            </template>
+
             <template #row-actions="{ row }">
                 <div class="flex items-center gap-2 justify-end">
                     <Button

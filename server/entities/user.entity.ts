@@ -191,6 +191,7 @@ export default class User extends composeWith(
             username: this.username,
             email: this.email,
             name: this.name,
+            verified_at: this.verified_at,
             created_at: this.created_at,
             updated_at: this.updated_at,
             roles: this.roles,
