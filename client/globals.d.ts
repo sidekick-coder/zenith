@@ -14,11 +14,17 @@ declare global {
     var config: ConfigService | undefined // only on dev
     var di: DIService | undefined // only on dev
     var $t: TranslatorService['t']
+    var $dt: TranslatorService['datetime']
+    var $d: TranslatorService['date']
+    var $translator: TranslatorService
 }
 
 declare module 'vue' {
   interface ComponentCustomProperties {
     $t(key: string, ...args: any[]): string;
+    $dt(value: any, options?: Intl.DateTimeFormatOptions): string;
+    $d(value: any, options?: Intl.DateTimeFormatOptions): string;
+    $translator: TranslatorService;
   }
 }
 

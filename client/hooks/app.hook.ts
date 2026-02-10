@@ -23,6 +23,9 @@ export default class AppLifecycleHook extends LifecycleHook {
         const app = di.get<VueApp>('app')
 
         app.config.globalProperties.$t = $t
+        app.config.globalProperties.$dt = $dt
+        app.config.globalProperties.$d = $d
+        app.config.globalProperties.$translator = $translator
 
         app.use<Vue3TouchEventsOptions>(Vue3TouchEvents, {
             disableClick: false,
