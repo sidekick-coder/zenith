@@ -31,13 +31,13 @@ const { handleSubmit } = useForm({
 const onSubmit = handleSubmit(async (data) => {
     loading.value = true
 
-    const [error] = await tryCatch(() => $fetch('/api/auth/login', {
+    const [error] = await $fetch.try('/api/auth/login', {
         method: 'POST',
         data,
     })
-    )
 
     if (error) {
+        console.error(error)
         loading.value = false
         return
     }
