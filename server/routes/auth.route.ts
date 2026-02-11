@@ -40,7 +40,7 @@ router.post('/api/auth/login', async ({ body, cookie }) => {
 
 router.post('/api/auth/register', async ({ body, cookie }) => {
 
-    if (!config.get('auth.enableSignUp', false)) {
+    if (!config.get('auth.enable_registration', false)) {
         throw new BaseException('Registration is disabled', 403)
     }
 

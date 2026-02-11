@@ -42,7 +42,7 @@ export default class RouterLifecycleHook extends LifecycleHook {
         
         router.addRoute({
             path: '/admin/settings',
-            redirect: '/admin/settings/auth',
+            redirect: '/admin/settings/auth/layout',
         })
 
         

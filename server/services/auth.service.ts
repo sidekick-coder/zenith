@@ -6,6 +6,7 @@ import EmailTemplate from '#server/entities/emailTemplate.entity.ts'
 import mailer from '#server/facades/mailer.facade.ts'
 import env from '#server/facades/env.facade.ts'
 import { undeleted } from '#server/queries/softDelete.ts'
+import config from '#server/facades/config.facade.ts'
 
 export interface LoginCredentials {
     uuid: string
@@ -149,15 +150,20 @@ export default class AuthService {
             }
         }
 
+        const needVerifyEmail = config.get('auth.enable_email_verification', false)
+
         // Create new user
         const newUser = await User.create({
             name: username,
             username,
             email,
-            password: await this.hashPassword(password)
+            password: password,
+            verified_at: needVerifyEmail ? null : new Date()
         })
 
-        await this.sendVerifyEmail(newUser.email)
+        if (needVerifyEmail) {
+            await this.sendVerifyEmail(newUser.email)   
+        }
 
         return {
             user: User.from({

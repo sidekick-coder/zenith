@@ -9,6 +9,7 @@ import { useRouter } from 'vue-router'
 import { $fetch } from '#client/utils/fetcher'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
 import { Button } from '#client/components/ui/button'
+import config from '#client/facades/config.facade.ts'
 import FormTextField from '#client/components/FormTextField.vue'
 import AuthLayout from '#client/layouts/AuthLayout.vue'
 
@@ -47,15 +48,19 @@ const onSubmit = handleSubmit(async (data) => {
 
     toast.success($t('Account created successfully!'))
 
-    setTimeout(() => {
-        router.push({
+    await new Promise(resolve => setTimeout(resolve, 500))
+
+    if (config.get('auth.enable_email_verification', false)) {
+        return router.push({
             path: '/auth/message',
             query: {
                 title: $t('Account Created'),
                 message: $t('Your account has been created successfully. Please check your email to verify your account before logging in.'),
             }
         })
-    }, 500)
+    }
+
+    router.push('/auth/login')
 })
 </script>
 

@@ -15,7 +15,7 @@ router.get('/', async ({ acl }) => {
     return config.get('auth', {})
 })
 
-router.put('/', async ({ body, acl }) => {
+router.patch('/', async ({ body, acl }) => {
     acl.authorize('update', 'Config', { key: 'auth' })
 
     const payload = validator.validate(body, schemas.auth.update)
@@ -31,7 +31,7 @@ router.put('/', async ({ body, acl }) => {
         await file.loadUrl()
 
         auth.image_drive = file.drive || null
-        auth.image_url = await file.url
+        auth.image_url = file.url
         
     }
 

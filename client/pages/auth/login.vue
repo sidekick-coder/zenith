@@ -96,7 +96,7 @@ const onSubmit = handleSubmit(async (data) => {
             </div>
 
             <div
-                v-if="config.get('auth.enableSignUp', false)"
+                v-if="config.get('auth.enable_registration', false)"
                 class="text-center text-sm"
             >
                 {{ $t("Don't have an account?") }}

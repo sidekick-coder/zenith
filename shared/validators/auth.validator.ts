@@ -4,8 +4,9 @@ export const schema = validator.create(v => v.object({
     title: v.optional(v.string()),
     image_id: v.nullish(v.number()),
     quote: v.optional(v.string()),
-    quoteAuthor: v.optional(v.string()),
-    enableSignUp: v.optional(v.boolean()),
+    quote_author: v.optional(v.string()),
+    enable_registration: v.optional(v.boolean()),
+    enable_email_verification: v.optional(v.boolean()),
 }))
 
 export const update = validator.create(v => v.partial(schema))

@@ -4,7 +4,7 @@ import config from '#client/facades/config.facade.ts'
 const authConfig = config.get('auth', {
     title: 'Welcome',
     quote: 'Your journey to productivity starts here.',
-    quoteAuthor: 'The Team',
+    quote_author: 'The Team',
 })
 
 defineProps<{
@@ -38,7 +38,7 @@ defineProps<{
                         &ldquo;{{ authConfig.quote }}&rdquo;
                     </p>
                     <footer class="text-sm text-neutral-300">
-                        {{ authConfig.quoteAuthor }}
+                        {{ authConfig.quote_author }}
                     </footer>
                 </blockquote>
             </div>

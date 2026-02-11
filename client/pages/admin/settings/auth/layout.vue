@@ -50,7 +50,7 @@ const onSubmit = handleSubmit(async (data) => {
     saving.value = true
 
     const [error] = await $fetch.try('/api/auth-settings', {
-        method: 'PUT',
+        method: 'PATCH',
         data,
     })
 
@@ -190,16 +190,10 @@ onMounted(() => {
                         />
 
                         <FormTextField
-                            name="quoteAuthor"
+                            name="quote_author"
                             :label="$t('Quote Author')"
                             :disabled="loading || saving"
-                            placeholder="Sidekick Coder Team"
-                        />
-                        <FormSwitch
-                            name="enableSignUp"
-                            :label="$t('Enable Sign Up')"
-                            :hint="$t('Allow new users to register accounts')"
-                            :disabled="loading || saving"
+                            placeholder="Zenith Team"
                         />
                     </CardContent>
                 </Card>

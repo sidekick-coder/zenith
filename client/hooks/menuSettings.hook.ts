@@ -4,17 +4,8 @@ import { useMenu } from '#client/composables/useMenu.ts'
 export default class MenuSettingLifecycleHook extends LifecycleHook {
     public async onLoad(): Promise<void> {
         const menu = useMenu()
-        
-        const layout = 'setting'
 
-        menu.add({
-            id: 'auth-settings',
-            label: $t('Authentication'),
-            icon: 'Lock',
-            group: $t('General'),
-            layout: layout,
-            to: '/admin/settings/auth'
-        })
+        
 
         menu.add({
             id: 'modules',
@@ -35,12 +26,29 @@ export default class MenuSettingLifecycleHook extends LifecycleHook {
         })
 
         menu.add({
+            id: 'settings-auth-general',
+            label: $t('General'),
+            group: $t('Authentication'),
+            layout: 'setting',
+            to: '/admin/settings/auth/general'
+        })
+        
+        menu.add({
+            id: 'settings-auth-layout',
+            label: $t('Layout'),
+            group: $t('Authentication'),
+            layout: 'setting',
+            to: '/admin/settings/auth/layout'
+        })
+
+        menu.add({
             id: 'site-general',
             label: $t('General'),
             layout: 'setting',
             group: $t('Site'),
             to: '/admin/site/general'
         })
+        
 
         menu.add({
             id: 'site-colors',
