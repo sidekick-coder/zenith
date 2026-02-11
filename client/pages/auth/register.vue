@@ -12,10 +12,14 @@ import { Button } from '#client/components/ui/button'
 import config from '#client/facades/config.facade.ts'
 import FormTextField from '#client/components/FormTextField.vue'
 import AuthLayout from '#client/layouts/AuthLayout.vue'
+import Icon from '#client/components/Icon.vue'
 
 const router = useRouter()
 
 const isLoading = ref(false)
+const loadingOAuth = ref(false)
+
+const enableGoogleAuth = config.get('oauth.google_enabled', false)
 
 const { handleSubmit } = useForm({
     validationSchema: toTypedSchema(
@@ -62,6 +66,26 @@ const onSubmit = handleSubmit(async (data) => {
 
     router.push('/auth/login')
 })
+
+async function oauthRegister(provider: string) {
+    loadingOAuth.value = true
+
+    const [error, response] = await $fetch.try('/api/oauth', {
+        method: 'POST',
+        data: {
+            provider,
+            action: 'register',
+        }
+    })
+
+    if (error) {
+        console.error(error)
+        loadingOAuth.value = false
+        return
+    }
+
+    window.location.href = response.url
+}
 </script>
 
 <template>
@@ -114,17 +138,35 @@ const onSubmit = handleSubmit(async (data) => {
                     autocomplete="new-password"
                 />
 
-                <Button
-                    type="submit"
-                    class="mt-4 w-full"
-                    :disabled="isLoading"
-                >
-                    <LoaderCircle
-                        v-if="isLoading"
-                        class="mr-2 h-4 w-4 animate-spin"
-                    />
-                    {{ $t('Create Account') }}
-                </Button>
+                <div class="mt-4 w-full flex flex-col gap-4">
+                    <Button
+                        type="submit"
+                        class="w-full"
+                        :disabled="isLoading"
+                    >
+                        <LoaderCircle
+                            v-if="isLoading"
+                            class="mr-2 h-4 w-4 animate-spin"
+                        />
+                        {{ $t('Create Account') }}
+                    </Button>
+    
+                    <Button
+                        v-if="enableGoogleAuth"
+                        variant="outline"
+                        class="w-full"
+                        type="button"
+                        :loading="loadingOAuth"
+                        @click="oauthRegister('google')"
+                    >
+                        <Icon
+                            name="mdi:google"
+                            class="mr-2 h-4 w-4"
+                        />
+    
+                        {{ $t('Sign up with Google') }}
+                    </Button>
+                </div>
             </div>
 
             <div class="text-center text-sm">

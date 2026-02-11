@@ -5,15 +5,20 @@ import { toTypedSchema } from '@vee-validate/valibot'
 import * as v from 'valibot'
 import { ref } from 'vue'
 import { toast } from 'vue-sonner'
-import { $fetch } from '#client/utils/fetcher'
+import $fetch from '#client/facades/fetch.facade.ts'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
-import { Button } from '#client/components/ui/button'
+import Button from '#client/components/Button.vue'
 import FormTextField from '#client/components/FormTextField.vue'
 import AuthLayout from '#client/layouts/AuthLayout.vue'
 
 import config from '#client/facades/config.facade.ts'
+import Icon from '#client/components/Icon.vue'
 
-const isLoading = ref(false)
+const loading = ref(false)
+const loadingOAuth = ref(false)
+
+const enableRegistration = config.get('auth.enable_registration', false)
+const enableGoogleAuth = config.get('oauth.google_enabled', false)
 
 const { handleSubmit } = useForm({
     validationSchema: toTypedSchema(
@@ -24,7 +29,7 @@ const { handleSubmit } = useForm({
 })
 
 const onSubmit = handleSubmit(async (data) => {
-    isLoading.value = true
+    loading.value = true
 
     const [error] = await tryCatch(() => $fetch('/api/auth/login', {
         method: 'POST',
@@ -33,7 +38,7 @@ const onSubmit = handleSubmit(async (data) => {
     )
 
     if (error) {
-        isLoading.value = false
+        loading.value = false
         return
     }
 
@@ -43,6 +48,27 @@ const onSubmit = handleSubmit(async (data) => {
         window.location.href = '/'
     }, 500)
 })
+
+async function oauthLogin(provider: string) {
+    loadingOAuth.value = true
+
+    const [error, response] = await $fetch.try('/api/oauth', {
+        method: 'POST',
+        data: {
+            provider,
+            action: 'login',
+        }
+    })
+
+    if (error) {
+        console.error(error)
+        loadingOAuth.value = false
+        return
+    }
+
+    window.location.href = response.url
+}
+
 </script>
 
 <template>
@@ -84,19 +110,36 @@ const onSubmit = handleSubmit(async (data) => {
                 <Button
                     type="submit"
                     class="w-full"
-                    :disabled="isLoading"
+                    :disabled="loading"
                     :tabindex="4"
                 >
                     <LoaderCircle
-                        v-if="isLoading"
+                        v-if="loading"
                         class="mr-2 h-4 w-4 animate-spin"
                     />
                     {{ $t('Log in') }}
                 </Button>
+
+                <Button
+                    v-if="enableGoogleAuth"
+                    variant="outline"
+                    class="w-full"
+                    type="button"
+                    :tabindex="5"
+                    :loading="loadingOAuth"
+                    @click="oauthLogin('google')"
+                >
+                    <Icon
+                        name="mdi:google"
+                        class="mr-2 h-4 w-4"
+                    />
+
+                    {{ $t('Log in with Google') }}
+                </Button>
             </div>
 
             <div
-                v-if="config.get('auth.enable_registration', false)"
+                v-if="enableRegistration"
                 class="text-center text-sm"
             >
                 {{ $t("Don't have an account?") }}

@@ -29,6 +29,17 @@ export interface AuthResult {
 export default class AuthService {
     private tokenService = new TokenService()
 
+    async createTokenForUser(userId: number, type: string = 'auth', expiresInHours?: number) {
+        // Create auth token on successful login
+        const entity = await this.tokenService.createToken({
+            user_id: userId,
+            type: type,
+            expires_in_hours: expiresInHours || 24 // Token expires in 24 hours by default
+        })
+
+        return entity
+    }
+
     async login(credentials: LoginCredentials): Promise<AuthResult> {
         const { uuid, password } = credentials
 

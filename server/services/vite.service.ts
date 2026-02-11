@@ -36,6 +36,11 @@ export interface ViteServiceEvents {
         options: RenderOptions;
         state: Map<string, any>;
         vite: ViteService;
+        clientConfig: Record<string, any>;
+    }
+    'vite:client-config': {
+        config: ConfigService;
+        vite: ViteService;
     }
     'vite:render': {
         head: El;
@@ -262,14 +267,14 @@ export default class ViteService extends compose(Hooks) {
             state.set(key, value)
         }
 
-        
-
-        await this.emitAsync('vite:before-render', {
+        const beforeRenderData: ViteServiceEvents['vite:before-render'] = {
             options,
             state,
             clientConfig: options.config,
             vite: this,
-        })
+        }
+
+        await this.emitAsync('vite:before-render', beforeRenderData)
 
         const rendered = await this.entrypoint.render({
             url: options.url,
@@ -353,6 +358,11 @@ export default class ViteService extends compose(Hooks) {
         clientConfig.set('auth', config.get('auth', {}))
         clientConfig.set('setup', config.get('setup') || {})
         clientConfig.set('cookie.prefix', config.get('cookie.prefix', ''))
+
+        await this.emitAsync('vite:client-config', {
+            config: clientConfig,
+            vite: this,
+        })
 
         const options: RenderOptions = {
             url,
