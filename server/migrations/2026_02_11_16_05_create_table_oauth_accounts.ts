@@ -1,7 +1,9 @@
 import { Kysely } from 'kysely'
 
+const table = 'oauth_accounts'
+
 export async function up(db: Kysely<any>): Promise<void> {
-    await db.schema.createTable('tokens')
+    await db.schema.createTable(table)
         .addIdColumn()
         .addColumn('user_id', 
             'integer', 
@@ -10,14 +12,15 @@ export async function up(db: Kysely<any>): Promise<void> {
                 .references('users.id')
                 .onDelete('cascade')
         )
-        .addColumn('token', 'varchar(255)', col => col.notNull().unique())
-        .addColumn('type', 'varchar(255)', col => col.notNull().defaultTo('auth'))
-        .addColumn('expires_at', 'timestamp')
+        .addColumn('provider', 'varchar(255)', col => col.notNull())
+        .addColumn('provider_user_id', 'varchar(255)', col => col.notNull())
+        .addColumn('provider_user_email', 'varchar(255)')
         .addTimestampColumns()
+        .addSoftDeleteColumn()
         .execute()
 }
 
 export async function down(db: Kysely<any>): Promise<void> {
-    await db.schema.dropTable('tokens').execute()
+    await db.schema.dropTable(table).execute()
 }
 

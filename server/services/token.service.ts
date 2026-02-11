@@ -60,6 +60,7 @@ export default class TokenService {
         const [error, result] = await tryCatch(() => db.selectFrom('tokens')
             .selectAll()
             .where('token', '=', tokenValue)
+            .where('type', '=', 'auth')
             .executeTakeFirst()
         )
 

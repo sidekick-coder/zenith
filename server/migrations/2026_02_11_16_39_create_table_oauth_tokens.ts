@@ -1,23 +1,23 @@
 import { Kysely } from 'kysely'
 
+const table = 'oauth_tokens'
+
 export async function up(db: Kysely<any>): Promise<void> {
-    await db.schema.createTable('tokens')
+    await db.schema.createTable(table)
         .addIdColumn()
-        .addColumn('user_id', 
-            'integer', 
+        .addColumn('user_id', 'integer', 
             col => col
-                .notNull()
                 .references('users.id')
                 .onDelete('cascade')
         )
+        .addColumn('provider', 'varchar(80)')
+        .addColumn('action', 'varchar(80)', col => col.notNull())
         .addColumn('token', 'varchar(255)', col => col.notNull().unique())
-        .addColumn('type', 'varchar(255)', col => col.notNull().defaultTo('auth'))
         .addColumn('expires_at', 'timestamp')
-        .addTimestampColumns()
         .execute()
 }
 
 export async function down(db: Kysely<any>): Promise<void> {
-    await db.schema.dropTable('tokens').execute()
+    await db.schema.dropTable(table).execute()
 }
 

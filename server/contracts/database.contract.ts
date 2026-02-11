@@ -110,6 +110,23 @@ export interface EmailTemplateMetaTable extends TimestampTable, SoftDeleteTable 
   value: string
 }
 
+export interface OauthAccountTable extends TimestampTable, SoftDeleteTable {
+  id: Generated<number>
+  user_id: number
+  provider: string
+  provider_user_id: string
+  provider_user_email: string | null
+}
+
+export interface OauthTokenTable {
+  id: Generated<number>
+  user_id: number | null
+  provider: string | null
+  action: string
+  token: string
+  expires_at: string | null
+}
+
 export interface Database  {
   users: UserTable
   user_metas: UserMetaTable
@@ -129,6 +146,9 @@ export interface Database  {
 
   email_templates: EmailTemplateTable
   email_template_metas: EmailTemplateMetaTable
+
+  oauth_accounts: OauthAccountTable
+  oauth_tokens: OauthTokenTable
 }
 
 export {}
