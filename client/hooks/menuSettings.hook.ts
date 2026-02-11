@@ -42,6 +42,14 @@ export default class MenuSettingLifecycleHook extends LifecycleHook {
         })
 
         menu.add({
+            id: 'settings-auth-oauth',
+            label: $t('OAuth'),
+            group: $t('Authentication'),
+            layout: 'setting',
+            to: '/admin/settings/auth/oauth'
+        })
+
+        menu.add({
             id: 'site-general',
             label: $t('General'),
             layout: 'setting',

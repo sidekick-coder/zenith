@@ -18,6 +18,7 @@ import * as file from './file.validator.ts'
 import * as translator from './translator.validator.ts'
 import * as date from './date.validator.ts'
 import * as emailTemplate from './emailTemplate.validator.ts'
+import * as oauth from './oauth.validator.ts'
 
 const schemas = {
     metadata,
@@ -41,7 +42,8 @@ const schemas = {
     file,
     translator,
     date,
-    emailTemplate
+    emailTemplate,
+    oauth
 }
 
 export default schemas
