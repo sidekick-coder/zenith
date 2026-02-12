@@ -75,6 +75,8 @@ async function oauthRegister(provider: string) {
         data: {
             provider,
             action: 'register',
+            error_url: '/auth/message',
+            success_url: '/',
         }
     })
 

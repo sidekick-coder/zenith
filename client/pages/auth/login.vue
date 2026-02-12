@@ -57,6 +57,8 @@ async function oauthLogin(provider: string) {
         data: {
             provider,
             action: 'login',
+            error_url: '/auth/message',
+            success_url: '/',
         }
     })
 

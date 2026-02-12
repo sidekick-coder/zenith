@@ -13,7 +13,8 @@ export async function up(db: Kysely<any>): Promise<void> {
         .addColumn('provider', 'varchar(80)')
         .addColumn('action', 'varchar(80)', col => col.notNull())
         .addColumn('token', 'varchar(255)', col => col.notNull().unique())
-        .addColumn('expires_at', 'timestamp')
+        .addColumn('metadata', 'text', col => col.notNull().defaultTo('{}'))
+        .addColumn('expires_at', 'timestamp', col => col.notNull())
         .execute()
 }
 

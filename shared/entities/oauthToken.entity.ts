@@ -7,5 +7,6 @@ export default class OauthToken extends compose(BaseEntity) {
     public provider: string | null
     public action: string
     public token: string
-    public expires_at: string | null
+    public metadata: Record<string, any>
+    public expires_at: string
 }

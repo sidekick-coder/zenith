@@ -45,6 +45,14 @@ const tabs = [
         },
     },
     {
+        id: 'oauth-accounts',
+        label: $t('OAuth Accounts'),
+        component: defineAsyncComponent(() => import('#client/components/UserOauthAccounts.vue')),
+        props: { 
+            userId: userId
+        },
+    },
+    {
         id: 'permissions',
         label: $t('Permissions'),
         component: defineAsyncComponent(() => import('#client/components/PermissionAssignments.vue')),

@@ -124,7 +124,8 @@ export interface OauthTokenTable {
   provider: string | null
   action: string
   token: string
-  expires_at: string | null
+  expires_at: string
+  metadata: string
 }
 
 export interface Database  {

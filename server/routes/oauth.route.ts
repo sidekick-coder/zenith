@@ -12,10 +12,12 @@ import auth from '#server/facades/auth.facade.ts'
 
 const router = rootRouter.prefix('/api/oauth').group()
 
-router.post('/', async ({ body }) => {
-    const { action, provider } = validator.validate(body, v => v.object({
-        action: v.picklist(['login', 'register']),
+router.post('/', async ({ body, user }) => {
+    const { action, provider, error_url, success_url } = validator.validate(body, v => v.object({
+        action: v.picklist(['login', 'register', 'connect']),
         provider: v.picklist(['google']),
+        error_url: v.optional(v.string(), '/error'),
+        success_url: v.optional(v.string(), '/')
     }))
 
     if (provider === 'google' && !config.get('oauth.google_enabled', false)) {
@@ -39,7 +41,15 @@ router.post('/', async ({ body }) => {
         ].join(' ')
     )
 
-    const token = await OauthToken.generate(provider, action)
+    const token = await OauthToken.generate({
+        provider,
+        action,
+        user_id: user ? user.id : undefined,
+        metadata: {
+            error_url,
+            success_url,
+        }
+    })
 
     url.searchParams.append('state', token.token)
 
@@ -53,7 +63,7 @@ router.get('/google', async ({ query, response, cookie }) => {
     const code = query.code 
     const state = query.state
 
-    const errorUrl = new URL('/auth/message', env.get('APP_URL'))
+    let errorUrl = new URL('/errors/oauth', env.get('APP_URL'))
 
     errorUrl.searchParams.append('title', $t('OAuth Error'))
     errorUrl.searchParams.append('message', $t('There was an error during the OAuth process. Please try again or contact support.'))
@@ -74,6 +84,14 @@ router.get('/google', async ({ query, response, cookie }) => {
         response.redirect(errorUrl.toString())
         return
     }
+
+    // await oauthToken.destroy()
+
+    if (oauthToken.metadata.error_url) {
+        errorUrl = new URL(oauthToken.metadata.error_url, env.get('APP_URL'))
+    }
+
+    const successUrl = new URL(oauthToken.metadata.success_url || '/', env.get('APP_URL'))
 
     const credentials = await fetch('https://oauth2.googleapis.com/token', {
         method: 'POST',
@@ -131,6 +149,7 @@ router.get('/google', async ({ query, response, cookie }) => {
             user_id: user.id,
             provider: 'google',
             provider_user_id: googleUser.id,
+            provider_user_email: googleUser.email,
         })
 
         const token = await auth.createTokenForUser(user.id)
@@ -145,7 +164,7 @@ router.get('/google', async ({ query, response, cookie }) => {
     
         cookie.set('Authorization', token.token, options)
 
-        response.redirect(env.get('APP_URL'))
+        response.redirect(successUrl.toString())
 
         return
     }
@@ -187,7 +206,49 @@ router.get('/google', async ({ query, response, cookie }) => {
     
         cookie.set('Authorization', token.token, options)
 
-        response.redirect(env.get('APP_URL'))
+        response.redirect(successUrl.toString())
+
+        return
+    }
+
+    if (oauthToken.action === 'connect') {
+        const user = await User.findOne({
+            where: eb => eb.and([
+                eb('id', '=', oauthToken.user_id),
+                undeleted(eb)
+            ])
+        })
+
+        if (!user) {
+            errorUrl.searchParams.set('message', $t('Could not find the user associated with this OAuth request.'))
+            
+            response.redirect(errorUrl.toString())
+            return
+        }
+
+        const accountExists = await OauthAccount.findOne({
+            where: eb => eb.and([
+                eb('provider', '=', 'google'),
+                eb('provider_user_id', '=', googleUser.id),
+                undeleted(eb)
+            ])
+        })
+
+        if (accountExists) {
+            errorUrl.searchParams.set('message', $t('The Google account you used is already linked to another user. Please use a different Google account.'))
+            
+            response.redirect(errorUrl.toString())
+            return
+        }
+
+        await OauthAccount.create({
+            user_id: user.id,
+            provider: 'google',
+            provider_user_id: googleUser.id,
+            provider_user_email: googleUser.email,
+        })
+
+        response.redirect(successUrl.toString())
 
         return
     }
