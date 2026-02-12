@@ -6,10 +6,8 @@ import { toast } from 'vue-sonner'
 import * as v from 'valibot'
 
 import { $fetch } from '#client/utils/fetcher.ts'
-import { Card, CardContent } from '#client/components/ui/card'
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '#client/components/ui/card'
 import Button from '#client/components/Button.vue'
-import PageTitle from '#client/components/PageTitle.vue'
-import PageSubtitle from '#client/components/PageSubtitle.vue'
 import Icon from '#client/components/Icon.vue'
 import FormSwitch from '#client/components/FormSwitch.vue'
 import FormSelect from '#client/components/FormSelect.vue'
@@ -17,7 +15,7 @@ import di from '#client/utils/di.ts'
 import auth from '#client/facades/auth.facade.ts'
 import translator from '#client/facades/translator.facade.ts'
 
-defineProps({
+const props = defineProps({
     title: {
         type: String,
         default: $t('Preferences'),
@@ -107,36 +105,30 @@ onMounted(() => {
 
 <template>
     <form @submit="onSubmit">
-        <div class="mb-6 flex">
-            <div class="flex-1">
-                <PageTitle>{{ title }}</PageTitle>
-                <PageSubtitle>
-                    {{ description }}
-                </PageSubtitle>
-            </div>
-            <div class="flex justify-end gap-2">
-                <Button
-                    variant="outline"
-                    size="icon"
-                    :disabled="loading"
-                    @click="load"
-                >
-                    <Icon
-                        name="RotateCcw"
-                        :class="{ 'animate-spin': loading }"
-                    />
-                </Button>
-                <Button 
-                    type="submit"
-                    :loading="saving"
-                    :disabled="loading"
-                >
-                    {{ $t('Save') }}
-                </Button>
-            </div>
-        </div>
-
         <Card>
+            <CardHeader>
+                <div class="flex items-start justify-between">
+                    <div class="flex-1">
+                        <CardTitle>{{ title }}</CardTitle>
+                        <CardDescription>
+                            {{ description }}
+                        </CardDescription>
+                    </div>
+                    <div class="flex gap-2">
+                        <Button
+                            variant="outline"
+                            size="icon"
+                            :disabled="loading"
+                            @click="load"
+                        >
+                            <Icon
+                                name="RotateCcw"
+                                :class="{ 'animate-spin': loading }"
+                            />
+                        </Button>
+                    </div>
+                </div>
+            </CardHeader>
             <CardContent class="space-y-4">
                 <FormSelect
                     name="locale"
@@ -157,6 +149,15 @@ onMounted(() => {
                     :disabled="loading || saving"
                 />
             </CardContent>
+            <CardFooter class="flex justify-end">
+                <Button 
+                    type="submit"
+                    :loading="saving"
+                    :disabled="loading"
+                >
+                    {{ $t('Save') }}
+                </Button>
+            </CardFooter>
         </Card>
     </form>
 </template>

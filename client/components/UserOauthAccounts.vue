@@ -12,7 +12,7 @@ import type OauthAccount from '#shared/entities/oauthAccount.entity.ts'
 
 const props = defineProps({
     userId: {
-        type: String,
+        type: [Number, String],
         required: true,
     },
     redirectTo: {

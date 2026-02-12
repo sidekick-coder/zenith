@@ -94,6 +94,7 @@ onMounted(load)
                 <FormTextField
                     name="email"
                     :label="$t('Email')"
+                    disabled
                 />
             </CardContent>
             <CardFooter class="flex justify-end">
