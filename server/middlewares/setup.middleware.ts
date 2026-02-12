@@ -25,7 +25,11 @@ export class SetupMiddleware implements Middleware {
             return
         }
 
-        if (ctx.url.startsWith('/api/setup') || ctx.url.startsWith('/setup')) {
+        if (
+            ctx.url.startsWith('/api/setup') 
+            || ctx.url.startsWith('/setup')
+            || ctx.url.startsWith('/api/health')
+        ) {
             return
         }
 

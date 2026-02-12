@@ -15,7 +15,7 @@
         "dev": "node arte serve -w",
         "build": "node arte build",
         "lint": "eslint",
-        "test": "vitest"
+        "test": "node arte test"
     },
     "dependencies": {
         "@aws-sdk/client-s3": "^3.956.0",
@@ -102,6 +102,7 @@
         "@types/node-schedule": "^2.1.7",
         "@types/nodemailer": "^7.0.4",
         "@types/pg": "^8.15.5",
+        "@types/supertest": "^6.0.3",
         "@types/unzipper": "^0.10.11",
         "@vitejs/plugin-vue": "^6.0.0",
         "@vue/eslint-config-typescript": "^14.6.0",
@@ -112,6 +113,8 @@
         "magic-string": "^0.30.21",
         "rollup": "^4.52.5",
         "sass-embedded": "^1.93.2",
+        "supertest": "^7.2.2",
+        "testcontainers": "^11.11.0",
         "typescript": "~5.8.3",
         "vite": "^7.0.3",
         "vitest": "^3.2.4",

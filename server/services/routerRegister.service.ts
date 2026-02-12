@@ -84,6 +84,10 @@ export default class RouterRegister<C = {}> extends Router<C> {
         const files = fs.readdirSync(entry.filepath)
             
         for (const file of files) {
+            // ignore test files
+            if (file.endsWith('.test.ts') || file.endsWith('.spec.ts') || file.endsWith('.test.js') || file.endsWith('.spec.js')) {
+                continue
+            }
 
             const fullPath = path.join(entry.filepath, file)
                 

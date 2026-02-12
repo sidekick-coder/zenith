@@ -38,6 +38,7 @@ export default defineConfig({
                 '**/.env', // Ignores .env files in the root and subdirectories
                 '**/.env.*', // Ignores all .env-related files (e.g., .env.local, .env.development)
                 '**/vite.config.*', // Ignores Vite config files
+                '**/*.{test,spec}.{ts,js}', // Ignores test files
             ]
         },
     }
