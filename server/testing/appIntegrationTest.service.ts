@@ -1,6 +1,7 @@
 import { GenericContainer, Network, Wait } from 'testcontainers'
 import type { StartedTestContainer, StartedNetwork } from 'testcontainers'
 import DatabasePGIntegrationTestService from './databasePGIntegrationTest.service.ts'
+import UserIntegrationTestService from './userIntegrationTest.service.ts'
 import { basePath } from '#server/utils/paths.ts'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
 
@@ -12,6 +13,14 @@ export default class AppIntegrationTestService {
         'setup.user': 'true',
     }
     public dbService: DatabasePGIntegrationTestService | null = null
+
+    public get users() {
+        if (!this.container) {
+            throw new Error('Container not started')
+        }
+
+        return new UserIntegrationTestService(this.container)
+    }
 
     public get url () {
         if (!this.container) {

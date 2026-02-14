@@ -26,43 +26,17 @@ describe('POST /api/auth/register', () => {
             return token
         }
 
-        const { json: user } = await app.command([
-            'node',
-            'arte',
-            'user:create',
-            '--email',
-            'admin@example.com',
-            '--password',
-            'admin-123', 
-            '--username', 
-            'admin',
-            '--json'
-        ])
+        const user = await app.users.create({
+            email: 'admin@example.com',
+            password: 'admin-123',
+            username: 'admin'
+        })
 
-        const { json: permission } = await app.command([
-            'node',
-            'arte',
-            'permission:create',
-            '--name',
-            'Full Access',
-            '--action',
-            'manage',
-            '--subject',
-            'all',
-            '--json'
-        ])
-
-        await app.command([
-            'node',
-            'arte',
-            'permission:attach',
-            '--permissionId',
-            permission.id.toString(),
-            '--type',
-            'user',
-            '--id',
-            user.id.toString(),
-        ])
+        await user.addPermission({
+            name: 'Full Access',
+            action: 'manage',
+            subject: 'all',
+        })
 
         const response = await fetcher.post<any>('/api/auth/login', {
             uuid: 'admin',
