@@ -18,6 +18,10 @@ export class AuthMiddleware implements Middleware {
             token = ctx.request.headers['authorization']
         }
 
+        if (token && token.startsWith('Bearer ')) {
+            token = token.slice(7) // Remove 'Bearer ' prefix
+        }
+
         if (!token) {
             const error = new BaseException('Authentication token is missing', 401)
 

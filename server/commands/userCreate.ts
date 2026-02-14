@@ -9,6 +9,7 @@ program.command('user:create')
     .requiredOption('-e, --email <email>', 'User email')
     .requiredOption('-p, --password <password>', 'User password')
     .option('-s, --skip-if-exists', 'Skip if user already exists')
+    .option('--json', 'Output result as JSON')
     .action(cli.with(['db'], async (options) => {
         const { username, email, password } = options
 
@@ -28,13 +29,23 @@ program.command('user:create')
             name: username,
             username,
             email,
-            password // Raw password - repository will hash it
+            password, // Raw password
+            verified_at: new Date(), // Mark as verified by default for CLI-created users
         }
 
         const newUser = await userRepository.create(userData)
 
         if (!newUser) {
             console.log('❌ Failed to create user')
+            return
+        }
+
+        if (options.json) {
+            console.log(JSON.stringify({
+                id: newUser.id,
+                username: newUser.username,
+                email: newUser.email,
+            }))
             return
         }
 

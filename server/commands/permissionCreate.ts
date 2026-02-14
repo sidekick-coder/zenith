@@ -10,6 +10,7 @@ program.command('permission:create')
     .requiredOption('-a, --action <action>', 'Permission action')
     .requiredOption('-s, --subject <subject>', 'Permission subject')
     .option('-c, --conditions <conditions>', 'Permission conditions, as JSON string', '{}')
+    .option('--json', 'Output result as JSON')
     .action(cli.with(['db'], async (options) => {
         const { name, subject, action, conditions } = options
 
@@ -19,9 +20,20 @@ program.command('permission:create')
                 name,
                 subject,
                 action,
+                origin: 'cli',
                 conditions: conditions ? JSON.stringify(JSON.parse(conditions)) : JSON.stringify({}),
             }
         })
+
+        if (!permission) {
+            console.log('❌ Failed to create permission')
+            return
+        }
+
+        if (options.json) {
+            console.log(JSON.stringify(permission))
+            return
+        }
     
         console.log('✓ Permission created and assigned successfully')
 

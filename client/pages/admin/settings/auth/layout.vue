@@ -13,10 +13,8 @@ import PageTitle from '#client/components/PageTitle.vue'
 import PageSubtitle from '#client/components/PageSubtitle.vue'
 import schemas from '#shared/validators/index.ts'
 import Icon from '#client/components/Icon.vue'
-import Image from '#client/components/Image.vue'
 import FormTextField from '#client/components/FormTextField.vue'
 import FormTextarea from '#client/components/FormTextarea.vue'
-import FormSwitch from '#client/components/FormSwitch.vue'
 import FormImageUploader from '#client/components/FormImageUploader.vue'
 
 const loading = ref(false)
@@ -30,7 +28,7 @@ const { handleSubmit, values, resetForm } = useForm({
 async function load() {
     loading.value = true
 
-    const [error, response] = await $fetch.try<any>('/api/auth-settings')
+    const [error, response] = await $fetch.try<any>('/api/configs/auth')
 
     if (error) {
         loading.value = false
@@ -49,8 +47,8 @@ async function load() {
 const onSubmit = handleSubmit(async (data) => {
     saving.value = true
 
-    const [error] = await $fetch.try('/api/auth-settings', {
-        method: 'PATCH',
+    const [error] = await $fetch.try('/api/configs/auth', {
+        method: 'PUT',
         data,
     })
 

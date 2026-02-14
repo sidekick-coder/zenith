@@ -15,6 +15,10 @@ export class AuthSilenceMiddleware implements Middleware {
             token = ctx.request.headers['authorization']
         }
 
+        if (token && token.startsWith('Bearer ')) {
+            token = token.slice(7) // Remove 'Bearer ' prefix
+        }
+
         if (!token) {
             return { user: undefined }
         }

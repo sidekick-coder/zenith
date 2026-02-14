@@ -11,6 +11,7 @@ program.command('permission:attach')
     .requiredOption('-p, --permissionId <permissionId>', 'Permission ID or name')
     .requiredOption('-t, --type <type>', 'Assignable type (user, role)')
     .requiredOption('-i, --id <id>', 'Assignable ID')
+    .option('--json', 'Output result as JSON')
     .action(cli.with(['db'], async (options) => {
         const { type, id, permissionId } = options
 
@@ -62,6 +63,16 @@ program.command('permission:attach')
                 assignable_id: id.toString(),
             }
         })
+
+        if (!created) {
+            console.log('❌ Failed to assign permission')
+            return
+        }
+
+        if (options.json) {
+            console.log(JSON.stringify(created))
+            return
+        }
 
         cli.ui.object(created)
     }))

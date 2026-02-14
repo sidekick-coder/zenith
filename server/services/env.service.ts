@@ -10,12 +10,18 @@ const configSchema = v.optional(v.pipe(v.string(), v.transform((value) => {
         .filter(l => l.includes('='))
         .map(l => l.trim().split('='))
 
-    const obj = Object.fromEntries(entries)
+    const obj = Object.fromEntries(entries) as Record<string, string>
 
     const result: Record<string, any> = {}
 
     for (const [key, value] of Object.entries(obj)) {
-        set(result, key, value)
+        let parsedValue: any = value
+
+        if (value.startsWith('bool:')) {
+            parsedValue = value.replace('bool:', '').trim() === 'true'
+        }
+
+        set(result, key, parsedValue)
     }
 
     return result

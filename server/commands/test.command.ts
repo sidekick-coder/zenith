@@ -21,6 +21,8 @@ program.command('test')
 
         if (options.type === 'int') {
             args.push('--exclude', '**/*.unit.test.ts')
+            args.push('--testTimeout', '60000') // Increase timeout for integration tests
+            args.push('--hookTimeout', '60000') // Increase hook timeout for integration tests
         }
 
         if (options.pattern) {

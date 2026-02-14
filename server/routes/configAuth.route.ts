@@ -5,7 +5,7 @@ import config from '#server/facades/config.facade.ts'
 import schemas from '#shared/validators/index.ts'
 import File from '#server/entities/file.entity.ts'
 
-const router = rootRouter.prefix('/api/auth-settings')
+const router = rootRouter.prefix('/api/configs/auth')
     .use(authMiddleware)
     .group()
 
@@ -15,7 +15,7 @@ router.get('/', async ({ acl }) => {
     return config.get('auth', {})
 })
 
-router.patch('/', async ({ body, acl }) => {
+router.put('/', async ({ body, acl }) => {
     acl.authorize('update', 'Config', { key: 'auth' })
 
     const payload = validator.validate(body, schemas.auth.update)

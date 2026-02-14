@@ -1,89 +1,138 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest'
 
-// Hypothetical test harness (to be implemented in #server/testing/index.ts)
-import IntegrationTestService from '#server/testing/integrationTest.service.ts'
+import AppIntegrationTestService from '#server/testing/appIntegrationTest.service.ts'
+import FetcherService from '#server/services/fetcher.service.ts'
 
 describe('POST /api/auth/register', () => {
-    const ctx = new IntegrationTestService()
+    const app = new AppIntegrationTestService()
+    const fetcher = new FetcherService()
+    let token: string
 
-    beforeAll(async () => await ctx.up(), 60_000) // Increase timeout for container startup
+    app.withPostgresDatabase()
+
+    beforeAll(async () => {
+        await app.up()
+        await app.migrate()
+
+        fetcher.setBaseUrl(app.url)
+    })
 
     afterAll(async () => {
-        await ctx.down()
+        await app.down()
     })
+
+    async function createAdminToken(){
+        if (token) {
+            return token
+        }
+
+        const { json: user } = await app.command([
+            'node',
+            'arte',
+            'user:create',
+            '--email',
+            'admin@example.com',
+            '--password',
+            'admin-123', 
+            '--username', 
+            'admin',
+            '--json'
+        ])
+
+        const { json: permission } = await app.command([
+            'node',
+            'arte',
+            'permission:create',
+            '--name',
+            'Full Access',
+            '--action',
+            'manage',
+            '--subject',
+            'all',
+            '--json'
+        ])
+
+        await app.command([
+            'node',
+            'arte',
+            'permission:attach',
+            '--permissionId',
+            permission.id.toString(),
+            '--type',
+            'user',
+            '--id',
+            user.id.toString(),
+        ])
+
+        const response = await fetcher.post<any>('/api/auth/login', {
+            uuid: 'admin',
+            password: 'admin-123',
+        })
+
+        const bodyToken = response.body.token
+
+        token = bodyToken
+
+        return token
+    }
+
+    async function setAuthConfig(payload: Record<string, any>) {
+        const token = await createAdminToken()
+
+        const options = {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        }
+
+        await fetcher.put('/api/configs/auth', payload, options)
+    }
 
     it('should register a new user successfully', async () => {
-        expect(true).toBe(true) // Placeholder assertion
-        // const response = await http.post('/api/auth/register', {
-        //     username: 'testuser',
-        //     email: 'test@example.com',
-        //     password: 'secret123',
-        //     name: 'Test User',
-        // })
 
-        // expect(response.status).toBe(200)
-        // expect(response.body.success).toBe(true)
-        // expect(response.body.user).toBeDefined()
-        // expect(response.body.user.username).toBe('testuser')
-        // expect(response.body.user.email).toBe('test@example.com')
+        await setAuthConfig({ enable_registration: true })
+
+        const response = await fetcher.post<any>('/api/auth/register', {
+            username: 'testuser',
+            email: 'test@example.com',
+            password: 'secret123',
+            name: 'Test User',
+        })
+
+        expect(response.status).toBe(200)
+        expect(response.body.success).toBe(true)
+        expect(response.body.user).toBeDefined()
+        expect(response.body.user.username).toBe('testuser')
+        expect(response.body.user.email).toBe('test@example.com')
     })
 
-    // it('should return 403 when registration is disabled', async () => {
-    //     ctx.config.set('auth.enable_registration', false)
+    it('should return 403 when registration is disabled', async () => {
+        await setAuthConfig({ enable_registration: false })
 
-    //     const response = await http.post('/api/auth/register', {
-    //         username: 'anotheruser',
-    //         email: 'another@example.com',
-    //         password: 'secret123',
-    //         name: 'Another User',
-    //     })
+        const response = await fetcher.post<any>('/api/auth/register', {
+            username: 'anotheruser',
+            email: 'another@example.com',
+            password: 'secret123',
+            name: 'Another User',
+        })
 
-    //     expect(response.status).toBe(403)
-    //     expect(response.body.message).toBe('Registration is disabled')
+        expect(response.status).toBe(403)
+        expect(response.body.message).toBe('Registration is disabled')
 
-    //     ctx.config.set('auth.enable_registration', true)
-    // })
+        await setAuthConfig({ enable_registration: true })
+    })
 
-    // it('should return 400 when user already exists', async () => {
-    //     const response = await http.post('/api/auth/register', {
-    //         username: 'testuser',
-    //         email: 'test@example.com',
-    //         password: 'secret123',
-    //         name: 'Test User',
-    //     })
+    it('should return 400 when user already exists', async () => {
+        const response = await fetcher.post<any>('/api/auth/register', {
+            username: 'testuser',
+            email: 'test@example.com',
+            password: 'secret123',
+            name: 'Test User',
+        })
 
-    //     expect(response.status).toBe(400)
-    //     expect(response.body.message).toBe('User already exists with this email or username')
-    // })
-
-    // it('should login and preserve cookies with agent', async () => {
-    //     const agent = http.agent()
-
-    //     // First register a verified user
-    //     await ctx.db.insertInto('users').values({
-    //         username: 'loginuser',
-    //         email: 'login@example.com',
-    //         password: await ctx.hash('secret123'),
-    //         name: 'Login User',
-    //         verified_at: new Date(),
-    //     })
-    //         .execute()
-
-    //     // Login with agent (cookies persist)
-    //     const loginResponse = await agent.post('/api/auth/login', {
-    //         uuid: 'loginuser',
-    //         password: 'secret123',
-    //     })
-
-    //     expect(loginResponse.status).toBe(200)
-    //     expect(loginResponse.headers['set-cookie']).toBeDefined()
-
-    //     // Logout with same agent (cookie sent automatically)
-    //     const logoutResponse = await agent.post('/auth/logout')
-
-    //     expect(logoutResponse.status).toBe(200)
-    //     expect(logoutResponse.body.success).toBe(true)
-    // })
+        expect(response.status).toBe(400)
+        expect(response.body.message).toBe('User already exists with this email or username')
+    })
 })
 
 
