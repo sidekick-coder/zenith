@@ -12,7 +12,7 @@ interface RequestOptions extends FetcherOptions {
 
 interface FetcherResponse<T> {
     body: T
-    headers: Headers
+    headers: Record<string, string>
     status: number
 }
 
@@ -89,7 +89,7 @@ export default class FetcherService {
 
         return {
             body,
-            headers: response.headers,
+            headers: Object.fromEntries(response.headers.entries()),
             status: response.status,
         }
     }
