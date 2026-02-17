@@ -1,7 +1,6 @@
 node_modules
 storage
 .env
-server/.runtime
-client/.runtime
+client-dist/
 modules/*
 !modules/.gitkeep
