@@ -3,15 +3,18 @@ import ExpressService from '#server/services/express.service.ts'
 import LifecycleHook from '#shared/entities/lifecycleHook.entity.ts'
 import type ViteService from '#server/services/vite.service.ts'
 import config from '#server/facades/config.facade.ts'
+import LoggerService from '#shared/services/logger.service.ts'
 
 export default class ViteLifecycleHook extends LifecycleHook {
     public order = 98
 
     public async onRegister(): Promise<void> {
+        const logger = di.get<LoggerService>(LoggerService)
         const Contructor = await import('#server/services/vite.service.ts?t=' + Date.now())
             .then(mod => mod.default)
 
         const service = new Contructor({
+            logger: logger.child({ label: 'vite' }),
             debug: config.get('vite.debug') || config.get('app.debug'),
         })
 

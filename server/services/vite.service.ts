@@ -229,12 +229,14 @@ export default class ViteService extends compose(Hooks) {
             head.child('link')
                 .attr('rel', 'stylesheet')
                 .attr('href', `/${file}`)
+                .attr('id', `vite-css-${file}`)
         })
 
         head.child('script')
             .attr('type', 'module')
             .attr('crossorigin')
             .attr('src', `/${entry.file}`)
+            .attr('id', 'vite-entry-client')
     }
 
     public async render(options: RenderOptions): Promise<string> {
@@ -251,7 +253,7 @@ export default class ViteService extends compose(Hooks) {
         // head
         const head = html.child('head')
 
-        this.head(head)
+        await this.head(head)
         
         // body
         const body = html.child('body')
