@@ -34,6 +34,14 @@ export default class ConfigFSService extends ConfigService {
     public async load() {
         this.clear()
 
+        if (!fs.existsSync(this.directory)) {
+            if (this.debug) {
+                this.logger.debug(`config directory does not exist, creating: ${this.directory}`)
+            }
+            
+            fs.mkdirSync(this.directory, { recursive: true })
+        }
+
         const files = await fs.promises.readdir(this.directory)
 
         for (const filename of files) {
