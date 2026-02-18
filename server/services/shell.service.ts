@@ -47,15 +47,13 @@ export default class ShellService {
 
             let data = ''
 
-            if (this.debug) {
-                child.stdout?.on('data', (d) => {
-                    data += d.toString()
-                })
+            child.stdout?.on('data', (d) => {
+                data += d.toString()
+            })
 
-                child.stderr?.on('data', (d) => {
-                    data += d.toString()
-                })
-            }
+            child.stderr?.on('data', (d) => {
+                data += d.toString()
+            })
 
             child.on('close', (code) => {
                 if (this.debug) {
@@ -75,7 +73,8 @@ export default class ShellService {
                 this.logger.error(errorMessage, { 
                     bin, 
                     args, 
-                    code 
+                    code,
+                    output: data
                 })
 
                 reject(new Error(errorMessage))

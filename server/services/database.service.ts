@@ -11,6 +11,7 @@ import di from '#server/facades/di.facade.ts'
 import { basePath } from '#server/utils/paths.ts'
 import validator from '#shared/services/validator.service.ts'
 import schemas from '#shared/validators/index.ts'
+import env from '#server/facades/env.facade.ts'
 
 // In-memory SQLite dialect for initialization
 // This is used to create the Kysely instance before loading the actual database connection
@@ -123,7 +124,7 @@ export default class DatabaseService extends Kysely<Database> {
 
         const connection = connections[name]
 
-        if (!connection) {
+        if (!connection && !env.get('ZARTE')) {
             logger.warn(`Database connection "${name}" not found`)
             return
         }

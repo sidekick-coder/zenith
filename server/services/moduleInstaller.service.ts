@@ -8,7 +8,6 @@ import {
     tmpPath
 } from '#server/utils/paths.ts'
 import config from '#server/facades/config.facade.ts'
-import encrypt from '#server/facades/encrypt.facade.ts'
 
 export interface BaseOptions {
     id: string
@@ -25,7 +24,7 @@ export interface GitModuleOptions extends BaseOptions {
 }
 
 export default class ModuleInstallerService {
-    private logger = rootLogger.child({ label: 'installler' })
+    private logger = rootLogger.child({ label: 'installer' })
     private shell = shell
 
     constructor(
@@ -109,7 +108,6 @@ export default class ModuleInstallerService {
             
             await this.shell.command('git', cloneArgs, {
                 cwd: modulesPath,
-                silent: false,
                 env: {
                     GIT_SSH_COMMAND: `ssh -i ${sshKeyPath} -o StrictHostKeyChecking=no`
                 }
@@ -122,7 +120,9 @@ export default class ModuleInstallerService {
         if (!key) {
             await this.shell.command('git', cloneArgs, {
                 cwd: modulesPath,
-                silent: false
+                env: {
+                    GIT_SSH_COMMAND: 'ssh -o StrictHostKeyChecking=no'
+                }
             })
         }
 
