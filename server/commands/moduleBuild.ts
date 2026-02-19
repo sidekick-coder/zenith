@@ -32,5 +32,7 @@ program.command('module:build')
             await modules.prepare(name)
         }
 
-        await modules.builder.build(name)
+        const mod = await modules.findOrFail(name)
+
+        await modules.builder.build(mod)
     }))

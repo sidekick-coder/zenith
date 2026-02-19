@@ -77,6 +77,15 @@ export default class ModuleInstallerService {
             force: true
         })
 
+        // if has a package.json, run npm install
+        const packageJsonPath = path.join(moduleDir, 'package.json')
+
+        if (fs.existsSync(packageJsonPath)) {
+            await this.shell.command('npm', ['install'], {
+                cwd: moduleDir
+            })
+        }
+
         this.logger.info(`Module '${id}' installed successfully from zip`)
     }
 
@@ -132,6 +141,14 @@ export default class ModuleInstallerService {
             branch: branch || 'main',
             key: key
         })
+
+        const packageJsonPath = path.join(moduleDir, 'package.json')
+
+        if (fs.existsSync(packageJsonPath)) {
+            await this.shell.command('npm', ['install'], {
+                cwd: moduleDir
+            })
+        }
 
         this.logger.info(`Module '${id}' installed successfully from git repository '${repository}'`)
     }

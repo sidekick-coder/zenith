@@ -13,6 +13,7 @@ export default class Module extends compose(BaseEntity, mixin(LifecycleHook)) {
     public name: string
     public enabled: boolean = false
     public dependencies: Record<string, any> = {}
+    public build: ModuleManifest['build'] = {}
     
     public upgrade_info?: ModuleUpgradeInfo
 

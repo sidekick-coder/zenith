@@ -5,6 +5,11 @@ import Base from '#shared/entities/module.entity.ts'
 import { composeWith } from '#shared/utils/compose.ts'
 
 export default class Module extends composeWith(Base) {
+
+    public get directory() {
+        return this.makePath()
+    }
+
     public makePath(...parts: string[]) {
         return basePath('modules', this.id, ...parts)
     }
@@ -23,6 +28,7 @@ export default class Module extends composeWith(Base) {
         const content = fs.readFileSync(manifestPath, 'utf-8')
         const json = JSON.parse(content)
 
-        this.dependencies = json.dependencies || {}        
+        this.dependencies = json.dependencies || {}
+        this.build = json.build || {}      
     }
 }

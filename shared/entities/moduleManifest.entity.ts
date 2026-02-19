@@ -1,6 +1,15 @@
 import { BaseEntity } from '#shared/mixins/index.ts'
 import { compose } from '#shared/utils/compose.ts'
 
+export interface ModuleManifestBuildImport {
+    from: string
+    to?: string
+    type: 'global_import'
+}
+export interface ModuleManifestBuild {
+    imports?: ModuleManifestBuildImport[]
+}
+
 export default class ModuleManifest extends compose(BaseEntity) {
     public id: string
     public name: string
@@ -9,4 +18,5 @@ export default class ModuleManifest extends compose(BaseEntity) {
     public enabled: boolean
     public author?: string
     public dependencies?: Record<string, string>
+    public build?: ModuleManifestBuild
 }
