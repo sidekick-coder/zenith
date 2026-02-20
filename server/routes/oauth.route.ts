@@ -1,4 +1,4 @@
-import { randomBytes } from 'crypto'
+import { randomBytes, randomUUID } from 'crypto'
 import rootRouter from '#server/facades/router.facade.ts'
 import BaseException from '#server/exceptions/base.ts'
 import validator from '#shared/services/validator.service.ts'
@@ -139,7 +139,7 @@ router.get('/google', async ({ query, response, cookie }) => {
 
         const user = await User.create({
             name: googleUser.name || 'Google User',
-            username: googleUser.name + '-' + googleUser.id,
+            username: googleUser.name + randomUUID(),
             email: googleUser.email,
             password: randomBytes(16).toString('hex'), // Random password since they will log in with Google
             verified_at: new Date(),
