@@ -113,7 +113,7 @@ export default class AuthService {
         
         const token = await this.tokenService.findToken(tokenValue)
         
-        if (!token) {
+        if (!token || token.type !== 'auth') {
             return null
         }
 
