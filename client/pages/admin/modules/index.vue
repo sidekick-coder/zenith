@@ -60,6 +60,8 @@ async function toggle(item: any) {
 
     await $fetch.try(`/api/modules/${item.id}/toggle`, { method: 'POST', })
 
+    await new Promise(resolve => setTimeout(resolve, 5000))
+
     // await server restart
     await $server.online({
         timeout: 60000,
