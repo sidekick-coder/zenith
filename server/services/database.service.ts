@@ -126,6 +126,9 @@ export default class DatabaseService extends Kysely<Database> {
 
         if (!connection && !env.get('ZARTE')) {
             logger.warn(`Database connection "${name}" not found`)
+        }
+        
+        if (!connection) {
             return
         }
 
