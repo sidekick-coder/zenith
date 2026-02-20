@@ -100,12 +100,10 @@ export default class ModuleUpgraderService {
         if (!fs.existsSync(gitDir)) {
             await this.shell.command('git', ['init'], {
                 cwd: moduleDir,
-                silent: false
             })
 
             await this.shell.command('git', ['remote', 'add', 'origin', repository], {
                 cwd: moduleDir,
-                silent: false
             })
         }
 
@@ -122,7 +120,6 @@ export default class ModuleUpgraderService {
         // Fetch latest changes from remote
         await this.shell.command('git', ['fetch', 'origin'], {
             cwd: moduleDir,
-            silent: false,
             env: gitEnv
         })
 
@@ -130,7 +127,6 @@ export default class ModuleUpgraderService {
         if (branch) {
             await this.shell.command('git', ['checkout', branch], {
                 cwd: moduleDir,
-                silent: false,
                 env: gitEnv
             })
         }
@@ -138,7 +134,6 @@ export default class ModuleUpgraderService {
         // Pull the latest changes
         await this.shell.command('git', ['pull', 'origin', branch || 'main'], {
             cwd: moduleDir,
-            silent: false,
             env: gitEnv
         })
 
