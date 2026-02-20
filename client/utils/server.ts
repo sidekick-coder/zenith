@@ -45,6 +45,8 @@ export async function online(options: OnlineOptions = {}) {
 
         break
     }
+
+    await new Promise(resolve => setTimeout(resolve, 5000))
 }
 
 interface ReloadOptions {
