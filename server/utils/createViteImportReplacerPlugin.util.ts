@@ -40,21 +40,49 @@ export function createViteImportReplacerPlugin(options: CreateViteImportReplacer
                 ecmaVersion: 2022
             }) as any
 
+            const modulesFromList = imports.map(imp => imp.from)
+
+            function shouldReplaceImport(importSource: string): boolean {
+                const isExternalModule = modulesFromList.includes(importSource)
+                const isExternalModuleSubpath = modulesFromList.some(baseModule => 
+                    importSource.startsWith(baseModule + '/') && importSource !== baseModule
+                )
+                const isAliasPath = importSource.startsWith('#client') || importSource.startsWith('#shared')
+                return isExternalModule || isExternalModuleSubpath || isAliasPath
+            }
+
+            function walkNode(node: any) {
+                if (!node || typeof node !== 'object') return
+
+                if (node.type === 'ImportExpression' && node.source?.value) {
+                    const importSource = node.source.value
+                    
+                    if (shouldReplaceImport(importSource)) {
+                        const replacement = `globalThis.importAsync("${importSource}")`
+                        s.overwrite(node.start, node.end, replacement)
+                        hasChanges = true
+                    }
+                }
+
+                for (const key in node) {
+                    if (key === 'start' || key === 'end' || key === 'type') continue
+                    const child = node[key]
+                    if (Array.isArray(child)) {
+                        child.forEach(walkNode)
+                    } else {
+                        walkNode(child)
+                    }
+                }
+            }
+
+            walkNode(ast)
+
             const importNodes = ast.body.filter((node: any) => node.type === 'ImportDeclaration').reverse()
 
             for (const node of importNodes) {
                 const importSource = node.source.value
-                
-                const modulesFromList = imports.map(imp => imp.from)
-                const isExternalModule = modulesFromList.includes(importSource)
                     
-                const isExternalModuleSubpath = modulesFromList.some(baseModule => 
-                    importSource.startsWith(baseModule + '/') && importSource !== baseModule
-                )
-                    
-                const isAliasPath = importSource.startsWith('#client') || importSource.startsWith('#shared')
-                    
-                if (isExternalModule || isExternalModuleSubpath || isAliasPath) {
+                if (shouldReplaceImport(importSource)) {
                     if (node.specifiers.length === 0) {
                         const replacement = `await globalThis.importAsync("${importSource}");`
                         s.overwrite(node.start, node.end, replacement)
