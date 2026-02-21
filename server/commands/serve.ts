@@ -152,7 +152,6 @@ program.command('serve')
 
         watcher.on('ready', () => {
             logger.debug('Watcher is ready')
-            reload()
         })
         
     })
