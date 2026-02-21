@@ -114,6 +114,16 @@ export default class Router<C = {}> extends compose(Hooks){
         })
     }
 
+    public many(methods: Route['method'][], path: string, handler: Handler<C>) {
+        methods.forEach(method => {
+            this.add({
+                path,
+                method,
+                handler,
+            })
+        })
+    }
+
     public delete(path: string, handler: Handler<C>) {
         this.add({
             path,
