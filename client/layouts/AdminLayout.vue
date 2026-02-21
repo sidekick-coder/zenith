@@ -35,9 +35,11 @@ import {
 import { $fetch } from '#client/utils/fetcher.ts'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
 
+import { useMenu  } from '#client/composables/useMenu.ts'
 import type { MenuItem } from '#client/composables/useMenu.ts'
 import acl from '#client/facades/acl.facade.ts'
 import config from '#client/facades/config.facade.ts'
+import di from '#client/utils/di.ts'
 
 export interface BreadcrumbItem {
     label: string;
@@ -55,7 +57,7 @@ const open = ref( true)
 const loading = ref(true)
 const route = useRoute()
 
-defineProps({
+const props = defineProps({
     padding: {
         type: Boolean,
         default: true,
@@ -71,17 +73,41 @@ defineProps({
     menuVariant: {
         type: String as PropType<'default' | 'plain'>,
         default: 'default',
-    }
-})
-
-const menu = defineModel('menu', {
-    type: Array as () => MenuItem[],
-    default: () => [],
+    },
+    menuKey: {
+        type: String,
+        default: 'admin',
+    },
 })
 
 const breadcrumbs = defineModel('breadcrumbs', {
     type: Array as () => BreadcrumbItem[],
     default: null,
+})
+
+const { items: menuAll } = useMenu()
+
+menuAll.value.sort((a, b) => {
+    const orderA = a.order ? a.order : 98
+    
+    const orderB = b.order ? b.order : 98
+
+    return orderA - orderB
+})
+
+const state = di.get<Record<string, any>>('state')
+
+const metas = state['user:metas'] || {}
+const hideIds = metas['admin-ui:hide-menus'] || []
+const hideGroups = metas['admin-ui:hide-menu-groups'] || []
+const extras = metas['admin-ui:menu-extras'] || []
+
+const menu = computed(() => {
+    return menuAll.value
+        .concat(extras)
+        .filter(item => item.layout === props.menuKey)
+        .filter(item => !hideIds.includes(item.id))
+        .filter(item => !hideGroups.includes(item.group || $t('General')))
 })
 
 const computedBreadcrumbs = computed(() => {
@@ -230,20 +256,23 @@ onMounted(() => {
                 />
             </SidebarContent>
 
-            <SidebarFooter>
-                <slot name="footer" />
-
-                <AdminLayoutUserMenu 
-                    :links="[
-                        {
-                            label: $t('Preferences'),
-                            to: '/admin/menu/items',
-                            icon: 'Settings',
-                        }
-                    ]"
-                    @logout="onLogout" 
-                />
-            </SidebarFooter>
+            <slot
+                name="sidebar-footer"
+                :open
+            >
+                <SidebarFooter>
+                    <AdminLayoutUserMenu 
+                        :links="[
+                            {
+                                label: $t('Preferences'),
+                                to: '/admin/menu/items',
+                                icon: 'Settings',
+                            }
+                        ]"
+                        @logout="onLogout" 
+                    />
+                </SidebarFooter>
+            </slot>
         </Sidebar>
 
         <SidebarInset variant="sidebar">

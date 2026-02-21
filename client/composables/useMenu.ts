@@ -41,6 +41,10 @@ const items = ref<Map<string, MenuItem>>(new Map())
 export function useMenu() {
     function add(...item: MenuItem[]) {
         item.forEach(i => {
+            if (!i.layout) {
+                i.layout = 'admin'
+            }
+            
             items.value.set(i.id, i)
         })
     }
