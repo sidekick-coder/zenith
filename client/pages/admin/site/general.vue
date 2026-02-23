@@ -11,6 +11,7 @@ import { useRouter } from 'vue-router'
 import { ChevronDown } from 'lucide-vue-next'
 
 import FormTextField from '#client/components/FormTextField.vue'
+import FormImageUploader from '#client/components/FormImageUploader.vue'
 import { $fetch } from '#client/utils/fetcher.ts'
 import Button from '#client/components/Button.vue'
 import UiButton from '#client/components/ui/button/Button.vue'
@@ -28,10 +29,13 @@ import {
 } from '#client/components/ui/dropdown-menu'
 import PageTitle from '#client/components/PageTitle.vue'
 import PageSubtitle from '#client/components/PageSubtitle.vue'
+import Image from '#client/components/Image.vue'
+
+const router = useRouter()
 
 const loading = ref(false)
 const saving = ref(false)
-const router = useRouter()
+const setting = ref<any>({})
 const { handleSubmit, setValues, setFieldValue } = useForm({
     validationSchema: toTypedSchema(settingSiteValidator.create)
 })
@@ -54,7 +58,7 @@ const onSubmit = handleSubmit(async (form) => {
     saving.value = true
 
     const [error] = await tryCatch(() => {
-        return $fetch('/api/settings/site', {
+        return $fetch('/api/configs/site', {
             method: 'PUT',
             data: form,
         })
@@ -74,11 +78,13 @@ const onSubmit = handleSubmit(async (form) => {
 async function load(){
     loading.value = true
 
-    const [error, response] = await tryCatch(() => $fetch<any>('/api/settings/site'))
+    const [error, response] = await tryCatch(() => $fetch<any>('/api/configs/site'))
 
     if (error) return
 
     setValues(response)
+    
+    setting.value = response
 
     setTimeout(() => {
         loading.value = false
@@ -109,6 +115,15 @@ onMounted(load)
                     <FormTextField
                         name="support_email"
                         :label="$t('Support Email')"
+                    />
+
+                    <FormImageUploader
+                        name="favicon_image_id"
+                        :label="$t('Favicon')"
+                        purpose="favicon"
+                        :public="true"
+                        :max-size="1024 * 1024"
+                        :file-url="setting.favicon_url || '/favicon' "
                     />
 
                     <FormTextField

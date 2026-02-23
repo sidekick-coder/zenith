@@ -178,7 +178,7 @@ export default class ViteService extends compose(Hooks) {
         // favicon
         head.child('link')
             .attr('rel', 'icon')
-            .attr('href', '/favicon.ico')
+            .attr('href', '/favicon')
 
         // pwa manifest
         head.child('link')

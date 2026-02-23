@@ -56,6 +56,10 @@ export default class File extends composeWith(
         return drive.use(this.drive).readStream(this.filename)
     }
 
+    public async read() {
+        return await drive.use(this.drive).read(this.filename)
+    }
+
     public async loadUrl(options: DriveUrlOptions = {}) {
         const cache = File.cache.get(this.filename)
         const now = Date.now()
