@@ -68,6 +68,7 @@ const menu = computed(() => {
         :padding
         :hide-breadcrumbs
         menu-variant="plain"
+        menu-key="setting"
     >
         <template #header>
             <SidebarHeader class="border-b border-sidebar-border">
