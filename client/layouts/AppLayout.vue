@@ -1,6 +1,8 @@
 <script lang="ts">
-import { computed } from 'vue'
+import { computed, onMounted, ref } from 'vue'
+import { toast } from 'vue-sonner'
 import AdminLayout from './AdminLayout.vue'
+import AdminLayoutUserMenu from './AdminLayoutUserMenu.vue'
 import { BreadcrumbItem } from '#client/components/ui/breadcrumb'
 
 import { useMenu } from '#client/composables/useMenu.ts'
@@ -9,8 +11,11 @@ import {
     SidebarMenu,
     SidebarMenuItem,
     SidebarMenuButton,
+    SidebarFooter,
 } from '#client/components/ui/sidebar'
 import Icon from '#client/components/Icon.vue'
+import { tryCatch } from '#shared/utils/tryCatch.ts'
+import $fetch from '#client/facades/fetch.facade.ts'
 
 export interface BreadcrumbItem {
     label: string;
@@ -35,6 +40,7 @@ const breadcrumbs = defineModel('breadcrumbs', {
     default: null,
 })
 
+const loading = ref(true)
 const { items: menuAll } = useMenu()
 
 menuAll.value.sort((a, b) => {
@@ -59,6 +65,22 @@ const menu = computed(() => {
         .filter(item => !hideIds.includes(item.id))
         .filter(item => !hideGroups.includes(item.group || $t('General')))
 })
+
+async function onLogout() {
+    const [error] = await tryCatch(() =>  $fetch.post('/auth/logout'))
+
+    if (error) {
+        return
+    }
+
+    toast.error($t('You have been logged out.'))
+
+    window.location.href = '/'
+}
+
+onMounted(() => {
+    loading.value = false
+})
 </script>
 
 <template>
@@ -68,17 +90,29 @@ const menu = computed(() => {
     >
         <slot />
 
-        <template #footer>
-            <SidebarMenu>
-                <SidebarMenuItem>
-                    <SidebarMenuButton as-child>
-                        <RouterLink to="/admin/settings">
-                            <Icon name="Settings" />
-                            <span>{{ $t('Settings') }}</span>
-                        </RouterLink>
-                    </SidebarMenuButton>
-                </SidebarMenuItem>
-            </SidebarMenu>
+        <template #sidebar-footer>
+            <SidebarFooter>
+                <SidebarMenu>
+                    <SidebarMenuItem>
+                        <SidebarMenuButton as-child>
+                            <RouterLink to="/admin/settings">
+                                <Icon name="Settings" />
+                                <span>{{ $t('Settings') }}</span>
+                            </RouterLink>
+                        </SidebarMenuButton>
+                    </SidebarMenuItem>
+                </SidebarMenu>
+                <AdminLayoutUserMenu
+                    :links="[
+                        {
+                            label: $t('Preferences'),
+                            to: '/admin/menu/items',
+                            icon: 'Settings',
+                        }
+                    ]"
+                    @logout="onLogout" 
+                />
+            </SidebarFooter>
         </template>
     </AdminLayout>
 </template>
