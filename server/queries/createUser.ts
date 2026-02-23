@@ -42,15 +42,19 @@ export async function createUser(payload: UserPayload) {
 
     await emmitter.emitAndWait('user:before-create', { user: userData })
 
-    const user = await create('users', {
+    const data = await create('users', {
         values: userData,
     })
 
-    if (!user) {
+    if (!data) {
         throw new BaseException('Failed to create user', 500)
     }
 
-    await emmitter.emitAndWait('user:after-create', { user })
+    const user = User.from(data)
 
-    return User.from(user)
+    await emmitter.emitAndWait('user:after-create', { 
+        user
+    })
+
+    return user
 }
