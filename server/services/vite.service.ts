@@ -344,9 +344,9 @@ export default class ViteService extends compose(Hooks) {
         }
 
         state.set('head', {
-            title: config.get('app.name') || 'Zenith',
+            title: config.get('site.name') || 'Zenith',
             htmlAttrs: { 
-                lang: config.get('app.lang') || 'en',
+                lang: config.get('translator.defaultLocale') || 'en',
                 class: state.get('preferences:dark_mode') ? 'dark' : 'light'
             }
         })
