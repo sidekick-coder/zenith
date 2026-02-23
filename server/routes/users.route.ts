@@ -8,6 +8,7 @@ import schemas from '#shared/validators/index.ts'
 import User from '#server/entities/user.entity.ts'
 import db from '#server/facades/db.facade.ts'
 import auth from '#server/facades/auth.facade.ts'
+import config from '#server/facades/config.facade.ts'
 
 const router = rootRouter.use(authMiddleware)
     .prefix('/api/users')
@@ -45,10 +46,13 @@ router.get('/', async (ctx) => {
 router.post('/', async ({ body }) => {
     const payload = validator.validate(body, schemas.user.create)
 
+    const needVerifyEmail = config.get('auth.enable_email_verification', false)
+
     const user = await createUser({
         ...payload,
         username: payload.username || payload.email,
         name: payload.name || payload.email,
+        verified_at: needVerifyEmail ? null : new Date()
     })
 
 
