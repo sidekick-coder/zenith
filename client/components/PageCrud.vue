@@ -120,6 +120,8 @@ defineExpose({
             </div>
         </div>
 
+        <slot name="header-append" />
+
         <DataTable
             v-if="fetch"
             ref="tableRef"

@@ -124,7 +124,7 @@ const calendarValue = computed({
             <Button
                 variant="outline"
                 :class="cn(
-                    'w-full justify-start text-left font-normal',
+                    'w-full justify-start text-left font-normal !h-10',
                     !model && 'text-muted-foreground',
                     props.class
                 )"
