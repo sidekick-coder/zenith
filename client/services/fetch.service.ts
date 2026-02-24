@@ -1,6 +1,5 @@
 import { toast } from 'vue-sonner'
 import qs from 'qs'
-import { $t } from '#shared/lang'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
 
 export interface FetchOptions extends RequestInit {

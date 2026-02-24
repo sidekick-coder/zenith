@@ -16,7 +16,6 @@ import PageTitle from '#client/components/PageTitle.vue'
 import PageSubtitle from '#client/components/PageSubtitle.vue'
 import { $fetch } from '#client/utils/fetcher.ts'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
-import { $t } from '#shared/lang'
 import DriveConfig from '#shared/entities/driveConfig.entity.ts'
 
 const route = useRoute()

@@ -1,6 +1,5 @@
 import { toast } from 'vue-sonner'
 import di from './di'
-import { $t } from '#shared/lang'
 import type Router from '#server/services/router.service.ts'
 import CookieService from '#shared/services/cookie.service'
 import { tryCatch } from '#shared/utils/tryCatch.ts'

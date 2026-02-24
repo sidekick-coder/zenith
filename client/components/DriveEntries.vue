@@ -5,7 +5,6 @@ import DataTable, { defineColumns } from '#client/components/DataTable.vue'
 import Icon from '#client/components/Icon.vue'
 import Button from '#client/components/Button.vue'
 import { $fetch } from '#client/utils/fetcher.ts'
-import { $t } from '#shared/lang'
 import type DriveConfig from '#shared/entities/driveConfig.entity.ts'
 
 interface DriveEntry {

@@ -53,7 +53,6 @@ There is also predefined guards like the `auth` guard that you can use to protec
 ```ts
 import authGuard from '#client/guards/auth.guard.ts'
 import { defineClientSetup } from '#client/utils/defineClientSetup.ts'
-import { $t } from '#shared/lang'
 
 import './assets/css/styles.css'
 

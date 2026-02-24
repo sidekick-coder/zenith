@@ -6,7 +6,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '#clie
 import Button from '#client/components/Button.vue'
 import FormAutoFieldList from '#client/components/FormAutoFieldList.vue'
 import { $fetch } from '#client/utils/fetcher.ts'
-import { $t } from '#shared/lang'
 import type MailerConfig from '#shared/entities/mailerConfig.entity.ts'
 
 const props = defineProps({

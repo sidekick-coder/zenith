@@ -12,7 +12,6 @@ import {
     DialogTrigger,
 } from '#client/components/ui/dialog'
 import Icon from '#client/components/Icon.vue'
-import { $t } from '#shared/lang'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
 import { cn } from '#client/lib/utils.ts'
 
