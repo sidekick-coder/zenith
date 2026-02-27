@@ -25,15 +25,6 @@ export default class ShellService {
      * Execute a shell command and return a promise
      */
     public async command(bin: string, args: string[], options: CommandOptions = {}): Promise<void> {
-
-        if (this.debug) {
-            this.logger.debug('executing command', {
-                bin,
-                args,
-                options,
-            })
-        }
-
         return new Promise((resolve, reject) => {
             const child = spawn(bin, args, {
                 cwd: options.cwd || process.cwd(),
@@ -54,9 +45,9 @@ export default class ShellService {
 
             child.on('close', (code) => {
                 if (this.debug) {
-                    this.logger.debug('command output', { 
+                    this.logger.debug('command executed', { 
                         bin, 
-                        args, 
+                        args,
                         output: data 
                     })
                 }
@@ -68,8 +59,8 @@ export default class ShellService {
                 const errorMessage = `Command failed with exit code ${code}`
                 
                 this.logger.error(errorMessage, { 
-                    bin, 
-                    args, 
+                    bin,
+                    args,
                     code,
                     output: data
                 })
@@ -97,7 +88,6 @@ export default class ShellService {
             this.logger.debug('executing command', {
                 bin,
                 args,
-                options,
             })
         }
         return new Promise((resolve, reject) => {
