@@ -4,6 +4,8 @@ WORKDIR /app
 
 RUN apt update -y && apt upgrade -y
 
+RUN apt-get install -y docker-ce-cli
+
 COPY package.json package-lock.json* ./
 
 RUN npm install
