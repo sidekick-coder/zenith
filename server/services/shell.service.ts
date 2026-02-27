@@ -1,9 +1,6 @@
 import { spawn } from 'child_process'
-import { da } from '@faker-js/faker'
-import rootLogger from '../facades/logger.facade.ts'
+import logger from '../facades/logger.facade.ts'
 import type LoggerService from '#shared/services/logger.service.ts'
-
-const logger = rootLogger.child({ label: 'shell' })
 
 interface CommandOptions {
     cwd?: string
