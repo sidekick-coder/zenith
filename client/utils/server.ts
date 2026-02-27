@@ -31,9 +31,10 @@ export async function online(options: OnlineOptions = {}) {
     const start = Date.now()
 
     while (true) {
-        const [error] = await $fetch.try('/api/health')
+        const response = await fetch('/')
 
-        if (error) {
+        if (!response.ok) {
+            await new Promise(resolve => setTimeout(resolve, 1000))
             return
         }
 

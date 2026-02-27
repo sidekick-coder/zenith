@@ -67,6 +67,8 @@ async function toggle(item: any) {
         timeout: 60000,
     })
 
+    await new Promise(resolve => setTimeout(resolve, 5000))
+
     setTimeout(() => {
         window.location.reload()
     }, 800)
