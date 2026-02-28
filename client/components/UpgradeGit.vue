@@ -67,7 +67,7 @@ const onSubmit = handleSubmit(async (data) => {
 
     await new Promise(resolve => setTimeout(resolve, 5000))
 
-    upgrading.value = false
+    window.location.reload()
 })
 </script>
 
