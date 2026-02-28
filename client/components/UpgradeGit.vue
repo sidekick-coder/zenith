@@ -51,18 +51,23 @@ const onSubmit = handleSubmit(async (data) => {
         }
     }
 
-    const success = await $server.reloadAfter({
-        href: '/admin/modules',
-        fn: () => $fetch('/api/modules/upgrade/git', payload)
-    })
+    const [error] = await $fetch.try('/api/modules/upgrade/git', payload)
 
-    if (!success) {
+    if (error) {
         upgrading.value = false
         return
     }
 
+    await new Promise(resolve => setTimeout(resolve, 5000))
+
+    // await server restart
+    await $server.online({
+        timeout: 60000,
+    })
+
+    await new Promise(resolve => setTimeout(resolve, 5000))
+
     upgrading.value = false
-    router.push('/admin/modules')
 })
 </script>
 

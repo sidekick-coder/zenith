@@ -11,7 +11,6 @@ import BaseException from '#server/exceptions/base.ts'
 import validator from '#shared/services/validator.service.ts'
 import server from '#server/facades/server.facade.ts'
 import config from '#server/facades/config.facade.ts'
-import encrypt from '#server/facades/encrypt.facade.ts'
 import schemas from '#shared/validators/index.ts'
 import seeder from '#server/facades/seeder.facade.ts'
 
@@ -134,7 +133,7 @@ router.post('/:id/install-dependencies', async ({ params, acl }) => {
         throw new BaseException('Module not found', 404)
     }
 
-    await modules.installDependencies(params.id)
+    await mod.command('npm', ['install'])
 
     return { success: true }
 })
@@ -164,7 +163,7 @@ router.post('/:id/build', async ({ params, acl }) => {
         throw new BaseException('Module not found', 404)
     }
 
-    await modules.builder.build(params.id)
+    await modules.builder.build(mod)
 
     return { success: true }
 })
@@ -216,10 +215,6 @@ router.post('/upgrade/zip', async ({ upload, body, acl }) => {
         throw new BaseException('Module not found', 404)
     }
 
-    if (mod.enabled) {
-        throw new BaseException('Module is enabled, disable it before upgrading')
-    }
-
     const filename = tmpPath(options.id + '_upgrade_' + Date.now() + '.zip')
 
     await fs.promises.writeFile(filename, file.buffer)
@@ -235,6 +230,8 @@ router.post('/upgrade/zip', async ({ upload, body, acl }) => {
 
     // Clean up temporary file
     fs.unlinkSync(filename)
+
+    server.reload()
 
     return { success: true }
 })
@@ -255,10 +252,6 @@ router.post('/upgrade/git', async ({ body, acl }) => {
         throw new BaseException('Module not found', 404)
     }
 
-    if (mod.enabled) {
-        throw new BaseException('Module is enabled, disable it before upgrading')
-    }
-
     const [error] = await tryCatch(() => modules.upgrader.fromGit({
         id: options.id,
         repository: options.repository,
@@ -269,6 +262,8 @@ router.post('/upgrade/git', async ({ body, acl }) => {
     if (error) {
         throw new BaseException(`Failed to upgrade module: ${error.message}`)
     }
+
+    server.reload()
 
     return { success: true }
 })

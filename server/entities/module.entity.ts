@@ -3,6 +3,7 @@ import { join } from 'path'
 import { basePath } from '#server/utils/paths.ts'
 import Base from '#shared/entities/module.entity.ts'
 import { composeWith } from '#shared/utils/compose.ts'
+import shell from '#server/facades/shell.facade.ts'
 
 export default class Module extends composeWith(Base) {
 
@@ -16,6 +17,13 @@ export default class Module extends composeWith(Base) {
 
     public staticPath(...parts: string[]) {
         return join('/static', 'modules', this.id, ...parts)
+    }
+
+    public command: typeof shell.command = (bin, args, options) => {
+        return shell.command(bin, args, {
+            cwd: this.directory,
+            ...options,
+        })
     }
 
     public load(){
