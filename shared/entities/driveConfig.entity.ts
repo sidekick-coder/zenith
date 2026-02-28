@@ -21,11 +21,13 @@ export const TYPES = () => [
                 component: 'text-field',
                 label: $t('Access Key ID'),
                 hint: $t('Your AWS access key ID.'),
+                type: 'password',
             },
             secretAccessKey: {
                 component: 'text-field',
                 label: $t('Secret Access Key'),
                 hint: $t('Your AWS secret access key.'),
+                type: 'password',
             },
             bucket: {
                 component: 'text-field',
