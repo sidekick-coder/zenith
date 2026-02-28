@@ -1,5 +1,4 @@
 import { Readable } from 'stream'
-import path from 'path'
 import ms from 'ms'
 import {
     S3Client,
@@ -119,12 +118,45 @@ export default class DriveS3 extends BaseDrive {
     public list: BaseDrive['list'] = async (folder) => {
         this.checkValid()
         
-        const Prefix = folder ? this.getKey(folder) : this.prefix || undefined
+        let Prefix = folder ? this.getKey(folder) : this.prefix || undefined
 
-        const resp = await this.client.send(new ListObjectsV2Command({ Bucket: this.bucket,
-            Prefix }))
+        if (Prefix && !Prefix.endsWith('/')) {
+            Prefix += '/'
+        }
+
+        const command = new ListObjectsV2Command({ 
+            Bucket: this.bucket,
+            Prefix,
+            Delimiter: '/',
+        })
+
+        const resp = await this.client.send(command)
 
         const entries: DriveEntity[] = []
+
+        const commonPrefixes = resp.CommonPrefixes || []
+
+        for (const prefix of commonPrefixes) {
+            let key = prefix.Prefix || ''
+
+            key = key.replace(this.prefix, '')
+            
+            if (key.endsWith('/')) {
+                key = key.slice(0, -1)
+            }
+
+            const entry = new DriveEntity({
+                name: key.split('/').pop() || key,
+                path: '/' + key,
+                type: 'directory',
+                metas: {
+                    size: 0,
+                    mimetype: undefined,
+                }
+            })
+
+            entries.push(entry)
+        }
 
         const contents = resp.Contents || []
 
@@ -133,12 +165,14 @@ export default class DriveS3 extends BaseDrive {
 
             key = key.replace(this.prefix, '')
 
-            const isDirectory = key.endsWith('/')
+            if (key.endsWith('/')) {
+                continue
+            }
 
             const entry = new DriveEntity({
                 name: key.split('/').pop() || key,
                 path: '/' + key,
-                type: isDirectory ? 'directory' : 'file',
+                type: 'file',
                 metas: {
                     size: obj.Size,
                     mimetype: undefined,
