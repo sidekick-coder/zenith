@@ -7,6 +7,7 @@ export const schema = validator.create(v => v.object({
     quote_author: v.optional(v.string()),
     enable_registration: v.optional(v.boolean()),
     enable_email_verification: v.optional(v.boolean()),
+    redirect_to_on_login: v.optional(v.string()),
 }))
 
 export const update = validator.create(v => v.partial(schema))

@@ -20,6 +20,8 @@ const loadingOAuth = ref(false)
 const enableRegistration = config.get('auth.enable_registration', false)
 const enableGoogleAuth = config.get('oauth.google_enabled', false)
 
+const redirectTo = config.get('auth.redirect_to_on_login', '/')
+
 const { handleSubmit } = useForm({
     validationSchema: toTypedSchema(
         v.object({
@@ -45,7 +47,7 @@ const onSubmit = handleSubmit(async (data) => {
     toast.success('Logged in successfully!')
 
     setTimeout(() => {
-        window.location.href = '/'
+        window.location.href = redirectTo
     }, 500)
 })
 
@@ -58,7 +60,7 @@ async function oauthLogin(provider: string) {
             provider,
             action: 'login',
             error_url: '/auth/message',
-            success_url: '/',
+            success_url: redirectTo,
         }
     })
 

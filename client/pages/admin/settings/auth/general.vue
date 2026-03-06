@@ -14,11 +14,12 @@ import PageSubtitle from '#client/components/PageSubtitle.vue'
 import schemas from '#shared/validators/index.ts'
 import Icon from '#client/components/Icon.vue'
 import FormSwitch from '#client/components/FormSwitch.vue'
+import FormTextField from '#client/components/FormTextField.vue'
 
 const loading = ref(false)
 const saving = ref(false)
 
-const { handleSubmit, values, resetForm } = useForm({
+const { handleSubmit, resetForm } = useForm({
     name: 'auth-settings',
     validationSchema: toTypedSchema(schemas.auth.update), 
 })
@@ -112,6 +113,14 @@ onMounted(() => {
                             name="enable_email_verification"
                             :label="$t('Enable Email Verification')"
                             :hint="$t('Require users to verify their email addresses during registration')"
+                            :disabled="loading || saving"
+                        />
+
+                        <FormTextField
+                            name="redirect_to_on_login"
+                            :label="$t('Redirect To On Login')"
+                            :hint="$t('URL to redirect users to after successful login')"
+                            placeholder="/"
                             :disabled="loading || saving"
                         />
                     </CardContent>
