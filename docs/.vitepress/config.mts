@@ -59,6 +59,10 @@ export default defineConfig({
                         text: 'Client',
                         items: getMarkdownFiles('client'),
                     },
+                    {
+                        text: 'Modules',
+                        items: getMarkdownFiles('modules'),
+                    },
                 ],
             }
         },
