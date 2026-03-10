@@ -1,23 +1,4 @@
-import { readdirSync } from 'fs'
-import { join } from 'path'
 import { defineConfig } from 'vitepress'
-
-function getMarkdownFiles(folder: string) {
-    const docsPath = join(__dirname, '..', folder)
-    const files = readdirSync(docsPath)
-        .filter(file => file.endsWith('.md'))
-        .map(file => {
-            const name = file.replace('.md', '')
-            const text = name.charAt(0).toUpperCase() + name.slice(1)
-            return {
-                text: text.replace(/-/g, ' '),
-                link: `/${folder}/${name}`
-            }
-        })
-        .sort((a, b) => a.text.localeCompare(b.text))
-  
-    return files
-}
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
@@ -29,39 +10,91 @@ export default defineConfig({
             lang: 'en',
             themeConfig: {
                 nav: [
-                    { 
+                    {
                         text: 'Home',
-                        link: '/' 
+                        link: '/'
                     },
-                    { 
+                    {
                         text: 'Installation',
-                        link: '/installation/docker' 
+                        link: '/installation/docker'
                     },
-                    { 
+                    {
                         text: 'Server',
-                        link: '/server/setup' 
+                        link: '/server/entrypoint'
                     },
-                    { 
+                    {
                         text: 'Client',
-                        link: '/client/setup' 
+                        link: '/client/entrypoint'
                     },
                 ],
                 sidebar: [
                     {
                         text: 'Installation',
-                        items: getMarkdownFiles('installation'),
+                        items: [
+                            {
+                                text: 'Docker',
+                                link: '/installation/docker'
+                            },
+                            {
+                                text: 'Docker Compose',
+                                link: '/installation/docker-compose'
+                            },
+                            {
+                                text: 'Setup',
+                                link: '/installation/setup'
+                            },
+                            {
+                                text: 'Source Code',
+                                link: '/installation/source-code'
+                            },
+                        ],
                     },
                     {
                         text: 'Server',
-                        items: getMarkdownFiles('server'),
+                        items: [
+                            {
+                                text: 'Entrypoint',
+                                link: '/server/entrypoint'
+                            },
+                            {
+                                text: 'Routes',
+                                link: '/server/routes'
+                            },
+                        ],
                     },
                     {
                         text: 'Client',
-                        items: getMarkdownFiles('client'),
+                        items: [
+                            {
+                                text: 'Entrypoint',
+                                link: '/client/entrypoint'
+                            },
+                            {
+                                text: 'Routes',
+                                link: '/client/routes'
+                            },
+                            {
+                                text: 'Setup',
+                                link: '/client/setup'
+                            },
+                        ],
                     },
                     {
                         text: 'Modules',
-                        items: getMarkdownFiles('modules'),
+                        items: [
+                            {
+                                text: 'Introduction',
+                                link: '/modules/introduction'
+                            },
+                            {
+                                text: 'Database',
+                                link: '/modules/database'
+                            },
+                            {
+                                text: 'Entities',
+                                link: '/modules/entities'
+                            },
+                        ],
                     },
                 ],
             }
@@ -72,13 +105,20 @@ export default defineConfig({
             lang: 'pt-BR',
             themeConfig: {
                 nav: [
-                    { text: 'Início',
-                        link: '/pt-BR/' },
+                    {
+                        text: 'Início',
+                        link: '/pt-BR/'
+                    },
                 ],
                 sidebar: [
                     {
                         text: 'Introdução',
-                        items: getMarkdownFiles('pt-BR'),
+                        items: [
+                            {
+                                text: 'Início',
+                                link: '/pt-BR/'
+                            },
+                        ],
                     },
                 ],
             }
@@ -87,9 +127,9 @@ export default defineConfig({
 
     themeConfig: {
         socialLinks: [
-            { 
+            {
                 icon: 'github',
-                link: 'https://github.com/sidekick-coder/zenith' 
+                link: 'https://github.com/sidekick-coder/zenith'
             }
         ]
     }
