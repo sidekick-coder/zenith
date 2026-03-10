@@ -15,7 +15,10 @@
         "dev": "node arte serve -w",
         "build": "node arte build",
         "lint": "eslint",
-        "test": "node arte test"
+        "test": "node arte test",
+        "docs:dev": "vitepress dev docs",
+        "docs:build": "vitepress build docs",
+        "docs:preview": "vitepress preview docs"
     },
     "dependencies": {
         "@aws-sdk/client-s3": "^3.956.0",
@@ -117,6 +120,7 @@
         "testcontainers": "^11.11.0",
         "typescript": "~5.8.3",
         "vite": "^7.0.3",
+        "vitepress": "^1.6.4",
         "vitest": "^3.2.4",
         "vue-tsc": "^2.2.12"
     }

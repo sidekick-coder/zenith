@@ -37,3 +37,4 @@ storage/*
 !storage/.gitkeep
 client-dist
 tmp
+docs/.vitepress/cache
