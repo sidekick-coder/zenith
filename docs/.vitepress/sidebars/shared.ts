@@ -21,6 +21,10 @@ export const sharedSidebar: DefaultTheme.SidebarItem[] = [
                 text: 'DI',
                 link: '/shared/services/di'
             },
+            {
+                text: 'Lifecycle',
+                link: '/shared/services/lifecycle'
+            },
         ],
     },
 ]
