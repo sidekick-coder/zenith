@@ -22,12 +22,16 @@ export const serverSidebar: DefaultTheme.SidebarItem[] = [
         text: 'Services',
         items: [
             {
+                text: 'DI',
+                link: '/server/services/di'
+            },
+            {
                 text: 'Config',
                 link: '/server/services/config'
             },
             {
-                text: 'DI',
-                link: '/server/services/di'
+                text: 'Router',
+                link: '/server/services/router'
             },
         ],
     },

@@ -9,6 +9,13 @@ import { sharedSidebar } from './sidebars/shared.ts'
 export default defineConfig({
     title: 'Zenith',
     description: 'A CMS to conquer it all',
+    lang: 'en-US',
+    head: [
+        ['link', {
+            rel: 'icon',
+            href: '/favicon.ico'
+        }]
+    ],
     locales: {
         root: {
             label: 'English',
@@ -46,8 +53,10 @@ export default defineConfig({
             }
         },
     },
-
     themeConfig: {
+        search: {
+            provider: 'local'
+        },
         socialLinks: [
             {
                 icon: 'github',
