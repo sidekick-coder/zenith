@@ -60,6 +60,10 @@ export const coreSidebar: DefaultTheme.SidebarItem[] = [
                 text: 'Router',
                 link: '/core/server/router'
             },
+            {
+                text: 'Migrations',
+                link: '/core/server/migrations'
+            },
 
         ],
     },
