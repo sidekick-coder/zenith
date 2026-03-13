@@ -5,6 +5,10 @@ export const clientSidebar: DefaultTheme.SidebarItem[] = [
         text: 'Client',
         items: [
             {
+                text: 'Introduction',
+                link: '/client/introduction'
+            },
+            {
                 text: 'Entrypoint',
                 link: '/client/entrypoint'
             },
@@ -15,6 +19,15 @@ export const clientSidebar: DefaultTheme.SidebarItem[] = [
             {
                 text: 'Setup',
                 link: '/client/setup'
+            },
+        ],
+    },
+    {
+        text: 'Services',
+        items: [
+            {
+                text: 'Config',
+                link: '/client/services/config'
             },
         ],
     },

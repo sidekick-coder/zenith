@@ -1,9 +1,9 @@
 import { defineConfig } from 'vitepress'
-import { guidesSidebar } from './sidebars/guides'
-import { serverSidebar } from './sidebars/server'
-import { clientSidebar } from './sidebars/client'
-import { modulesSidebar } from './sidebars/modules'
-import { ptBRSidebar } from './sidebars/pt-BR'
+import { guidesSidebar } from './sidebars/guides.ts'
+import { serverSidebar } from './sidebars/server.ts'
+import { clientSidebar } from './sidebars/client.ts'
+import { modulesSidebar } from './sidebars/modules.ts'
+import { sharedSidebar } from './sidebars/shared.ts'
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
@@ -25,11 +25,15 @@ export default defineConfig({
                     },
                     {
                         text: 'Server',
-                        link: '/server/entrypoint'
+                        link: '/server/introduction'
                     },
                     {
                         text: 'Client',
-                        link: '/client/entrypoint'
+                        link: '/client/introduction'
+                    },
+                    {
+                        text: 'Shared',
+                        link: '/shared/introduction'
                     },
                 ],
                 sidebar: {
@@ -37,22 +41,7 @@ export default defineConfig({
                     '/server/': serverSidebar,
                     '/client/': clientSidebar,
                     '/modules/': modulesSidebar,
-                },
-            }
-        },
-
-        'pt-BR': {
-            label: 'Português (Brasil)',
-            lang: 'pt-BR',
-            themeConfig: {
-                nav: [
-                    {
-                        text: 'Início',
-                        link: '/pt-BR/'
-                    },
-                ],
-                sidebar: {
-                    '/pt-BR/': ptBRSidebar,
+                    '/shared/': sharedSidebar,
                 },
             }
         },
