@@ -8,10 +8,6 @@ export const modulesSidebar: DefaultTheme.SidebarItem[] = [
                 text: 'Introduction',
                 link: '/modules/introduction'
             },
-            {
-                text: 'Entities',
-                link: '/modules/entities'
-            },
         ],
     },
     {
