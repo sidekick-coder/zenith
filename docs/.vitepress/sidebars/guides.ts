@@ -2,7 +2,16 @@ import type { DefaultTheme } from 'vitepress'
 
 export const guidesSidebar: DefaultTheme.SidebarItem[] = [
     {
-        text: 'Guides',
+        text: 'Introduction',
+        items: [
+            {
+                text: 'What is it?',
+                link: '/guides/introduction/what-is-it'
+            }
+        ]
+    },
+    {
+        text: 'Installation',
         items: [
             {
                 text: 'Docker',
