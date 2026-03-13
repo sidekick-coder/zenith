@@ -1,4 +1,4 @@
-# Config (Client)
+# Config 
 
 On the client side, `config` is an instance of the base `ConfigService` (the shared in-memory store). It has no persistence layer — its values are seeded by the server on every page render and are available immediately when the app boots.
 

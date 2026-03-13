@@ -1,4 +1,4 @@
-# DI (Client)
+# DI
 
 The client uses its own `DIService` instance as its application container, mirroring the same pattern as the server. Hooks register concrete implementations into it during startup, and facades expose those implementations as lazy proxies that can be imported anywhere in the app.
 

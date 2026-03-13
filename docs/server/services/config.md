@@ -1,4 +1,4 @@
-# Config (Server)
+# Config
 
 The server-side config system extends the shared `ConfigService` with persistence support. Config entries are loaded from an external storage backend on startup and written back whenever a value is set or unset at runtime.
 

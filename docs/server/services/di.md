@@ -1,4 +1,4 @@
-# DI (Server)
+# DI
 
 The server uses a single shared `DIService` instance as its application container. It is the backbone that connects lifecycle hooks to facades — hooks register concrete service implementations into it, and facades expose those implementations to the rest of the codebase via lazy proxies.
 

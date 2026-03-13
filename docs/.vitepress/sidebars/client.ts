@@ -33,6 +33,10 @@ export const clientSidebar: DefaultTheme.SidebarItem[] = [
                 text: 'DI',
                 link: '/client/services/di'
             },
+            {
+                text: 'Router',
+                link: '/client/services/router'
+            },
         ],
     },
 ]
