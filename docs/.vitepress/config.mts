@@ -1,4 +1,9 @@
 import { defineConfig } from 'vitepress'
+import { guidesSidebar } from './sidebars/guides'
+import { serverSidebar } from './sidebars/server'
+import { clientSidebar } from './sidebars/client'
+import { modulesSidebar } from './sidebars/modules'
+import { ptBRSidebar } from './sidebars/pt-BR'
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
@@ -15,8 +20,8 @@ export default defineConfig({
                         link: '/'
                     },
                     {
-                        text: 'Installation',
-                        link: '/installation/docker'
+                        text: 'Guides',
+                        link: '/guides/installation/docker'
                     },
                     {
                         text: 'Server',
@@ -27,76 +32,12 @@ export default defineConfig({
                         link: '/client/entrypoint'
                     },
                 ],
-                sidebar: [
-                    {
-                        text: 'Installation',
-                        items: [
-                            {
-                                text: 'Docker',
-                                link: '/installation/docker'
-                            },
-                            {
-                                text: 'Docker Compose',
-                                link: '/installation/docker-compose'
-                            },
-                            {
-                                text: 'Setup',
-                                link: '/installation/setup'
-                            },
-                            {
-                                text: 'Source Code',
-                                link: '/installation/source-code'
-                            },
-                        ],
-                    },
-                    {
-                        text: 'Server',
-                        items: [
-                            {
-                                text: 'Entrypoint',
-                                link: '/server/entrypoint'
-                            },
-                            {
-                                text: 'Routes',
-                                link: '/server/routes'
-                            },
-                        ],
-                    },
-                    {
-                        text: 'Client',
-                        items: [
-                            {
-                                text: 'Entrypoint',
-                                link: '/client/entrypoint'
-                            },
-                            {
-                                text: 'Routes',
-                                link: '/client/routes'
-                            },
-                            {
-                                text: 'Setup',
-                                link: '/client/setup'
-                            },
-                        ],
-                    },
-                    {
-                        text: 'Modules',
-                        items: [
-                            {
-                                text: 'Introduction',
-                                link: '/modules/introduction'
-                            },
-                            {
-                                text: 'Database',
-                                link: '/modules/database'
-                            },
-                            {
-                                text: 'Entities',
-                                link: '/modules/entities'
-                            },
-                        ],
-                    },
-                ],
+                sidebar: {
+                    '/guides/': guidesSidebar,
+                    '/server/': serverSidebar,
+                    '/client/': clientSidebar,
+                    '/modules/': modulesSidebar,
+                },
             }
         },
 
@@ -110,17 +51,9 @@ export default defineConfig({
                         link: '/pt-BR/'
                     },
                 ],
-                sidebar: [
-                    {
-                        text: 'Introdução',
-                        items: [
-                            {
-                                text: 'Início',
-                                link: '/pt-BR/'
-                            },
-                        ],
-                    },
-                ],
+                sidebar: {
+                    '/pt-BR/': ptBRSidebar,
+                },
             }
         },
     },

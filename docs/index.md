@@ -7,15 +7,13 @@ hero:
   actions:
     - theme: brand
       text: Get Started
-      link: /installation/docker
+      link: /guides/installation/docker
     - theme: alt
       text: GitHub
       link: https://github.com/sidekick-coder/zenith
 features:
   - title: Modular Architecture
     details: Build and extend with powerful modules.
-  - title: Multi-language Support
-    details: Serve content in any language.
   - title: Powerful API
     details: Integrate easily with your stack.
   - title: Easy Customization
