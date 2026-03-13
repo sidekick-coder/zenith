@@ -1,9 +1,8 @@
 import { defineConfig } from 'vitepress'
 import { guidesSidebar } from './sidebars/guides.ts'
-import { serverSidebar } from './sidebars/server.ts'
-import { clientSidebar } from './sidebars/client.ts'
+import { coreSidebar } from './sidebars/core.ts'
 import { modulesSidebar } from './sidebars/modules.ts'
-import { sharedSidebar } from './sidebars/shared.ts'
+import { nav } from './nav.ts'
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
@@ -21,34 +20,11 @@ export default defineConfig({
             label: 'English',
             lang: 'en',
             themeConfig: {
-                nav: [
-                    {
-                        text: 'Home',
-                        link: '/'
-                    },
-                    {
-                        text: 'Guides',
-                        link: '/guides/installation/docker'
-                    },
-                    {
-                        text: 'Server',
-                        link: '/server/introduction'
-                    },
-                    {
-                        text: 'Client',
-                        link: '/client/introduction'
-                    },
-                    {
-                        text: 'Shared',
-                        link: '/shared/introduction'
-                    },
-                ],
+                nav,
                 sidebar: {
                     '/guides/': guidesSidebar,
-                    '/server/': serverSidebar,
-                    '/client/': clientSidebar,
+                    '/core/': coreSidebar,
                     '/modules/': modulesSidebar,
-                    '/shared/': sharedSidebar,
                 },
             }
         },
