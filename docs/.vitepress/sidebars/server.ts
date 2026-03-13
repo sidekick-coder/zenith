@@ -25,6 +25,10 @@ export const serverSidebar: DefaultTheme.SidebarItem[] = [
                 text: 'Config',
                 link: '/server/services/config'
             },
+            {
+                text: 'DI',
+                link: '/server/services/di'
+            },
         ],
     },
 ]

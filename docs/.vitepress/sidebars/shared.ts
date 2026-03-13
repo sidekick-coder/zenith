@@ -15,7 +15,11 @@ export const sharedSidebar: DefaultTheme.SidebarItem[] = [
         items: [
             {
                 text: 'Config',
-                link: '/shared/config'
+                link: '/shared/services/config'
+            },
+            {
+                text: 'DI',
+                link: '/shared/services/di'
             },
         ],
     },
