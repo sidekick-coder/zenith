@@ -25,8 +25,8 @@ export default class {{ camelCaseName }} extends Module {
             id: '{{name}}-admin-home',
             group: '{{name}}',
             layout: 'admin',
-            label: $t('Home'),
-            to: '/admin/${{name}}',
+            label: $t('admin'),
+            to: '/admin/{{name}}',
             icon: 'Home',
         })
 
@@ -34,7 +34,7 @@ export default class {{ camelCaseName }} extends Module {
             id: '{{name}}-home',
             group: '{{name}}',
             label: $t('Home'),
-            to: '/${{name}}',
+            to: '/{{name}}',
             icon: 'Home',
         })
     }
