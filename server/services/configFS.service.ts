@@ -4,7 +4,6 @@ import path from 'path'
 import { set } from 'lodash-es'
 import ConfigService from '#shared/services/config.service.ts'
 import { configPath } from '#server/utils/paths.ts'
-import env from '#server/facades/env.facade.ts'
 import logger from '#server/facades/logger.facade.ts'
 import type LoggerService from '#shared/services/logger.service.ts'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
@@ -70,8 +69,6 @@ export default class ConfigFSService extends ConfigService {
                 this.logger.debug(`loaded config file: ${filename}`)
             }
         }
-        
-        this.loadFromEntries(Object.entries(env.get('CONFIG') || {}), 'env')
 
         if (this.debug) {
             this.logger.debug('config loaded in debug mode')

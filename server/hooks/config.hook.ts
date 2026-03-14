@@ -6,6 +6,7 @@ import ConfigS3Service from '#server/services/configS3.service.ts'
 import { configPath } from '#server/utils/paths.ts'
 import LifecycleHook from '#shared/entities/lifecycleHook.entity.ts'
 import ConfigService from '#shared/services/config.service.ts'
+import { flatten } from '#shared/utils/flatten.ts'
 
 export default class ConfigLifecycleHook extends LifecycleHook {
     public order = 1
@@ -46,6 +47,13 @@ export default class ConfigLifecycleHook extends LifecycleHook {
             throw new Error('Failed to initialize configuration service')
         }
 
+        
         di.set(ConfigService, service)
+
+        const envEntries = flatten(env.get('CONFIG') || {})
+
+        for (const [key, value] of Object.entries(envEntries)) {
+            service.set(key, value, 'env')
+        }
     }
 }

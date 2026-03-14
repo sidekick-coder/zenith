@@ -91,8 +91,6 @@ export default class ConfigS3Service extends ConfigService {
             }
         }
 
-        this.loadFromEntries(Object.entries(env.get('CONFIG') || {}), 'env')
-
         if (this.debug) {
             this.logger.debug('config loaded in debug mode')
         }

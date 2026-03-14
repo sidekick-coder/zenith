@@ -7,7 +7,11 @@ interface Entry {
 }
 
 export default class ConfigService {
-    public entries: Map<string, Entry> = new Map()
+    public entries: Map<string, Entry>
+
+    constructor() {
+        this.entries = new Map()
+    }
 
     public list(){
         return Array.from(this.entries.values())
