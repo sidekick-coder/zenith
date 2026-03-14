@@ -99,6 +99,10 @@ export default class ConfigS3Service extends ConfigService {
     public set(fullKey: string, value: any, source = 'runtime'): void {
         super.set(fullKey, value, source)
 
+        if (source === 'env') {
+            return
+        }
+
         const { filename, key } = this.parseKey(fullKey)
 
         let values = this.get(filename)
