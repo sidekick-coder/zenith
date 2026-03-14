@@ -6,7 +6,6 @@ import * as v from 'valibot'
 import { ref } from 'vue'
 import { toast } from 'vue-sonner'
 import $fetch from '#client/facades/fetch.facade.ts'
-import { tryCatch } from '#shared/utils/tryCatch.ts'
 import Button from '#client/components/Button.vue'
 import FormTextField from '#client/components/FormTextField.vue'
 import AuthLayout from '#client/layouts/AuthLayout.vue'
@@ -88,7 +87,7 @@ async function oauthLogin(provider: string) {
                 <FormTextField
                     name="uuid"
                     :label="$t('Email/Username')"
-                    placeholder="admin"
+                    placeholder="me@example.com"
                     autocomplete="email"
                     autofocus
                 />
