@@ -190,10 +190,10 @@ async function uninstall(id: string, data: any) {
                         :fetch="data => uninstall(row.id, data)"
                         :schema="schemas.modules.uninstall"
                         :fields="{
-                            rollback: {
+                            rollback_migrations: {
                                 component: 'switch',
                                 label: $t('Rollback migrations'),
-                                hint: $t('If enabled, any database migrations applied by this module will be rolled back.'),
+                                hint: $t('Before uninstall rollback any database migrations applied by this module. This may cause data loss, proceed with caution.')
                             }
                         }"
                         @submit="load"

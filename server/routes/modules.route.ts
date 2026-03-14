@@ -171,6 +171,12 @@ router.post('/:id/uninstall', async ({ params, body, acl }) => {
         throw new BaseException('Module is enabled, cannot uninstall')
     }
 
+    if (body.rollback_migrations) {
+        await migrator.rollback({
+            module: params.id,
+        })
+    }
+
     await modules.uninstall(params.id)
 
     return { success: true, }
