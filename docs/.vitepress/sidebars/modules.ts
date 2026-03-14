@@ -8,6 +8,14 @@ export const modulesSidebar: DefaultTheme.SidebarItem[] = [
                 text: 'Introduction',
                 link: '/modules/introduction'
             },
+            {
+                text: 'Build',
+                link: '/modules/build'
+            },
+            {
+                text: 'Cross module imports',
+                link: '/modules/cross-module-imports'
+            },
         ],
     },
     {
