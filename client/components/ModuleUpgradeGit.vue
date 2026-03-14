@@ -1,9 +1,7 @@
 <script setup lang="ts">
-import { ref } from 'vue'
 import { useForm } from 'vee-validate'
 import * as v from 'valibot'
 import { toTypedSchema } from '@vee-validate/valibot'
-import { useRouter } from 'vue-router'
 
 import { $fetch } from '#client/utils/fetcher.ts'
 import {
@@ -21,8 +19,7 @@ const props = defineProps({
     }
 })
 
-const router = useRouter()
-const upgrading = ref(false)
+const upgrading = defineModel<boolean>('upgrading', { default: false })
 
 const schema = v.object({
     repository: v.pipe(v.string(), v.minLength(1, $t('Repository URL is required'))),
@@ -81,15 +78,6 @@ const onSubmit = handleSubmit(async (data) => {
                 </CardDescription>
             </CardHeader>
             <CardContent class="space-y-6">
-                <div class="p-3 bg-muted rounded-md">
-                    <div class="text-sm font-medium">
-                        {{ $t('Module to upgrade:') }} {{ props.module.name }}
-                    </div>
-                    <div class="text-xs text-muted-foreground">
-                        {{ $t('ID:') }} {{ props.module.id }}
-                    </div>
-                </div>
-                
                 <FormTextField
                     name="repository"
                     :label="$t('Repository URL')"
@@ -112,15 +100,7 @@ const onSubmit = handleSubmit(async (data) => {
                     :rows="8"
                 />
             </CardContent>
-            <CardFooter class="flex justify-between">
-                <Button
-                    type="button"
-                    variant="outline"
-                    :disabled="upgrading"
-                    @click="router.push('/admin/modules')"
-                >
-                    {{ $t('Cancel') }}
-                </Button>
+            <CardFooter class="flex justify-end">
                 <Button
                     type="submit"
                     :loading="upgrading"

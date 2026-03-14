@@ -9,8 +9,8 @@ import SettingLayout from '#client/layouts/SettingLayout.vue'
 import PageSubtitle from '#client/components/PageSubtitle.vue'
 import PageTitle from '#client/components/PageTitle.vue'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '#client/components/ui/tabs'
-import UpgradeZip from '#client/components/UpgradeZip.vue'
-import UpgradeGit from '#client/components/UpgradeGit.vue'
+import UpgradeZip from '#client/components/ModuleUpgradeZip.vue'
+import UpgradeGit from '#client/components/ModuleUpgradeGit.vue'
 
 const route = useRoute()
 const tab = useRouteQuery<string>('tab', 'zip')

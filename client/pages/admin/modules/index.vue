@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import Button from '#client/components/Button.vue'
-import SettingLayout from '#client/layouts/SettingLayout.vue'
+import AdminLayout from '#client/layouts/AdminLayout.vue'
 
 import Switch from '#client/components/ui/switch/Switch.vue'
 
@@ -21,6 +21,7 @@ import DataTable, { defineColumns } from '#client/components/DataTable.vue'
 import { $server } from '#client/utils/server.ts'
 
 const items = ref<any[]>([])
+const loading = ref(false)
 const columns = defineColumns<any>([
     { 
         id: 'enabled',
@@ -37,18 +38,25 @@ const columns = defineColumns<any>([
 ])
 
 async function load() {
+    loading.value = true
+
     const [error, response] = await $fetch.try('/api/modules')
 
     if (error) {
+        loading.value = false
         return
     }
 
-    items.value = response 
+    items.value = response
 
     // sort by enabled 
     items.value.sort((a, b) => {
         return Number(b.enabled) - Number(a.enabled)
     })
+
+    setTimeout(() => {
+        loading.value = false
+    }, 500)
 }
 
 onMounted(load)
@@ -84,7 +92,7 @@ async function uninstall(id: string, data: any) {
 }
 </script>
 <template>
-    <SettingLayout>
+    <AdminLayout>
         <Dialog :open="toggling">
             <DialogContent
                 class="sm:max-w-[425px]"
@@ -114,10 +122,20 @@ async function uninstall(id: string, data: any) {
                     {{ $t('Manage the modules installed on your system.') }}
                 </PageSubtitle>
             </div>
-            <div>
+            <div class="flex gap-x-2">
+                <Button
+                    variant="outline"
+                    size="icon"
+                    @click="load"
+                >
+                    <Icon
+                        name="RotateCcw"
+                        :class="{ 'animate-spin': loading }"
+                    />
+                </Button>
+
                 <Button
                     :to="'/admin/modules/install'"
-                    class="mt-4"
                 >
                     {{ $t('Add new') }}
                 </Button>
@@ -125,6 +143,7 @@ async function uninstall(id: string, data: any) {
         </div>
 
         <DataTable
+            v-model:loading="loading"
             :rows="items"
             :columns="columns"
         >
@@ -156,8 +175,12 @@ async function uninstall(id: string, data: any) {
 
             <template #row-actions="{ row }">
                 <div class="flex justify-end gap-2">
-                    <Button :to="`/admin/modules/${row.id}`">
-                        {{ $t('Configure') }}
+                    <Button
+                        :to="`/admin/modules/${row.id}`"
+                        variant="ghost"
+                        size="icon"
+                    >
+                        <Icon name="Eye" />
                     </Button>
                     <DialogForm
                         v-if="!row.enabled"
@@ -184,5 +207,5 @@ async function uninstall(id: string, data: any) {
                 </div>
             </template>
         </DataTable>
-    </SettingLayout>
+    </AdminLayout>
 </template>

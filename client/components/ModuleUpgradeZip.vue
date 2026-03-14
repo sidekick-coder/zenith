@@ -2,7 +2,6 @@
 import { ref } from 'vue'
 import { useForm } from 'vee-validate'
 import { toast } from 'vue-sonner'
-import { useRouter } from 'vue-router'
 
 import { $fetch } from '#client/utils/fetcher.ts'
 import {
@@ -20,8 +19,7 @@ const props = defineProps({
     }
 })
 
-const router = useRouter()
-const uploading = ref(false)
+const upgrading = defineModel<boolean>('upgrading', { default: false })
 const selectedFile = ref<File | null>(null)
 
 const { handleSubmit } = useForm({
@@ -52,7 +50,7 @@ const onSubmit = handleSubmit(async () => {
         return
     }
 
-    uploading.value = true
+    upgrading.value = true
 
     const formData = new FormData()
     formData.append('file', selectedFile.value)
@@ -69,12 +67,11 @@ const onSubmit = handleSubmit(async () => {
     })
 
     if (!success) {
-        uploading.value = false
+        upgrading.value = false
         return
     }
 
-    uploading.value = false
-    router.push('/admin/modules')
+    upgrading.value = false
 })
 </script>
 
@@ -88,22 +85,13 @@ const onSubmit = handleSubmit(async () => {
                 </CardDescription>
             </CardHeader>
             <CardContent class="space-y-6">
-                <div class="p-3 bg-muted rounded-md">
-                    <div class="text-sm font-medium">
-                        {{ $t('Module to upgrade:') }} {{ props.module.name }}
-                    </div>
-                    <div class="text-xs text-muted-foreground">
-                        {{ $t('ID:') }} {{ props.module.id }}
-                    </div>
-                </div>
-                
                 <div class="space-y-2">
                     <Label for="file">{{ $t('ZIP File') }}</Label>
                     <Input
                         id="file"
                         type="file"
                         accept=".zip,application/zip"
-                        :disabled="uploading"
+                        :disabled="upgrading"
                         @change="handleFileSelect"
                     />
                     <p class="text-sm text-muted-foreground">
@@ -128,18 +116,10 @@ const onSubmit = handleSubmit(async () => {
                     </div>
                 </div>
             </CardContent>
-            <CardFooter class="flex justify-between">
-                <Button
-                    type="button"
-                    variant="outline"
-                    :disabled="uploading"
-                    @click="router.push('/admin/modules')"
-                >
-                    {{ $t('Cancel') }}
-                </Button>
+            <CardFooter class="flex justify-end">
                 <Button
                     type="submit"
-                    :loading="uploading"
+                    :loading="upgrading"
                     :disabled="!selectedFile"
                 >
                     {{ $t('Upgrade') }}

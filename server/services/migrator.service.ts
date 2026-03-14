@@ -79,7 +79,8 @@ export default class MigratorService {
         const mods = await modules.list()
 
         for (const mod of mods) {
-            const migrationPath = mod.makePath('server', 'migrations')
+            const migrationPath = basePath('modules', mod.name, 'server', 'migrations')
+            
             if (!fs.existsSync(migrationPath)) continue
 
             const entries = await fs.promises.readdir(migrationPath)

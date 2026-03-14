@@ -14,9 +14,6 @@ import ModuleManifest from '#shared/entities/moduleManifest.entity.ts'
 import type LifecycleHook from '#shared/entities/lifecycleHook.entity.ts'
 import env from '#server/facades/env.facade.ts'
 
-interface UninstallOptions {
-    rollback?: boolean
-}
 interface ListOptions {
     enabled?: boolean;
 }
@@ -183,94 +180,89 @@ export default class ModulesService {
     }
 
     public async list(options: ListOptions = {}) {
-        const modulesPath = basePath('modules')
-        const moduleNames = fs.readdirSync(modulesPath, { withFileTypes: true })
-            .filter(dirent => dirent.isDirectory())
-            .map(dirent => dirent.name)
+        let manifests = Array.from(this.manifests.values())
 
-        let items = [] as Module[]
-
-        for (const name of moduleNames) {
-            const mod = Module.from({
-                id: name,
-                name: name,
-                enabled: config.get(`modules.enabled.${name}`, false),
-            })
-
-            items.push(mod)
+        if (options.enabled !== undefined) {
+            manifests = manifests.filter(mod => mod.enabled === options.enabled)
         }
 
-        if (options?.enabled) {
-            items = items.filter(mod => mod.enabled)
-        }
+        const mods = manifests.map(manifest => {
+            const mod = new Module()
 
-        for (const mod of items) {
-            await mod.load()
-        }
+            mod.setData(manifest)
 
-        return items
+            return mod
+        })
+
+        return mods
     }
 
-    public async find(moduleName: string) {
-        const allModules = await this.list()
+    public async find(id: string) {
+        const manifest = this.manifests.get(id)
 
-        const mod = allModules.find(mod => mod.name === moduleName)
+        if (!manifest) {
+            return null
+        }
 
-        return mod || null
+        const mod = new Module()
+        
+        mod.setData(manifest)
+
+        return mod
     }
 
-    public async findOrFail(moduleName: string) {
-        const mod = await this.find(moduleName)
+    public async findOrFail(id: string) {
+        const mod = await this.find(id)
 
         if (!mod) {
-            throw new Error(`Module ${moduleName} not found`)
+            throw new Error(`Module ${id} not found`)
         }
 
         return mod
     }
 
-    public async enable(moduleName: string) {
-        const mod = await this.find(moduleName)
+    public async enable(id: string) {
+        const mod = await this.find(id)
 
-        await this.prepare(moduleName)
+        await this.prepare(id)
 
         if (!mod) {
-            throw new Error(`Module ${moduleName} not found`)
+            throw new Error(`Module ${id} not found`)
         }
 
         if (mod.enabled) {
-            logger.debug(`Module ${moduleName} is already enabled`)
+            logger.debug(`Module ${id} is already enabled`)
             return
         }
 
-        config.set(`modules.enabled.${moduleName}`, true)
+        config.set(`modules.enabled.${id}`, true)
 
-        logger.info(`module ${moduleName} enabled`)
+        logger.info(`module ${id} enabled`)
     }
 
-    public async disable(moduleName: string) {
-        const mod = await this.findOrFail(moduleName)
+    public async disable(id: string) {
+        const mod = await this.findOrFail(id)
 
         if (!mod.enabled) {
-            logger.info(`Module ${moduleName} is already disabled`)
+            logger.info(`Module ${id} is already disabled`)
             return
         }
 
-        config.set(`modules.enabled.${moduleName}`, false)
+        config.set(`modules.enabled.${id}`, false)
 
-        logger.info(`module ${moduleName} disabled`)
+        logger.info(`module ${id} disabled`)
     }
 
-    public async toggle(moduleName: string) {
-        if (config.get(`modules.enabled.${moduleName}`)) {
-            return this.disable(moduleName)
+    public async toggle(id: string) {
+        if (config.get(`modules.enabled.${id}`)) {
+            return this.disable(id)
         }
 
-        return await this.enable(moduleName)
+        return await this.enable(id)
     }
 
-    public async prepare(moduleName: string) {
-        const mod = await this.findOrFail(moduleName)
+    public async prepare(id: string) {
+        const mod = await this.findOrFail(id)
         const rootDir = mod.makePath('root')
 
         // Check if root directory exists
@@ -279,7 +271,7 @@ export default class ModulesService {
         }
 
         if (this.debug) {
-            logger.debug(`preparing symlinks for module '${moduleName}'`)
+            logger.debug(`preparing symlinks for module '${id}'`)
         }
 
 
@@ -358,16 +350,16 @@ export default class ModulesService {
         }
 
         if (this.debug) {
-            logger.debug(`Symlinks prepared for module '${moduleName}'`)
+            logger.debug(`Symlinks prepared for module '${id}'`)
         }
 
     }
 
-    public async uninstall(moduleName: string, options: UninstallOptions = {}) {
-        const mod = await this.findOrFail(moduleName)
+    public async uninstall(id: string) {
+        const mod = await this.findOrFail(id)
         const moduleDir = mod.makePath()
 
-        logger.info(`uninstalling module '${moduleName}'`)
+        logger.info(`uninstalling module '${id}'`)
 
         // Remove module folder        
         fs.rmSync(moduleDir, { 
@@ -375,6 +367,6 @@ export default class ModulesService {
             force: true 
         })
 
-        logger.info(`'${moduleName}' uninstalled successfully`)
+        logger.info(`'${id}' uninstalled successfully`)
     }
 }

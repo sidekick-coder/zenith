@@ -67,6 +67,15 @@ export default class MenuLifecycleHook extends LifecycleHook {
             group: $t('Mail')
         })
 
+        menu.add({
+            id: 'module-all',
+            label: $t('All'),
+            to: '/admin/modules',
+            icon: 'Puzzle',
+            group: $t('Modules'),
+            // layout: 'admin',
+        })
+
     }
     
     public async onBoot(): Promise<void> {

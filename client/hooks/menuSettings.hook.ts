@@ -5,17 +5,6 @@ export default class MenuSettingLifecycleHook extends LifecycleHook {
     public async onLoad(): Promise<void> {
         const menu = useMenu()
 
-        
-
-        menu.add({
-            id: 'modules',
-            label: $t('Modules'),
-            to: '/admin/modules',
-            icon: 'Puzzle',
-            group: $t('General'),
-            layout: 'setting',
-        })
-
         menu.add({
             id: 'system-routes',
             label: $t('Routes'),

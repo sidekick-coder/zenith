@@ -4,7 +4,7 @@ import { ref, onMounted } from 'vue'
 import { toast } from 'vue-sonner'
 import { $fetch } from '../utils/fetcher'
 import DataTable, { defineColumns } from './DataTable.vue'
-import { CardHeader, CardTitle } from './ui/card'
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from './ui/card'
 import AlertButton from './AlertButton.vue'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
 
@@ -13,7 +13,12 @@ defineOptions({
     inheritAttrs: false,
 })
 
-const props = defineProps<{ id: string }>()
+const props = defineProps({
+    module: {
+        type: Object,
+        required: true
+    }
+})
 
 interface Migration {
   id: string
@@ -38,7 +43,7 @@ const columns = defineColumns<Migration>([
 
 async function load() {
     loading.value = true
-    const data = await $fetch(`/api/modules/${props.id}/migrations`)
+    const data = await $fetch(`/api/modules/${props.module.id}/migrations`)
     
     if (Array.isArray(data)) {
         migrations.value = data as Migration[]
@@ -58,7 +63,7 @@ const operation = ref<'migrate' | 'rollback' | 'fresh'>()
 async function migrate() {
     operation.value = 'migrate'
 
-    const [error] = await tryCatch(() => $fetch(`/api/modules/${props.id}/migrate`, { method: 'POST' }))
+    const [error] = await tryCatch(() => $fetch(`/api/modules/${props.module.id}/migrate`, { method: 'POST' }))
 
     if (error) {
         operation.value = undefined
@@ -76,7 +81,7 @@ async function migrate() {
 async function rollback() {
     operation.value = 'rollback'
 
-    const [error] = await tryCatch(() => $fetch(`/api/modules/${props.id}/rollback`, { method: 'POST' }))
+    const [error] = await tryCatch(() => $fetch(`/api/modules/${props.module.id}/rollback`, { method: 'POST' }))
 
     if (error) {
         operation.value = undefined
@@ -94,7 +99,7 @@ async function rollback() {
 async function fresh() {
     operation.value = 'fresh'
 
-    const [error] = await tryCatch(() => $fetch(`/api/modules/${props.id}/fresh`, { method: 'POST' }))
+    const [error] = await tryCatch(() => $fetch(`/api/modules/${props.module.id}/fresh`, { method: 'POST' }))
 
     if (error) {
         operation.value = undefined
@@ -111,46 +116,54 @@ async function fresh() {
 </script>
 
 <template>
-    <CardHeader class="flex justify-end p-4 items-center">
-        <CardTitle class="flex-1">
-            {{ $t('Migrations') }}
-        </CardTitle>
+    <Card>
+        <CardHeader class="flex justify-end items-center">
+            <div class="flex-1">
+                <CardTitle>
+                    {{ $t('Migrations') }}
+                </CardTitle>
+                <CardDescription>
+                    {{ $t('Run, rollback or reset database migrations for this module') }}
+                </CardDescription>
+            </div>
 
-        <AlertButton
-            :loading="operation === 'fresh'"
-            :disabled="!!operation"
-            :description="$t('This will drop all tables and recreate them. This can potentially lead to data loss')"
-            variant="outline"
-            @confirm="fresh"
-        >
-            Fresh
-        </AlertButton>
+            <AlertButton
+                :loading="operation === 'fresh'"
+                :disabled="!!operation"
+                :description="$t('This will drop all tables and recreate them. This can potentially lead to data loss')"
+                variant="outline"
+                @confirm="fresh"
+            >
+                Fresh
+            </AlertButton>
         
-        <AlertButton
-            :loading="operation === 'rollback'"
-            :disabled="!!operation"
-            :description="$t('This can potentially lead to data loss')"
-            variant="outline"
-            @confirm="rollback"
-        >
-            Rollback
-        </AlertButton>
+            <AlertButton
+                :loading="operation === 'rollback'"
+                :disabled="!!operation"
+                :description="$t('This can potentially lead to data loss')"
+                variant="outline"
+                @confirm="rollback"
+            >
+                Rollback
+            </AlertButton>
         
         
-        <AlertButton
-            :loading="operation === 'migrate'"
-            :disabled="!!operation"
-            :description="$t('This will make changes in your database')"
-            @confirm="migrate"
-        >
-            Migrate
-        </AlertButton>
-    </CardHeader>
+            <AlertButton
+                :loading="operation === 'migrate'"
+                :disabled="!!operation"
+                :description="$t('This will make changes in your database')"
+                @confirm="migrate"
+            >
+                Migrate
+            </AlertButton>
+        </CardHeader>
 
-    <DataTable
-        :rows="migrations"
-        :columns="columns"
-        :loading="loading"
-        class="border-x-0 rounded-none"
-    />
+        <CardContent>
+            <DataTable
+                :rows="migrations"
+                :columns="columns"
+                :loading="loading"
+            />
+        </CardContent>
+    </Card>
 </template>
