@@ -1,6 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 import { program } from 'commander'
+import { camelCase } from 'lodash-es'
 import template from '#server/facades/template.facade.ts'
 import { basePath } from '#server/utils/paths.ts'
 
@@ -56,8 +57,13 @@ program.command('module:make')
         }
 
         console.log(`Creating module "${name}"...`)
+
+        const templateData = {
+            name,
+            camelCaseName: camelCase(name),
+        }
         
-        await copyTemplateDirectory(templateDir, targetDir, { name })
+        await copyTemplateDirectory(templateDir, targetDir, templateData)
         
         console.log(`Module "${name}" created successfully at ${path.relative(process.cwd(), targetDir)}`)
     })
