@@ -2,7 +2,7 @@
 
 The server uses a single shared `DIService` instance as its application container. It is the backbone that connects lifecycle hooks to facades — hooks register concrete service implementations into it, and facades expose those implementations to the rest of the codebase via lazy proxies.
 
-For a reference on the `DIService` API (`set`, `get`, `has`, `singleton`, `proxy`, etc.) see the [shared DI service docs](../../shared/services/di.md).
+For a reference on the `DIService` API (`set`, `get`, `has`, `singleton`, `proxy`, etc.) see the [shared DI service docs](../../core/shared/di.md).
 
 ## The server DI instance
 

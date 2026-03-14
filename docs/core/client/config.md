@@ -2,7 +2,7 @@
 
 On the client side, `config` is an instance of the base `ConfigService` (the shared in-memory store). It has no persistence layer — its values are seeded by the server on every page render and are available immediately when the app boots.
 
-For a reference on the base API (`get`, `set`, `has`, `unset`, etc.) see the [shared config service docs](../../shared/config.md).
+For a reference on the base API (`get`, `set`, `has`, `unset`, etc.) see the [shared config service docs](../../core/shared/config.md).
 
 ## How the config reaches the client
 

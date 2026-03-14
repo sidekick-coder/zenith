@@ -74,7 +74,7 @@ Modules can declare additional externals in `module.json` under `build.imports` 
 
 The host registers all shareable packages on `globalThis.imports` (keyed by import id) and exposes `globalThis.importAsync(id)` as the resolver. This runs once at startup via `client/imports.ts`, imported by both entry points.
 
-The host registers named packages (`vue`, `vue-router`, `vee-validate`, `reka-ui`, `vue-sonner`), every `#client/…` file (`.ts` and `.vue`), and every `#shared/…` file. Modules themselves can also register their own exports onto `globalThis.imports` during `onRegister()` so other modules can consume them — see [Cross-Module Imports](./client/cross-module-imports.md).
+The host registers named packages (`vue`, `vue-router`, `vee-validate`, `reka-ui`, `vue-sonner`), every `#client/…` file (`.ts` and `.vue`), and every `#shared/…` file. Modules themselves can also register their own exports onto `globalThis.imports` during `onRegister()` so other modules can consume them — see [Cross-Module Imports](./cross-module-imports.md).
 
 When the compiled bundle calls `await globalThis.importAsync("vue")` it gets back the exact instance the host is already using — no duplication.
 
@@ -363,7 +363,7 @@ Replace `my-module` with your module's id in both the volume mount path and the 
 
 ### Module with cross-module dependencies
 
-When a module depends on another (see [Cross-Module Imports](./client/cross-module-imports.md)), run `module:install` inside the container before building. It clones the dependency's `build` branch so its pre-built artifacts and registered exports are available during compilation.
+When a module depends on another (see [Cross-Module Imports](./cross-module-imports.md)), run `module:install` inside the container before building. It clones the dependency's `build` branch so its pre-built artifacts and registered exports are available during compilation.
 
 Change only the **Build artifacts** step:
 

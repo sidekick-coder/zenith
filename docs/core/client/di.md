@@ -2,7 +2,7 @@
 
 The client uses its own `DIService` instance as its application container, mirroring the same pattern as the server. Hooks register concrete implementations into it during startup, and facades expose those implementations as lazy proxies that can be imported anywhere in the app.
 
-For a reference on the `DIService` API (`set`, `get`, `has`, `singleton`, `proxy`, etc.) see the [shared DI service docs](../../shared/services/di.md).
+For a reference on the `DIService` API (`set`, `get`, `has`, `singleton`, `proxy`, etc.) see the [shared DI service docs](../../core/shared/di.md).
 
 ## The client DI instance
 
