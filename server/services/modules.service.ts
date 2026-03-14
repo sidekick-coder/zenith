@@ -297,6 +297,10 @@ export default class ModulesService {
                 target: path.join(rootDir, 'client') 
             },
             { 
+                source: basePath('.ai'), 
+                target: path.join(rootDir, '.ai') 
+            },
+            { 
                 source: basePath('arte'), 
                 target: mod.makePath('arte')
             },

@@ -2,5 +2,14 @@
     "files.exclude": {
         "**/.git": true,
         "**/root": true
+    },
+    "chat.promptFilesLocations": {
+        ".ai/prompts": true,
+        "root/.ai/prompts": true
+    },
+    "chat.instructionsFilesLocations": {
+        ".ai/instructions": true,
+        "root/.ai/instructions": true
     }
+
 }
