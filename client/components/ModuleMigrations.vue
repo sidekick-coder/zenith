@@ -21,10 +21,11 @@ const props = defineProps({
 })
 
 interface Migration {
-  id: string
   name: string
-  created_at: string
+  module: string
+  filename: string
   status: string
+  executedAt: string | null
 }
 
 const migrations = ref<Migration[]>([])
@@ -43,12 +44,12 @@ const columns = defineColumns<Migration>([
 
 async function load() {
     loading.value = true
-    const data = await $fetch(`/api/modules/${props.module.id}/migrations`)
-    
+    const data = await $fetch('/api/migrations', { query: { module: props.module.id } })
+
     if (Array.isArray(data)) {
         migrations.value = data as Migration[]
     }
-    
+
     if (!Array.isArray(data)) {
         migrations.value = []
     }
@@ -63,7 +64,12 @@ const operation = ref<'migrate' | 'rollback' | 'fresh'>()
 async function migrate() {
     operation.value = 'migrate'
 
-    const [error] = await tryCatch(() => $fetch(`/api/modules/${props.module.id}/migrate`, { method: 'POST' }))
+    const [error] = await $fetch.try('/api/migrations/migrate', { 
+        method: 'POST',
+        data: { 
+            module: props.module.id
+        } 
+    })
 
     if (error) {
         operation.value = undefined
@@ -81,7 +87,12 @@ async function migrate() {
 async function rollback() {
     operation.value = 'rollback'
 
-    const [error] = await tryCatch(() => $fetch(`/api/modules/${props.module.id}/rollback`, { method: 'POST' }))
+    const [error] = await $fetch.try('/api/migrations/rollback', {
+        method: 'POST',
+        data: { 
+            module: props.module.id
+        } 
+    })
 
     if (error) {
         operation.value = undefined
@@ -99,7 +110,12 @@ async function rollback() {
 async function fresh() {
     operation.value = 'fresh'
 
-    const [error] = await tryCatch(() => $fetch(`/api/modules/${props.module.id}/fresh`, { method: 'POST' }))
+    const [error] = await $fetch.try('/api/migrations/fresh', { 
+        method: 'POST',
+        data: { 
+            module: props.module.id
+        } 
+    })
 
     if (error) {
         operation.value = undefined

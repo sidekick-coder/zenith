@@ -5,7 +5,7 @@ import migrator from '#server/facades/migrator.facade.ts'
 import root from '#server/facades/router.facade.ts'
 import authMiddleware from '#server/middlewares/auth.middleware.ts'
 import modules from '#server/facades/modules.facade.ts'
-import { basePath, tmpPath } from '#server/utils/paths.ts'
+import { tmpPath } from '#server/utils/paths.ts'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
 import BaseException from '#server/exceptions/base.ts'
 import validator from '#shared/services/validator.service.ts'
@@ -49,22 +49,6 @@ router.get('/:id', async ({ params, acl, query }) => {
 })
 
 
-router.get('/:id/migrations', async ({ params, acl }) => {
-    acl.authorize('read', 'Module')
-
-    const all = await migrator.list()
-
-    const migrations = all
-        .filter(m => m.module === params.id)
-        .map(m => ({
-            name: m.name,
-            filename: path.relative(basePath(), m.filePath),
-            status: m.executedAt ? 'executed' : 'pending',
-        }))
-
-    return migrations
-})
-
 router.post('/:id/toggle', async ({ params, acl }) => {
     acl.authorize('update', 'Module')
 
@@ -73,53 +57,7 @@ router.post('/:id/toggle', async ({ params, acl }) => {
     await server.reload()
 })
 
-router.post('/:id/migrate', async ({ params, acl }) => {
-    acl.authorize('update', 'Module')
 
-    const items = await migrator.migrate({
-        module: params.id,
-    })
-
-    const itemWithError = items.find(i => i.error)
-
-    if (itemWithError?.error) {
-        throw new BaseException(itemWithError.error)
-    }
-
-    return { success: true, }
-})
-
-router.post('/:id/rollback', async ({ params, acl }) => {
-    acl.authorize('update', 'Module')
-
-    const items = await migrator.rollback({
-        module: params.id,
-    })
-
-    const itemWithError = items.find(i => i.error)
-
-    if (itemWithError?.error) {
-        throw new BaseException(itemWithError.error)
-    }
-
-    return { success: true, }
-})
-
-router.post('/:id/fresh', async ({ params, acl }) => {
-    acl.authorize('update', 'Module')
-
-    const items = await migrator.fresh({
-        module: params.id,
-    })
-
-    const itemWithError = items.find(i => i.error)
-
-    if (itemWithError?.error) {
-        throw new BaseException(itemWithError.error)
-    }
-
-    return items
-})
 
 router.post('/:id/install-dependencies', async ({ params, acl }) => {
     acl.authorize('update', 'Module')

@@ -79,7 +79,7 @@ export default class MigratorService {
         const mods = await modules.list()
 
         for (const mod of mods) {
-            const migrationPath = basePath('modules', mod.name, 'server', 'migrations')
+            const migrationPath = mod.makePath('server', 'migrations')
             
             if (!fs.existsSync(migrationPath)) continue
 
@@ -100,7 +100,7 @@ export default class MigratorService {
 
                 allMigrations.push({
                     name: filename,
-                    module: mod.name,
+                    module: mod.id,
                     filePath: fullPath,
                     executedAt: null,
                     up: migration.up,
