@@ -1,14 +1,12 @@
-import { useMenu } from '#client/composables/useMenu.ts'
 import Module from '#client/entities/module.entity.ts'
 import router from '#client/facades/router.facade.ts'
 import authGuard from '#client/guards/auth.guard.ts'
+import menu from '#client/facades/menu.facade.ts'
 
 import './assets/css/styles.css'
 
 export default class {{ camelCaseName }} extends Module {
     public async onLoad(): Promise<void> {
-        const menu = useMenu()
-
         router.auto(import.meta.glob<any>('./pages/admin/**/*.vue'), {
             strip: ['pages', 'admin'],
             prefix: '/admin/{{name}}',

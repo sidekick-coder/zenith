@@ -1,17 +1,13 @@
 import LifecycleHook from '#shared/entities/lifecycleHook.entity.ts'
-import { useMenu } from '#client/composables/useMenu.ts'
 import config from '#client/facades/config.facade.ts'
+import menu from '#client/facades/menu.facade.ts'
 
-const menu = useMenu()
 
 export default class MenuLifecycleHook extends LifecycleHook {
-    public async onRegister(): Promise<void> {
-        menu.clear()
-    }
-
     public async onLoad(): Promise<void> {
         menu.add({
             id: 'users',
+            layout: 'admin',
             label: $t('Users'),
             to: '/admin/users',
             icon: 'Users',
@@ -20,6 +16,7 @@ export default class MenuLifecycleHook extends LifecycleHook {
 
         menu.add({
             id: 'roles',
+            layout: 'admin',
             label: $t('Roles'),
             to: '/admin/roles',
             icon: 'Users',
@@ -28,6 +25,7 @@ export default class MenuLifecycleHook extends LifecycleHook {
 
         menu.add({
             id: 'permissions',
+            layout: 'admin',
             label: $t('Permissions'),
             to: '/admin/permissions',
             icon: 'Users',
@@ -37,6 +35,7 @@ export default class MenuLifecycleHook extends LifecycleHook {
         
         menu.add({
             id: 'drives',
+            layout: 'admin',
             label: $t('Drives'),
             to: '/admin/drives',
             icon: 'Folder',
@@ -45,6 +44,7 @@ export default class MenuLifecycleHook extends LifecycleHook {
 
         menu.add({
             id: 'files',
+            layout: 'admin',
             label: $t('Files'),
             to: '/admin/files',
             icon: 'File',
@@ -53,6 +53,7 @@ export default class MenuLifecycleHook extends LifecycleHook {
         
         menu.add({
             id: 'mailer-gateways',
+            layout: 'admin',
             label: $t('Mailers'),
             to: '/admin/mailers',
             icon: 'Mail',
@@ -61,6 +62,7 @@ export default class MenuLifecycleHook extends LifecycleHook {
         
         menu.add({
             id: 'mailer-templates',
+            layout: 'admin',
             label: $t('Templates'),
             to: '/admin/email-templates',
             icon: 'Mail',
@@ -69,11 +71,11 @@ export default class MenuLifecycleHook extends LifecycleHook {
 
         menu.add({
             id: 'module-all',
+            layout: 'admin',
             label: $t('All'),
             to: '/admin/modules',
             icon: 'Puzzle',
             group: $t('Modules'),
-            // layout: 'admin',
         })
 
     }

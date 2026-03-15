@@ -1,6 +1,5 @@
 export * from './autoPages.ts'
 export * from './createId.ts'
-export * from './defineClientSetup.ts'
 export * from './di.ts'
 export * from './fetcher.ts'
 export * from './file.ts'

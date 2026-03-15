@@ -1,13 +1,11 @@
 <script lang="ts">
 import { computed } from 'vue'
-import type { MenuItem } from '#client/composables/useMenu.ts'
+import type MenuItem from '#client/entities/menuItem.entity.ts'
 
 </script>
 
 <script setup lang="ts">
 import {
-    Sidebar,
-    SidebarContent,
     SidebarGroup,
     SidebarMenu,
     SidebarMenuItem,
@@ -37,12 +35,12 @@ interface GroupedMenu {
 
 const groupedItems = computed(() => {
     const result = [] as GroupedMenu[]
-    
+
     for (const item of props.items) {
         const groupName = item.group || $t('General')
-        
+
         let group = result.find(g => g.id === groupName)
-        
+
         if (!group) {
             group = {
                 id: groupName,
@@ -51,10 +49,10 @@ const groupedItems = computed(() => {
             }
             result.push(group)
         }
-        
+
         group.items.push(item)
     }
-    
+
     return result
 })
 </script>

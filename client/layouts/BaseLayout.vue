@@ -34,9 +34,7 @@ import {
 } from '#client/components/ui/sidebar'
 import { $fetch } from '#client/utils/fetcher.ts'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
-import { useMenu } from '#client/composables/useMenu.ts'
-import type { MenuItem } from '#client/composables/useMenu.ts'
-import di from '#client/utils/di.ts'
+import menu from '#client/facades/menu.facade.ts'
 
 export interface BreadcrumbItem {
     label: string;
@@ -86,29 +84,27 @@ const breadcrumbs = defineModel('breadcrumbs', {
     default: null,
 })
 
-const { items: menuAll } = useMenu()
+const items = computed(() =>
+    menu.list({
+        layout: props.layoutId,
+        allowed: true,
+    })
+)
 
-menuAll.value.sort((a, b) => {
-    const orderA = a.order ? a.order : 98
-    const orderB = b.order ? b.order : 98
-
-    return orderA - orderB
-})
-
-const state = di.get<Record<string, any>>('state')
-
-const metas = state['user:metas'] || {}
-const hideIds = metas['admin-ui:hide-menus'] || []
-const hideGroups = metas['admin-ui:hide-menu-groups'] || []
-const extras = metas['admin-ui:menu-extras'] || []
-
-const menu = computed(() => {
-    return menuAll.value
-        .concat(extras)
-        .filter(item => item.layout === props.layoutId)
-        .filter(item => !hideIds.includes(item.id))
-        .filter(item => !hideGroups.includes(item.group || $t('General')))
-})
+// const state = di.get<Record<string, any>>('state')
+//
+// const metas = state['user:metas'] || {}
+// const hideIds = metas['admin-ui:hide-menus'] || []
+// const hideGroups = metas['admin-ui:hide-menu-groups'] || []
+// const extras = metas['admin-ui:menu-extras'] || []
+//
+// const menu = computed(() => {
+//     return menuAll.value
+//         .concat(extras)
+//         .filter(item => item.layout === props.layoutId)
+//         .filter(item => !hideIds.includes(item.id))
+//         .filter(item => !hideGroups.includes(item.group || $t('General')))
+// })
 
 const computedBreadcrumbs = computed(() => {
     if (breadcrumbs.value) {
@@ -144,37 +140,6 @@ function generateBreadcrumbsFromRoute(): BreadcrumbItem[] {
 
     return breadcrumbItems
 }
-
-interface GroupedMenu {
-    id: string;
-    label: string;
-    items: MenuItem[];
-}
-
-const groups = computed(() => {
-    const result = [] as GroupedMenu[]
-    const items = menu.value
-
-    for (const item of items) {
-        const group = item.group || $t('General')
-
-        let current = result.find(g => g.id === group)
-
-        if (!current) {
-            current = {
-                id: group,
-                label: group,
-                items: []
-            }
-
-            result.push(current)
-        }
-
-        current.items.push(item)
-    }
-
-    return result
-})
 
 async function onLogout() {
     const [error] = await tryCatch(() => $fetch('/auth/logout', { method: 'POST' }))
@@ -220,7 +185,7 @@ onMounted(() => {
             </slot>
 
             <SidebarContent class="gap-0">
-                <div v-if="!groups.length">
+                <div v-if="!items.length">
                     <p class="p-4 text-sm text-muted-foreground">
                         {{ $t('No menu items available.') }}
                     </p>
@@ -228,13 +193,13 @@ onMounted(() => {
 
                 <AdminLayoutDefaultMenu
                     v-else-if="menuVariant === 'default'"
-                    :items="menu"
+                    :items="items"
                     :open="open"
                 />
 
                 <AdminLayoutPlainMenu
                     v-else-if="menuVariant === 'plain'"
-                    :items="menu"
+                    :items="items"
                     :open="open"
                 />
             </SidebarContent>

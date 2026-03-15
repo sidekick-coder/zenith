@@ -1,7 +1,6 @@
 <script lang="ts">
-import { onMounted, ref, watch, computed } from 'vue'
-import { useLocalStorage } from '@vueuse/core'
-import type { MenuItem } from '#client/composables/useMenu.ts'
+import { onMounted, ref, watch } from 'vue'
+import type  MenuItem  from '#client/entities/menuItem.entity.ts'
 
 </script>
 

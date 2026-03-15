@@ -1,17 +1,31 @@
+import menu from '#client/facades/menu.facade.ts'
 import LifecycleHook from '#shared/entities/lifecycleHook.entity.ts'
-import { useMenu } from '#client/composables/useMenu.ts'
 
 export default class MenuSettingLifecycleHook extends LifecycleHook {
     public async onLoad(): Promise<void> {
-        const menu = useMenu()
+        menu.add({
+            id: 'site-general',
+            label: $t('General'),
+            layout: 'setting',
+            group: $t('Site'),
+            to: '/admin/settings/site/general'
+        })
 
         menu.add({
-            id: 'system-routes',
-            label: $t('Routes'),
-            icon: 'Settings',
+            id: 'site-colors',
+            label: $t('Colors'),
             layout: 'setting',
-            group: $t('General'),
-            to: '/admin/settings/site'
+            group: $t('Site'),
+            to: '/admin/settings/site/colors'
+        })
+
+        menu.add({
+            id: 'settings-site-pwa',
+            group: $t('Site'),
+            label: $t('PWA'),
+            icon: 'Tablet',
+            layout: 'setting',
+            to: '/admin/settings/site/pwa'
         })
 
         menu.add({
@@ -21,7 +35,7 @@ export default class MenuSettingLifecycleHook extends LifecycleHook {
             layout: 'setting',
             to: '/admin/settings/auth/general'
         })
-        
+
         menu.add({
             id: 'settings-auth-layout',
             label: $t('Layout'),
@@ -38,32 +52,7 @@ export default class MenuSettingLifecycleHook extends LifecycleHook {
             to: '/admin/settings/auth/oauth'
         })
 
-        menu.add({
-            id: 'site-general',
-            label: $t('General'),
-            layout: 'setting',
-            group: $t('Site'),
-            to: '/admin/site/general'
-        })
-        
 
-        menu.add({
-            id: 'site-colors',
-            label: $t('Colors'),
-            layout: 'setting',
-            group: $t('Site'),
-            to: '/admin/site/colors'
-        })
-
-        menu.add({
-            id: 'pwa',
-            group: $t('General'),
-            label: $t('PWA'),
-            icon: 'Tablet',
-            layout: 'setting',
-            to: '/admin/settings/pwa'
-        })
-        
         menu.add({
             id: 'translator-general',
             group: $t('Translator'),

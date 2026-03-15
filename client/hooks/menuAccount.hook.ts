@@ -1,10 +1,8 @@
+import menu from '#client/facades/menu.facade.ts'
 import LifecycleHook from '#shared/entities/lifecycleHook.entity.ts'
-import { useMenu } from '#client/composables/useMenu.ts'
 
 export default class MenuAccountLifecycleHook extends LifecycleHook {
     public async onLoad(): Promise<void> {
-        const menu = useMenu()
-        
         const layout = 'account-setting'
 
         menu.add({
