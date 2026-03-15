@@ -1,3 +1,4 @@
+import { useRoute } from 'vue-router'
 import MenuItem from '#client/entities/menuItem.entity.ts'
 import acl from '#client/facades/acl.facade.ts'
 
@@ -22,7 +23,9 @@ export default class MenuService {
     }
 
     public list(filter: ListFilter = {}) {
-        let items = Array.from(this.items.values())
+        let items = JSON.parse(JSON.stringify(Array.from(this.items.values()))) as MenuItem[]
+        
+        const route = useRoute()
 
         if (filter.layout) {
             items = items.filter(i => i.layout === filter.layout)
@@ -46,6 +49,19 @@ export default class MenuService {
 
             return orderA - orderB
         })
+
+        for (const item of items) {
+            // check current route and replace parameters in to
+            for (const key in route.params) {
+                if (item.to) {
+                    item.to = item.to.replace(`:${key}`, String(route.params[key]))
+                }
+
+                if (item.toFn) {
+                    item.to = item.toFn({ route })
+                }
+            }
+        }
 
         return items
     }

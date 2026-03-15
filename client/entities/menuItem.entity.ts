@@ -1,4 +1,3 @@
-
 import { BaseEntity } from '#shared/mixins/baseEntity.mixin.ts'
 import { compose } from '#shared/utils/compose.ts'
 
@@ -8,6 +7,7 @@ export default class MenuItem extends compose(BaseEntity) {
     public layout: string
 
     public to?: string
+
     public target?: '_blank' | '_self' | '_parent' | '_top'
     public group?: string
     public order?: number

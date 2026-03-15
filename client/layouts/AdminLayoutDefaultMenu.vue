@@ -1,6 +1,6 @@
 <script lang="ts">
 import { onMounted, ref, watch } from 'vue'
-import type  MenuItem  from '#client/entities/menuItem.entity.ts'
+import type MenuItem from '#client/entities/menuItem.entity.ts'
 
 </script>
 
@@ -12,12 +12,12 @@ import {
     SidebarMenuItem,
     SidebarMenuButton,
     SidebarMenuSubItem,
-    SidebarMenuSub 
+    SidebarMenuSub
 } from '#client/components/ui/sidebar'
 import {
     Collapsible,
     CollapsibleTrigger,
-    CollapsibleContent 
+    CollapsibleContent
 } from '#client/components/ui/collapsible'
 import Icon from '#client/components/Icon.vue'
 
@@ -38,17 +38,18 @@ interface GroupedMenu {
     id: string
     label: string
     open: boolean
-    items: MenuItem[]
+    items: any[]
 }
 
-function load(){
+function load() {
     const result = [] as GroupedMenu[]
     const items = props.items
-    
+
     for (const item of items) {
         const group = item.group || 'ungrouped'
 
         let current = result.find(g => g.id === group)
+
 
         if (!current) {
             current = {
@@ -85,28 +86,26 @@ watch(groups, (newGroups) => {
     newGroups.forEach(group => {
         localStorage.setItem(`sidebar-group-open-${group.id}`, group.open.toString())
     })
-    
+
 }, { deep: true })
 
 </script>
 
 <template>
-    <Collapsible 
+    <Collapsible
         v-for="group in groups"
         :key="group.id"
         v-model:open="group.open"
         class="group/collapsible"
     >
-        <SidebarGroup
-            :class="open ? '' : 'py-0' "
-        >
+        <SidebarGroup :class="open ? '' : 'py-0'">
             <CollapsibleTrigger as-child>
                 <SidebarGroupLabel
                     class="p-0"
-                    :class="open && group.label !== 'ungrouped' ? '' : 'hidden' "
+                    :class="open && group.label !== 'ungrouped' ? '' : 'hidden'"
                 >
                     <div class="cursor-pointer hover:bg-muted px-2 py-1 rounded-md flex items-center gap-2">
-                        {{ group.label }} 
+                        {{ group.label }}
                     </div>
                 </SidebarGroupLabel>
             </CollapsibleTrigger>
@@ -123,9 +122,7 @@ watch(groups, (newGroups) => {
                         >
                             <SidebarMenuItem>
                                 <CollapsibleTrigger as-child>
-                                    <SidebarMenuButton
-                                        :tooltip="item.label"
-                                    >
+                                    <SidebarMenuButton :tooltip="item.label">
                                         <Icon :name="item.icon || 'heroicons:cube'" />
                                         <span>{{ item.label }}</span>
                                     </SidebarMenuButton>
