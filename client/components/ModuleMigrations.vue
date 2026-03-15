@@ -1,4 +1,3 @@
-
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { toast } from 'vue-sonner'
@@ -6,7 +5,6 @@ import { $fetch } from '../utils/fetcher'
 import DataTable, { defineColumns } from './DataTable.vue'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from './ui/card'
 import AlertButton from './AlertButton.vue'
-import { tryCatch } from '#shared/utils/tryCatch.ts'
 
 
 defineOptions({

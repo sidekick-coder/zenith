@@ -70,18 +70,12 @@ import Base from '#$module/shared/entities/<name>.entity.ts'
 import { composeWith } from '#shared/utils/compose.ts'
 
 export default class ExampleName extends composeWith(Base, Model('$module__example_names')) {
-    public toJSON() {
-        return {
-            id: this.id,
-            // ...include all public properties from the shared entity
-        }
-    }
+    // server-specific methods or computed properties can be added here
 }
 ```
 
 - Table name is the module-prefixed snake_case plural of the entity name (e.g. `walletio__wallets`).
 - Include `HooksStatic` before `Model` only when there is an obvious need (e.g. password hashing, slug generation). Otherwise omit it and let the developer add it later.
-- Always include a `toJSON()` that returns only the safe public fields.
 
 ### Client entity
 
