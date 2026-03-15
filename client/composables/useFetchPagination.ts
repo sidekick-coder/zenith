@@ -1,10 +1,12 @@
-import { computed, onMounted, onServerPrefetch, readonly, ref, watch } from 'vue'
+import { computed, isRef, onMounted, onServerPrefetch, readonly, ref, watch  } from 'vue'
+import type { MaybeRef, Ref } from 'vue'
 import { watchDebounced } from '@vueuse/core'
 import { useState } from './useState.ts'
 import type Pagination from '#shared/entities/pagination.entity.ts'
 import $fetch from '#client/facades/fetch.facade.ts'
 
 export interface UseFetchPaginationOptions {
+    key?: string
     query?: Record<string, any>
     serialize?: (item: any) => any
     refine?: (items: any[]) => any[]
@@ -16,13 +18,7 @@ export interface UseFetchPaginationOptions {
 const hydrated = new Set<string>()
 
 export function useFetchPagination<T = any>(url: string, options: UseFetchPaginationOptions = {}) {
-    let key = url
-
-    if (options.query) {
-        key += '?' + Object.entries(options.query)
-            .map(([k, v]) => `${k}=${Array.isArray(v) ? v.join(',') : v}`)
-            .join('&')
-    }
+    const key = options.key || url
 
     const response = useState<Pagination>(key, {
         default: () => ({
@@ -40,6 +36,7 @@ export function useFetchPagination<T = any>(url: string, options: UseFetchPagina
         set: (value) => { response.value.page = value }
     })
 
+    const query = ref(options.query || {}) as Ref<Record<string, any>>
     const limit = ref(options.limit || 10)
 
     const total = computed(() => response.value.total)
@@ -68,7 +65,7 @@ export function useFetchPagination<T = any>(url: string, options: UseFetchPagina
             query: {
                 page: page.value,
                 limit: limit.value,
-                ...options.query,
+                ...query.value
             }
         })
 
@@ -100,6 +97,7 @@ export function useFetchPagination<T = any>(url: string, options: UseFetchPagina
     }
 
     watch([page, limit], load)
+    watch(query, reset, { deep: true })
 
     watchDebounced(
         () => options.query,
@@ -140,6 +138,7 @@ export function useFetchPagination<T = any>(url: string, options: UseFetchPagina
         items,
         loading,
         load,
-        reset
+        reset,
+        query
     }
 }

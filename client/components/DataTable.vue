@@ -81,15 +81,6 @@ const props = defineProps({
         type: String,
         default: null,
     },
-    fetchQuery: {
-        type: Object as PropType<Record<string, any>>,
-        default: () => ({}),
-    },
-    /** @deprecated Use fetchQuery instead */
-    query: {
-        type: Object as PropType<Record<string, any>>,
-        default: () => ({}),
-    },
     serialize: {
         type: Function as PropType<(row: any) => T>,
         default: (row: any) => row as T,
@@ -121,6 +112,11 @@ const columns = defineModel('columns', {
 const selected = defineModel('selected', {
     type: Array as () => T[],
     default: () => ([]),
+})
+
+const fetchQuery = defineModel('fetchQuery', {
+    type: Object as PropType<Record<string, any>>,
+    default: () => ({}),
 })
 
 let innerRows = ref([] as any[])
@@ -184,10 +180,6 @@ if (props.fetch) {
         serialize: props.serialize,
         refine: props.refine,
         limit: limitModel.value,
-        query: { 
-            ...props.fetchQuery,
-            ...props.query 
-        },
     })
 
     innerRows = pagination.items
@@ -199,6 +191,7 @@ if (props.fetch) {
     innerReset = pagination.reset
 
     syncRef(loading, pagination.loading)
+    syncRef(fetchQuery, pagination.query)
 }
 
 if (!props.fetch) {
