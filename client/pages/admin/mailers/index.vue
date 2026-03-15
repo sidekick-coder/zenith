@@ -2,7 +2,7 @@
 import { ref  } from 'vue'
 import type { ComponentExposed } from 'vue-component-type-helpers'
 import DataTable, { defineColumns } from '#client/components/DataTable.vue'
-import AppLayout from '#client/layouts/AppLayout.vue'
+import AdminLayout from '#client/layouts/AdminLayout.vue'
 import Button from '#client/components/Button.vue'
 import Icon from '#client/components/Icon.vue'
 import { $fetch } from '#client/utils/fetcher.ts'
@@ -60,7 +60,7 @@ async function setDefault(mailer: MailerConfig) {
 }
 </script>
 <template>
-    <AppLayout>
+    <AdminLayout>
         <div class="flex items-center mb-4">
             <div class="flex-1">
                 <PageTitle>
@@ -151,5 +151,5 @@ async function setDefault(mailer: MailerConfig) {
                 </div>
             </template>
         </DataTable>
-    </AppLayout>
+    </AdminLayout>
 </template>

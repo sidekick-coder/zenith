@@ -6,7 +6,7 @@ import { toTypedSchema } from '@vee-validate/valibot'
 import * as v from 'valibot'
 import { toast } from 'vue-sonner'
 import { watchDebounced } from '@vueuse/core'
-import AppLayout from '#client/layouts/AppLayout.vue'
+import AdminLayout from '#client/layouts/AdminLayout.vue'
 import Button from '#client/components/Button.vue'
 import Icon from '#client/components/Icon.vue'
 import FormTextField from '#client/components/FormTextField.vue'
@@ -131,7 +131,7 @@ watchDebounced(values, refreshPreview, {
 </script>
 
 <template>
-    <AppLayout
+    <AdminLayout
         :breadcrumbs="[
             { label: $t('Email Templates'), to: '/admin/email-templates' },
             { label: template?.name || '...' }
@@ -311,5 +311,5 @@ watchDebounced(values, refreshPreview, {
                 </Card>
             </div>
         </div>
-    </AppLayout>
+    </AdminLayout>
 </template>

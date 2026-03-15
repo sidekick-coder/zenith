@@ -4,7 +4,7 @@ import {
     defineAsyncComponent, onMounted, ref 
 } from 'vue'
 import { useRouteQuery } from '@vueuse/router'
-import AppLayout from '#client/layouts/AppLayout.vue'
+import AdminLayout from '#client/layouts/AdminLayout.vue'
 
 import Tabs from '#client/components/ui/tabs/Tabs.vue'
 import TabsList from '#client/components/ui/tabs/TabsList.vue'
@@ -68,7 +68,7 @@ function openFileUrl() {
 onMounted(load)
 </script>
 <template>
-    <AppLayout
+    <AdminLayout
         :breadcrumbs="[
             { label: $t('Files'), to: '/admin/files' },
             { label: file?.client_name || $t('Loading...') }
@@ -124,5 +124,5 @@ onMounted(load)
                 />
             </TabsContent>
         </Tabs>
-    </AppLayout>
+    </AdminLayout>
 </template>

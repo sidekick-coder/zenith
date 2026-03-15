@@ -3,7 +3,7 @@ import { ref } from 'vue'
 import { toast } from 'vue-sonner'
 import DataTable, { defineColumns } from '#client/components/DataTable.vue'
 
-import AppLayout from '#client/layouts/AppLayout.vue'
+import AdminLayout from '#client/layouts/AdminLayout.vue'
 import { $fetch } from '#client/utils/fetcher.ts'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
 import UserDialog from '#client/components/UserDialog.vue'
@@ -91,7 +91,7 @@ async function verify(id: number) {
 }
 </script>
 <template>
-    <AppLayout>
+    <AdminLayout>
         <div class="flex">
             <h1 class="text-2xl font-bold mb-4 text-foreground flex-1">
                 {{ $t('Users') }}
@@ -160,5 +160,5 @@ async function verify(id: number) {
                 </div>
             </template>
         </DataTable>
-    </AppLayout>
+    </AdminLayout>
 </template>

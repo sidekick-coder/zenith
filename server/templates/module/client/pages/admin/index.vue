@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import AppLayout from '#client/layouts/AppLayout.vue'
+import AdminLayout from '#client/layouts/AdminLayout.vue'
 
 </script>
 <template>
-    <AppLayout>
+    <AdminLayout>
         <div class="p-4">
             <p>admin page!</p>
         </div>
-    </AppLayout>
+    </AdminLayout>
 </template>

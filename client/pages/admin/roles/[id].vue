@@ -5,7 +5,7 @@ import {
 } from 'vue'
 import { useRouteQuery } from '@vueuse/router'
 import { toast } from 'vue-sonner'
-import AppLayout from '#client/layouts/AppLayout.vue'
+import AdminLayout from '#client/layouts/AdminLayout.vue'
 
 import Tabs from '#client/components/ui/tabs/Tabs.vue'
 import TabsList from '#client/components/ui/tabs/TabsList.vue'
@@ -63,7 +63,7 @@ async function load(){
 onMounted(load)
 </script>
 <template>
-    <AppLayout
+    <AdminLayout
         :breadcrumbs="[
             { label: $t('Roles'), to: '/admin/roles' },
             { label: role?.name || $t('Loading...') }
@@ -98,5 +98,5 @@ onMounted(load)
                 />
             </TabsContent>
         </Tabs>
-    </AppLayout>
+    </AdminLayout>
 </template>

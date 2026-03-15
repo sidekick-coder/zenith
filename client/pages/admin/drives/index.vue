@@ -3,7 +3,7 @@ import { ref  } from 'vue'
 import { toast } from 'vue-sonner'
 import DataTable, { defineColumns } from '#client/components/DataTable.vue'
 
-import AppLayout from '#client/layouts/AppLayout.vue'
+import AdminLayout from '#client/layouts/AdminLayout.vue'
 import Button from '#client/components/Button.vue'
 import Icon from '#client/components/Icon.vue'
 import type { Drive } from '#client/types.ts'
@@ -78,7 +78,7 @@ async function setDefault(drive: Drive) {
 }
 </script>
 <template>
-    <AppLayout>
+    <AdminLayout>
         <div class="flex">
             <h1 class="text-2xl font-bold mb-4 text-foreground flex-1">
                 {{ $t('Drives') }}
@@ -170,5 +170,5 @@ async function setDefault(drive: Drive) {
                 </div>
             </template>
         </DataTable>
-    </AppLayout>
+    </AdminLayout>
 </template>

@@ -6,7 +6,7 @@ import { useRouteQuery } from '@vueuse/router'
 import { toTypedSchema } from '@vee-validate/valibot'
 import * as v from 'valibot'
 import { toast } from 'vue-sonner'
-import AppLayout from '#client/layouts/AppLayout.vue'
+import AdminLayout from '#client/layouts/AdminLayout.vue'
 import Button from '#client/components/Button.vue'
 import FormTextField from '#client/components/FormTextField.vue'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '#client/components/ui/card'
@@ -85,7 +85,7 @@ onMounted(loadDrive)
 </script>
 
 <template>
-    <AppLayout
+    <AdminLayout
         :breadcrumbs="[
             { label: $t('Drives'), to: '/admin/drives' },
             { label: drive?.name || '...' }
@@ -184,5 +184,5 @@ onMounted(loadDrive)
                 </Tabs>
             </div>
         </div>
-    </AppLayout>
+    </AdminLayout>
 </template>

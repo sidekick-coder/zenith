@@ -6,7 +6,7 @@ import { useRouteQuery } from '@vueuse/router'
 import { toTypedSchema } from '@vee-validate/valibot'
 import * as v from 'valibot'
 import { toast } from 'vue-sonner'
-import AppLayout from '#client/layouts/AppLayout.vue'
+import AdminLayout from '#client/layouts/AdminLayout.vue'
 import Button from '#client/components/Button.vue'
 import FormTextField from '#client/components/FormTextField.vue'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '#client/components/ui/card'
@@ -84,7 +84,7 @@ onMounted(load)
 </script>
 
 <template>
-    <AppLayout
+    <AdminLayout
         :breadcrumbs="[
             { label: $t('Mailers'), to: '/admin/mailers' },
             { label: mailer?.name || '...' }
@@ -183,5 +183,5 @@ onMounted(load)
                 </Tabs>
             </div>
         </div>
-    </AppLayout>
+    </AdminLayout>
 </template>
