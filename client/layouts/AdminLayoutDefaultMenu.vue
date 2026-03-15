@@ -46,7 +46,7 @@ function load(){
     const items = props.items
     
     for (const item of items) {
-        const group = item.group || $t('General')
+        const group = item.group || 'ungrouped'
 
         let current = result.find(g => g.id === group)
 
@@ -103,7 +103,7 @@ watch(groups, (newGroups) => {
             <CollapsibleTrigger as-child>
                 <SidebarGroupLabel
                     class="p-0"
-                    :class="open ? '' : 'hidden' "
+                    :class="open && group.label !== 'ungrouped' ? '' : 'hidden' "
                 >
                     <div class="cursor-pointer hover:bg-muted px-2 py-1 rounded-md flex items-center gap-2">
                         {{ group.label }} 
