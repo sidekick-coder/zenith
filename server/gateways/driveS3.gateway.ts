@@ -1,4 +1,5 @@
 import { Readable } from 'stream'
+import { dirname } from 'path'
 import ms from 'ms'
 import {
     S3Client,
@@ -93,7 +94,7 @@ export default class DriveS3 extends BaseDrive {
 
         this._client = new S3Client({
             region: config.region,
-            endpoint: config.endpoint,            
+            endpoint: config.endpoint,
             credentials: {
                 accessKeyId: config.accessKeyId,
                 secretAccessKey: config.secretAccessKey,
@@ -106,25 +107,27 @@ export default class DriveS3 extends BaseDrive {
 
     public exists: BaseDrive['exists'] = async (filename) => {
         this.checkValid()
-        
+
         const Key = this.getKey(filename)
 
-        return this.client.send(new HeadObjectCommand({ Bucket: this.bucket,
-            Key }))
+        return this.client.send(new HeadObjectCommand({
+            Bucket: this.bucket,
+            Key
+        }))
             .then(() => true)
             .catch(() => false)
     }
 
     public list: BaseDrive['list'] = async (folder) => {
         this.checkValid()
-        
+
         let Prefix = folder ? this.getKey(folder) : this.prefix || undefined
 
         if (Prefix && !Prefix.endsWith('/')) {
             Prefix += '/'
         }
 
-        const command = new ListObjectsV2Command({ 
+        const command = new ListObjectsV2Command({
             Bucket: this.bucket,
             Prefix,
             Delimiter: '/',
@@ -140,7 +143,7 @@ export default class DriveS3 extends BaseDrive {
             let key = prefix.Prefix || ''
 
             key = key.replace(this.prefix, '')
-            
+
             if (key.endsWith('/')) {
                 key = key.slice(0, -1)
             }
@@ -187,10 +190,11 @@ export default class DriveS3 extends BaseDrive {
 
     public find: BaseDrive['find'] = async (filename) => {
         this.checkValid()
-        
-        const filepath = filename.startsWith('/') ? filename : '/' + filename
 
-        const entries = await this.list(filepath.startsWith('/') ? filepath.slice(1).replace(/\\/g, '/') : filepath)
+        const filepath = filename.startsWith('/') ? filename : '/' + filename
+        const folder = dirname(filepath)
+
+        const entries = await this.list(folder)
 
         const entry = entries.find(e => e.path === filepath)
 
@@ -203,19 +207,19 @@ export default class DriveS3 extends BaseDrive {
 
     public async mkdir(_filename: string): Promise<void> {
         this.checkValid()
-        
+
         // S3 is object storage; directories are implicit. Create a zero-byte object with trailing slash to emulate directory if needed.
         return Promise.resolve()
     }
 
     public read: BaseDrive['read'] = async (filename) => {
         this.checkValid()
-        
+
         const Key = this.getKey(filename)
 
         const resp = await this.client.send(new GetObjectCommand({
             Bucket: this.bucket,
-            Key 
+            Key
         }))
 
         const body = resp.Body as Readable
@@ -225,12 +229,12 @@ export default class DriveS3 extends BaseDrive {
 
     public async readStream(filename: string) {
         this.checkValid()
-        
+
         const Key = this.getKey(filename)
 
-        const command = new GetObjectCommand({ 
+        const command = new GetObjectCommand({
             Bucket: this.bucket,
-            Key 
+            Key
         })
 
         const resp = await this.client.send(command)
@@ -242,19 +246,19 @@ export default class DriveS3 extends BaseDrive {
 
     public write: BaseDrive['write'] = async (filename, data) => {
         this.checkValid()
-        
+
         const Key = this.getKey(filename)
 
-        await this.client.send(new PutObjectCommand({ 
+        await this.client.send(new PutObjectCommand({
             Bucket: this.bucket,
             Key,
-            Body: Buffer.from(data) 
+            Body: Buffer.from(data)
         }))
     }
 
     public async writeStream(filename: string, stream: NodeJS.ReadableStream): Promise<void> {
         this.checkValid()
-        
+
         const Key = this.getKey(filename)
 
         const upload = new Upload({
@@ -271,44 +275,64 @@ export default class DriveS3 extends BaseDrive {
 
     public delete: BaseDrive['delete'] = async (filename) => {
         this.checkValid()
-        
+
         const Key = this.getKey(filename)
 
-        if (Key.endsWith('/')) {
-            const resp = await this.client.send(new ListObjectsV2Command({ Bucket: this.bucket,
-                Prefix: Key }))
+        const entry = await this.find(filename)
 
-            const toDelete = (resp.Contents || []).map(c => ({ Key: c.Key }))
+        if (entry.type === 'file') {
+            const command = new DeleteObjectCommand({
+                Bucket: this.bucket,
+                Key
+            })
 
-            if (toDelete.length === 0) {
-                return
-            }
-
-            await this.client.send(new DeleteObjectsCommand({ Bucket: this.bucket,
-                Delete: { Objects: toDelete } }))
+            await this.client.send(command)
 
             return
         }
 
-        await this.client.send(new DeleteObjectCommand({ Bucket: this.bucket,
-            Key }))
+
+        const listResponse = await this.client.send(new ListObjectsV2Command({
+            Bucket: this.bucket,
+            Prefix: Key
+        }))
+
+        const toDelete = (listResponse.Contents || []).map(c => ({ Key: c.Key }))
+
+        if (toDelete.length === 0) {
+            return
+        }
+
+        await this.client.send(new DeleteObjectsCommand({
+            Bucket: this.bucket,
+            Delete: { Objects: toDelete }
+        }))
+
+        if (listResponse.IsTruncated) {
+            this.delete(filename) // Recursively delete if there are more objects to deleted
+        }
+
+        return
+
     }
 
     public url: BaseDrive['url'] = async (filename, options) => {
         this.checkValid()
-        
+
         const Key = this.getKey(filename)
 
         const expiresMs = ms(options?.expires || '30m') || 30 * 60 * 1000
         const expiresSeconds = Math.max(1, Math.round(expiresMs / 1000))
 
-        return getSignedUrl(this.client, new GetObjectCommand({ Bucket: this.bucket,
-            Key }), { expiresIn: expiresSeconds })
+        return getSignedUrl(this.client, new GetObjectCommand({
+            Bucket: this.bucket,
+            Key
+        }), { expiresIn: expiresSeconds })
     }
 
     public uploadUrl: BaseDrive['uploadUrl'] = async (filename, options) => {
         this.checkValid()
-        
+
         const Key = this.getKey(filename)
 
         const expiresMs = ms(options?.expires || '30m') || 30 * 60 * 1000
