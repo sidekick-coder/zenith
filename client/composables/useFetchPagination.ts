@@ -36,7 +36,7 @@ export function useFetchPagination<T = any>(url: string, options: UseFetchPagina
         set: (value) => { response.value.page = value }
     })
 
-    const query = ref(options.query || {}) as Ref<Record<string, any>>
+    const query = ref(JSON.parse(JSON.stringify(options.query || {}))) as Ref<Record<string, any>>
     const limit = ref(options.limit || 10)
 
     const total = computed(() => response.value.total)
@@ -60,13 +60,15 @@ export function useFetchPagination<T = any>(url: string, options: UseFetchPagina
 
         loading.value = true
 
+        const params = JSON.parse(JSON.stringify({
+            page: page.value,
+            limit: limit.value,
+            ...query.value
+        }))
+
         const [error, result] = await $fetch.try<Pagination>(url, {
             method: 'GET',
-            query: {
-                page: page.value,
-                limit: limit.value,
-                ...query.value
-            }
+            query: params 
         })
 
         if (error) {
@@ -96,14 +98,20 @@ export function useFetchPagination<T = any>(url: string, options: UseFetchPagina
         page.value = 1
     }
 
+    function onQueryChange(newData: Record<string, any>, oldData: Record<string, any>) {
+        const isEqual = JSON.stringify(newData) === JSON.stringify(oldData)
+
+        if (!isEqual) {
+            reset()
+        }
+    }
+
     watch([page, limit], load)
-    watch(query, reset, { deep: true })
 
     watchDebounced(
-        () => options.query,
-        reset,
+        () => JSON.parse(JSON.stringify(query.value)),
+        onQueryChange,
         {
-            deep: true,
             debounce: options.debounce || 1000
         }
     )

@@ -180,6 +180,7 @@ if (props.fetch) {
         serialize: props.serialize,
         refine: props.refine,
         limit: limitModel.value,
+        query: fetchQuery.value,
     })
 
     innerRows = pagination.items

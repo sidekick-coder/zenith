@@ -1,4 +1,5 @@
 <script setup lang="ts" generic="T extends Record<string, any>">
+import { ref  } from 'vue'
 import type { PropType } from 'vue'
 import DataTable from '#client/components/DataTable.vue'
 
@@ -9,9 +10,8 @@ import AlertButton from '#client/components/AlertButton.vue'
 import DialogForm from '#client/components/DialogForm.vue'
 import PageTitle from '#client/components/PageTitle.vue'
 import PageSubtitle from '#client/components/PageSubtitle.vue'
-import { useFetchPagination } from '#client/composables/useFetchPagination.ts'
 
-const props = defineProps({
+defineProps({
     title: {
         type: String,
         default: $t('Items')
@@ -26,10 +26,6 @@ const props = defineProps({
     },
     fetch: {
         type: String,
-        default: null
-    },
-    fetchQuery: {
-        type: Object as PropType<Record<string, any>>,
         default: null
     },
     fetchDestroy: {
@@ -50,9 +46,16 @@ const props = defineProps({
     },
 })
 
-const { items, loading, load } = useFetchPagination(props.fetch, {
-    serialize: props.serialize,
-    query: props.fetchQuery,
+const tableRef = ref()
+
+const fetchQuery = defineModel('fetchQuery', {
+    type: Object as PropType<Record<string, any>>,
+    default: null
+})
+
+const loading = defineModel('loading', {
+    type: Boolean,
+    default: false,
 })
 
 const columns = defineModel('columns', {
@@ -73,6 +76,10 @@ const fieldsEdit = defineModel('fieldsEdit', {
 function parse(url: string, row: any): string {
     // replace all :key with row.key in fetch-destroy
     return url.replace(/:([a-zA-Z_]+)/g, (_, key) => row[key]) as string
+}
+
+function load(){
+    tableRef.value?.load()
 }
 
 defineExpose({
@@ -125,9 +132,10 @@ defineExpose({
         <DataTable
             v-if="fetch"
             ref="tableRef"
-            v-model:rows="items"
+            v-model:fetch-query="fetchQuery"
             v-model:loading="loading"
             v-model:columns="columns"
+            :fetch="fetch"
         >
             <template
                 v-for="c in columns.filter(c => c.id !== 'actions')"
