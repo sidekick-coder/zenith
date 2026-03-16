@@ -1,5 +1,3 @@
-import fs from 'fs'
-import { Readable } from 'stream'
 import mime from 'mime'
 import BaseException from '#server/exceptions/base.ts'
 import drive from '#server/facades/drive.facade.ts'
@@ -48,14 +46,6 @@ router.post('/:id/set-default', async ({ params, acl }) => {
     config.set('drive.default', params.id)
 
     await drive.load()
-})
-
-router.get('/:id/entries', async ({ params, query, acl }) => {
-    const current = drive.use(params.id)
-
-    acl.authorize('read', 'Drive', current)
-
-    return current.list(query.folder as string)
 })
 
 router.get('/:id/open/*', async ({ params, acl, response }) => {

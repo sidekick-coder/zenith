@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, computed, watch } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useForm } from 'vee-validate'
 import { toast } from 'vue-sonner'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '#client/components/ui/card'

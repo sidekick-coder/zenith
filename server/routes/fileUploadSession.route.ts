@@ -17,6 +17,7 @@ router.post('/', async ({ acl, body }) => {
     const payload = validator.validate(body, schemas.fileUploadSession.create)
 
     acl.authorize('create', 'FileUploadSession', payload)
+
     const expireAt = Date.now() + 15 * 60 * 1000 // 15 minutes
 
     const session = await FileUploadSession.create({

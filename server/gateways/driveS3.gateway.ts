@@ -13,6 +13,7 @@ import {
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 import { Upload } from '@aws-sdk/lib-storage'
 import type { InferOutput } from 'valibot'
+import mime from 'mime'
 import DriveEntity from '#shared/entities/driveEntry.entity.ts'
 import BaseDrive from '#server/gateways/driveBase.gateway.ts'
 import validator from '#shared/services/validator.service.ts'
@@ -154,7 +155,7 @@ export default class DriveS3 extends BaseDrive {
                 type: 'directory',
                 metas: {
                     size: 0,
-                    mimetype: undefined,
+                    mimetype: 'application/x-directory'
                 }
             })
 
@@ -178,7 +179,7 @@ export default class DriveS3 extends BaseDrive {
                 type: 'file',
                 metas: {
                     size: obj.Size,
-                    mimetype: undefined,
+                    mimetype: mime.getType(key) || 'application/octet-stream'
                 }
             })
 
