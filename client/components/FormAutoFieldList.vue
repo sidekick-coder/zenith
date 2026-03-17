@@ -1,16 +1,17 @@
 <script lang="ts">
-export interface FormField {
-    component: 
-        'text-field' 
-        | 'textarea' 
-        | 'select' 
-        | 'autocomplete'
-        | 'switch'
-        | 'image-upload'
-        | 'color-picker'
-        | 'string-list-input'
-        | 'multi-select'
-        | 'json-input'
+    export interface FormField {
+        component: 
+            'text-field' 
+            | 'textarea' 
+            | 'select' 
+            | 'autocomplete'
+            | 'switch'
+            | 'file-upload'
+            | 'image-upload'
+            | 'color-picker'
+            | 'string-list-input'
+            | 'multi-select'
+            | 'json-input'
         | 'date-picker'
         | 'hidden'
     [key: string]: any
@@ -36,6 +37,7 @@ import FormMultiSelect from './FormMultiSelect.vue'
 import FormJsonInput from './FormJsonInput.vue'
 import FormDatePicker from './FormDatePicker.vue'
 import FormTextField from '#client/components/FormTextField.vue'
+import FormFileUploader from '#client/components/FormFileUploader.vue'
 
 const props = defineProps({
     fields: {
@@ -87,6 +89,12 @@ const components = computed(() => {
 
         <FormSwitch
             v-else-if="field.component === 'switch'"
+            :name="field.name"
+            v-bind="field.props"
+        />
+
+        <FormFileUploader
+            v-else-if="field.component === 'file-upload'"
             :name="field.name"
             v-bind="field.props"
         />
