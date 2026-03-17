@@ -38,19 +38,19 @@ const props = defineProps({
         default: null,
     },
     labelKey: {
-        type: String,
+        type: [String, Function] as PropType<string | ((option: any) => string)>,
         default: 'label',
     },
     subtitleKey: {
-        type: String,
+        type: [String, Function] as PropType<string | ((option: any) => string)>,
         default: null,
     },
     avatarKey: {
-        type: String,
+        type: [String, Function] as PropType<string | ((option: any) => string)>,
         default: null,
     },
     valueKey: {
-        type: String,
+        type: [String, Function] as PropType<string | ((option: any) => any)>,
         default: 'value',
     },
     hint: {
@@ -148,16 +148,52 @@ const selectedFormated = computed(() => {
     }
 })
 
+function findValue(option: any) {
+    if (!props.valueKey) {
+        return option
+    }
+
+    if (typeof props.valueKey === 'function') {
+        return props.valueKey(option)
+    }
+
+    return option[props.valueKey]
+}
+
 function findLabel(option: any) {
-    return option[props.labelKey] || option[props.valueKey] || option
+    if (!props.labelKey) {
+        return null 
+    }
+
+    if (typeof props.labelKey === 'function') {
+        return props.labelKey(option)
+    }
+
+    return option[props.labelKey]
 }
 
 function findSubtitle(option: any) {
-    return option[props.subtitleKey] || null
+    if (!props.subtitleKey) {
+        return null 
+    }
+
+    if (typeof props.subtitleKey === 'function') {
+        return props.subtitleKey(option)
+    }
+
+    return option[props.subtitleKey]
 }
 
 function findAvatar(option: any) {
-    return option[props.avatarKey] || null
+    if (!props.avatarKey) {
+        return null 
+    }
+
+    if (typeof props.avatarKey === 'function') {
+        return props.avatarKey(option)
+    }
+
+    return option[props.avatarKey]
 }
 
 function findAvatarInitial(option: any) {
@@ -172,9 +208,6 @@ function findAvatarInitial(option: any) {
     return 'A'
 }
 
-function findValue(option: any) {
-    return option[props.valueKey] || option
-}
 
 function select(option: any) {
     if (!option) {
