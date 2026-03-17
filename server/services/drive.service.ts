@@ -109,6 +109,12 @@ export default class DriveService {
         return this.current.readStream(filename)
     }
 
+    public async readAsText(filename: string): Promise<string> {
+        const data = await this.read(filename)
+
+        return new TextDecoder().decode(data)
+    }
+
     public write(filename: string, payload: Uint8Array | string | Record<string, unknown> ): Promise<void> {
         if (!this.current) throw new BaseException('No drive selected')
 
