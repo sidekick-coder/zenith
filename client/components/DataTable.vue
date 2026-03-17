@@ -29,7 +29,7 @@ export interface DataTableFetchParams {
 export interface DataTableColumn<T extends Record<string, any> = any> {
     id?: string
     label?: string
-    field?: keyof T | ((row: T) => any)
+    field?: keyof T | ((row: T) => any) | (string & {})
     width?: number
     cardClass?: string
 }
