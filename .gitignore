@@ -35,6 +35,9 @@ modules/*
 !modules/.gitkeep
 storage/*
 !storage/.gitkeep
+!storage/uploads
+storage/uploads/*
+!storage/uploads/.gitkeep
 client-dist
 tmp
 docs/.vitepress/cache
