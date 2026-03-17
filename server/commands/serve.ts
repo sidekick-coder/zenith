@@ -50,9 +50,7 @@ async function stop(){
     if (!child) return
 
     return new Promise<void>((resolve) => {
-        child!.once('exit', () => {
-            setTimeout(resolve, 100) // Give it a moment to ensure the process has fully exited
-        })
+        child!.once('exit', resolve)
 
         child!.kill('SIGTERM')
 
@@ -64,6 +62,8 @@ async function stop(){
 
 async function reload(){
     await stop()
+
+    await new Promise(resolve => setTimeout(resolve, 1000))
 
     await start()
 }
