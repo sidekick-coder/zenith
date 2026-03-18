@@ -4,6 +4,7 @@ import { useField } from 'vee-validate'
 import { watchDebounced } from '@vueuse/core'
 import { computed, ref  } from 'vue'
 import type { PropType } from 'vue'
+import { get } from 'lodash-es'
 import Icon from './Icon.vue'
 import Separator from './ui/separator/Separator.vue'
 import { cn } from '#client/lib/utils'
@@ -81,6 +82,10 @@ const props = defineProps({
         type: String,
         default: null,
     },
+    fetchQuery: {
+        type: Object as PropType<Record<string, any>>,
+        default: () => ({}),
+    },
     fetchOption: {
         type: [String, Function] as PropType<string | ((value: any) => Promise<any>)>,
         default: null,
@@ -157,7 +162,7 @@ function findValue(option: any) {
         return props.valueKey(option)
     }
 
-    return option[props.valueKey]
+    return get(option, props.valueKey, option)
 }
 
 function findLabel(option: any) {
@@ -169,7 +174,7 @@ function findLabel(option: any) {
         return props.labelKey(option)
     }
 
-    return option[props.labelKey]
+    return get(option, props.labelKey, option)
 }
 
 function findSubtitle(option: any) {
@@ -181,7 +186,7 @@ function findSubtitle(option: any) {
         return props.subtitleKey(option)
     }
 
-    return option[props.subtitleKey]
+    return get(option, props.subtitleKey, null)
 }
 
 function findAvatar(option: any) {
@@ -193,7 +198,7 @@ function findAvatar(option: any) {
         return props.avatarKey(option)
     }
 
-    return option[props.avatarKey]
+    return get(option, props.avatarKey, null)
 }
 
 function findAvatarInitial(option: any) {
@@ -260,12 +265,14 @@ async function load() {
 
     await loadSelected()
 
+    const query = {
+        ...props.fetchQuery,
+        search: search.value,
+    }
+
     const [error, response] = await $fetch.try<any>(props.fetch as string, {
         method: 'GET',
-        query: {
-            search: search.value,
-            limit: 50,
-        }
+        query 
     })
 
     if (error) {
