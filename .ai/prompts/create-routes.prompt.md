@@ -113,8 +113,6 @@ Route prefix: /api/roles
 
 **`server/routes/role.route.ts`**
 ```ts
-import BaseException from '#server/exceptions/base.ts'
-import db from '#server/facades/db.facade.ts'
 import { undeleted } from '#server/queries/index.ts'
 import rootRouter from '#server/facades/router.facade.ts'
 import authMiddleware from '#server/middlewares/auth.middleware.ts'
@@ -153,15 +151,9 @@ router.post('/', async ({ body, acl }) => {
 
     const payload = validator.validate(body, schemas.role.create)
 
-    const row = await db.insertInto('roles').values(payload)
-        .returningAll()
-        .executeTakeFirst()
+    const role = await Role.create(payload)
 
-    if (!row) {
-        throw new BaseException('Failed to create role', 500)
-    }
-
-    return new Role(row)
+    return role
 })
 
 router.patch('/:id', async ({ params, body, acl }) => {
