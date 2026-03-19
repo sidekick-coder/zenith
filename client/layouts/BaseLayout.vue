@@ -35,6 +35,7 @@ import {
 import { $fetch } from '#client/utils/fetcher.ts'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
 import menu from '#client/facades/menu.facade.ts'
+import Icon from '#client/components/Icon.vue'
 
 export interface BreadcrumbItem {
     label: string;
@@ -68,6 +69,10 @@ const props = defineProps({
     title: {
         type: String,
         default: 'Dashboard',
+    },
+    icon: {
+        type: String,
+        default: null
     },
     menuVariant: {
         type: String as PropType<'default' | 'plain'>,
@@ -173,7 +178,18 @@ onMounted(() => {
                                 as-child
                             >
                                 <router-link :to="homePath">
-                                    <Logo />
+                                    <div
+                                        v-if="icon"
+                                        class="size-8 bg-primary text-primary-foreground flex items-center justify-center rounded-md mr-2"
+                                    >
+                                        <Icon
+                                            :name="icon"
+                                            class="text-lg"
+                                        />
+                                    </div>
+
+                                    <Logo v-else />
+
                                     <span class="font-medium">
                                         {{ title }}
                                     </span>
