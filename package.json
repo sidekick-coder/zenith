@@ -25,7 +25,7 @@
         "@aws-sdk/lib-storage": "^3.956.0",
         "@aws-sdk/s3-request-presigner": "^3.956.0",
         "@casl/ability": "^6.7.3",
-        "@inquirer/prompts": "^7.8.0",
+        "@inquirer/prompts": "^8.3.2",
         "@tailwindcss/vite": "^4.1.11",
         "@tanstack/vue-table": "^8.21.3",
         "@types/bcrypt": "^6.0.0",
@@ -43,7 +43,7 @@
         "bcrypt": "^6.0.0",
         "better-sqlite3": "^12.2.0",
         "chalk": "^5.4.1",
-        "chokidar": "^4.0.3",
+        "chokidar": "^5.0.0",
         "class-variance-authority": "^0.7.1",
         "cli-table3": "^0.6.5",
         "clsx": "^2.1.1",
@@ -55,7 +55,7 @@
         "echarts": "^6.0.0",
         "embla-carousel-vue": "^8.6.0",
         "express": "^5.1.0",
-        "fast-glob": "^2.0.1",
+        "fast-glob": "^3.3.3",
         "handlebars": "^4.7.8",
         "iconify-icon": "^3.0.2",
         "kysely": "^0.28.2",
@@ -85,11 +85,10 @@
         "vee-validate": "^4.15.1",
         "vue": "^3.5.24",
         "vue-component-type-helpers": "^3.0.8",
-        "vue-router": "^4.6.3",
+        "vue-router": "^5.0.4",
         "vue-sonner": "^2.0.8",
         "vue3-touch-events": "^5.0.13",
-        "winston": "^3.17.0",
-        "zod": "^3.25.76"
+        "winston": "^3.17.0"
     },
     "devDependencies": {
         "@faker-js/faker": "^10.0.0",
@@ -119,9 +118,9 @@
         "supertest": "^7.2.2",
         "testcontainers": "^11.11.0",
         "typescript": "~5.8.3",
-        "vite": "^7.0.3",
+        "vite": "^8.0.1",
         "vitepress": "^1.6.4",
         "vitest": "^3.2.4",
-        "vue-tsc": "^2.2.12"
+        "vue-tsc": "^3.2.6"
     }
 }
