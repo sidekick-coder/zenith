@@ -32,8 +32,15 @@ export default defineConfigWithVueTs(
             'import/consistent-type-specifier-style': ['error', 'prefer-top-level'],
             'import/order': 'error',
             'import/newline-after-import': 'error',
-            'object-curly-newline': ['error', { consistent: true, }],
-            'object-property-newline': ['error'],
+            'object-curly-newline': ['error', {
+                ObjectExpression: {
+                    multiline: true,
+                    minProperties: 2 
+                },
+                ObjectPattern: { multiline: true },
+                ImportDeclaration: { multiline: true }
+            }],
+            'object-property-newline': ['error', { allowAllPropertiesOnSameLine: false }],
             'object-curly-spacing': ['error', 'always'],
             'array-element-newline': ['error', { 'ArrayExpression': 'consistent' }],
             'brace-style': ['error', '1tbs', { 'allowSingleLine': true }],
