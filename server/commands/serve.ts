@@ -7,14 +7,14 @@ import logger from '#server/facades/logger.facade.ts'
 
 let child: cp.ChildProcess | null = null
 
-async function start(){
+async function start() {
     const modulePath = basePath('index.ts')
     const execArgv = [
         '--no-warnings',
         '--experimental-strip-types'
     ]
-        
-    child = cp.fork(modulePath, [], { 
+
+    child = cp.fork(modulePath, [], {
         execArgv,
         silent: false,
         env: {
@@ -41,26 +41,36 @@ async function start(){
     child.on('message', (message) => {
         if (message === 'server-restart') {
             logger.debug('Received server-restart event from child process')
-            debouncedReload()
+
+            reload()
         }
     })
 }
 
-async function stop(){
+async function stop() {
     if (!child) return
 
-    return new Promise<void>((resolve) => {
-        child!.once('exit', resolve)
+    const current = child
 
-        child!.kill('SIGTERM')
+    await new Promise<void>((resolve) => {
+        const timeout = setTimeout(() => {
+            current.kill('SIGKILL')
+        }, 3000)
 
-        child = null
+        current.once('exit', () => {
+            clearTimeout(timeout)
+            resolve()
+        })
 
-        
+        current.kill('SIGTERM')
     })
+
+    if (child === current) {
+        child = null
+    }
 }
 
-async function reload(){
+async function reload() {
     await stop()
 
     await new Promise(resolve => setTimeout(resolve, 1000))
@@ -82,7 +92,7 @@ program.command('serve')
 
         process.on('SIGINT', () => {
             logger.info('Shutting down...')
-                
+
             if (child) {
                 child.kill('SIGTERM')
             }
@@ -93,7 +103,7 @@ program.command('serve')
         if (!options.watch) {
             return
         }
-        
+
         const entries = [
             'shared',
             'server',
@@ -104,7 +114,7 @@ program.command('serve')
         ]
 
         const ignore = [
-            '.git', 
+            '.git',
             'arte',
             'node_modules',
             'commands',
@@ -122,7 +132,7 @@ program.command('serve')
         ]
 
         logger.debug('Watching directories', entries)
-            
+
         const watcher = chokidar.watch(entries.map(entry => basePath(entry)), {
             persistent: true,
             ignoreInitial: true,
@@ -157,5 +167,5 @@ program.command('serve')
         watcher.on('ready', () => {
             logger.debug('Watcher is ready')
         })
-        
+
     })
