@@ -1,10 +1,14 @@
-import { ref, watch, toValue, isRef, computed } from 'vue'
-import type { Ref, MaybeRef } from 'vue'
+import { ref, toValue, isRef, computed } from 'vue'
+import type { MaybeRef } from 'vue'
 
 export interface RGB {
     r: number
     g: number
     b: number
+}
+
+export interface RGBA extends RGB {
+    a: number
 }
 
 export interface HSL {
@@ -30,6 +34,24 @@ export function extracRGB(color: string): RGB {
         r: parseInt(rgbMatch[1]),
         g: parseInt(rgbMatch[2]),
         b: parseInt(rgbMatch[3])
+    }
+}
+
+export function extractRGBA(color: string): RGBA {
+    const rgbaMatch = /rgba\((\d+),\s*(\d+),\s*(\d+),\s*([\d.]+)\)/.exec(color)
+    if (!rgbaMatch) {
+        // fallback to rgb with alpha 1
+        const rgb = extracRGB(color)
+        return {
+            ...rgb,
+            a: 1 
+        }
+    }
+    return {
+        r: parseInt(rgbaMatch[1]),
+        g: parseInt(rgbaMatch[2]),
+        b: parseInt(rgbaMatch[3]),
+        a: parseFloat(rgbaMatch[4])
     }
 }
 
@@ -136,6 +158,10 @@ export function rgbToHex(r: number, g: number, b: number): string {
     }
 
     return `#${toHex(r)}${toHex(g)}${toHex(b)}`
+}
+
+export function rgbaToString(rgba: RGBA): string {
+    return `rgba(${rgba.r}, ${rgba.g}, ${rgba.b}, ${rgba.a})`
 }
 
 export function extractOKLCH(color: string): OKLCH {
@@ -247,6 +273,10 @@ export function useColorType(payload?: MaybeRef<string | null | undefined>) {
                 return 'hex'
             }
 
+            if (/^rgba/.test(color.value)) {
+                return 'rgba'
+            }
+
             if (/^rgb/.test(color.value)) {
                 return 'rgb'
             }
@@ -286,6 +316,11 @@ export function useColorType(payload?: MaybeRef<string | null | undefined>) {
                 return
             }
 
+            if (type === 'rgba') {
+                color.value = `rgba(${currentRgb.r}, ${currentRgb.g}, ${currentRgb.b}, 1)`
+                return
+            }
+
             if (type === 'hsl') {
                 const hsl = rgbToHsl(currentRgb.r, currentRgb.g, currentRgb.b)
                 color.value = `hsl(${hsl.h}, ${hsl.s}%, ${hsl.l}%)`
@@ -318,6 +353,16 @@ export function useRGB(payload?: MaybeRef<string | null | undefined>) {
                 return null
             }
 
+            if (type.value === 'rgba') {
+                const rgba = extractRGBA(color.value)
+
+                return {
+                    r: rgba.r,
+                    g: rgba.g,
+                    b: rgba.b 
+                }
+            }
+
             if (type.value === 'rgb') {
                 return extracRGB(color.value)
             }
@@ -343,8 +388,50 @@ export function useRGB(payload?: MaybeRef<string | null | undefined>) {
 
             if (type.value === 'rgb') {
                 const rgb = extracRGB(color.value)
-
                 color.value = `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`
+            }
+            if (type.value === 'rgba') {
+                const rgba = extractRGBA(color.value)
+                color.value = `rgba(${rgba.r}, ${rgba.g}, ${rgba.b}, ${rgba.a})`
+            }
+        }
+    })
+}
+
+export function useRGBA(payload?: MaybeRef<string | null | undefined>) {
+    const color = isRef(payload) ? payload : ref<string | null | undefined>(toValue(payload))
+    
+    const type = useColorType(color)
+    const rgb = useRGB(color)
+
+    return computed<RGBA | null>({
+        get() {
+            if (!rgb.value) {
+                return null
+            }
+
+            if (type.value === 'rgba') {
+                return extractRGBA(color.value!)
+            }
+
+            return {
+                ...rgb.value,
+                a: 1
+            }
+        },
+        set(value) {
+            if (!value || !color.value) {
+                return
+            }
+
+            if (type.value === 'rgba') {
+                color.value = `rgba(${value.r}, ${value.g}, ${value.b}, ${value.a})`
+                return
+            }
+
+            if (type.value === 'rgb') {
+                color.value = `rgb(${value.r}, ${value.g}, ${value.b})`
+                return
             }
         }
     })
@@ -434,7 +521,9 @@ export function useColor(payload?: MaybeRef<string | null | undefined>) {
     const type = useColorType(color)
     const hex = useHex(color)
     const rgb = useRGB(color)
+    const rgba = useRGBA(color)
     const hsl = useHSL(color)
+
     
     const oklch = computed<OKLCH | null>({
         get() {
@@ -475,5 +564,6 @@ export function useColor(payload?: MaybeRef<string | null | undefined>) {
         rgb,
         hsl,
         oklch,
+        rgba
     }
 }
