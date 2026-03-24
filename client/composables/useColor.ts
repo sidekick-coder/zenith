@@ -472,6 +472,12 @@ export function useHSL(payload?: MaybeRef<string | null | undefined>) {
                 return
             }
 
+            if (type.value === 'rgba') {
+                const rgb = hslToRgb(`hsl(${value.h}, ${value.s}%, ${value.l}%)`)
+                color.value = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 1)`
+                return
+            }
+
             if (type.value === 'rgb') {
                 const rgb = hslToRgb(`hsl(${value.h}, ${value.s}%, ${value.l}%)`)
                 color.value = `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`
