@@ -1,11 +1,13 @@
+import { debounce } from 'lodash-es'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
 import { createId } from '#shared/utils/index.ts'
 import logger from '#server/facades/logger.facade.ts'
 
-interface EmmitterHanlder {
+interface EmmitterHandler {
     id: string
     event: string
-    listener: Function
+    listener: (...args: any[]) => any
+    originalListener?: (...args: any[]) => any 
 }
 
 interface OnOptions {
@@ -13,12 +15,16 @@ interface OnOptions {
     unique?: boolean
 }
 
+interface OnDebounceOptions extends OnOptions {
+    debounce?: number
+}
+
 export interface EmmitterServiceOptions {
     debug?: boolean
 }
 
 export default class EmmitterService<Events extends Record<string, any> = Record<string, any>> {
-    private handlers: EmmitterHanlder[] = []
+    private handlers: EmmitterHandler[] = []
     private debug: boolean
     private logger = logger.child({ label: 'emmitter' })
 
@@ -30,9 +36,9 @@ export default class EmmitterService<Events extends Record<string, any> = Record
         }
     }
 
-    public on<K extends keyof Events>(event: K, listener: (args: Events[K]) => void, options?: OnOptions): EmmitterHanlder
-    public on(event: string, listener: (args: any) => void, options?: OnOptions): EmmitterHanlder
-    public on(event: string, listener: Function, options?: OnOptions) {
+    public on<K extends keyof Events>(event: K, listener: (args: Events[K]) => void, options?: OnOptions): EmmitterHandler
+    public on(event: string, listener: (args: any) => void, options?: OnOptions): EmmitterHandler
+    public on(event: string, listener: EmmitterHandler['listener'], options?: OnOptions) {
         const id = options?.id || createId()
 
         if (options?.unique) {
@@ -43,7 +49,7 @@ export default class EmmitterService<Events extends Record<string, any> = Record
             }
         }
 
-        const handler: EmmitterHanlder = {
+        const handler: EmmitterHandler = {
             id,
             event,
             listener 
@@ -58,8 +64,44 @@ export default class EmmitterService<Events extends Record<string, any> = Record
         return handler
     }
 
+    public onDebounce<K extends keyof Events>(event: K, listener: (args: Events[K]) => void, options?: OnDebounceOptions): EmmitterHandler 
+    public onDebounce(event: string, listener: (args: any) => void, options?: OnDebounceOptions): EmmitterHandler 
+    public onDebounce(event: string, listener: EmmitterHandler['listener'], options?: OnDebounceOptions) {
+        const debounced = debounce(listener, options?.debounce || 300)
+
+        const handler = this.on(event, debounced, options)
+
+        if (handler) {
+            handler.originalListener = listener
+        }
+
+        return handler
+    }
+
+    public onAnyOf<K extends keyof Events>(events: K[], listener: (args: Events[K]) => void, options?: OnOptions): EmmitterHandler[]
+    public onAnyOf(events: string[], listener: (args: any) => void, options?: OnOptions): EmmitterHandler[]
+    public onAnyOf(events: string[], listener: Function, options?: OnOptions) {
+        const handlers: EmmitterHandler[] = []
+
+        for (const event of events) {
+            const handler = this.on(event, listener as any, options)
+
+            if (handler) {
+                handlers.push(handler)
+            }
+        }
+
+        return handlers
+    }
+
     public off(event: string, listener: Function) {
-        this.handlers = this.handlers.filter(h => !(h.event === event && h.listener === listener))
+        this.handlers = this.handlers.filter(h => {
+            if (h.event === event && (h.listener === listener || h.originalListener === listener)) {
+                return false
+            }
+
+            return true
+        })
 
         if (this.debug) {
             this.logger.debug('handler removed', { event })
