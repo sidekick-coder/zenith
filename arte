@@ -7,7 +7,7 @@ const bin = 'node';
 const args = [
     '--no-warnings',
     '--experimental-strip-types',
-    path.join(import.meta.dirname, 'server', 'arte.ts'),
+    path.join(import.meta.dirname, 'server', 'cli.ts'),
     ...process.argv.slice(2),
 ];
 

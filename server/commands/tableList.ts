@@ -1,11 +1,11 @@
-import { program } from 'commander'
-import { sql } from 'kysely'
+import arte from '#server/facades/arte.facade.ts'
 import db from '#server/facades/db.facade.ts'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
 import cli from '#server/services/cli.service.ts'
 
-
-program.command('table:list')
+arte
+    .command('table:list')
+    .need('db')
     .description('List all tables in the database')
     .helpGroup('table')
     .action(async () => {

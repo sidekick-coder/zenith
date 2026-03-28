@@ -1,13 +1,15 @@
 import { readFile, writeFile } from 'fs/promises'
 import { resolve } from 'path'
 import { existsSync } from 'fs'
-import { program } from 'commander'
 import { input } from '@inquirer/prompts'
 import chalk from 'chalk'
 import translator from '#server/facades/translator.facade.ts'
+import arte from '#server/facades/arte.facade.ts'
 
-program.command('translations:scan')
-    .helpGroup('translations')
+arte
+    .command('translator:scan')
+    .need('translator')
+    .helpGroup('translator')
     .description('Scan files for translation keys and generate a JSON file')
     .option('-d, --directory <directory>', 'Directory to scan')
     .option('-o, --output <output>', 'Output filename')

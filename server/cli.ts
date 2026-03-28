@@ -1,5 +1,7 @@
 import fs from 'fs'
-import { program } from 'commander'
+import arte from './facades/arte.facade.ts'
+import type ArteService from './services/arte.service.ts'
+import ConfigLifecycleHook from './hooks/config.hook.ts'
 import { importAll } from '#server/utils/importAll.ts'
 import { basePath } from '#server/utils/paths.ts'
 import config from '#server/facades/config.facade.ts'
@@ -22,29 +24,6 @@ di.set(LoggerService, logger)
 
 env.load()
 
-const exclude = [
-    'AppLifecycleHook',
-    'ViteLifecycleHook',
-    'ModulesClientLifecycleHook',
-    'QueueLifecycleHook'
-]
-
-const lifecycle = new LifecycleService({
-    debug: env.get('LIFECYCLE_DEBUG'),
-    logger: logger.child({ label: 'lifecycle' }),
-})
-
-const mods = await importAll(basePath('server/hooks'))
-
-const hooks: LifecycleHook[] = Object.values(mods)
-    .map(m => m.default || m)
-    .filter((HookClass: any) => HookClass.prototype instanceof LifecycleHook)
-    .map((HookClass: any) => new HookClass())
-
-lifecycle.add(...hooks)
-
-await lifecycle.register()
-
 await importAll(basePath('server/commands'))
 
 const modulesPath = basePath('modules')
@@ -54,12 +33,6 @@ const moduleNames = fs.readdirSync(modulesPath, { withFileTypes: true })
     .map(dirent => dirent.name)
 
 for await (const name of moduleNames) {
-    const enabled = config.get(`modules.enabled.${name}`, false)
-    
-    if (!enabled) {
-        continue
-    }
-    
     if (fs.existsSync(`${modulesPath}/${name}/server/commands`)) {
         try {
             await importAll(`${modulesPath}/${name}/server/commands`)            
@@ -69,14 +42,43 @@ for await (const name of moduleNames) {
     }
 }
 
+const mods = await importAll(basePath('server/hooks'))
 
-program
-    .hook('preAction', async () => {
-        await lifecycle.load({ exclude })
-        
-        await lifecycle.boot({ exclude })
-    })
-    .hook('postAction', async () => {
-        await lifecycle.shutdown({ exclude })
-    })
+const hooks: LifecycleHook[] = Object.values(mods)
+    .map(m => m.default || m)
+    .filter((HookClass: any) => HookClass.prototype instanceof LifecycleHook)
+    .map((HookClass: any) => new HookClass())
+
+const lifecycle = new LifecycleService({
+    debug: env.get('LIFECYCLE_DEBUG'),
+    logger: logger.child({ label: 'lifecycle' }),
+})
+
+lifecycle.add(ConfigLifecycleHook)
+
+const alias: Record<string, string> = { 
+    'translator': 'TrasnlatorLifecycleHook',
+    'db': 'DatabaseLifecycleHook',
+} 
+
+async function onPreAction(command: ArteService) {
+    const needs = Array.from(command.needs).map(need => alias[need] || need)
+
+    hooks.filter(hook => needs.includes(hook.hook_id)).forEach(hook => lifecycle.add(hook))
+
+    await lifecycle.register()
+
+    await lifecycle.load()
+    
+    await lifecycle.boot()
+}
+
+async function onPostAction() {
+    await lifecycle.shutdown()
+}
+
+
+arte.name('arte')
+    .hook('preAction', (_thisCommand, actionCommand) => onPreAction(actionCommand as any))
+    .hook('postAction', onPostAction)
     .parse()
