@@ -130,7 +130,7 @@ export default class LoggerWinsonService extends LoggerService {
     public static console(){
         return new winston.transports.Console({
             format: format.combine(
-                format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
+                format.timestamp({ format: 'HH:mm:ss' }),
                 format.printf(LoggerWinsonService.format)
             ),
         })

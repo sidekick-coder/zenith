@@ -72,17 +72,11 @@ for await (const name of moduleNames) {
 
 program
     .hook('preAction', async () => {
-        await lifecycle.load({
-            exclude
-        })
+        await lifecycle.load({ exclude })
         
-        await lifecycle.boot({
-            exclude
-        })
+        await lifecycle.boot({ exclude })
     })
     .hook('postAction', async () => {
-        await lifecycle.shutdown({
-            exclude
-        })
+        await lifecycle.shutdown({ exclude })
     })
     .parse()
