@@ -3,6 +3,22 @@ import type { Database } from '#server/contracts/database.contract.ts'
 import db from '#server/facades/db.facade.ts'
 import type { Constructor } from '#shared/utils/compose.ts'
 
+export function valueToString(value: any): string {
+    if (typeof value === 'object') {
+        return `json:${JSON.stringify(value)}`
+    }
+
+    if (typeof value === 'boolean') {
+        return `bool:${value}`
+    }
+
+    if (typeof value === 'number') {
+        return `number:${value}`
+    }
+
+    return String(value)
+}
+
 export function Metadata<Table extends keyof Database>(metasTable: Table, foreignKey: keyof Database[Table]) {
     return function MetadataExtend<TBase extends Constructor>(Base: TBase) {
         return class extends Base {
@@ -61,9 +77,7 @@ export function Metadata<Table extends keyof Database>(metasTable: Table, foreig
                     value
                 }
 
-                if (typeof value === 'object') {
-                    values.value = `json:${JSON.stringify(value)}`
-                }
+                values.value = valueToString(value)
 
                 await updateOrCreate(metasTable, {
                     values: values as any,
