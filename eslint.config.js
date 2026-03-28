@@ -57,6 +57,8 @@ export default defineConfigWithVueTs(
                 'singleline': { 'max': 1 },
                 'multiline': { 'max': 1 }
             }],
+            'vue/no-v-html': ['off'],
+            'vue/no-v-text-v-html-on-component': ['off'],
             'vue/no-mutating-props': 'off',
             'vue/no-ref-as-operand': 'off',
             '@typescript-eslint/no-empty-object-type': 'off',

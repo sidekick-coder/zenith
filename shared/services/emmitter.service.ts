@@ -109,8 +109,8 @@ export default class EmmitterService<Events extends Record<string, any> = Record
     }
 
     public emit<K extends keyof Events>(event: K, args: Events[K]): void
-    public emit(event: string, args: any): void
-    public emit(event: string, args: any) {
+    public emit(event: string, args?: any): void
+    public emit(event: string, args?: any) {
 
         if (this.debug) {
             this.logger.debug('emitting event', { 
@@ -127,8 +127,8 @@ export default class EmmitterService<Events extends Record<string, any> = Record
     }
 
     public async emitAndWait<K extends keyof Events>(event: K, args: Events[K]): Promise<void>
-    public async emitAndWait(event: string, args: any): Promise<void>
-    public async emitAndWait(event: string, args: any) {
+    public async emitAndWait(event: string, args?: any): Promise<void>
+    public async emitAndWait(event: string, args?: any) {
        
 
         const handlers = this.handlers.filter(h => h.event === event)
@@ -149,6 +149,10 @@ export default class EmmitterService<Events extends Record<string, any> = Record
 
     public list() {
         return this.handlers
+    }
+
+    public listByEvent(event: string) {
+        return this.handlers.filter(h => h.event === event)
     }
 
     public remove(payload: string | string[]) {
