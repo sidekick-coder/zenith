@@ -1,9 +1,9 @@
 import cp from 'child_process'
-import { program } from 'commander'
 import chokidar from 'chokidar'
 import { debounce } from 'lodash-es'
 import { basePath } from '#server/utils/paths.ts'
 import logger from '#server/facades/logger.facade.ts'
+import arte from '#server/facades/arte.facade.ts'
 
 let child: cp.ChildProcess | null = null
 
@@ -53,16 +53,18 @@ async function stop() {
     const current = child
 
     await new Promise<void>((resolve) => {
+        current.send({ type: 'shutdown' })
+
         const timeout = setTimeout(() => {
-            current.kill('SIGKILL')
+            logger.warn('Server process did not exit in time, ending watching...')
+
+            process.exit(1)
         }, 3000)
 
         current.once('exit', () => {
             clearTimeout(timeout)
             resolve()
         })
-
-        current.kill('SIGTERM')
     })
 
     if (child === current) {
@@ -70,17 +72,29 @@ async function stop() {
     }
 }
 
-async function reload() {
-    await stop()
+async function reload(info: any) {
+    console.log('here')
+    logger.debug('Reloading server...', info)
 
-    await new Promise(resolve => setTimeout(resolve, 1000))
+    await stop()
 
     await start()
 }
 
-const debouncedReload = debounce(reload, 1000)
+function kill() {
+    if (child) {
+        child.kill('SIGTERM')
+    }
 
-program.command('serve')
+    logger.info('Shutting down...')
+
+    process.exit(0)
+}
+
+const reloadDebounced = debounce(reload, 500)
+
+arte
+    .command('serve')
     .option('-w, --watch', 'Watch for changes and restart server')
     .action(async (options) => {
         await start()
@@ -90,15 +104,8 @@ program.command('serve')
             return
         }
 
-        process.on('SIGINT', () => {
-            logger.info('Shutting down...')
-
-            if (child) {
-                child.kill('SIGTERM')
-            }
-
-            process.exit(0)
-        })
+        process.on('SIGINT', kill)
+        process.on('SIGTERM', kill)
 
         if (!options.watch) {
             return
@@ -145,20 +152,9 @@ program.command('serve')
             }
         })
 
-        watcher.on('change', (path) => {
-            logger.debug(`File changed: ${path}`)
-            reload()
-        })
-
-        watcher.on('add', (path) => {
-            logger.debug(`File added: ${path}`)
-            reload()
-        })
-
-        watcher.on('unlink', (path) => {
-            logger.debug(`File removed: ${path}`)
-            reload()
-        })
+        watcher.on('change', reloadDebounced)
+        watcher.on('add', reloadDebounced)
+        watcher.on('unlink', reloadDebounced)
 
         watcher.on('error', (error) => {
             logger.error('Watcher error:', error)

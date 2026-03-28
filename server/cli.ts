@@ -4,7 +4,6 @@ import type ArteService from './services/arte.service.ts'
 import ConfigLifecycleHook from './hooks/config.hook.ts'
 import { importAll } from '#server/utils/importAll.ts'
 import { basePath } from '#server/utils/paths.ts'
-import config from '#server/facades/config.facade.ts'
 import env from '#server/facades/env.facade.ts'
 import di from '#server/facades/di.facade.ts'
 import LoggerService from '#shared/services/logger.service.ts'
@@ -13,10 +12,11 @@ import LifecycleService from '#shared/services/lifecycle.service.ts'
 import LifecycleHook from '#shared/entities/lifecycleHook.entity.ts'
 
 const logger = LoggerWinsonService.create({
+    level: env.get('LOG_LEVEL', 'info'),
     transports: [
         LoggerWinsonService.console(),
         LoggerWinsonService.file(basePath('storage/logs/error.log'), 'error'),
-        LoggerWinsonService.file(basePath('storage/logs/combined.log')),
+        LoggerWinsonService.file(basePath('storage/logs/console.log')),
     ]
 })
 

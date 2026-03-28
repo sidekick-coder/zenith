@@ -16,11 +16,18 @@ process.on('uncaughtException', (error: Error) => {
     console.error('Uncaught Exception:', error)
 })
 
+// server kill signals  1234
+process.on('message', (data: any) => {
+    if (data?.type === 'shutdown') {
+        process.exit(0)
+    }
+})
+
 env.load()
 
 const transports: any[] = [
     LoggerWinsonService.file(basePath('storage/logs/error.log'), 'error'),
-    LoggerWinsonService.file(basePath('storage/logs/combined.log')),
+    LoggerWinsonService.file(basePath('storage/logs/app.log')),
 ]
 
 transports.push(env.development ? LoggerWinsonService.console() : LoggerWinsonService.consoleJson())

@@ -1,10 +1,7 @@
 import { program } from 'commander'
-import { sql } from 'kysely'
 import { confirm, select } from '@inquirer/prompts'
 import db from '#server/facades/db.facade.ts'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
-import cli from '#server/services/cli.service.ts'
-
 
 program.command('table:drop')
     .description('Drop a table from the database')
@@ -18,8 +15,10 @@ program.command('table:drop')
 
             const result = await select({
                 message: 'Select a table to drop',
-                choices: all.map(t => ({ name: t.name,
-                    value: t.name })),
+                choices: all.map(t => ({
+                    name: t.name,
+                    value: t.name 
+                })),
             })
 
             table = result
@@ -31,9 +30,7 @@ program.command('table:drop')
             return
         }
 
-        const confirmation = await confirm({
-            message: `Are you sure you want to drop the table "${table}"? This action cannot be undone.`,
-        })
+        const confirmation = await confirm({ message: `Are you sure you want to drop the table "${table}"? This action cannot be undone.`, })
 
         if (!confirmation) {
             console.log('Operation cancelled')
