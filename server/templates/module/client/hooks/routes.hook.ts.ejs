@@ -1,0 +1,19 @@
+import router from '#client/facades/router.facade.ts'
+import authGuard from '#client/guards/auth.guard.ts'
+import LifecycleHook from '#shared/entities/lifecycleHook.entity.ts'
+
+export default class extends LifecycleHook {
+    public async onLoad(): Promise<void> {
+        router.auto(import.meta.glob<any>('../pages/admin/**/*.vue'), {
+            strip: ['pages', 'admin'],
+            prefix: '/admin/{{name}}',
+            guards: [authGuard],
+        })
+        
+        router.auto(import.meta.glob<any>('../pages/**/*.vue'), {
+            strip: ['pages', 'admin'],
+            prefix: '/{{name}}',
+            exclude: ['admin/'],
+        })
+    }
+}

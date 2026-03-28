@@ -1,0 +1,24 @@
+import menu from '#client/facades/menu.facade.ts'
+import LifecycleHook from '#shared/entities/lifecycleHook.entity.ts'
+
+export default class extends LifecycleHook {
+    public async onLoad(): Promise<void> {
+        menu.add({
+            id: '{{name}}-admin-home',
+            group: '{{name}}',
+            layout: 'admin',
+            label: $t('admin'),
+            to: '/admin/{{name}}',
+            icon: 'Home',
+        })
+
+        menu.add({
+            id: '{{name}}-home',
+            group: '{{name}}',
+            label: $t('Home'),
+            to: '/{{name}}',
+            icon: 'Home',
+        })
+    }
+}
+

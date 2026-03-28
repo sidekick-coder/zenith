@@ -6,34 +6,5 @@ import menu from '#client/facades/menu.facade.ts'
 import './assets/css/styles.css'
 
 export default class {{ camelCaseName }} extends Module {
-    public async onLoad(): Promise<void> {
-        router.auto(import.meta.glob<any>('./pages/admin/**/*.vue'), {
-            strip: ['pages', 'admin'],
-            prefix: '/admin/{{name}}',
-            guards: [authGuard],
-        })
-        
-        router.auto(import.meta.glob<any>('./pages/**/*.vue'), {
-            strip: ['pages', 'admin'],
-            prefix: '/{{name}}',
-            exclude: ['admin/'],
-        })
-
-        menu.add({
-            id: '{{name}}-admin-home',
-            group: '{{name}}',
-            layout: 'admin',
-            label: $t('admin'),
-            to: '/admin/{{name}}',
-            icon: 'Home',
-        })
-
-        menu.add({
-            id: '{{name}}-home',
-            group: '{{name}}',
-            label: $t('Home'),
-            to: '/{{name}}',
-            icon: 'Home',
-        })
-    }
+    // code
 }
