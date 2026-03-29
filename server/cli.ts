@@ -1,6 +1,5 @@
 import fs from 'fs'
-import arte from './facades/arte.facade.ts'
-import type ArteService from './services/arte.service.ts'
+import ArteService from './services/arte.service.ts'
 import ConfigLifecycleHook from './hooks/config.hook.ts'
 import { importAll } from '#server/utils/importAll.ts'
 import { basePath } from '#server/utils/paths.ts'
@@ -24,7 +23,11 @@ di.set(LoggerService, logger)
 
 env.load()
 
-await importAll(basePath('server/commands'))
+const arte = new ArteService()
+
+di.set(ArteService, arte)
+
+await importAll(basePath('server/commands'), { exclude: ['test.ts'], })
 
 const modulesPath = basePath('modules')
 
