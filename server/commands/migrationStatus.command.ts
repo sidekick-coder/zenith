@@ -1,16 +1,13 @@
-import { program } from 'commander'
-import chalk from 'chalk'
+import arte from '#server/facades/arte.facade.ts'
 import migrator from '#server/facades/migrator.facade.ts'
-import cli from '#server/services/cli.service.ts'
-import db from '#server/facades/db.facade.ts'
 
-program.command('migration:status')
+arte
+    .command('migration:status')
+    .need('db', 'modules')
     .helpGroup('migration')
     .option('-m, --module <module>', 'Filter by module')
     .option('-r, --root ', 'Run only root migrations')
     .action(async (options) => {
-        await db.load()
-        
         const items = await migrator.list(options)
 
         // sort by root then modules 
@@ -25,23 +22,21 @@ program.command('migration:status')
             return a.module.localeCompare(b.module)
         })
 
-        cli.ui.table(items, [
-            {
-                label: 'status',
-                value: i => i.executedAt ? chalk.green('Executed') : chalk.red('Pending'),
-                width: 20,
-            },
-            {
-                label: 'module',
-                value: 'module',
-                width: 20,
-            },
+        arte.table(items, [
             {
                 label: 'name',
                 value: 'name',
-            }
+            },
+            {
+                label: 'module',
+                width: 20,
+                value: i => i.module || arte.colors.dim('root'),
+            },
+            {
+                label: 'status',
+                value: i => i.executedAt ? arte.colors.green('Executed') : arte.colors.red('Pending'),
+                width: 20,
+            },
         ])
-
-        await db.destroy()
     })
 
