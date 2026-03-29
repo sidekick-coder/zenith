@@ -150,11 +150,7 @@ export default class ViteService extends compose(Hooks) {
             server: { middlewareMode: true },
             appType: 'custom',
             publicDir: 'client/public',
-            resolve: {
-                alias: {
-                    'vue': 'vue/dist/vue.esm-bundler.js',
-                }
-            }
+            resolve: { alias: { 'vue': 'vue/dist/vue.esm-bundler.js', } }
         })
 
         app.use(this.server.middlewares)
@@ -241,6 +237,7 @@ export default class ViteService extends compose(Hooks) {
 
     public async render(options: RenderOptions): Promise<string> {
         if (env.development) {
+            console.time('Vite SSR render')
             await this.loadEntryNode()
         }
 
@@ -330,11 +327,7 @@ export default class ViteService extends compose(Hooks) {
 
         if (state.get('auth:user')) {
             const user = state.get('auth:user') as User
-            const permissions = Permission.applyContext(user.permissions, {
-                auth: {
-                    user: user
-                },
-            })
+            const permissions = Permission.applyContext(user.permissions, { auth: { user: user }, })
 
             const metas = await user.$metas.all()
 

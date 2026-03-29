@@ -28,11 +28,12 @@ arte.command('module:build')
             return
         }
 
+
+        const mod = await modules.findOrFail(name)
+
         if (options.prepare) {
             await modules.prepare(name)
         }
-
-        const mod = await modules.findOrFail(name)
 
         await modules.builder.build(mod)
     })

@@ -7,6 +7,8 @@ globalThis.imports['reka-ui'] = () => import('reka-ui')
 globalThis.imports['vue-router'] = () => import('vue-router')
 globalThis.imports['vee-validate'] = () => import('vee-validate')
 globalThis.imports['vue-sonner'] = () => import('vue-sonner')
+globalThis.imports['@vueuse/core'] = () => import('@vueuse/core')
+globalThis.imports['@unhead/vue'] = () => import('@unhead/vue')
 
 
 // Handle #client and #shared imports

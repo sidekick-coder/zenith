@@ -132,7 +132,11 @@ export default class ExpressService {
     }
 
     public start(){
-        this.server =this.app.listen(3000, () => {
+        const port = env.get('PORT', 3000) 
+        const host = env.get('HOST', 'localhost')
+
+
+        this.server =this.app.listen(port, host, () => {
             this.logger.info(`server started at ${env.get('APP_URL')}`, {
                 pid: process.pid,
                 env: env.get('NODE_ENV'),

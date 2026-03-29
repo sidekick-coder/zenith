@@ -79,12 +79,9 @@ export default class ModulesService {
             }
 
             this.manifests.set(name, ModuleManifest.from({
+                ...json,
                 id: name,
-                name: json.name,
-                version: json.version,
-                description: json.description,
                 enabled: config.get(`modules.enabled.${name}`, false),
-                dependencies: json.dependencies || {}
             }))
 
             if (this.debug) {
@@ -93,9 +90,7 @@ export default class ModulesService {
         }
 
         if (this.debug) {
-            this.logger.debug(`Discovered ${this.manifests.size} modules`, {
-                modules: Array.from(this.manifests.keys())
-            })
+            this.logger.debug(`Discovered ${this.manifests.size} modules`, { modules: Array.from(this.manifests.keys()) })
         }
     }
 
@@ -130,7 +125,7 @@ export default class ModulesService {
         this.mods = []
 
         const manifests = this.getManifestSortedByDependency()
-        
+
         for (const manifest of manifests) {
             if (!manifest.enabled) {
                 continue
@@ -173,9 +168,7 @@ export default class ModulesService {
         }
 
         if (this.debug) {
-            this.logger.debug(`Loaded ${this.mods.length} modules`, {
-                modules: this.mods.map(m => m.id)
-            })
+            this.logger.debug(`Loaded ${this.mods.length} modules`, { modules: this.mods.map(m => m.id) })
         }
     }
 
@@ -323,6 +316,12 @@ export default class ModulesService {
                 if (this.debug) {
                     logger.debug(`Target directory '${path.relative(basePath(), target)}' exist, skipping symlink`)
                 }
+
+                continue
+            }
+
+            if (!fs.existsSync(source)) {
+                logger.warn(`Source directory '${path.relative(basePath(), source)}' does not exist, skipping symlink`)
 
                 continue
             }

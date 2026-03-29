@@ -36,19 +36,27 @@ export default class ModuleBuilderService {
                 type: 'global_import'
             },
             { 
-                from: '#client',
-                type: 'global_import' 
-            },
-            { 
-                from: '#shared',
-                type: 'global_import' 
-            },
-            { 
                 from: 'vee-validate',
                 type: 'global_import' 
             },
             { 
                 from: 'reka-ui',
+                type: 'global_import' 
+            },
+            {
+                from: '@vueuse/core',
+                type: 'global_import'
+            },
+            {
+                from: '@unhead/vue',
+                type: 'global_import'
+            },
+            { 
+                from: '#client',
+                type: 'global_import' 
+            },
+            { 
+                from: '#shared',
                 type: 'global_import' 
             },
         ]
