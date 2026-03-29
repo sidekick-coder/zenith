@@ -16,6 +16,8 @@
         "build": "node arte build",
         "lint": "eslint",
         "test": "node arte test",
+        "test:unit": "vitest run --project unit",
+        "test:int": "vitest run --project int",
         "docs:dev": "vitepress dev docs",
         "docs:build": "vitepress build docs",
         "docs:preview": "vitepress preview docs"
