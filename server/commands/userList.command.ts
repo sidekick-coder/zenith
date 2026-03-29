@@ -1,6 +1,5 @@
 
 import { program } from 'commander'
-import auth from '#server/facades/auth.facade.ts'
 import User from '#server/entities/user.entity.ts'
 import { table } from '#server/utils/cliUi.ts'
 
@@ -18,9 +17,7 @@ program.command('user:list')
             query.offset(Number(options.offset))
         }
 
-        const users = await User.list({
-            query: () => query
-        })
+        const users = await User.list({ query: () => query })
 
         if (!users.length) {
             console.log('No users found.')

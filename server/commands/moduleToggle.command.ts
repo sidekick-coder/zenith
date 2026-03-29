@@ -1,13 +1,16 @@
-import { program } from 'commander'
 import modules from '#server/facades/modules.facade.ts'
 import build from '#server/facades/server.facade.ts'
 import logger from '#server/facades/logger.facade.ts'
+import arte from '#server/facades/arte.facade.ts'
 
-program.command('module:toggle')
+arte
+    .command('module:toggle')
+    .need('modules')
     .helpGroup('module')
-    .argument('<module>', 'Module to toggle')
-    .option('-b, --build', 'Whether to build after toggling the module', false)
-    .action(async (name, options) => {
+    .requiredOption('-m, --module <name>', 'Module name to toggle')
+    .action(async (options) => {
+        const name = options.module 
+
         await modules.toggle(name)
 
         if (options.build) {

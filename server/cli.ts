@@ -60,12 +60,12 @@ const alias: Record<string, string> = {
     'translator': 'TrasnlatorLifecycleHook',
     'db': 'DatabaseLifecycleHook',
     'modules': 'ModulesLifecycleHook',
+    'drive': 'DriveLifecycleHook',
+    'mailer': 'MailerLifecycleHook',
 } 
 
 async function onPreAction(command: ArteService) {
     const needs = Array.from(command.needs).map(need => alias[need] || need)
-
-    console.log(needs)
 
     hooks.filter(hook => needs.includes(hook.hook_id)).forEach(hook => lifecycle.add(hook))
 

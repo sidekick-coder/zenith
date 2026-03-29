@@ -1,9 +1,10 @@
-import { program } from 'commander'
 import { confirm } from '@inquirer/prompts'
 import migrator from '#server/facades/migrator.facade.ts'
 import { table } from '#server/utils/cliUi.ts'
+import arte from '#server/facades/arte.facade.ts'
 
-program.command('migration:fresh')
+arte.command('migration:fresh')
+    .need('db', 'modules')
     .helpGroup('migration')
     .description('Rollback all migrations and re-run them')
     .option('-m, --module <string>', 'Filter by module name')

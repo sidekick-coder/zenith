@@ -1,9 +1,9 @@
 import fs from 'fs'
 import path from 'path'
-import { program } from 'commander'
 import { camelCase } from 'lodash-es'
 import template from '#server/facades/template.facade.ts'
 import { basePath } from '#server/utils/paths.ts'
+import arte from '#server/facades/arte.facade.ts'
 
 async function copyTemplateDirectory(sourceDir: string, targetDir: string, templateData: Record<string, any>) {
     if (!fs.existsSync(targetDir)) {
@@ -39,7 +39,8 @@ async function copyTemplateDirectory(sourceDir: string, targetDir: string, templ
     }
 }
 
-program.command('module:make')
+arte
+    .command('module:make')
     .helpGroup('module')
     .argument('<module>', 'Module to create')
     .action(async (name) => {

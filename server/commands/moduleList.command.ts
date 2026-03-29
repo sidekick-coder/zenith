@@ -1,8 +1,10 @@
-import { program } from 'commander'
 import Table from 'cli-table3'
 import modules from '#server/facades/modules.facade.ts'
+import arte from '#server/facades/arte.facade.ts'
 
-program.command('module:list')
+arte
+    .command('module:list')
+    .need('modules')
     .helpGroup('module')
     .action(async () => {
         const items = await modules.list()

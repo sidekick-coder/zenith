@@ -60,9 +60,7 @@ export default class ModuleBuilderService {
         const common: UserConfig =  {
             publicDir: mod.makePath('client/public'),
             plugins: [
-                createViteImportReplacerPlugin({
-                    imports: imports,
-                }),
+                createViteImportReplacerPlugin({ imports: imports, }),
             ],
             build: {
                 manifest: true,
@@ -70,11 +68,11 @@ export default class ModuleBuilderService {
                 rollupOptions: {
                     output: {
                         assetFileNames: (assetInfo: any) => {
-                            if (assetInfo.name.endsWith('.css')) {
+                            if (assetInfo.name?.endsWith('.css')) {
                                 return 'styles.css'
                             }
 
-                            return assetInfo.name
+                            return assetInfo.name || 'assets/[name][extname]'
                         },
                     },
                     external: (id: string) => {

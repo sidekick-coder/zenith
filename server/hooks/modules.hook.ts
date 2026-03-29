@@ -15,9 +15,7 @@ export default class ModulesLifecycleHook extends LifecycleHook {
     
     public async onRegister(): Promise<void> {
 
-        modules.init({
-            debug: config.getOne(['modules.debug', 'app.debug'], false),
-        })
+        modules.init({ debug: config.getOne(['modules.debug', 'app.debug'], false), })
 
         await modules.discover()
 
@@ -63,6 +61,10 @@ export default class ModulesLifecycleHook extends LifecycleHook {
     }
 
     public async onLoad(): Promise<void> {
+        if (!di.has(RouterSevice)) {
+            return
+        }
+
         const router = di.get<RouterRegister>(RouterSevice)
 
         for (const hook of this.hooks.values()) {

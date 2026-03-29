@@ -1,7 +1,7 @@
-import { program } from 'commander'
 import config from '#server/facades/config.facade.ts'
+import arte from '#server/facades/arte.facade.ts'
 
-program.command('config:set')
+arte.command('config:set')
     .helpGroup('config')
     .argument('<key>', 'Configuration key to retrieve')
     .argument('<value>', 'Value to set, use :bool suffix for boolean values (e.g. true:bool)')

@@ -1,12 +1,13 @@
 import fs from 'fs'
 import path from 'path'
-import { program } from 'commander'
 import { format, } from 'date-fns'
 import { basePath } from '#server/utils/paths.ts'
 import template from '#server/facades/template.facade.ts'
 import modules from '#server/facades/modules.facade.ts'
+import arte from '#server/facades/arte.facade.ts'
 
-program.command('migration:make')
+arte.command('migration:make')
+    .need('modules')
     .argument('<name>', 'Migration name')
     .option('-m, --module <module>', 'Module name')
     .action(async (name, options) => {

@@ -1,13 +1,9 @@
-import { program } from 'commander'
 import config from '#server/facades/config.facade.ts'
+import arte from '#server/facades/arte.facade.ts'
 
-program.command('config:get')
+arte.command('config:unset')
     .helpGroup('config')
     .argument('<key>', 'Configuration key to retrieve')
     .action(async (key) => {
-        await config.load()
-
-        const value = config.get(key)
-
-        console.log(value)
+        config.unset(key)
     })

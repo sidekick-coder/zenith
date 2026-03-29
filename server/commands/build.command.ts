@@ -1,7 +1,7 @@
-import { program } from 'commander'
 import build from '#server/facades/server.facade.ts'
+import arte from '#server/facades/arte.facade.ts'
 
-program.command('build')
+arte.command('build')
     .action(async () => {
         await build.build()
     })

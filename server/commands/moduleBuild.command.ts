@@ -1,14 +1,14 @@
-import { program } from 'commander'
 import { select } from '@inquirer/prompts'
 import modules from '#server/facades/modules.facade.ts'
-import cli from '#server/services/cli.service.ts'
 import logger from '#server/facades/logger.facade.ts'
+import arte from '#server/facades/arte.facade.ts'
 
-program.command('module:build')
+arte.command('module:build')
+    .need('modules')
     .helpGroup('module')
     .option('-p, --prepare <prepare>', 'Prepare the module before building', false)
     .option('-m, --module <module>', 'The name of the module to build')
-    .action(cli.with(['config'], async (options) => {
+    .action(async (options) => {
         let name = options.module
 
         if (!name) {
@@ -35,4 +35,4 @@ program.command('module:build')
         const mod = await modules.findOrFail(name)
 
         await modules.builder.build(mod)
-    }))
+    })

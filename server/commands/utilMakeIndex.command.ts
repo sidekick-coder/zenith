@@ -1,7 +1,7 @@
 import fs from 'fs'
 import path from 'path'
-import { program } from 'commander'
 import { camelCase } from 'lodash-es'
+import arte from '#server/facades/arte.facade.ts'
 
 function makeObjectBarrelIndex(files: string[], name = 'all'): string {
     // Generate imports
@@ -28,7 +28,7 @@ function makeReExportBarrelIndex(files: string[]): string {
     return files.map(file => `export * from './${file}'`).join('\n')
 }
 
-program.command('make:index')
+arte.command('util:make-index')
     .requiredOption('-d, --directory <directory>', 'Directory to where generate index.ts file')
     .option('-m --mode <mode>', 'Mode of index file: "object" or "re-export"', 're-export')
     .option('-n, --name <name>', 'Name of export object', 'all')

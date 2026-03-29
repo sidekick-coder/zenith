@@ -1,7 +1,7 @@
-import { program } from 'commander'
 import hasher from '#server/facades/hasher.facade.ts'
+import arte from '#server/facades/arte.facade.ts'
 
-program.command('hasher:hash')
+arte.command('hasher:hash')
     .helpGroup('hasher')
     .argument('<value>', 'Value to hash')
     .action(async (value: string) => {

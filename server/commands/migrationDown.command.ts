@@ -1,14 +1,14 @@
-import { program } from 'commander'
 import migrator from '#server/facades/migrator.facade.ts'
-import cli from '#server/services/cli.service.ts'
+import arte from '#server/facades/arte.facade.ts'
 
-program.command('migration:down')
+arte.command('migration:down')
+    .need('db', 'modules')
     .helpGroup('migration')
     .description('Rollback executed migrations')
     .option('-s, --step <number>', 'Number of migrations to rollback', Number)
     .option('-m, --module <string>', 'Filter by module name')
     .option('-r, --root', 'Run migration on root database')
-    .action(cli.with('all', async (options: { step?: number, module?: string, root?: boolean }) => {
+    .action(async (options: { step?: number, module?: string, root?: boolean }) => {
         const results = await migrator.down(options.step, {
             module: options.module,
             root: options.root
@@ -19,6 +19,6 @@ program.command('migration:down')
             return
         }
 
-        cli.ui.table(results)
-    }))
+        arte.table(results)
+    })
 

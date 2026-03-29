@@ -1,8 +1,10 @@
 
-import { program } from 'commander'
 import mailer from '#server/facades/mailer.facade.ts'
+import arte from '#server/facades/arte.facade.ts'
 
-program.command('mailer:send')
+arte
+    .command('mailer:send')
+    .need('mailer')
     .helpGroup('mailer')
     .requiredOption('-t, --to <to>', 'Recipient email address')
     .requiredOption('-s, --subject <subject>', 'Email subject')
