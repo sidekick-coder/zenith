@@ -62,6 +62,7 @@ const alias: Record<string, string> = {
     'modules': 'ModulesLifecycleHook',
     'drive': 'DriveLifecycleHook',
     'mailer': 'MailerLifecycleHook',
+    'router': 'RouterLifecycleHook',
 } 
 
 async function onPreAction(command: ArteService) {

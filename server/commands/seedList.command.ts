@@ -1,9 +1,9 @@
-import { program } from 'commander'
+import arte from '#server/facades/arte.facade.ts'
 import { table } from '#server/utils/cliUi.ts'
 import seeder from '#server/facades/seeder.facade.ts'
 import logger from '#server/facades/logger.facade.ts'
 
-program.command('seed:list')
+arte.command('seed:list')
     .helpGroup('database')
     .description('List all available seed files')
     .option('-m, --module <moduleName>', 'Filter seeds by module name')

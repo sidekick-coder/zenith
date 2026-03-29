@@ -1,8 +1,8 @@
-import { program } from 'commander'
+import arte from '#server/facades/arte.facade.ts'
 import userRepository from '#server/repositories/user.repository.ts'
-import cli from '#server/services/cli.service.ts'
 
-program.command('user:create')
+arte.command('user:create')
+    .need('db')
     .helpGroup('user')
     .description('Create a new user')
     .requiredOption('-u, --username <username>', 'User name')
@@ -10,7 +10,7 @@ program.command('user:create')
     .requiredOption('-p, --password <password>', 'User password')
     .option('-s, --skip-if-exists', 'Skip if user already exists')
     .option('--json', 'Output result as JSON')
-    .action(cli.with(['db'], async (options) => {
+    .action(async (options) => {
         const { username, email, password } = options
 
         // Check if user already exists
@@ -53,4 +53,4 @@ program.command('user:create')
         console.log(`  ID: ${newUser.id}`)
         console.log(`  Username: ${newUser.username}`)
         console.log(`  Email: ${newUser.email}`)
-    }))
+    })

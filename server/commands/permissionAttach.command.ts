@@ -1,18 +1,19 @@
-import { program } from 'commander'
+import arte from '#server/facades/arte.facade.ts'
 import { create } from '#server/queries/create.ts'
 import Permission from '#shared/entities/permission.entity.ts'
 import { findOneOrFail, findOne } from '#server/queries/index.ts'
 import cli from '#server/services/cli.service.ts'
 import User from '#server/entities/user.entity.ts'
 
-program.command('permission:attach')
+arte.command('permission:attach')
+    .need('db')
     .helpGroup('permission')
     .description('Add a permission to a entity')
     .requiredOption('-p, --permissionId <permissionId>', 'Permission ID or name')
     .requiredOption('-t, --type <type>', 'Assignable type (user, role)')
     .requiredOption('-i, --id <id>', 'Assignable ID')
     .option('--json', 'Output result as JSON')
-    .action(cli.with(['db'], async (options) => {
+    .action(async (options) => {
         const { type, id, permissionId } = options
 
         const permission = await findOne('permissions', {
@@ -37,9 +38,7 @@ program.command('permission:attach')
 
         // if role check if role exists
         if (type === 'role') {
-            await findOneOrFail('roles', {
-                where: (qb) => qb('id', '=', Number(id))
-            })
+            await findOneOrFail('roles', { where: (qb) => qb('id', '=', Number(id)) })
         }
 
         const exists = await findOne('permissions_assignments', {
@@ -75,4 +74,4 @@ program.command('permission:attach')
         }
 
         cli.ui.object(created)
-    }))
+    })

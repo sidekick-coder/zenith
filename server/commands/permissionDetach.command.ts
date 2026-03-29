@@ -1,8 +1,9 @@
-import { program } from 'commander'
+import arte from '#server/facades/arte.facade.ts'
 import { findOneOrFail } from '#server/queries/index.ts'
 import { destroy } from '#server/queries/destroy.ts'
 
-program.command('permission:detach')
+arte.command('permission:detach')
+    .need('db')
     .helpGroup('permission')
     .description('Remove a permission from a entity')
     .requiredOption('-p, --permission-id <permissionId>', 'Permission ID')
@@ -19,9 +20,7 @@ program.command('permission:detach')
             ]),
         })
 
-        await destroy('permissions_assignments', {
-            query: (qb) => qb.where('id', '=', assignment.id)
-        })
+        await destroy('permissions_assignments', { query: (qb) => qb.where('id', '=', assignment.id) })
 
         console.log('✓ Permission detached successfully')
     })

@@ -1,11 +1,11 @@
+import arte from '#server/facades/arte.facade.ts'
 import fs from 'fs'
 import path from 'path'
-import { program } from 'commander'
 import { basePath } from '#server/utils/paths.ts'
 import template from '#server/facades/template.facade.ts'
 import modules from '#server/facades/modules.facade.ts'
 
-program.command('seed:make')
+arte.command('seed:make')
     .argument('<name>', 'Seed name')
     .option('-m, --module <module>', 'Module name')
     .action(async (name, options) => {

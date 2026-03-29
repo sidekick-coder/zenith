@@ -1,9 +1,10 @@
-import { program } from 'commander'
 import { confirm, select } from '@inquirer/prompts'
+import arte from '#server/facades/arte.facade.ts'
 import db from '#server/facades/db.facade.ts'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
 
-program.command('table:drop')
+arte.command('table:drop')
+    .need('db')
     .description('Drop a table from the database')
     .helpGroup('table')
     .option('-t, --table <table>', 'Name of the table to drop')

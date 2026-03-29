@@ -1,10 +1,11 @@
-import { program } from 'commander'
+import arte from '#server/facades/arte.facade.ts'
 import Permission from '#shared/entities/permission.entity.ts'
 import cli from '#server/services/cli.service.ts'
 import { list } from '#server/queries/list.ts'
 import db from '#server/facades/db.facade.ts'
 
-program.command('permission:list')
+arte.command('permission:list')
+    .need('db')
     .helpGroup('permission')
     .description('Assign a permission to a user')
     .option('-t, --type <type>', 'Assignable type (user, role)')

@@ -1,9 +1,10 @@
-import { program } from 'commander'
+import arte from '#server/facades/arte.facade.ts'
 import { createUserPermission } from '#server/queries/index.ts'
 import cli from '#server/services/cli.service.ts'
 import User from '#server/entities/user.entity.ts'
 
-program.command('user:create-permission')
+arte.command('user:create-permission')
+    .need('db')
     .helpGroup('user')
     .description('Create a new user permission')
     .requiredOption('-u, --user <user>', 'User ID or email')
@@ -11,7 +12,7 @@ program.command('user:create-permission')
     .requiredOption('-a, --action <action>', 'Permission action')
     .requiredOption('-s, --subject <subject>', 'Permission subject')
     .option('-c, --conditions <conditions>', 'Permission conditions, as JSON string', '{}')
-    .action(cli.with(['db'], async (options) => {
+    .action(async (options) => {
         const { name, subject, action, conditions } = options
 
         const user = await User.findOneOrFail({
@@ -31,4 +32,4 @@ program.command('user:create-permission')
         })
 
         cli.ui.object(permission)
-    }))
+    })

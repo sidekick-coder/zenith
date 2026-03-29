@@ -1,19 +1,18 @@
 import path from 'path'
 import fs from 'fs'
-import { program } from 'commander'
 import { sql } from 'kysely'
+import arte from '#server/facades/arte.facade.ts'
 import db from '#server/facades/db.facade.ts'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
-import cli from '#server/services/cli.service.ts'
 import logger from '#server/facades/logger.facade.ts'
 
-
-program.command('sql:raw')
+arte.command('sql:raw')
+    .need('db')
     .description('Execute a raw SQL query')
     .helpGroup('sql')
     .option('-q, --query <query>', 'The raw SQL query to execute')
     .option('-f, --file <file>', 'Path to a file containing the SQL query')
-    .action( cli.with(['db'], async (options) => {
+    .action(async (options) => {
         let query: string = options.query || ''
 
         if (options.file) {
@@ -26,9 +25,7 @@ program.command('sql:raw')
 
         for (const stmt of statements) {
             const index = statements.indexOf(stmt) + 1
-            logger.info(`Executing statement ${index} of ${statements.length}`, {
-                statement: stmt.trim().slice(0, 100) + (stmt.length > 100 ? '...' : '')
-            })
+            logger.info(`Executing statement ${index} of ${statements.length}`, { statement: stmt.trim().slice(0, 100) + (stmt.length > 100 ? '...' : '') })
 
             const [error, response] = await tryCatch(() => sql.raw(stmt).execute(db))
             
@@ -42,4 +39,4 @@ program.command('sql:raw')
             }
         }
 
-    }))
+    })

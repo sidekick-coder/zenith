@@ -1,10 +1,11 @@
-import { program } from 'commander'
 import { sql } from 'kysely'
 import { confirm } from '@inquirer/prompts'
+import arte from '#server/facades/arte.facade.ts'
 import db from '#server/facades/db.facade.ts'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
 
-program.command('sql:update')
+arte.command('sql:update')
+    .need('db')
     .arguments('<table>')
     .description('Update rows in a database table')
     .helpGroup('sql')

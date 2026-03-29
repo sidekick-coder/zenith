@@ -1,9 +1,10 @@
-import { program } from 'commander'
 import { sql } from 'kysely'
+import arte from '#server/facades/arte.facade.ts'
 import db from '#server/facades/db.facade.ts'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
 
-program.command('sql:insert')
+arte.command('sql:insert')
+    .need('db')
     .arguments('<table>')
     .description('Insert rows into a database table')
     .helpGroup('sql')

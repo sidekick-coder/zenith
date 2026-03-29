@@ -1,13 +1,14 @@
-import { program } from 'commander'
+import arte from '#server/facades/arte.facade.ts'
 import cli from '#server/services/cli.service.ts'
 import auth from '#server/facades/auth.facade.ts'
 
-program.command('user:login')
+arte.command('user:login')
+    .need('db')
     .helpGroup('user')
     .description('Login a user and return a token')
     .requiredOption('-u, --uuid <uuid>', 'Email or username')
     .requiredOption('-p, --password <password>', 'User password')
-    .action(cli.with(['db'], async (options: { uuid: string, password: string }) => {
+    .action(async (options: { uuid: string, password: string }) => {
         const { uuid, password } = options
 
         const result = await auth.login({ 
@@ -21,4 +22,4 @@ program.command('user:login')
         }
         
         cli.ui.object(result)
-    }))
+    })

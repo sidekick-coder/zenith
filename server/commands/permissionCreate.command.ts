@@ -1,9 +1,10 @@
-import { program } from 'commander'
+import arte from '#server/facades/arte.facade.ts'
 import { create } from '#server/queries/create.ts'
 import Permission from '#shared/entities/permission.entity.ts'
 import cli from '#server/services/cli.service.ts'
 
-program.command('permission:create')
+arte.command('permission:create')
+    .need('db')
     .helpGroup('permission')
     .description('Create a new permission')
     .requiredOption('-n, --name <name>', 'Permission name')
@@ -11,7 +12,7 @@ program.command('permission:create')
     .requiredOption('-s, --subject <subject>', 'Permission subject')
     .option('-c, --conditions <conditions>', 'Permission conditions, as JSON string', '{}')
     .option('--json', 'Output result as JSON')
-    .action(cli.with(['db'], async (options) => {
+    .action(async (options) => {
         const { name, subject, action, conditions } = options
 
         const permission = await create('permissions', {
@@ -38,4 +39,4 @@ program.command('permission:create')
         console.log('✓ Permission created and assigned successfully')
 
         cli.ui.object(permission)
-    }))
+    })

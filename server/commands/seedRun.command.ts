@@ -1,10 +1,10 @@
-import { program } from 'commander'
 import { confirm } from '@inquirer/prompts'
+import arte from '#server/facades/arte.facade.ts'
 import seeder from '#server/facades/seeder.facade.ts'
 import logger from '#server/facades/logger.facade.ts'
 import { table } from '#server/utils/cliUi.ts'
 
-program.command('seed:run')
+arte.command('seed:run')
     .helpGroup('database')
     .description('Run database seed files')
     .option('-m, --module <moduleName>', 'Filter seeds by module name')

@@ -1,5 +1,5 @@
-import { program } from 'commander'
 import { sql } from 'kysely'
+import arte from '#server/facades/arte.facade.ts'
 import db from '#server/facades/db.facade.ts'
 import cli from '#server/services/cli.service.ts'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
@@ -11,8 +11,9 @@ interface TableListOptions {
     where?: string
 }
 
-program
+arte
     .command('sql:select')
+    .need('db')
     .arguments('<table>')
     .description('List rows from a database table')
     .helpGroup('sql')
@@ -64,5 +65,4 @@ program
         const rows = response.rows as Record<string, any>[]
 
         cli.ui.table(rows)
-
     })

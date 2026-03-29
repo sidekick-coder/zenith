@@ -1,11 +1,12 @@
-import { program } from 'commander'
 import { orderBy } from 'lodash-es'
+import arte from '#server/facades/arte.facade.ts'
 import type { TableColumn } from '#server/utils/cliUi.ts'
 import router from '#server/facades/router.facade.ts'
 import { table  } from '#server/utils/cliUi.ts'
 
-program
+arte
     .command('route:list')
+    .need('router', 'modules')
     .option('--json', 'Output in JSON format')
     .option('--module <module>', 'Filter by module name')
     .option('--sort-by <field>', 'Sort by field (module, path, method)', 'module,path,method')
