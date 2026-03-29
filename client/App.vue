@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
-import logger from './facades/logger.facade.ts'
 import { Toaster } from '#client/components/ui/sonner'
 import 'vue-sonner/style.css'
 
@@ -14,7 +13,7 @@ const keepAliveInclude = all
     .flat()
 </script>
 <template>
-    <Toaster />
+    <Toaster position="top-right" />
     <suspense>
         <router-view v-slot="{ Component }">
             <keep-alive :include="keepAliveInclude">
