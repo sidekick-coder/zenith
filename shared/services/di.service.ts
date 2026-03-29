@@ -84,7 +84,7 @@ export default class DIService {
                 const value = entry[prop]
 
                 if (typeof value === 'function') {
-                    return (...args: any[]) => entry[prop].bind(entry)(...args)
+                    return value.bind(entry)
                 }
 
                 return entry[prop]
