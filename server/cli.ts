@@ -1,6 +1,7 @@
 import fs from 'fs'
 import ArteService from './services/arte.service.ts'
 import ConfigLifecycleHook from './hooks/config.hook.ts'
+import TranslatorLifecycleHook from './hooks/translator.hook.ts'
 import { importAll } from '#server/utils/importAll.ts'
 import { basePath } from '#server/utils/paths.ts'
 import env from '#server/facades/env.facade.ts'
@@ -27,6 +28,22 @@ const arte = new ArteService()
 
 di.set(ArteService, arte)
 
+const mods = await importAll(basePath('server/hooks'))
+
+const hooks: LifecycleHook[] = Object.values(mods)
+    .map(m => m.default || m)
+    .filter((HookClass: any) => HookClass.prototype instanceof LifecycleHook)
+    .map((HookClass: any) => new HookClass())
+
+const lifecycle = new LifecycleService({
+    debug: env.get('LIFECYCLE_DEBUG'),
+    logger: logger.child({ label: 'lifecycle' }),
+})
+
+lifecycle.add(ConfigLifecycleHook, TranslatorLifecycleHook)
+
+await lifecycle.register()
+
 await importAll(basePath('server/commands'), { exclude: ['test.ts'], })
 
 const modulesPath = basePath('modules')
@@ -45,19 +62,6 @@ for await (const name of moduleNames) {
     }
 }
 
-const mods = await importAll(basePath('server/hooks'))
-
-const hooks: LifecycleHook[] = Object.values(mods)
-    .map(m => m.default || m)
-    .filter((HookClass: any) => HookClass.prototype instanceof LifecycleHook)
-    .map((HookClass: any) => new HookClass())
-
-const lifecycle = new LifecycleService({
-    debug: env.get('LIFECYCLE_DEBUG'),
-    logger: logger.child({ label: 'lifecycle' }),
-})
-
-lifecycle.add(ConfigLifecycleHook)
 
 const alias: Record<string, string> = { 
     'translator': 'TrasnlatorLifecycleHook',
