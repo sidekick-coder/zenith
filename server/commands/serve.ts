@@ -73,7 +73,6 @@ async function stop() {
 }
 
 async function reload(info: any) {
-    console.log('here')
     logger.debug('Reloading server...', info)
 
     await stop()

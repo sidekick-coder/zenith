@@ -238,7 +238,6 @@ export default class ViteService extends compose(Hooks) {
 
     public async render(options: RenderOptions): Promise<string> {
         if (env.development) {
-            console.log('Vite SSR render')
             await this.loadEntryNode()
         }
 
