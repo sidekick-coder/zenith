@@ -45,7 +45,7 @@ export default class ExpressService {
         this.app.use(cors(options))
     }
 
-    public routes(){
+    public routes() {
         this.app.use('*all', (req, res) => {
             const url = new URL(req.originalUrl, `http://${req.headers.host}`)
             const method = req.method.toLowerCase()
@@ -56,8 +56,8 @@ export default class ExpressService {
                 this.router.logger.debug(`${method.toUpperCase()} ${url.pathname}`)
             }
 
-            if (route) {            
-                
+            if (route) {
+
                 return this.execute(url, req, res, route)
             }
 
@@ -76,16 +76,16 @@ export default class ExpressService {
 
     public parser(req: express.Request, res: express.Response, next: express.NextFunction) {
         const contentType = req.headers['content-type'] || ''
-    
+
         if (contentType.startsWith('multipart/form-data')) {
             // Skip JSON and URL-encoded parsers for multipart requests
             return next()
         }
-    
+
         // For other content types, parse JSON and URL-encoded body
         express.json()(req, res, (err) => {
             if (err) return next(err)
-    
+
             express.urlencoded({ extended: true })(req, res, next)
         })
     }
@@ -94,49 +94,48 @@ export default class ExpressService {
         const ctx = new HttpContext({
             response,
             request,
-    
+
             url: url.pathname,
             method: request.method.toLowerCase(),
             params: Route.params(route.path, url.pathname),
             query: Route.query(url.href),
             body: request.body,
-            
+
             upload: new UploadService(request, response),
             cookie: new CookieService(request, response)
         })
-    
+
         const [error, result] = await tryCatch(() => this.router.execute(route, ctx))
-    
+
         if (error) {
             this.exception.handle(error, response)
             return
         }
-    
+
         if (response.headersSent) {
             return // if headers are already sent, do not modify the response
         }
-    
+
         if (result && result.redirect) {
             response.redirect(result.redirect)
             return
         }
-    
+
         // headers not set 
         response.status(200)
-    
+
         if (typeof result === 'object' || Array.isArray(result)) {
             response.setHeader('Content-Type', 'application/json')
         }
-    
+
         response.send(result)
     }
 
-    public start(){
-        const port = env.get('PORT', 3000) 
-        const host = env.get('HOST', 'localhost')
+    public start() {
+        const port = env.get('PORT', 3000)
+        const host = env.get('HOST', '0.0.0.0')
 
-
-        this.server =this.app.listen(port, host, () => {
+        this.server = this.app.listen(port, host, () => {
             this.logger.info(`server started at ${env.get('APP_URL')}`, {
                 pid: process.pid,
                 env: env.get('NODE_ENV'),
@@ -144,7 +143,7 @@ export default class ExpressService {
         })
     }
 
-    public stop(){
+    public stop() {
         return new Promise<void>((resolve) => {
             if (!this.server) {
                 this.logger.warn('server is not running')
@@ -159,9 +158,9 @@ export default class ExpressService {
                     env: env.get('NODE_ENV'),
                 })
             })
-    
+
             this.server.close()
-    
+
         })
     }
 }
