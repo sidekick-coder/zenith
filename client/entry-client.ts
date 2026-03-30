@@ -19,9 +19,7 @@ di.set('state', window.__STATE__ || {})
 di.set(FetchService, new FetchBrowserService())
 di.set('isServer', false)
 
-const serviceOptions = {
-    debug: config.get('modules.debug') || config.get('app.debug')
-}
+const serviceOptions = { debug: config.get('modules.debug') || config.get('app.debug') }
 
 const useBrowserService = config.get('modules.browser.service') === 'browser' || import.meta.env.PROD
 
@@ -40,9 +38,7 @@ async function main(){
     const app = di.get<App>('app')
     const router = di.get<Router>('router')
     
-    const head = createHead({
-        init: window.__STATE__?.head ? [window.__STATE__.head] : []
-    })
+    const head = createHead({ init: window.__STATE__?.head ? [window.__STATE__.head] : [] })
     
     app.use(head)
     

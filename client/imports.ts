@@ -1,14 +1,24 @@
 import 'iconify-icon'
 
+import * as Vue from 'vue'
+import * as RekaUI from 'reka-ui'
+import * as VueRouter from 'vue-router'
+import * as VeeValidate from 'vee-validate'
+import * as VueSonner from 'vue-sonner' 
+import * as VueUse from '@vueuse/core' 
+import * as UnheadVue from '@unhead/vue' 
+import * as UnheadVueComponents from '@unhead/vue/components'
+
 globalThis.imports = globalThis.imports || {}
 
-globalThis.imports['vue'] = () => import('vue')
-globalThis.imports['reka-ui'] = () => import('reka-ui')
-globalThis.imports['vue-router'] = () => import('vue-router')
-globalThis.imports['vee-validate'] = () => import('vee-validate')
-globalThis.imports['vue-sonner'] = () => import('vue-sonner')
-globalThis.imports['@vueuse/core'] = () => import('@vueuse/core')
-globalThis.imports['@unhead/vue'] = () => import('@unhead/vue')
+globalThis.imports['vue'] = () => Promise.resolve(Vue)
+globalThis.imports['reka-ui'] = () => Promise.resolve(RekaUI)
+globalThis.imports['vue-router'] = () => Promise.resolve(VueRouter)
+globalThis.imports['vee-validate'] = () => Promise.resolve(VeeValidate)
+globalThis.imports['vue-sonner'] = () => Promise.resolve(VueSonner)
+globalThis.imports['@vueuse/core'] = () => Promise.resolve(VueUse)
+globalThis.imports['@unhead/vue'] = () => Promise.resolve(UnheadVue)
+globalThis.imports['@unhead/vue/components'] = () => Promise.resolve(UnheadVueComponents)
 
 
 // Handle #client and #shared imports
