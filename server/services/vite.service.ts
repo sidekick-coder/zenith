@@ -59,6 +59,8 @@ export default class ViteService extends compose(Hooks) {
     public state: Map<string, any>
     public clientContainer: DIService
 
+    private manifest: Record<string, any>
+
     constructor(data: Partial<ViteService> = {}) {
         super()
 
@@ -195,25 +197,24 @@ export default class ViteService extends compose(Hooks) {
             return
         }
 
-        const [error, manifest] = await tryCatch(async () => {
+        let manifest = this.manifest
+
+
+        if (!manifest) {
             const text = await fs.promises.readFile(basePath('client-dist', 'browser', '.vite', 'manifest.json'), 'utf-8')
 
-            return JSON.parse(text)
-        })
+            manifest = JSON.parse(text) 
 
-        if (error) {
-            this.logger.error('Failed to load Vite manifest', error)
-            return
+            this.manifest = manifest
         }
 
         let entry = null 
 
-        for (const [key, value] of Object.entries<any>(manifest)) {
+        for (const value of Object.values<any>(manifest)) {
             if (value.isEntry) {
                 entry = value as any
                 break
             }
-
         }
 
         if (!entry) {
@@ -237,7 +238,7 @@ export default class ViteService extends compose(Hooks) {
 
     public async render(options: RenderOptions): Promise<string> {
         if (env.development) {
-            console.time('Vite SSR render')
+            console.log('Vite SSR render')
             await this.loadEntryNode()
         }
 
