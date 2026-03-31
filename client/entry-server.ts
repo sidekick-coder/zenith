@@ -3,6 +3,7 @@ import fs from 'fs'
 import { renderToString } from 'vue/server-renderer'
 import type { App } from 'vue'
 import { createHead } from '@unhead/vue/server'
+import * as VueServerRenderer from 'vue/server-renderer'
 import di from './utils/di'
 import config from './facades/config.facade'
 import lifecycle from './facades/lifecycle.facade.ts'
@@ -18,11 +19,11 @@ import './imports'
 import './assets/styles.css'
 
 if (!globalThis.imports) {
-    globalThis.imports = {}
+    globalThis.imports = new Map<string, () => Promise<any>>()
 }
 
 if (import.meta.env.SSR) {
-    globalThis.imports['vue/server-renderer'] = () => import('vue/server-renderer')
+    globalThis.imports.set('vue/server-renderer', () => Promise.resolve(VueServerRenderer))
 }
 
 export async function importDynamicModule(modulePath: string) {
@@ -37,9 +38,7 @@ export default class EntryNode extends ViteEntryPointService {
     public load: ViteEntryPointService['load'] = async (options) => {
         di.loadFromRecord(options.container || {})
 
-        const serviceOptions = {
-            debug: config.get('modules.debug') || config.get('app.debug')
-        }
+        const serviceOptions = { debug: config.get('modules.debug') || config.get('app.debug') }
 
         const useNodeService = config.get('modules.node.service') === 'node' || import.meta.env.PROD
 
@@ -67,9 +66,7 @@ export default class EntryNode extends ViteEntryPointService {
 
         const router = di.get<Router>('router')
         const app = di.get<App>('app')
-        const head = createHead({
-            init: [context.state.head]
-        })
+        const head = createHead({ init: [context.state.head] })
 
         app.use(head)
 

@@ -6,7 +6,7 @@ import type TranslatorService from '#shared/services/translator.service.ts'
 export {}
 
 declare global {
-    var imports: Record<string, any>
+    var imports: Map<string, () => Promise<any>>
     var importAsync: (id: string) => Promise<any>
     var __CONFIG__: any | undefined
     var __CONTAINER__: Record<string, any> | undefined
