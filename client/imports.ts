@@ -31,7 +31,7 @@ for (const [path, mod] of Object.entries(import.meta.glob('./{utils,entities,gua
     if (path.endsWith('index.ts')) {
         const indexId = id.replace('/index.ts', '')
 
-        globalThis.imports.set(indexId, () => Promise.resolve(mod))
+        globalThis.imports.set(indexId, mod)
     }
 }
 
