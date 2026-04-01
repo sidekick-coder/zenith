@@ -18,6 +18,16 @@ export default class LifecycleService {
         this.logger = data.logger ?? new LoggerService()
     }
 
+    private async executeHookMethod(hook: LifecycleHook, method: 'onRegister' | 'onLoad' | 'onBoot' | 'onShutdown'): Promise<void> {
+        await hook[method]()
+
+        if (hook.subhooks) {
+            for (const subhook of hook.subhooks) {
+                await this.executeHookMethod(subhook, method)
+            }
+        }
+    }
+
     public list(options?: ListOptions){
         let hooks = Array.from(this.hooks.values())
 
@@ -74,7 +84,7 @@ export default class LifecycleService {
 
     public async register(options?: ListOptions): Promise<void> {
         for (const hook of this.list(options)) {
-            const [error] = await tryCatch(() => hook.onRegister())
+            const [error] = await tryCatch(() => this.executeHookMethod(hook, 'onRegister'))
             
             if (error) {
                 Object.assign(error, { hookId: hook.hook_id })
@@ -90,7 +100,7 @@ export default class LifecycleService {
 
     public async load(options?: ListOptions): Promise<void> {
         for (const hook of this.list(options)) {
-            const [error] = await tryCatch(() => hook.onLoad())
+            const [error] = await tryCatch(() => this.executeHookMethod(hook, 'onLoad'))
             
             if (error) {
                 Object.assign(error, { hookId: hook.hook_id })
@@ -108,7 +118,7 @@ export default class LifecycleService {
         const hooks = this.list(options)
 
         for (const hook of hooks) {
-            const [error] = await tryCatch(() => hook.onBoot())
+            const [error] = await tryCatch(() => this.executeHookMethod(hook, 'onBoot'))
             
             if (error) {
                 Object.assign(error, { hookId: hook.hook_id })
@@ -124,7 +134,7 @@ export default class LifecycleService {
 
     public async shutdown(options?: ListOptions): Promise<void> {
         for (const hook of this.list(options)) {
-            const [error] = await tryCatch(() => hook.onShutdown())
+            const [error] = await tryCatch(() => this.executeHookMethod(hook, 'onShutdown'))
             
             if (error) {
                 Object.assign(error, { hookId: hook.hook_id })

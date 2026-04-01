@@ -1,6 +1,7 @@
 export default class LifecycleHook {
     public hook_id: string
     public order?: number
+    public subhooks?: LifecycleHook[]
     
     constructor() {
         if (!this.hook_id) {
