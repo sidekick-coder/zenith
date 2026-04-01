@@ -1,10 +1,12 @@
 import Module from '#client/entities/module.entity.ts'
-import router from '#client/facades/router.facade.ts'
-import authGuard from '#client/guards/auth.guard.ts'
-import menu from '#client/facades/menu.facade.ts'
-
 import './assets/css/styles.css'
 
-export default class {{ camelCaseName }} extends Module {
-    // code
+const files = import.meta.glob<any>('./hooks/*.hook.ts', { eager: true })
+
+const subhooks = Object.values(files)
+    .map((mod) => mod.default)
+    .map(Hook => new Hook())
+
+export default class {{ upperCaseName }} extends Module {
+    public subhooks = subhooks
 }

@@ -1,6 +1,6 @@
 import fs from 'fs'
 import path from 'path'
-import { camelCase } from 'lodash-es'
+import { camelCase, upperFirst } from 'lodash-es'
 import template from '#server/facades/template.facade.ts'
 import { basePath } from '#server/utils/paths.ts'
 import arte from '#server/facades/arte.facade.ts'
@@ -62,6 +62,7 @@ arte
         const templateData = {
             name,
             camelCaseName: camelCase(name),
+            upperCaseName: upperFirst(camelCase(name)),
         }
         
         await copyTemplateDirectory(templateDir, targetDir, templateData)
