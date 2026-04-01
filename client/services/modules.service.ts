@@ -60,8 +60,6 @@ export default class ModulesService {
                 continue
             }
 
-            mod.setData(manifest)
-
             this.mods.push(mod as Module)
 
             if (this.debug) {

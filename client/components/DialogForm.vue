@@ -33,7 +33,7 @@ import validator from '#shared/services/validator.service.ts'
 const props = defineProps({
     title: {
         type: String,
-        default: $t('Create'),
+        default: $t('Form'),
     },
     description: {
         type: String,
@@ -167,14 +167,10 @@ const onSubmit = handleSubmit(async (data) => {
 watch(open, () => {
     if (!open.value) return
 
-    resetForm({
-        values: props.values as v.InferInput<T>,
-    })
+    resetForm({ values: props.values as v.InferInput<T>, })
 })
 
-defineExpose({
-    setFieldValue,
-})
+defineExpose({ setFieldValue, })
 </script>
 <template>
     <ClientOnly>

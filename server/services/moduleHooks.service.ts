@@ -69,8 +69,6 @@ export default class ModuleHooksService {
                 this.hooks.push(hook)
             })
 
-        console.log(this.hooks)
-
     }
 
     public async onRegister(): Promise<void> {}

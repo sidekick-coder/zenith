@@ -14,11 +14,15 @@ export default class Module extends compose(BaseEntity, mixin(LifecycleHook)) {
     public enabled: boolean = false
     public dependencies: Record<string, any> = {}
     public build: ModuleManifest['build'] = {}
-    
+
     public upgrade_info?: ModuleUpgradeInfo
 
     public setData(data: Partial<Module | ModuleManifest>) {
-        Object.assign(this, data)
+        const filtered = Object.fromEntries(
+            Object.entries(data).filter(([_, v]) => v !== undefined)
+        )
+
+        Object.assign(this, filtered)
 
         this.hook_id = `module:${this.id}`
     }
