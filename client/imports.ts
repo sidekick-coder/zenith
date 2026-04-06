@@ -22,7 +22,7 @@ globalThis.imports.set('@unhead/vue/components', () => Promise.resolve(UnheadVue
 
 
 // Handle #client and #shared imports
-for (const [path, mod] of Object.entries(import.meta.glob('./{utils,entities,guards,facades,composables,components}/**/*.ts'))) {
+for (const [path, mod] of Object.entries(import.meta.glob('./{lib,utils,entities,guards,facades,composables,components}/**/*.ts'))) {
     const id = path.replace('./', '#client/')
 
     globalThis.imports.set(id, mod)
