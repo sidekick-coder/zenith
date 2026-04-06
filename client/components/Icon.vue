@@ -5,12 +5,12 @@ import { kebabCase } from 'lodash-es'
 const props = defineProps({
     name: {
         type: String,
-        required: true,
+        default: null
     },
 })
 
 const iconName = computed(() => {
-    if (props.name.includes(':')) {
+    if (props.name?.includes(':')) {
         return props.name
     }
 
