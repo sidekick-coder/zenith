@@ -53,13 +53,9 @@ const emit = defineEmits<{
     (e: 'uploaded', response: ServerFile): void
 }>()
 
-const fileId = defineModel<number | undefined | null>('fileId', {
-    type: Number,
-})
+const fileId = defineModel<number | undefined | null>('fileId', { type: Number, })
 
-const fileUrl = defineModel<string | undefined | null>('fileUrl', {
-    type: String,
-})
+const fileUrl = defineModel<string | undefined | null>('fileUrl', { type: String, })
 
 const loading = defineModel<boolean>('loading', {
     type: Boolean,
@@ -99,9 +95,7 @@ async function upload(file: File, url: string) {
 }
 
 async function createServerFile(url: string) {
-    return await $fetch<ServerFile>(url, {
-        method: 'POST',
-    })
+    return await $fetch<ServerFile>(url, { method: 'POST', })
 }
 async function executeFromFile(file: File) {
     const session = await createSession(file)

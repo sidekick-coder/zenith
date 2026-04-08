@@ -156,6 +156,7 @@ async function handlePasteFromClipboard() {
                                         type="button"
                                         variant="outline"
                                         :disabled="disabled"
+                                        :tooltip="$t('Remove image')"
                                         @click="() => {
                                             clearImage()
                                             setValue(null)

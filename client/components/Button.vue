@@ -2,9 +2,7 @@
 import { RouterLink } from 'vue-router'
 import { computed } from 'vue'
 import Icon from './Icon.vue'
-import {
-    Tooltip, TooltipContent, TooltipTrigger 
-} from '#client/components/ui/tooltip'
+import { Tooltip, TooltipContent, TooltipTrigger } from '#client/components/ui/tooltip'
 import UiButton from '#client/components/ui/button/Button.vue'
 
 export interface Props {
@@ -59,10 +57,10 @@ const as = computed(() => {
 
 <template>
     <Tooltip v-if="tooltip">
-        <TooltipTrigger>
+        <TooltipTrigger as-child>
             <UiButton
                 v-bind="$attrs"
-                :disabled="disabled || loading"            
+                :disabled="disabled || loading"
                 :as
                 :href="to ? to : href"
                 :to
