@@ -55,9 +55,7 @@ const loading = defineModel<boolean>('loading', {
     default: false,
 })
 
-const fileUrl = defineModel<string | undefined | null>('fileUrl', {
-    type: String,
-})
+const fileUrl = defineModel<string | undefined | null>('fileUrl', { type: String, })
 
 const fileUploaderRef = ref<InstanceType<typeof FileUploader> | null>(null)
 
@@ -126,7 +124,7 @@ async function handlePasteFromClipboard() {
                             <Image
                                 :src="fileUrl"
                                 :alt="$t('Uploaded image')"
-                                class="max-w-xs max-h-48 object-cover"
+                                class="max-w-xs max-h-48 object-cover w-full"
                             />
                         </div>
                     </slot>
@@ -152,7 +150,7 @@ async function handlePasteFromClipboard() {
                                 :value="value"
                                 :set-value="setValue"
                             >
-                                <div class="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2 w-full">
+                                <div class="flex flex-wrap flex-col gap-2 sm:flex-row sm:gap-2 w-full">
                                     <Button
                                         v-if="value"
                                         type="button"
@@ -164,36 +162,35 @@ async function handlePasteFromClipboard() {
                                         }"
                                     >
                                         <Icon
-                                            name="X"
+                                            name="trash"
                                             class="size-4"
                                         />
-                                        {{ $t('Remove') }}
                                     </Button>
                                     <Button
                                         type="button"
                                         variant="outline"
                                         :loading="uploading"
                                         :disabled="disabled"
+                                        :tooltip="$t('Upload image')"
                                         @click="handle"
                                     >
                                         <Icon
                                             name="Upload"
-                                            class="size-4 mr-2"
+                                            class="size-4"
                                         />
-                                        {{ $t('Upload') }}
                                     </Button>
                                     <Button
                                         type="button"
                                         variant="outline"
                                         :loading="loading"
                                         :disabled="disabled"
+                                        :tooltip="$t('Paste from clipboard')"
                                         @click="handlePasteFromClipboard"
                                     >
                                         <Icon
                                             name="Clipboard"
-                                            class="size-4 mr-2"
+                                            class="size-4"
                                         />
-                                        {{ $t('Paste') }}
                                     </Button>
                                 </div>
                             </slot>
