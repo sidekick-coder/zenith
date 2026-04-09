@@ -55,6 +55,8 @@ export function DatabaseRepository<
             async findMany(options?: FindManyOptions & Record<string, any>) {
                 let qb = this.query(options) as any
 
+                qb = qb.selectAll()
+
                 if (options?.limit) {
                     qb = qb.limit(options.limit)
                 }
