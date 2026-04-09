@@ -30,6 +30,7 @@ export type ExtractEntityType<T, F = Record<string, any>> = T extends HasEntityT
 export function DatabaseRepository<TTable extends keyof Database, TPrimaryKey extends keyof Database[TTable]
 >(table: TTable, primaryKey: TPrimaryKey) {
 
+    // @ts-expect-error - This is a mixin, so it doesn't have the properties at this point
     type PrimaryKeyType = Selectable<Database[TTable]>[TPrimaryKey]
 
     return function DatabaseRepositoryMixin<TBase extends Constructor>(Base: TBase) {
@@ -42,7 +43,7 @@ export function DatabaseRepository<TTable extends keyof Database, TPrimaryKey ex
             }
 
             async count(options?: ExtractQueryOptions<this>) {
-                let qb = this.query(options).selectAll() as any
+                let qb = this.query(options) as any
 
                 qb = qb.select((eb: any) => eb.fn.countAll().as('count'))
 
@@ -110,6 +111,16 @@ export function DatabaseRepository<TTable extends keyof Database, TPrimaryKey ex
                     total: totalItems,
                     total_pages: Math.ceil(totalItems / limit)
                 })
+            }
+
+            public async create(data: Insertable<Database[TTable]>) {
+                let qb = db.insertInto(this.table) as any 
+
+                qb = qb.values(data).returningAll()
+
+                const result = await qb.executeTakeFirst()
+
+                return result
             }
 
             public async updateById(id: PrimaryKeyType, data: Partial<Insertable<Database[TTable]>>) {
