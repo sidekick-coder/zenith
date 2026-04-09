@@ -18,6 +18,10 @@ export function createLoaderFactory<E extends Record<string, any> = Record<strin
 
     }
 
-    return { load }
+    return {
+        keys: Object.keys(loaders) as (keyof R)[],
+        loaders,
+        load 
+    }
 }
 

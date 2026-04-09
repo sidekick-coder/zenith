@@ -4,14 +4,15 @@ import File from '#server/entities/file.entity.ts'
 
 interface FileLoaderOptions {
     fileIdProperty: string
-    fileUrlProperty: string
+    fileProperty: string
 }
 
-export function createFileUrlLoader<T extends Record<string, any>>(options: FileLoaderOptions) {
-    const { fileIdProperty, fileUrlProperty } = options 
-
+export function createFileLoader<T extends Record<string, any>>(options: FileLoaderOptions) {
     return defineLoader<T>({
+
         async load(entities: T[]) {
+            const { fileIdProperty, fileProperty } = options 
+
             const fileIds = entities.map(e => e[fileIdProperty] as number).filter(Boolean)
 
             if (!fileIds.length) {
@@ -20,13 +21,11 @@ export function createFileUrlLoader<T extends Record<string, any>>(options: File
 
             const files = await File.list({ where: (eb) => eb('id', 'in', fileIds) })
 
-            await Promise.all(files.map(async (file) => file.loadUrl()))
-
             for (const entity of entities) {
                 const file = files.find(f => f.id === entity[fileIdProperty])
 
                 if (file) {
-                    set(entity, fileUrlProperty, file.url)
+                    set(entity, fileProperty, file)
                 }
             }
 
