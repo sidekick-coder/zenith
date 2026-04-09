@@ -8,11 +8,15 @@ import type { Constructor } from '#shared/utils/compose.ts'
 export interface FindManyOptions {
     limit?: number
     offset?: number
+    orderBy?: string | string[]
+    orderDirection?: 'asc' | 'desc' | ('asc' | 'desc')[]
 }
 
 export interface PaginateOptions {
     page?: number
     limit?: number
+    orderBy?: FindManyOptions['orderBy']
+    orderDirection?: FindManyOptions['orderDirection']
 }
 
 interface HasQueryOptions<T> {
@@ -61,6 +65,15 @@ export function DatabaseRepository<TTable extends keyof Database, TPrimaryKey ex
 
                 if (options?.offset) {
                     qb = qb.offset(options.offset)
+                }
+
+                if (options?.orderBy) {
+                    const orderBy = Array.isArray(options.orderBy) ? options.orderBy : [options.orderBy]
+                    const orderDirection = Array.isArray(options.orderDirection) ? options.orderDirection : [options.orderDirection ?? 'asc']
+
+                    orderBy.forEach((ob, index) => {
+                        qb = qb.orderBy(ob, orderDirection[index] || 'asc')
+                    })
                 }
 
                 return await qb.execute()
