@@ -1,4 +1,4 @@
-import type { Insertable, Selectable } from 'kysely'
+import type { Insertable, Selectable, WhereInterface } from 'kysely'
 import type { Database } from '#server/contracts/database.contract.ts'
 import BaseException from '#server/exceptions/base.ts'
 import db from '#server/facades/db.facade.ts'
@@ -19,35 +19,31 @@ export interface PaginateOptions {
     orderDirection?: FindManyOptions['orderDirection']
 }
 
-interface HasQueryOptions<T> {
-    __options?: T
+export interface DeleteManyOptions {
+    limit?: number
 }
 
-interface HasEntityType<T> {
-    __entity?: T
-}
+export type DatabaseRepositoryQuery<T extends keyof Database> = WhereInterface<Database, T>
 
-type ExtractQueryOptions<T> = T extends HasQueryOptions<infer Q> ? Q : never
-
-export type ExtractEntityType<T, F = Record<string, any>> = T extends HasEntityType<infer E> ? E : F
-
-export function DatabaseRepository<TTable extends keyof Database, TPrimaryKey extends keyof Database[TTable]
+export function DatabaseRepository<
+    TTable extends keyof Database, 
+    TPrimaryKey extends keyof Database[TTable]
 >(table: TTable, primaryKey: TPrimaryKey) {
 
     // @ts-expect-error - This is a mixin, so it doesn't have the properties at this point
     type PrimaryKeyType = Selectable<Database[TTable]>[TPrimaryKey]
 
-    return function DatabaseRepositoryMixin<TBase extends Constructor>(Base: TBase) {
-        return class DatabaseRepositoryMixin extends Base {
+    return function <TBase extends Constructor>(Base: TBase) {
+        return class  DatabaseRepositoryMixin extends Base {
             protected table = table
             protected primaryKey = primaryKey
 
-            public query(_options?: ExtractQueryOptions<this>) {
-                return db.selectFrom(this.table)
+            public query(options?: { qb?: DatabaseRepositoryQuery<TTable> } & Record<string, any>) {
+                return (options?.qb || db.selectFrom(this.table)) as DatabaseRepositoryQuery<TTable>
             }
 
-            async count(options?: ExtractQueryOptions<this>) {
-                let qb = this.query(options) as any
+            async count(options?: Record<string, any>) {
+                let qb = this.query(options as any) as any
 
                 qb = qb.select((eb: any) => eb.fn.countAll().as('count'))
 
@@ -56,8 +52,8 @@ export function DatabaseRepository<TTable extends keyof Database, TPrimaryKey ex
                 return Number(result.count)
             }
 
-            async findMany(options?: FindManyOptions & ExtractQueryOptions<this>) {
-                let qb = this.query(options).selectAll() as any
+            async findMany(options?: FindManyOptions & Record<string, any>) {
+                let qb = this.query(options) as any
 
                 if (options?.limit) {
                     qb = qb.limit(options.limit)
@@ -79,8 +75,10 @@ export function DatabaseRepository<TTable extends keyof Database, TPrimaryKey ex
                 return await qb.execute()
             }
 
-            async findById(id: PrimaryKeyType, options?: ExtractQueryOptions<this>) {
-                let qb = this.query(options).selectAll() as any
+            async findById(id: PrimaryKeyType, options?: Record<string, any>) {
+                let qb = this.query(options as any) as any
+
+                qb = qb.selectAll()
 
                 qb = qb.where(this.primaryKey, '=', id)
 
@@ -89,7 +87,7 @@ export function DatabaseRepository<TTable extends keyof Database, TPrimaryKey ex
                 return item
             }
 
-            async findByIdOrFail(id: PrimaryKeyType, options?: ExtractQueryOptions<this>) {
+            async findByIdOrFail(id: PrimaryKeyType, options?: Record<string, any>) {
                 const item = await this.findById(id, options)
 
                 if (!item) {
@@ -99,7 +97,7 @@ export function DatabaseRepository<TTable extends keyof Database, TPrimaryKey ex
                 return item
             }
 
-            public async paginate(options?: PaginateOptions & ExtractQueryOptions<this>) {
+            public async paginate(options?: PaginateOptions & Record<string, any>) {
                 const page = options?.page ?? 1
                 const offset = (page - 1) * (options?.limit ?? 10)
                 const limit = options?.limit ?? 10
@@ -113,11 +111,11 @@ export function DatabaseRepository<TTable extends keyof Database, TPrimaryKey ex
                 const countOptions = { ...options }
 
                 const [items, totalItems] = await Promise.all([
-                    this.findMany(findAllOptions as FindManyOptions & ExtractQueryOptions<this>),
-                    this.count(countOptions as ExtractQueryOptions<this>)
+                    this.findMany(findAllOptions as FindManyOptions & Record<string, any>),
+                    this.count(countOptions as Record<string, any>)
                 ])
 
-                return new Pagination<ExtractEntityType<this, Database[TTable]>>({
+                return new Pagination<Record<string, any>>({
                     items,
                     page,
                     per_page: limit,
@@ -127,13 +125,23 @@ export function DatabaseRepository<TTable extends keyof Database, TPrimaryKey ex
             }
 
             public async create(data: Insertable<Database[TTable]>) {
-                let qb = db.insertInto(this.table) as any 
+                let qb = db.insertInto(this.table) as any
 
                 qb = qb.values(data).returningAll()
 
                 const result = await qb.executeTakeFirst()
 
-                return result
+                return result as any
+            }
+
+            public async createMany(data: Insertable<Database[TTable]>[]) {
+                let qb = db.insertInto(this.table) as any
+
+                qb = qb.values(data).returningAll()
+
+                const result = await qb.execute()
+
+                return result as any[]
             }
 
             public async updateById(id: PrimaryKeyType, data: Partial<Insertable<Database[TTable]>>) {
@@ -156,6 +164,21 @@ export function DatabaseRepository<TTable extends keyof Database, TPrimaryKey ex
                 qb = qb.where(this.primaryKey, '=', row[this.primaryKey])
 
                 await qb.executeTakeFirst()
+            }
+
+            async deleteMany(options?: DeleteManyOptions & Record<string, any>) {
+                const deleteOptions = {
+                    ...options,
+                    qb: db.deleteFrom(this.table) as any
+                }
+
+                let qb = this.query(deleteOptions as any) as any
+
+                if (options?.limit) {
+                    qb = qb.limit(options.limit)
+                }
+
+                await qb.execute()
             }
         }
     }
