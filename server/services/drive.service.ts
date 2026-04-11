@@ -210,6 +210,7 @@ export default class DriveService {
         }
 
         this.selected = config.get('drive.default')
+        this.defaultDrive = config.get('drive.default')
     }
 
     public async createDefaultDrives(){
