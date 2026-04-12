@@ -36,6 +36,8 @@ import { $fetch } from '#client/utils/fetcher.ts'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
 import menu from '#client/facades/menu.facade.ts'
 import Icon from '#client/components/Icon.vue'
+import { cn } from '#client/lib/utils.ts'
+import { useHead } from '@unhead/vue'
 
 export interface BreadcrumbItem {
     label: string;
@@ -47,6 +49,12 @@ export interface BreadcrumbItem {
 
 defineOptions({
     inheritAttrs: false,
+})
+
+useHead({
+   bodyAttrs: {
+       class: 'admin',
+   },
 })
 
 const open = ref(true)
@@ -81,6 +89,10 @@ const props = defineProps({
     homePath: {
         type: String,
         default: '/',
+    },
+    contentClass: {
+        type: String,
+        default: '',
     },
 })
 
@@ -272,16 +284,11 @@ onMounted(() => {
             </header>
             <div>
                 <div
-                    class="
-                        dashboard-layout-content
-                        h-full
-                        overflow-auto
-                        lg:max-w-[calc(100dvw-8px-var(--sidebar-width))]
-                        group-has-data-[collapsible=icon]/sidebar-wrapper:max-w-[calc(100dvw-var(--sidebar-width-icon))]
-                    "
-                    :class="{
-                        'p-5': padding,
-                    }"
+                    :class="cn(
+                        'dashboard-layout-content h-full overflow-auto lg:max-w-[calc(100dvw-8px-var(--sidebar-width))] group-has-data-[collapsible=icon]/sidebar-wrapper:max-w-[calc(100dvw-var(--sidebar-width-icon))]',
+                        padding ? 'p-5' : '',
+                        contentClass
+                    )"
                 >
                     <slot />
                 </div>
