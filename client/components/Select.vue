@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { get } from 'lodash-es'
 import {
     Select,
@@ -12,6 +12,7 @@ import {
 } from './ui/select'
 import Label from './ui/label/Label.vue'
 import Button from './Button.vue'
+import { Input } from '#client/components/ui/input'
 import $fetch from '#client/facades/fetch.facade.ts'
 import { cn } from '#client/lib/utils.ts'
 import logger from '#client/facades/logger.facade.ts'
@@ -57,6 +58,10 @@ const props = defineProps({
         type: String,
         default: '',
     },
+    fetchOptions: {
+        type: Object,
+        default: () => ({}),
+    },
     fetchKey: {
         type: String,
         default: 'items',
@@ -81,6 +86,10 @@ const props = defineProps({
         type: String,
         default: 'color',
     },
+    showSearchInput: {
+        type: Boolean,
+        default: false,
+    },
 })
 
 const model = defineModel<any>({ 
@@ -88,12 +97,29 @@ const model = defineModel<any>({
     default: null
 })
 
+const search = ref('')
+
 const formated = computed(() => options.value.map(option => ({
     label: findLabel(option),
     value: findValue(option),
     description: findDescription(option),
     color: findColor(option),
 })))
+
+const visibleOptions = computed(() => {
+    const term = search.value.trim().toLowerCase()
+
+    if (!term) {
+        return formated.value
+    }
+
+    return formated.value.filter(option => {
+        const label = String(option.label || '').toLowerCase()
+        const description = String(option.description || '').toLowerCase()
+
+        return label.includes(term) || description.includes(term)
+    })
+})
 
 const options = defineModel('options', {
     type: Array,
@@ -137,10 +163,10 @@ function findFetchOptions(response: any) {
     return get(response, props.fetchKey)
 }
 
-async function fetchOptions() {
+async function doFetchOptions() {
     if (!props.fetch) return
 
-    const [error, response] = await $fetch.try(props.fetch)
+    const [error, response] = await $fetch.try(props.fetch, props.fetchOptions)
 
     if (error) {
         logger.error('Select fetch error:', error)
@@ -151,7 +177,7 @@ async function fetchOptions() {
 }
 
 function all() {
-    model.value = options.value.map((option) => findValue(option))
+    model.value = visibleOptions.value.map(option => option.value)
 }
 
 function clear(){
@@ -160,7 +186,13 @@ function clear(){
 
 onMounted(() => {
     if (!options.value.length && props.fetch) {
-        fetchOptions()
+        doFetchOptions()
+    }
+})
+
+watch(() => props.showSearchInput, (showSearchInput) => {
+    if (!showSearchInput) {
+        search.value = ''
     }
 })
 </script>
@@ -188,7 +220,7 @@ onMounted(() => {
                 v-model="model"
                 :disabled="disabled"
                 :multiple="multiple"
-            >
+                >
                 <SelectTrigger
                     :class="cn('!h-10', variant === 'horizontal' ? 'rounded-l-none flex-1' : 'w-full', $attrs.class as any)"
                 >
@@ -211,9 +243,24 @@ onMounted(() => {
                         :placeholder="placeholder"
                     />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent class="max-h-92">
+                    <template
+                        v-if="showSearchInput"
+                        #top
+                    >
+                        <div class="border-b p-2">
+                            <Input
+                                v-model="search"
+                                :placeholder="$t('Search')"
+                                class="h-9"
+                                @keydown.enter.stop
+                                @keydown.stop
+                                @click.stop
+                            />
+                        </div>
+                    </template>
                     <SelectGroup>
-                        <SelectLabel v-if="!options.length">
+                        <SelectLabel v-if="!visibleOptions.length">
                             {{ $t('No items') }}
                         </SelectLabel>
                         <select-item
@@ -224,7 +271,7 @@ onMounted(() => {
                             {{ $t('None') }}
                         </select-item>
                         <select-item
-                            v-for="o in formated"
+                            v-for="o in visibleOptions"
                             :key="o.value"
                             :value="o.value"
                         >
