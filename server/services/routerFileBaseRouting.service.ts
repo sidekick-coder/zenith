@@ -2,10 +2,12 @@ import fg from 'fast-glob'
 import type Router from './router.service.ts'
 import LoggerService from '#shared/services/logger.service.ts'
 import BaseException from '#server/exceptions/base.ts'
+import type Route from '#server/entities/route.entity.ts'
 
 interface RouteFileDefinition {
     file: string
     routePath: string
+    module?: string
     method: 'get' | 'post' | 'patch' | 'delete' | 'put'
     sortKey: number
 }
@@ -13,7 +15,7 @@ interface RouteFileDefinition {
 export default class RouterFileBaseRoutingService {
     private directory: string 
     private prefix: string
-    private debug = false
+    private module?: string
     private router: Router
     private logger = new LoggerService()
     private routes: RouteFileDefinition[] = []
@@ -28,13 +30,13 @@ export default class RouterFileBaseRoutingService {
         return this
     }
 
-    public setDebug(debug: boolean) {
-        this.debug = debug
+    public setRouter(router: Router) {
+        this.router = router
         return this
     }
 
-    public setRouter(router: Router) {
-        this.router = router
+    public setModule(module: string) {
+        this.module = module
         return this
     }
 
@@ -111,7 +113,8 @@ export default class RouterFileBaseRoutingService {
                 file,
                 routePath,
                 method,
-                sortKey 
+                sortKey,
+                module: this.module,
             })
         }
         
@@ -126,6 +129,17 @@ export default class RouterFileBaseRoutingService {
             throw new BaseException('Router instance not set')
         }
 
+        const moduleName = this.module || 'unknown'
+
+        const hook = function(route: Route){
+            route.metadata = {
+                ...route.metadata,
+                module: moduleName,
+            }
+        }
+
+        this.router.on('added', hook)
+
         for (const route of this.routes) {
             const routeModule = await import(`${this.directory}/${route.file}`)
             const handler = routeModule.default
@@ -137,6 +151,8 @@ export default class RouterFileBaseRoutingService {
 
             this.router[route.method](route.routePath, handler)
         }
+
+        this.router.off('added', hook)
     }
 
     public async load(){
