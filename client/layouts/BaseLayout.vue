@@ -94,6 +94,10 @@ const props = defineProps({
         type: String,
         default: '',
     },
+    userMenuLinks: {
+        type: Array as PropType<{ label: string; to: string; icon?: string }[]>,
+        default: () => [],
+    },
 })
 
 const breadcrumbs = defineModel('breadcrumbs', {
@@ -107,21 +111,6 @@ const items = computed(() =>
         allowed: true,
     })
 )
-
-// const state = di.get<Record<string, any>>('state')
-//
-// const metas = state['user:metas'] || {}
-// const hideIds = metas['admin-ui:hide-menus'] || []
-// const hideGroups = metas['admin-ui:hide-menu-groups'] || []
-// const extras = metas['admin-ui:menu-extras'] || []
-//
-// const menu = computed(() => {
-//     return menuAll.value
-//         .concat(extras)
-//         .filter(item => item.layout === props.layoutId)
-//         .filter(item => !hideIds.includes(item.id))
-//         .filter(item => !hideGroups.includes(item.group || $t('General')))
-// })
 
 const computedBreadcrumbs = computed(() => {
     if (breadcrumbs.value) {
@@ -238,7 +227,7 @@ onMounted(() => {
             >
                 <SidebarFooter>
                     <AdminLayoutUserMenu
-                        :links="[]"
+                        :links="userMenuLinks"
                         @logout="onLogout"
                     />
                 </SidebarFooter>
