@@ -20,7 +20,7 @@ defineProps({
     },
     label: {
         type: String,
-        required: true,
+        default: '',
     },
     hint: {
         type: String,
