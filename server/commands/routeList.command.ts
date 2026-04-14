@@ -8,7 +8,7 @@ arte
     .command('route:list')
     .need('router', 'modules')
     .option('--json', 'Output in JSON format')
-    .option('--module <module>', 'Filter by module name')
+    .option('--module,-m <module>', 'Filter by module name')
     .option('--sort-by <field>', 'Sort by field (module, path, method)', 'module,path,method')
     .option('--sort-desc <desc>', 'Sort in descending order', '')
     .action(async (options) => {
