@@ -12,8 +12,13 @@ export interface ListFilter {
 export default class MenuService {
     public items: Map<string, MenuItem> = new Map()
 
-    public add(...item: Omit<MenuItem, 'merge' | 'from'>[]) {
+    public add(...item: Omit<Partial<MenuItem>, 'merge' | 'from'>[]) {
         for (const i of item) {
+
+            if (!i.id) {
+                i.id = JSON.stringify(i)
+            }
+
             this.items.set(i.id, MenuItem.from(i))
         }
     }
