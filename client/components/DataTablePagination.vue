@@ -186,7 +186,7 @@ function createArray(from: number, to: number): number[] {
                 <Button
                     variant="outline"
                     class="w-8 h-8 p-0"
-                    :disabled="page === totalPages"
+                    :disabled="page === totalPages || totalPages === 0"
                     @click="page = page + 1"
                 >
                     <span class="sr-only">{{ $t('Go to next page') }}</span>
@@ -198,7 +198,7 @@ function createArray(from: number, to: number): number[] {
                 <Button
                     variant="outline"
                     class="w-8 h-8 p-0"
-                    :disabled="page === totalPages"
+                    :disabled="page === totalPages || totalPages === 0"
                     @click="page = totalPages"
                 >
                     <span class="sr-only">{{ $t('Go to last page') }}</span>
