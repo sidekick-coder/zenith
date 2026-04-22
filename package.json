@@ -28,6 +28,7 @@
         "@aws-sdk/s3-request-presigner": "^3.956.0",
         "@casl/ability": "^6.7.3",
         "@inquirer/prompts": "^8.3.2",
+        "@sidekick-coder/zenith-kit": "^0.0.1",
         "@tailwindcss/vite": "^4.1.11",
         "@tanstack/vue-table": "^8.21.3",
         "@types/bcrypt": "^6.0.0",

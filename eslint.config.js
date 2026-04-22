@@ -27,7 +27,7 @@ export default defineConfigWithVueTs(
             'indent': ['error', 4],
             'semi': ['error', 'never'],
             'quotes': ['error', 'single'],
-            'import/extensions': ['error', 'always'],
+            'import/extensions': ['error', 'ignorePackages'],
             'import/no-unresolved': 'off',
             'import/consistent-type-specifier-style': ['error', 'prefer-top-level'],
             'import/order': 'error',

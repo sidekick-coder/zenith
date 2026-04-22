@@ -7,15 +7,14 @@ import config from '#server/facades/config.facade.ts'
 import setupMiddleware from '#server/middlewares/setup.middleware.ts'
 import authSilenceMiddleware from '#server/middlewares/authSilence.middleware.ts'
 import authorizationMiddleware from '#server/middlewares/authorization.middleware.ts'
+import RouterFileBaseRoutingService from '#server/services/routerFileBaseRouting.service.ts'
 
 export default class RouterLifecycleHook extends LifecycleHook {
     public order = 97
     public async onRegister(): Promise<void> {
         const router = new RouterRegister({
             debug: config.get('router.debug') || config.get('app.debug') || false,
-            metadata: {
-                id: 'main-router',
-            }
+            metadata: { id: 'main-router', }
         })
 
         router.use(setupMiddleware, 'global')
@@ -27,18 +26,23 @@ export default class RouterLifecycleHook extends LifecycleHook {
 
     public async onLoad(): Promise<void> {
         const router = di.get<RouterRegister>(RouterSevice)
-        
-        router.addDir(serverPath('routes'), {
-            module: 'root'
-        })
+
+        router.addDir(serverPath('routes'), { module: 'root' })
+
+        await RouterFileBaseRoutingService
+            .create(serverPath('api'))
+            .setPrefix('/api')
+            .setRouter(router)
+            .setModule('root')
+            .load()
     }
-    
+
     public async onBoot(): Promise<void> {
         const router = di.get<RouterRegister>(RouterSevice)
 
         await router.load()
     }
-    
+
     public async onShutdown(): Promise<void> {
         const router = di.get<RouterRegister>(RouterSevice)
 
