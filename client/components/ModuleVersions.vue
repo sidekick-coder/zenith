@@ -7,6 +7,7 @@ import DataTable, { defineColumns } from '#client/components/DataTable.vue'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '#client/components/ui/card'
 import { Badge } from '#client/components/ui/badge'
 import { Button } from '#client/components/ui/button'
+import { Switch } from '#client/components/ui/switch'
 import Select from '#client/components/Select.vue'
 import {
     Dialog,
@@ -15,6 +16,16 @@ import {
     DialogTitle,
     DialogDescription,
 } from '#client/components/ui/dialog'
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from '#client/components/ui/alert-dialog'
 
 defineOptions({ inheritAttrs: false, })
 
@@ -43,7 +54,8 @@ interface Commit {
 
 interface Branch {
     name: string
-    current: boolean
+    isCurrent: boolean
+    isRemote: boolean
     remote: string | null
 }
 
@@ -53,6 +65,11 @@ interface GitRepoInfo {
     shortHash: string
     isDetachedHead: boolean
     remotes: string[]
+}
+
+interface CheckoutRefOption {
+    label: string
+    value: string
 }
 
 // commits state
@@ -78,6 +95,12 @@ const fetchingBranch = ref<string | null>(null)
 
 const columns = defineColumns<Commit>([
     {
+        id: 'checkout',
+        field: 'hash',
+        label: '',
+        width: 60,
+    },
+    {
         id: 'shortHash',
         field: 'shortHash',
         label: 'Hash',
@@ -89,18 +112,98 @@ const columns = defineColumns<Commit>([
         label: 'Message',
     },
     {
-        id: 'refs',
-        field: 'refs',
-        label: 'Refs',
-        width: 260,
-    },
-    {
         id: 'date',
         field: 'date',
         label: 'Date',
         width: 200,
     },
 ])
+
+// checkout state
+const checkoutDialog = ref(false)
+const checkoutTarget = ref<Commit | null>(null)
+const checkinOut = ref(false)
+const checkoutRef = ref<string | null>(null)
+const checkoutRefOptions = ref<CheckoutRefOption[]>([])
+
+function isHead(commit: Commit) {
+    return commit.refs.some(r => r.name === 'HEAD')
+}
+
+function commitRowClass(commit: Commit) {
+    return isHead(commit) ? 'bg-primary/5 hover:bg-primary/10' : ''
+}
+
+function getCheckoutRefOptions(commit: Commit): CheckoutRefOption[] {
+    const refs = Array.from(
+        new Map(
+            commit.refs
+                .filter(ref => ref.type === 'tag' || ref.type === 'branch')
+                .sort((left, right) => {
+                    const priority = {
+                        tag: 0,
+                        branch: 1,
+                    }
+
+                    return priority[left.type] - priority[right.type]
+                })
+                .map(ref => [
+                    ref.name,
+                    {
+                        label: ref.type === 'tag'
+                            ? $t('Tag: :0', [ref.shortName])
+                            : $t('Branch: :0', [ref.shortName]),
+                        value: ref.name,
+                    },
+                ]),
+        ).values(),
+    )
+
+    return refs
+}
+
+function requestCheckout(commit: Commit) {
+    if (isHead(commit)) return
+
+    checkoutRefOptions.value = getCheckoutRefOptions(commit)
+    checkoutRef.value = checkoutRefOptions.value[0]?.value ?? commit.hash
+    checkoutTarget.value = commit
+    checkoutDialog.value = true
+}
+
+async function checkout() {
+    if (!checkoutTarget.value) return
+
+    checkinOut.value = true
+
+    const target = checkoutTarget.value
+
+    const [error] = await $fetch.try(`/api/modules/${props.module.id}/checkout`, {
+        method: 'POST',
+        data: {
+            ref: checkoutRef.value ?? target.hash,
+        },
+    })
+
+    if (error) {
+        checkinOut.value = false
+        toast.error($t('Failed to checkout commit'))
+        return
+    }
+
+    toast.success($t('Checked out :0', [target.shortHash]))
+
+    checkinOut.value = false
+    checkoutDialog.value = false
+    checkoutTarget.value = null
+    checkoutRef.value = null
+    checkoutRefOptions.value = []
+    selectedBranch.value = null
+
+    await loadRepoInfo()
+    await loadBranches()
+    await load()
+}
 
 async function loadRepoInfo() {
     const [, data] = await $fetch.try(`/api/modules/${props.module.id}/git-info`)
@@ -118,8 +221,11 @@ async function loadBranches() {
     const [, data] = await $fetch.try(`/api/modules/${props.module.id}/branches`)
 
     if (Array.isArray(data)) {
-        localBranches.value = data as Branch[]
-        localBranchOptions.value = (data as Branch[]).map(b => ({
+        const all = data as Branch[]
+        const local = all.filter(b => !b.isRemote)
+
+        localBranches.value = local
+        localBranchOptions.value = local.map(b => ({
             label: repoInfo.value?.head === b.name ? `${b.name} (current)` : b.name,
             value: b.name,
         }))
@@ -129,12 +235,10 @@ async function loadBranches() {
 async function loadRemoteBranches() {
     loadingRemotes.value = true
 
-    const [, data] = await $fetch.try(`/api/modules/${props.module.id}/branches`, { query: { includeRemotes: 'true' }, })
+    const [, data] = await $fetch.try(`/api/modules/${props.module.id}/branches`)
 
     if (Array.isArray(data)) {
-        const localNames = new Set(localBranches.value.map(b => b.name))
-
-        remoteBranches.value = (data as Branch[]).filter(b => !localNames.has(b.name))
+        remoteBranches.value = (data as Branch[]).filter(b => b.isRemote)
     }
 
     loadingRemotes.value = false
@@ -257,7 +361,35 @@ onMounted(async () => {
                 :columns="columns"
                 :loading="loading"
                 :limit="perPage"
+                :row-class="commitRowClass"
             >
+                <template #row-checkout="{ row }">
+                    <Switch
+                        :model-value="isHead(row)"
+                        :disabled="isHead(row)"
+                        @click="requestCheckout(row)"
+                    />
+                </template>
+
+                <template #row-message="{ row }">
+                    <div class="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 sm:flex-nowrap">
+                        <span class="w-full sm:w-auto">{{ row.message }}</span>
+                        <div
+                            v-if="row.refs.filter(r => r.name !== 'HEAD').length"
+                            class="flex flex-wrap items-center gap-1"
+                        >
+                            <Badge
+                                v-for="r in row.refs.filter(r => r.name !== 'HEAD')"
+                                :key="r.name"
+                                :variant="r.type === 'tag' ? 'secondary' : 'outline'"
+                                class="text-xs"
+                            >
+                                {{ r.shortName }}
+                            </Badge>
+                        </div>
+                    </div>
+                </template>
+
                 <template #row-shortHash="{ row }">
                     <Badge
                         variant="outline"
@@ -265,19 +397,6 @@ onMounted(async () => {
                     >
                         {{ row.shortHash }}
                     </Badge>
-                </template>
-
-                <template #row-refs="{ row }">
-                    <div class="flex items-center gap-1 flex-wrap">
-                        <Badge
-                            v-for="r in row.refs"
-                            :key="r.name"
-                            :variant="r.type === 'tag' ? 'secondary' : 'outline'"
-                            class="text-xs"
-                        >
-                            {{ r.shortName }}
-                        </Badge>
-                    </div>
                 </template>
 
                 <template #row-date="{ row }">
@@ -338,4 +457,40 @@ onMounted(async () => {
             </div>
         </DialogContent>
     </Dialog>
+
+    <AlertDialog v-model:open="checkoutDialog">
+        <AlertDialogContent>
+            <AlertDialogHeader>
+                <AlertDialogTitle>{{ $t('Checkout commit') }}</AlertDialogTitle>
+                <AlertDialogDescription>
+                    {{ $t('Are you sure you want to checkout commit :0?', [checkoutTarget?.shortHash]) }}
+                </AlertDialogDescription>
+            </AlertDialogHeader>
+            <div
+                v-if="checkoutRefOptions.length"
+                class="space-y-2"
+            >
+                <div class="text-sm font-medium">
+                    {{ $t('Checkout ref') }}
+                </div>
+                <Select
+                    v-model="checkoutRef"
+                    v-model:options="checkoutRefOptions"
+                    :placeholder="$t('Select a ref')"
+                    class="w-full"
+                />
+            </div>
+            <AlertDialogFooter>
+                <AlertDialogCancel :disabled="checkinOut">
+                    {{ $t('Cancel') }}
+                </AlertDialogCancel>
+                <AlertDialogAction
+                    :disabled="checkinOut"
+                    @click.prevent="checkout"
+                >
+                    {{ $t('Checkout') }}
+                </AlertDialogAction>
+            </AlertDialogFooter>
+        </AlertDialogContent>
+    </AlertDialog>
 </template>

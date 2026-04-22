@@ -492,7 +492,7 @@ defineExpose({
             :class="cn(
                 'cursor-pointer transition-colors hover:bg-muted/20',
                 isSelected(row) ? 'border-primary bg-primary/5' : '',
-                props.rowClass
+                findRowClass(row)
             )"
             @click="onClick(row)"
             @dblclick="emit('dblclick:row', row.original)"
