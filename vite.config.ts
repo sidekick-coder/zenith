@@ -17,13 +17,7 @@ if (process.env.VITEST_ALLOWED_HOSTS) {
 export default defineConfig({
     clearScreen: false,
     plugins: [
-        vue({
-            template: {
-                compilerOptions: {
-                    isCustomElement: (tag) => tag.startsWith('iconify-icon'),
-                }
-            }
-        }), 
+        vue({ template: { compilerOptions: { isCustomElement: (tag) => tag.startsWith('iconify-icon'), } } }), 
         tailwindcss()
     ],
     publicDir: 'client/public',

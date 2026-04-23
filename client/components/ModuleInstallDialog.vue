@@ -4,7 +4,7 @@ import { useForm } from 'vee-validate'
 import * as v from 'valibot'
 import { toTypedSchema } from '@vee-validate/valibot'
 
-import { $fetch } from '#client/utils/fetcher.ts'
+import $fetch from '#client/facades/fetch.facade.ts'
 import { $server } from '#client/utils/server.ts'
 import Dialog from '#client/components/ui/dialog/Dialog.vue'
 import DialogContent from '#client/components/ui/dialog/DialogContent.vue'
@@ -56,8 +56,6 @@ const onSubmit = handleSubmit(async (data) => {
     }
 
     await $server.online({ timeout: 60000 })
-
-    await new Promise(resolve => setTimeout(resolve, 5000))
 
     window.location.reload()
 })

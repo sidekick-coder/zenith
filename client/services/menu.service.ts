@@ -56,8 +56,9 @@ export default class MenuService {
         })
 
         for (const item of items) {
+            const params = item.params || {}
             // check current route and replace parameters in to
-            for (const key in route.params) {
+            for (const key in params) {
                 if (item.to) {
                     item.to = item.to.replace(`:${key}`, String(route.params[key]))
                 }

@@ -33,15 +33,17 @@ export async function online(options: OnlineOptions = {}) {
     const start = Date.now()
 
     while (true) {
-        const response = await fetch('/')
-
-        if (!response.ok) {
-            await new Promise(resolve => setTimeout(resolve, 1000))
-            return
-        }
 
         if (Date.now() - start > timeout) {
             throw new Error('Timeout waiting for server to be online')
+        }
+
+        const [error]= await $fetch.try('/')
+
+        if (error) {
+            await new Promise(resolve => setTimeout(resolve, 1000)) // wait a bit before retrying
+            logger.warn('server is not online yet, retrying...')
+            return
         }
 
         logger.info('server is online')
@@ -60,19 +62,19 @@ interface ReloadOptions {
 const kill = (event: any) => {
     event.preventDefault()
 
-    throw '(skipping full reload)' 
+    throw '(skipping full reload)'
 }
 
 export function trapHotReload() {
     if (!import.meta.hot) {
         return
     }
-    
+
     import.meta.hot.on('vite:beforeFullReload', kill)
     import.meta.hot.on('vite:beforeUpdate', kill)
 
     logger.debug('Hot reload trapping enabled')
-    
+
 }
 
 export async function untrapHotReload() {
@@ -99,7 +101,7 @@ async function reloadAfter({ fn, href }: ReloadOptions) {
     }
 
     await waitTillOnline()
-    
+
     await new Promise(resolve => setTimeout(resolve, 5000))
 
     if (href) {

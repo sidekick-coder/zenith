@@ -65,16 +65,18 @@ async function runSeeds() {
 }
 
 async function uninstall(data: any) {
-    await $fetch.try(`/api/modules/${props.module.id}/uninstall`, {
+    const [error] = await $fetch.try(`/api/modules/${props.module.id}/uninstall`, {
         method: 'POST',
         data
     })
 
+    if (error) {
+        throw new Error(error.message || $t('Failed to uninstall module'))
+    }
+
     await $server.online({ timeout: 60000 })
 
-    await new Promise(resolve => setTimeout(resolve, 5000)) 
-
-    window.location.href = '/modules'
+    window.location.href = '/admin/modules'
 }
 
 async function buildModule() {
@@ -145,7 +147,9 @@ async function buildModule() {
         <Card>
             <CardHeader>
                 <CardTitle>{{ $t('Build') }}</CardTitle>
-                <CardDescription>{{ $t('Rebuild the module assets. This is an expensive operation that may take several minutes.') }}</CardDescription>
+                <CardDescription>
+                    {{ $t('Rebuild the module assets. This is an expensive operation that may take several minutes.') }}
+                </CardDescription>
             </CardHeader>
             <CardContent>
                 <AlertButton
@@ -168,7 +172,9 @@ async function buildModule() {
         <Card v-if="!module.enabled">
             <CardHeader>
                 <CardTitle>{{ $t('Uninstall') }}</CardTitle>
-                <CardDescription>{{ $t('Permanently remove this module and optionally rollback its migrations.') }}</CardDescription>
+                <CardDescription>
+                    {{ $t('Permanently remove this module and optionally rollback its migrations.') }}
+                </CardDescription>
             </CardHeader>
             <CardContent>
                 <DialogForm
