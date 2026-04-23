@@ -15,7 +15,5 @@ arte.command('config:dump')
             return
         }
 
-
-
         arte.table(items)
     })

@@ -1,6 +1,7 @@
 import { spawn } from 'child_process'
 import logger from '../facades/logger.facade.ts'
 import type LoggerService from '#shared/services/logger.service.ts'
+import ShellExecption from '#server/exceptions/ShellException.ts'
 
 interface CommandOptions {
     cwd?: string
@@ -65,7 +66,7 @@ export default class ShellService {
                     output: data
                 })
 
-                reject(new Error(errorMessage))
+                reject(new ShellExecption(errorMessage, data, bin, args))
                 
             })
 
@@ -75,6 +76,7 @@ export default class ShellService {
                     args, 
                     error: error.message 
                 })
+
                 reject(error)
             })
         })
@@ -120,7 +122,8 @@ export default class ShellService {
                         code, 
                         errorOutput 
                     })
-                    reject(new Error(errorMessage))
+
+                    reject(new ShellExecption(errorMessage, output, bin, args))
                 }
             })
 

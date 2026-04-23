@@ -19,7 +19,7 @@ export default class FetchService {
         if (response.headers.get('Content-Type')?.includes('json')) {
             const data = await response.json()
                 .catch(() => ({ message: $t('Internal Server Error') }))
-        
+
             if (data.message) {
                 toast.error(data.message)
             }    

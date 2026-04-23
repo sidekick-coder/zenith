@@ -13,7 +13,10 @@ const keepAliveInclude = all
     .flat()
 </script>
 <template>
-    <Toaster position="top-right" />
+    <Toaster
+        position="top-right"
+        :toast-options="{ class: 'whitespace-pre-line' }"
+    />
     <suspense>
         <router-view v-slot="{ Component }">
             <keep-alive :include="keepAliveInclude">
