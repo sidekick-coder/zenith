@@ -1,22 +1,55 @@
 #!/usr/bin/env node
 import cp from 'child_process';
 import path from 'path';
+import fs from 'fs';
 
 const bin = 'node';
 
 const userArgs = process.argv.slice(2);
 
 const configArgs = userArgs
-    .filter(arg => arg.startsWith('config:'))
-    .map(arg => arg.slice('config:'.length));
+    .filter(arg => arg.startsWith('@config:'))
+    .map(arg => arg.slice('@config:'.length));
 
-const forwardArgs = userArgs.filter(arg => !arg.startsWith('config:'));
+const forwardArgs = userArgs.filter(arg => !arg.startsWith('@config:'));
 
 const env = { ZARTE: 'true', ...process.env };
 
-if (configArgs.length > 0) {
+// load persisted config from file if RUNTIME_CONFIG_PATH is set
+const runtimeConfigPath = env.RUNTIME_CONFIG_PATH;
+let fileEntries = [];
+
+if (runtimeConfigPath && fs.existsSync(runtimeConfigPath)) {
+    fileEntries = fs.readFileSync(runtimeConfigPath, 'utf-8')
+        .split('\n')
+        .map(line => line.trim())
+        .filter(Boolean);
+}
+
+// merge: file entries as base, command args override by key
+const entryMap = new Map();
+
+for (const entry of fileEntries) {
+    const key = entry.split('=')[0];
+    entryMap.set(key, entry);
+}
+
+for (const entry of configArgs) {
+    const key = entry.split('=')[0];
+    entryMap.set(key, entry);
+}
+
+const mergedConfig = Array.from(entryMap.values());
+
+// save merged config back to file
+if (runtimeConfigPath && mergedConfig.length > 0) {
+    fs.mkdirSync(path.dirname(runtimeConfigPath), { recursive: true });
+    fs.writeFileSync(runtimeConfigPath, mergedConfig.join('\n'));
+}
+
+if (mergedConfig.length > 0) {
     const existing = env.CONFIG ? env.CONFIG.split(';') : [];
-    env.CONFIG = [...existing, ...configArgs].join(';');
+    env.CONFIG = [...existing, ...mergedConfig].join(';');
 }
 
 const args = [

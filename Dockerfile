@@ -1,17 +1,18 @@
-FROM node:23 AS builder
+FROM node:23-alpine AS builder
 
+# base 
 WORKDIR /app
 
-RUN apt update -y && apt upgrade -y
+RUN apk add --no-cache \
+  ca-certificates \
+  curl \
+  docker-cli \
+  git \
+  openssh-client
 
-RUN apt install ca-certificates curl \
- && install -m 0755 -d /etc/apt/keyrings \
- && curl -fsSL https://download.docker.com/linux/debian/gpg -o /etc/apt/keyrings/docker.asc \
- && chmod a+r /etc/apt/keyrings/docker.asc \
- && echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/debian $(. /etc/os-release && echo "$VERSION_CODENAME") stable" > /etc/apt/sources.list.d/docker.list \
- && apt update \
- && apt install -y docker-ce-cli
+RUN git config --global user.name "zenith-docker" && git config --global user.email "zenith-docker@sample.com"
 
+# build 
 COPY package.json package-lock.json* ./
 
 RUN npm install
@@ -20,12 +21,14 @@ COPY . .
 
 RUN npm run build
 
-RUN chmod +x docker/entrypoint.sh
-
 ENV NODE_ENV=production
+ENV RUNTIME_CONFIG_PATH=/tmp/runtime-config.txt
 
 EXPOSE 3000
 
-ENTRYPOINT ["docker/entrypoint.sh"]
-
-CMD ["node", "arte", "serve"]
+ENTRYPOINT ["node", "arte", "serve"]
+CMD []
+#
+# ENTRYPOINT ["docker/entrypoint.sh"]
+#
+# CMD ["node", "arte", "serve"]
