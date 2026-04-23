@@ -11,11 +11,13 @@ export default class LifecycleService {
     public hooks: Map<string, LifecycleHook>
     public logger: LoggerService
     public debug = false
+    public onError?: (error: Error, hookId: string, method: string) => void
 
     constructor(data: Partial<LifecycleService> = {}) {
         this.debug = data.debug ?? this.debug
         this.hooks = data.hooks ?? new Map()
         this.logger = data.logger ?? new LoggerService()
+        this.onError = data.onError
     }
 
     private async executeHookMethod(hook: LifecycleHook, method: 'onRegister' | 'onLoad' | 'onBoot' | 'onShutdown'): Promise<void> {
@@ -87,8 +89,7 @@ export default class LifecycleService {
             const [error] = await tryCatch(() => this.executeHookMethod(hook, 'onRegister'))
             
             if (error) {
-                Object.assign(error, { hookId: hook.hook_id })
-                this.logger.error('error in hook register: ', error)
+                this.onError?.(error, hook.hook_id, 'register')
                 continue
             }
             
@@ -103,8 +104,7 @@ export default class LifecycleService {
             const [error] = await tryCatch(() => this.executeHookMethod(hook, 'onLoad'))
             
             if (error) {
-                Object.assign(error, { hookId: hook.hook_id })
-                this.logger.error('error in hook load:', error)
+                this.onError?.(error, hook.hook_id, 'load')
                 continue
             }
             
@@ -121,8 +121,7 @@ export default class LifecycleService {
             const [error] = await tryCatch(() => this.executeHookMethod(hook, 'onBoot'))
             
             if (error) {
-                Object.assign(error, { hookId: hook.hook_id })
-                this.logger.error('error in hook boot:', error)
+                this.onError?.(error, hook.hook_id, 'boot')
                 continue
             }
             
@@ -137,8 +136,7 @@ export default class LifecycleService {
             const [error] = await tryCatch(() => this.executeHookMethod(hook, 'onShutdown'))
             
             if (error) {
-                Object.assign(error, { hookId: hook.hook_id })
-                this.logger.error('error in hook shutdown:', error)
+                this.onError?.(error, hook.hook_id, 'shutdown')
                 continue
             }
             

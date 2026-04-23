@@ -42,6 +42,10 @@ di.set(LoggerService, logger)
 const lifecycle = new LifecycleService({
     debug: env.get('LIFECYCLE_DEBUG'),
     logger: logger.child({ label: 'lifecycle' }),
+    onError: (error, hookId, method) => {
+        logger.error(`lifecycle error in hook "${hookId}" on ${method}:`, error)
+        process.exit(1)
+    },
 })
 
 const mods = await importAll(basePath('server/hooks'))
