@@ -334,6 +334,18 @@ onMounted(async () => {
             </div>
 
             <div class="flex items-center gap-2">
+                <Badge
+                    v-if="repoInfo"
+                    variant="outline"
+                    class="h-9"
+                >
+                    {{
+                        repoInfo.isDetachedHead
+                            ? $t('HEAD: :0', [repoInfo.shortHash])
+                            : $t('HEAD: :0', [repoInfo.head])
+                    }}
+                </Badge>
+
                 <Select
                     v-model="selectedBranch"
                     v-model:options="branchOptions"
