@@ -81,7 +81,7 @@ export default class ModulesService {
             this.manifests.set(name, ModuleManifest.from({
                 ...json,
                 id: name,
-                enabled: config.get(`modules.enabled.${name}`, false),
+                enabled: config.get(`modules.${name}.enabled`, false),
             }))
 
             if (this.debug) {
@@ -228,7 +228,7 @@ export default class ModulesService {
             return
         }
 
-        config.set(`modules.enabled.${id}`, true)
+        config.set(`modules.${id}.enabled`, true)
 
         logger.info(`module ${id} enabled`)
     }
@@ -241,13 +241,13 @@ export default class ModulesService {
             return
         }
 
-        config.set(`modules.enabled.${id}`, false)
+        config.set(`modules.${id}.enabled`, false)
 
         logger.info(`module ${id} disabled`)
     }
 
     public async toggle(id: string) {
-        if (config.get(`modules.enabled.${id}`)) {
+        if (config.get(`modules.${id}.enabled`)) {
             return this.disable(id)
         }
 

@@ -10,7 +10,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '#client/components/ui/
 import { Skeleton } from '#client/components/ui/skeleton'
 import TextField from '#client/components/TextField.vue'
 import { $fetch } from '#client/utils/fetcher.ts'
-import { tryCatch } from '#shared/utils/tryCatch.ts'
 
 const route = useRoute()
 const moduleId = computed(() => route.params.id as string)
@@ -50,11 +49,7 @@ const tabs = [
 async function load() {
     loading.value = true
 
-    const [error, response] = await $fetch.try(`/api/modules/${moduleId.value}`, { 
-        query: {
-            include: 'upgrade_info'
-        }
-    })
+    const [error, response] = await $fetch.try(`/api/modules/${moduleId.value}`, { query: { include: 'upgrade_info' } })
 
     if (error) {
         loading.value = false

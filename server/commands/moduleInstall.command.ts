@@ -5,8 +5,14 @@ arte
     .command('module:install')
     .need('modules')
     .helpGroup('module')
-    .argument('<source>', 'GitHub repository or zip file')
-    .description('Install a module from a GitHub repository')
-    .action(async (source) => {
-        await modules.installer.install(source)
+    .argument('<repository>', 'Git repository URL')
+    .description('Install a module from a Git repository')
+    .action(async (repository: string) => {
+        const path = await import('path')
+        const id = path.basename(repository, '.git')
+
+        await modules.installer.install({
+            id,
+            repository 
+        })
     })

@@ -1,6 +1,5 @@
 import fs from 'fs'
 import path from 'path'
-import unzipper from 'unzipper'
 import rootLogger from '../facades/logger.facade.ts'
 import shell from '#server/facades/shell.facade.ts'
 import {
@@ -9,18 +8,11 @@ import {
 } from '#server/utils/paths.ts'
 import config from '#server/facades/config.facade.ts'
 
-export interface BaseOptions {
+export interface InstallOptions {
     id: string
-}
-
-export interface ZipModuleOptions extends BaseOptions {
-    filename: string
-}
-
-export interface GitModuleOptions extends BaseOptions {
     repository: string
     branch?: string
-    key?: string // SSH private key
+    key?: string
 }
 
 export default class ModuleInstallerService {
@@ -40,153 +32,53 @@ export default class ModuleInstallerService {
         }
     }
 
-
-    public async fromZip(options: ZipModuleOptions): Promise<void> {
-        const { id, filename } = options
-
-        const modulesPath = basePath('modules')
-        const moduleDir = path.join(modulesPath, id)
-        const tempDir = tmpPath(id + '_unzipped')
-
-        // Check if module already exists
-        if (fs.existsSync(moduleDir)) {
-            throw new Error(`Module '${id}' already exists`)
-        }
-
-        const directory = await unzipper.Open.file(filename)
-
-        await directory.extract({ path: tempDir })
-
-        let targetDir = tempDir
-
-        // If the zip contains a single root folder, use it
-        const entries = fs.readdirSync(tempDir)
-        
-        if (entries.length === 1) {
-            targetDir = path.join(tempDir, entries[0])
-        }
-
-        // Copy extracted files to module directory (safer than rename for cross-disk operations)
-        fs.cpSync(targetDir, moduleDir, {
-            recursive: true
-        })
-
-        // Clean up temporary directory
-        fs.rmSync(tempDir, {
-            recursive: true,
-            force: true
-        })
-
-        // if has a package.json, run npm install
-        const packageJsonPath = path.join(moduleDir, 'package.json')
-
-        if (fs.existsSync(packageJsonPath)) {
-            await this.shell.command('npm', ['install'], {
-                cwd: moduleDir
-            })
-        }
-
-        this.logger.info(`Module '${id}' installed successfully from zip`)
-    }
-
-    public async fromGit(options: GitModuleOptions): Promise<void> {
+    public async install(options: InstallOptions): Promise<void> {
         const { id, repository, branch, key } = options
 
         const modulesPath = basePath('modules')
         const moduleDir = path.join(modulesPath, id)
 
-        // Check if module already exists
         if (fs.existsSync(moduleDir)) {
             throw new Error(`Module '${id}' already exists`)
         }
 
         const cloneArgs: string[] = ['clone']
-        
+
         if (branch) {
             cloneArgs.push('--branch', branch)
         }
 
         cloneArgs.push(repository, moduleDir)
 
-        // Handle SSH key authentication if provided
         if (key) {
-            // Write SSH key to temporary file
             const sshKeyPath = tmpPath(`${id}_ssh_key`)
-            
+
             fs.writeFileSync(sshKeyPath, key, { mode: 0o600 })
-            
+
             await this.shell.command('git', cloneArgs, {
                 cwd: modulesPath,
-                env: {
-                    GIT_SSH_COMMAND: `ssh -i ${sshKeyPath} -o StrictHostKeyChecking=no`
-                }
+                env: { GIT_SSH_COMMAND: `ssh -i ${sshKeyPath} -o StrictHostKeyChecking=no` }
             })
 
-            // Clean up SSH key
             fs.rmSync(sshKeyPath, { force: true })
-        }
-
-        if (!key) {
+        } else {
             await this.shell.command('git', cloneArgs, {
                 cwd: modulesPath,
-                env: {
-                    GIT_SSH_COMMAND: 'ssh -o StrictHostKeyChecking=no'
-                }
+                env: { GIT_SSH_COMMAND: 'ssh -o StrictHostKeyChecking=no' }
             })
         }
 
         config.set(`modules.${id}`, {
-            source: 'git',
-            repository,
-            branch: branch || 'main',
-            key: key
+            enabled: false,
+            ssh_key: key,
         })
 
         const packageJsonPath = path.join(moduleDir, 'package.json')
 
         if (fs.existsSync(packageJsonPath)) {
-            await this.shell.command('npm', ['install'], {
-                cwd: moduleDir
-            })
+            await this.shell.command('npm', ['install'], { cwd: moduleDir })
         }
 
         this.logger.info(`Module '${id}' installed successfully from git repository '${repository}'`)
-    }
-
-    public async install(source: string, options: Partial<BaseOptions> = {}): Promise<void> {
-        let isGit = false
-        let isZip = false
-
-        if (source.startsWith('http://') || source.startsWith('https://')) {
-            isGit = true
-        }
-
-        if (source.endsWith('.git')) {
-            isGit = true
-        }
-
-        if (source.endsWith('.zip')) {
-            isZip = true
-        }
-        
-        if (isGit) {
-            const id = options.id || path.basename(source, '.git')
-
-            return this.fromGit({
-                id,
-                repository: source
-            })
-        }
-
-        if (isZip) {
-            const id = options.id || path.basename(source, '.zip')
-
-            return this.fromZip({
-                id,
-                filename: source
-            })
-        }
-
-        throw new Error('Unsupported module source format')
     }
 }

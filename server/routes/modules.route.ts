@@ -190,37 +190,6 @@ router.post('/upgrade/git', async ({ body, acl }) => {
     return { success: true }
 })
 
-router.post('/install/zip', async ({ upload, query, acl }) => {
-    acl.authorize('create', 'Module')
-
-    const file = await upload.single('file')
-
-    if (!file) {
-        throw new BaseException('No file provided')
-    }
-
-    validator.validate(file, v => v.object({ mimetype: v.picklist(['application/zip', 'application/x-zip-compressed', 'multipart/x-zip']), }))
-
-    const id = query.id as string || path.basename(file.originalname, path.extname(file.originalname))
-
-    const filename = tmpPath(id + '.zip')
-
-    await fs.promises.writeFile(filename, file.buffer)
-
-    const [error] = await tryCatch(() => modules.installer.fromZip({ 
-        id,
-        filename 
-    }))
-
-    if (error) {
-        throw new BaseException(`Failed to install module: ${error.message}`)
-    }
-
-    await modules.prepare(id)
-
-    return { success: true, }
-})
-
 router.post('/install/git', async ({ body, acl }) => {
     acl.authorize('create', 'Module')
 
@@ -231,7 +200,7 @@ router.post('/install/git', async ({ body, acl }) => {
         key: v.optional(v.string()),
     }))
 
-    const [error] = await tryCatch(() => modules.installer.fromGit(options))
+    const [error] = await tryCatch(() => modules.installer.install(options))
 
     if (error) {
         throw new BaseException(`Failed to install module: ${error.message}`)

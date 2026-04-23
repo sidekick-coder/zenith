@@ -14,7 +14,7 @@ export default async function({ acl, body }: HttpContext) {
         key: v.optional(v.string()),
     }))
 
-    await modules.installer.fromGit(options)
+    await modules.installer.install(options)
 
     server.reload()
 
