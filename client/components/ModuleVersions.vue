@@ -159,6 +159,11 @@ function getCheckoutRefOptions(commit: Commit): CheckoutRefOption[] {
         ).values(),
     )
 
+    refs.push({
+        label: $t('Commit: :0', [commit.shortHash]),
+        value: commit.hash,
+    })
+
     return refs
 }
 
@@ -198,7 +203,6 @@ async function checkout() {
     checkoutTarget.value = null
     checkoutRef.value = null
     checkoutRefOptions.value = []
-    selectedBranch.value = null
 
     await loadRepoInfo()
     await loadBranches()
