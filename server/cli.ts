@@ -40,10 +40,6 @@ const lifecycle = new LifecycleService({
     logger: logger.child({ label: 'lifecycle' }),
 })
 
-lifecycle.add(ConfigLifecycleHook, TranslatorLifecycleHook)
-
-await lifecycle.register()
-
 await importAll(basePath('server/commands'), { exclude: ['test.ts'], })
 
 const modulesPath = basePath('modules')
@@ -74,8 +70,11 @@ const alias: Record<string, string> = {
 
 async function onPreAction(command: ArteService) {
     const needs = Array.from(command.needs).map(need => alias[need] || need)
+    const defaults = ['ConfigLifecycleHook', 'TranslatorLifecycleHook']
 
-    hooks.filter(hook => needs.includes(hook.hook_id)).forEach(hook => lifecycle.add(hook))
+    hooks
+        .filter(hook => needs.includes(hook.hook_id) || defaults.includes(hook.hook_id))
+        .forEach(hook => lifecycle.add(hook))
 
     await lifecycle.register()
 

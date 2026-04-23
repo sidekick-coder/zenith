@@ -70,8 +70,6 @@ export default class DatabaseService extends Kysely<Database> {
     public async createDatabase(connection: Record<string, any>) {
         let dialect: Dialect | undefined = undefined
 
-        console.log('Creating database connection with config:', connection)
-
         if (connection.dialect === 'sqlite') {
             dialect = new SqliteDialect({ database: new SQLite(connection.database) })
         }
