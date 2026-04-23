@@ -78,6 +78,7 @@ const loading = ref(false)
 const page = ref(1)
 const perPage = ref(20)
 const total = ref(0)
+const totalPages = ref(1)
 
 // repo info state
 const repoInfo = ref<GitRepoInfo | null>(null)
@@ -262,6 +263,7 @@ async function load() {
     if (!error && data && typeof data === 'object' && 'items' in data) {
         commits.value = (data as any).items
         total.value = (data as any).total
+        totalPages.value = (data as any).totalPages
     }
 
     loading.value = false
@@ -299,8 +301,20 @@ async function fetchToLocal(branch: Branch) {
 }
 
 watch(page, load)
+watch(perPage, () => {
+    if (page.value !== 1) {
+        page.value = 1
+        return
+    }
+
+    load()
+})
 watch(selectedBranch, () => {
-    page.value = 1
+    if (page.value !== 1) {
+        page.value = 1
+        return
+    }
+
     load()
 })
 
@@ -360,11 +374,12 @@ onMounted(async () => {
         <CardContent>
             <DataTable
                 v-model:page="page"
+                v-model:total-pages="totalPages"
+                v-model:limit="perPage"
                 v-model:total="total"
                 :rows="commits"
                 :columns="columns"
                 :loading="loading"
-                :limit="perPage"
                 :row-class="commitRowClass"
             >
                 <template #row-checkout="{ row }">
