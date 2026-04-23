@@ -9,10 +9,21 @@ interface Options {
     cache?: boolean;
     onBeforeImport?: (ctx: { filename: string }) => void | Promise<void>;
     onAfterImport?: (ctx: { filename: string, module: any }) => void | Promise<void>;
+    onError?: (ctx: { filename: string, error: Error }) => void | Promise<void>;
     exclude?: string[];
 }
+
 export async function importFiles(files: string[], options: Options = {}): Promise<Record<string, any>> {
     const modules: Record<string, any> = {}
+    let onError: Required<Options>['onError'] = ctx => {
+        Object.assign(ctx.error, { filename: ctx.filename }) 
+
+        logger.error(`Failed to import ${ctx.filename}`, ctx.error)
+    }
+
+    if (options.onError) {
+        onError = options.onError
+    }
 
     for (const filename of files) {
         if (options.exclude && options.exclude.some(pattern => filename.includes(pattern))) {
@@ -42,7 +53,10 @@ export async function importFiles(files: string[], options: Options = {}): Promi
                     filename: ctx.filename,
                     url: fileUrl,
                 })
-                logger.error(`Failed to import file: ${path.basename(ctx.filename)}`, error)
+                onError({
+                    filename: ctx.filename,
+                    error 
+                })
                 continue
             }
 
@@ -57,7 +71,10 @@ export async function importFiles(files: string[], options: Options = {}): Promi
             })
 
             if (error) {
-                logger.error(`Failed to import JSON file: ${ctx.filename}`, { error })
+                onError({
+                    filename: ctx.filename,
+                    error 
+                })
                 continue
             }
 

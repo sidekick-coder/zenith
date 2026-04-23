@@ -1,4 +1,3 @@
-import { GitGateway } from '@sidekick-coder/zenith-kit/server'
 import type { HttpContext } from '#server/contracts/httpContext.contract.ts'
 import modules from '#server/facades/modules.facade.ts'
 import validator from '#shared/services/validator.service.ts'
@@ -15,9 +14,7 @@ export default async function({ acl, params, body }: HttpContext) {
 
     acl.authorize('update', mod)
 
-    const gateway = new GitGateway({ cwd: mod.directory })
-
-    await gateway.checkout(payload.ref)
+    await mod.git.checkout(payload.ref)
 
     return { success: true }
 }

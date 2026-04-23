@@ -1,4 +1,4 @@
-import { GitGateway, GitBranchRepository } from '@sidekick-coder/zenith-kit/server'
+import { GitBranchRepository } from '@sidekick-coder/zenith-kit/server'
 import type { HttpContext } from '#server/contracts/httpContext.contract.ts'
 import modules from '#server/facades/modules.facade.ts'
 
@@ -7,7 +7,7 @@ export default async function({ acl, params }: HttpContext) {
 
     acl.authorize('read', mod)
 
-    const repository = new GitBranchRepository(new GitGateway({ cwd: mod.directory }))
+    const repository = new GitBranchRepository(mod.git)
 
     return await repository.list()
 }

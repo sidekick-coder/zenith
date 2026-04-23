@@ -1,7 +1,5 @@
 import fs from 'fs'
 import ArteService from './services/arte.service.ts'
-import ConfigLifecycleHook from './hooks/config.hook.ts'
-import TranslatorLifecycleHook from './hooks/translator.hook.ts'
 import { importAll } from '#server/utils/importAll.ts'
 import { basePath } from '#server/utils/paths.ts'
 import env from '#server/facades/env.facade.ts'
@@ -50,23 +48,23 @@ const moduleNames = fs.readdirSync(modulesPath, { withFileTypes: true })
 
 for await (const name of moduleNames) {
     if (fs.existsSync(`${modulesPath}/${name}/server/commands`)) {
-        try {
-            await importAll(`${modulesPath}/${name}/server/commands`)            
-        } catch (error) {
-            console.error(`Error loading commands for module ${name}:`, error)
-        }
+        await importAll(`${modulesPath}/${name}/server/commands`, {
+            onError: ({ filename, error }) => {
+                logger.error(`Failed to import command from ${filename}`)
+            }
+        })
     }
 }
 
 
-const alias: Record<string, string> = { 
+const alias: Record<string, string> = {
     'translator': 'TrasnlatorLifecycleHook',
     'db': 'DatabaseLifecycleHook',
     'modules': 'ModulesLifecycleHook',
     'drive': 'DriveLifecycleHook',
     'mailer': 'MailerLifecycleHook',
     'router': 'RouterLifecycleHook',
-} 
+}
 
 async function onPreAction(command: ArteService) {
     const needs = Array.from(command.needs).map(need => alias[need] || need)
@@ -79,7 +77,7 @@ async function onPreAction(command: ArteService) {
     await lifecycle.register()
 
     await lifecycle.load()
-    
+
     await lifecycle.boot()
 }
 

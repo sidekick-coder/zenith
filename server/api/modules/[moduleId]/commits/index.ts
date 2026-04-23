@@ -1,5 +1,5 @@
 
-import { GitCommitRepository, GitGateway } from '@sidekick-coder/zenith-kit/server'
+import { GitCommitRepository } from '@sidekick-coder/zenith-kit/server'
 import type { HttpContext } from '#server/contracts/httpContext.contract.ts'
 import modules from '#server/facades/modules.facade.ts'
 import validator from '#shared/services/validator.service.ts'
@@ -15,9 +15,7 @@ export default async function({ acl, params, query }: HttpContext) {
 
     acl.authorize('read', mod)
 
-    const gateway = new GitGateway({ cwd: mod.directory })
-
-    const repository = new GitCommitRepository(gateway)
+    const repository = new GitCommitRepository(mod.git)
 
     return await repository.list({
         page: payload.page,
