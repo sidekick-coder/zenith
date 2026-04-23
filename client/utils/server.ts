@@ -9,6 +9,8 @@ interface OnlineOptions {
 async function waitTillOnline(timeout = 5000) {
     const start = Date.now()
 
+    await new Promise(resolve => setTimeout(resolve, 1000))
+
     while (true) {
         const [error] = await $fetch.try('/api/health')
 
@@ -81,6 +83,7 @@ export async function untrapHotReload() {
     }
 }
 
+/** @deprecated use online instead */
 async function reloadAfter({ fn, href }: ReloadOptions) {
     if (import.meta.hot) {
         import.meta.hot.on('vite:beforeFullReload', kill)

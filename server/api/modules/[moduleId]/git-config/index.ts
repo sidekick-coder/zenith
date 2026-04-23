@@ -1,15 +1,11 @@
-import { GitGateway } from '@sidekick-coder/zenith-kit/server'
 import type { HttpContext } from '#server/contracts/httpContext.contract.ts'
 import modules from '#server/facades/modules.facade.ts'
+import config from '#server/facades/config.facade.ts'
 
 export default async function({ acl, params }: HttpContext) {
     const mod = await modules.findOrFail(params.moduleId)
 
-    acl.authorize('update', mod)
+    acl.authorize('read', mod)
 
-    const gateway = new GitGateway({ cwd: mod.directory })
-
-    await gateway.fetch()
-
-    return { success: true }
+    return { ssh_key: config.get(`modules.${mod.id}.ssh_key`, null), }
 }

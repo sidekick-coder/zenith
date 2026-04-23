@@ -1,23 +1,17 @@
-import { GitGateway } from '@sidekick-coder/zenith-kit/server'
+import * as v from 'valibot'
 import type { HttpContext } from '#server/contracts/httpContext.contract.ts'
 import modules from '#server/facades/modules.facade.ts'
+import config from '#server/facades/config.facade.ts'
 import validator from '#shared/services/validator.service.ts'
 
 export default async function({ acl, params, body }: HttpContext) {
-    const payload = validator.validate(body, v => v.object({
-        ref: v.pipe(
-            v.string(),
-            v.regex(/^[0-9A-Za-z._/-]+$/)
-        ),
-    }))
-
     const mod = await modules.findOrFail(params.moduleId)
 
     acl.authorize('update', mod)
 
-    const gateway = new GitGateway({ cwd: mod.directory })
+    const payload = validator.validate(body, v.object({ ssh_key: v.nullable(v.string()), }))
 
-    await gateway.checkout(payload.ref)
+    config.set(`modules.${mod.id}.ssh_key`, payload.ssh_key)
 
-    return { success: true }
+    return { ssh_key: config.get(`modules.${mod.id}.ssh_key`, null), }
 }

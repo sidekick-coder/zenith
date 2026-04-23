@@ -82,9 +82,7 @@ router.post('/:id/seed', async ({ params, acl }) => {
         throw new BaseException('Module not found', 404)
     }
 
-    await seeder.run({
-        module: params.id,
-    })
+    await seeder.run({ module: params.id, })
 
     return { success: true }
 })
@@ -110,12 +108,12 @@ router.post('/:id/uninstall', async ({ params, body, acl }) => {
     }
 
     if (body.rollback_migrations) {
-        await migrator.rollback({
-            module: params.id,
-        })
+        await migrator.rollback({ module: params.id, })
     }
 
     await modules.uninstall(params.id)
+
+    server.reload()
 
     return { success: true, }
 })
@@ -129,13 +127,9 @@ router.post('/upgrade/zip', async ({ upload, body, acl }) => {
         throw new BaseException('No file provided')
     }
 
-    validator.validate(file, v => v.object({
-        mimetype: v.picklist(['application/zip', 'application/x-zip-compressed', 'multipart/x-zip']),
-    }))
+    validator.validate(file, v => v.object({ mimetype: v.picklist(['application/zip', 'application/x-zip-compressed', 'multipart/x-zip']), }))
 
-    const options = validator.validate(body, v => v.object({
-        id: v.string(),
-    }))
+    const options = validator.validate(body, v => v.object({ id: v.string(), }))
 
     const mod = await modules.find(options.id)
     
@@ -205,9 +199,7 @@ router.post('/install/zip', async ({ upload, query, acl }) => {
         throw new BaseException('No file provided')
     }
 
-    validator.validate(file, v => v.object({
-        mimetype: v.picklist(['application/zip', 'application/x-zip-compressed', 'multipart/x-zip']),
-    }))
+    validator.validate(file, v => v.object({ mimetype: v.picklist(['application/zip', 'application/x-zip-compressed', 'multipart/x-zip']), }))
 
     const id = query.id as string || path.basename(file.originalname, path.extname(file.originalname))
 

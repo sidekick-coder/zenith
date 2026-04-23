@@ -7,7 +7,7 @@ export default async function({ acl, params }: HttpContext) {
 
     acl.authorize('update', mod)
 
-    const gateway = new GitGateway(mod.directory)
+    const gateway = new GitGateway({ cwd: mod.directory })
 
     await gateway.pull()
 

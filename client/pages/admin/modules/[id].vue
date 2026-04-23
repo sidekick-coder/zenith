@@ -36,6 +36,11 @@ const tabs = [
         component: defineAsyncComponent(() => import('#client/components/ModuleVersions.vue')),
     },
     {
+        id: 'git',
+        label: $t('Git'),
+        component: defineAsyncComponent(() => import('#client/components/ModuleGit.vue')),
+    },
+    {
         id: 'advanced',
         label: $t('Advanced'),
         component: defineAsyncComponent(() => import('#client/components/ModuleAdvanced.vue')),

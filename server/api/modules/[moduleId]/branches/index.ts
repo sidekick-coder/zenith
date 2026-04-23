@@ -7,7 +7,7 @@ export default async function({ acl, params }: HttpContext) {
 
     acl.authorize('read', mod)
 
-    const repository = new GitBranchRepository(new GitGateway(mod.directory))
+    const repository = new GitBranchRepository(new GitGateway({ cwd: mod.directory }))
 
     return await repository.list()
 }

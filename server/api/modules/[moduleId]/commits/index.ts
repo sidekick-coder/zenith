@@ -15,7 +15,7 @@ export default async function({ acl, params, query }: HttpContext) {
 
     acl.authorize('read', mod)
 
-    const gateway = new GitGateway(mod.directory)
+    const gateway = new GitGateway({ cwd: mod.directory })
 
     const repository = new GitCommitRepository(gateway)
 

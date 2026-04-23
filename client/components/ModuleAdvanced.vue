@@ -11,9 +11,7 @@ import DialogForm from '#client/components/DialogForm.vue'
 import Icon from '#client/components/Icon.vue'
 import schemas from '#shared/validators/index.ts'
 
-defineOptions({
-    inheritAttrs: false,
-})
+defineOptions({ inheritAttrs: false, })
 
 const props = defineProps({
     module: {
@@ -33,9 +31,7 @@ async function installDependencies() {
 
     isInstalling.value = true
 
-    const [error] = await $fetch.try(`/api/modules/${props.module.id}/install-dependencies`, {
-        method: 'POST'
-    })
+    const [error] = await $fetch.try(`/api/modules/${props.module.id}/install-dependencies`, { method: 'POST' })
 
     if (error) {
         isInstalling.value = false
@@ -55,9 +51,7 @@ async function runSeeds() {
 
     isSeeding.value = true
 
-    const [error] = await $fetch.try(`/api/modules/${props.module.id}/seed`, {
-        method: 'POST'
-    })
+    const [error] = await $fetch.try(`/api/modules/${props.module.id}/seed`, { method: 'POST' })
 
     if (error) {
         isSeeding.value = false
@@ -71,12 +65,16 @@ async function runSeeds() {
 }
 
 async function uninstall(data: any) {
-    await $server.reloadAfter({
-        fn: async () => $fetch(`/api/modules/${props.module.id}/uninstall`, {
-            method: 'POST',
-            data
-        })
+    await $fetch.try(`/api/modules/${props.module.id}/uninstall`, {
+        method: 'POST',
+        data
     })
+
+    await $server.online({ timeout: 60000 })
+
+    await new Promise(resolve => setTimeout(resolve, 5000)) 
+
+    window.location.href = '/modules'
 }
 
 async function buildModule() {
@@ -86,9 +84,7 @@ async function buildModule() {
 
     isBuilding.value = true
 
-    const [error] = await $fetch.try(`/api/modules/${props.module.id}/build`, {
-        method: 'POST'
-    })
+    const [error] = await $fetch.try(`/api/modules/${props.module.id}/build`, { method: 'POST' })
 
     if (error) {
         isBuilding.value = false
