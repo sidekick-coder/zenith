@@ -29,7 +29,7 @@ export default class DatabaseService extends Kysely<Database> {
 
     public configConnectionName = 'initial'
     public configConnection = ''
-    public driver: 'sqlite' | 'mysql' | 'postgresql' = 'sqlite'
+    public dialect: 'sqlite' | 'mysql' | 'postgresql' = 'sqlite'
     public debug = false
     public logger = logger.child({ label: 'database' })
 
@@ -39,16 +39,16 @@ export default class DatabaseService extends Kysely<Database> {
         this.debug = config.debug || false
     }
 
-    public createConnection(driver: 'sqlite' | 'mysql' | 'postgresql', options: any) {
-        const connection: any = { driver }
+    public createConnection(dialect: 'sqlite' | 'mysql' | 'postgresql', options: any) {
+        const connection: any = { dialect }
 
-        if (driver === 'sqlite') {
+        if (dialect === 'sqlite') {
             let database = options.database || 'storage/database.sqlite'
             database = database.startsWith('/') ? database : basePath(database)
             connection.database = database
         }
     
-        if (driver === 'mysql') {
+        if (dialect === 'mysql') {
             connection.host = options.host || 'localhost'
             connection.port = options.port || 3306
             connection.database = options.database
@@ -56,7 +56,7 @@ export default class DatabaseService extends Kysely<Database> {
             connection.password = options.password
         }
     
-        if (driver === 'postgresql') {
+        if (dialect === 'postgresql') {
             connection.host = options.host || 'localhost'
             connection.port = options.port || 5432
             connection.database = options.database
@@ -70,11 +70,13 @@ export default class DatabaseService extends Kysely<Database> {
     public async createDatabase(connection: Record<string, any>) {
         let dialect: Dialect | undefined = undefined
 
-        if (connection.driver === 'sqlite') {
+        console.log('Creating database connection with config:', connection)
+
+        if (connection.dialect === 'sqlite') {
             dialect = new SqliteDialect({ database: new SQLite(connection.database) })
         }
 
-        if (connection.driver === 'mysql') {
+        if (connection.dialect === 'mysql') {
             const pool = createPool(validator.validate(connection, schemas.connection.mysql))
 
             try {
@@ -85,12 +87,10 @@ export default class DatabaseService extends Kysely<Database> {
                 throw new Error(`Failed to connect to MySQL database: ${error?.message}`)
             }
 
-            dialect = new MysqlDialect({ 
-                pool: async () => pool as any,
-            })
+            dialect = new MysqlDialect({ pool: async () => pool as any, })
         }
 
-        if (connection.driver === 'postgresql') {
+        if (connection.dialect === 'postgresql') {
             const pool = new Pool(validator.validate(connection, schemas.connection.postgresql))
 
             try {
@@ -100,18 +100,14 @@ export default class DatabaseService extends Kysely<Database> {
                 throw new Error(`Failed to connect to PostgreSQL database: ${error.message}`)
             }
 
-            dialect = new PostgresDialect({ 
-                pool: pool,
-            })
+            dialect = new PostgresDialect({ pool: pool, })
         }
 
         if (!dialect) {
-            throw new Error(`Unsupported database driver: ${connection.driver}`)
+            throw new Error(`Unsupported database dialect: ${connection.dialect}`)
         }
 
-        const db = new DatabaseService({
-            dialect: dialect,
-        })
+        const db = new DatabaseService({ dialect: dialect, })
 
         return db
     }
@@ -140,7 +136,7 @@ export default class DatabaseService extends Kysely<Database> {
 
         db.configConnectionName = name
         db.configConnection = connection.database
-        db.driver = connection.driver
+        db.dialect = connection.dialect
 
         if (di.has(DatabaseService)) {
             await di.get<DatabaseService>(DatabaseService).destroy()
@@ -152,7 +148,7 @@ export default class DatabaseService extends Kysely<Database> {
             this.logger.debug('connected to database', {
                 connection: name,
                 database: connection.database,
-                driver: connection.driver,
+                dialect: connection.dialect,
             })
 
         }
