@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, watch, onMounted } from 'vue'
-import { GitCommit, RefreshCw, GitBranch as GitBranchIcon, Download } from 'lucide-vue-next'
+import { GitCommit, RefreshCw, Download } from 'lucide-vue-next'
 import { toast } from 'vue-sonner'
 import { $fetch } from '#client/utils/fetcher.ts'
 import DataTable, { defineColumns } from '#client/components/DataTable.vue'
@@ -9,13 +9,6 @@ import { Badge } from '#client/components/ui/badge'
 import { Button } from '#client/components/ui/button'
 import { Switch } from '#client/components/ui/switch'
 import Select from '#client/components/Select.vue'
-import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-    DialogDescription,
-} from '#client/components/ui/dialog'
 import {
     AlertDialog,
     AlertDialogAction,
@@ -85,14 +78,9 @@ const repoInfo = ref<GitRepoInfo | null>(null)
 
 // branch state
 const selectedBranch = ref<string | null>(null)
-const localBranches = ref<Branch[]>([])
-const localBranchOptions = ref<{ label: string; value: string }[]>([])
-
-// remote branches dialog
-const remoteDialog = ref(false)
-const remoteBranches = ref<Branch[]>([])
-const loadingRemotes = ref(false)
-const fetchingBranch = ref<string | null>(null)
+const branchOptions = ref<{ label: string; value: string }[]>([])
+const fetching = ref(false)
+const pulling = ref(false)
 
 const columns = defineColumns<Commit>([
     {
@@ -126,6 +114,7 @@ const checkoutTarget = ref<Commit | null>(null)
 const checkinOut = ref(false)
 const checkoutRef = ref<string | null>(null)
 const checkoutRefOptions = ref<CheckoutRefOption[]>([])
+const pullDialog = ref(false)
 
 function isHead(commit: Commit) {
     return commit.refs.some(r => r.name === 'HEAD')
@@ -225,26 +214,16 @@ async function loadBranches() {
 
     if (Array.isArray(data)) {
         const all = data as Branch[]
-        const local = all.filter(b => !b.isRemote)
 
-        localBranches.value = local
-        localBranchOptions.value = local.map(b => ({
-            label: repoInfo.value?.head === b.name ? `${b.name} (current)` : b.name,
+        branchOptions.value = all.map(b => ({
+            label: [
+                b.name,
+                repoInfo.value?.head === b.name ? '(current)' : null,
+                b.isRemote ? '(remote)' : null,
+            ].filter(Boolean).join(' '),
             value: b.name,
         }))
     }
-}
-
-async function loadRemoteBranches() {
-    loadingRemotes.value = true
-
-    const [, data] = await $fetch.try(`/api/modules/${props.module.id}/branches`)
-
-    if (Array.isArray(data)) {
-        remoteBranches.value = (data as Branch[]).filter(b => b.isRemote)
-    }
-
-    loadingRemotes.value = false
 }
 
 async function load() {
@@ -267,35 +246,51 @@ async function load() {
     loading.value = false
 }
 
-async function openRemoteDialog() {
-    remoteDialog.value = true
-    await loadRemoteBranches()
-}
+async function fetchChanges() {
+    fetching.value = true
 
-async function fetchToLocal(branch: Branch) {
-    const parts = branch.name.split('/')
-    const remote = parts[0]
-    const localName = parts.slice(1).join('/')
-
-    fetchingBranch.value = branch.name
-
-    const [error] = await $fetch.try(`/api/modules/${props.module.id}/branches/fetch`, {
+    const [error] = await $fetch.try(`/api/modules/${props.module.id}/fetch`, {
         method: 'POST',
-        data: {
-            branch: localName,
-            remote 
-        },
     })
 
-    fetchingBranch.value = null
+    fetching.value = false
 
-    if (error) return
+    if (error) {
+        toast.error($t('Failed to fetch changes'))
+        return
+    }
 
-    toast.success($t('Branch :0 fetched to local', [localName]))
+    toast.success($t('Fetched successfully'))
 
-    remoteDialog.value = false
-
+    await loadRepoInfo()
     await loadBranches()
+    await load()
+}
+
+function requestPull() {
+    pullDialog.value = true
+}
+
+async function pull() {
+    pulling.value = true
+
+    const [error] = await $fetch.try(`/api/modules/${props.module.id}/pull`, {
+        method: 'POST',
+    })
+
+    pulling.value = false
+
+    if (error) {
+        toast.error($t('Failed to pull changes'))
+        return
+    }
+
+    toast.success($t('Pulled successfully'))
+    pullDialog.value = false
+
+    await loadRepoInfo()
+    await loadBranches()
+    await load()
 }
 
 watch(page, load)
@@ -341,7 +336,7 @@ onMounted(async () => {
             <div class="flex items-center gap-2">
                 <Select
                     v-model="selectedBranch"
-                    v-model:options="localBranchOptions"
+                    v-model:options="branchOptions"
                     :placeholder="$t('Branch')"
                     class="w-48 h-9!"
                     clearable
@@ -349,10 +344,26 @@ onMounted(async () => {
 
                 <Button
                     variant="outline"
-                    @click="openRemoteDialog"
+                    :disabled="fetching || pulling"
+                    @click="fetchChanges"
                 >
-                    <GitBranchIcon class="size-4" />
-                    {{ $t('Remote branches') }}
+                    <Download
+                        class="size-4"
+                        :class="fetching ? 'animate-pulse' : ''"
+                    />
+                    {{ $t('Fetch') }}
+                </Button>
+
+                <Button
+                    variant="outline"
+                    :disabled="fetching || pulling"
+                    @click="requestPull"
+                >
+                    <RefreshCw
+                        class="size-4"
+                        :class="pulling ? 'animate-spin' : ''"
+                    />
+                    {{ $t('Pull') }}
                 </Button>
 
                 <Button
@@ -423,58 +434,6 @@ onMounted(async () => {
         </CardContent>
     </Card>
 
-    <Dialog v-model:open="remoteDialog">
-        <DialogContent>
-            <DialogHeader>
-                <DialogTitle>{{ $t('Remote branches') }}</DialogTitle>
-                <DialogDescription>
-                    {{ $t('Fetch a remote branch to your local repository') }}
-                </DialogDescription>
-            </DialogHeader>
-
-            <div
-                v-if="loadingRemotes"
-                class="flex justify-center py-6"
-            >
-                <RefreshCw class="size-5 animate-spin text-muted-foreground" />
-            </div>
-
-            <div
-                v-else-if="!remoteBranches.length"
-                class="py-6 text-center text-sm text-muted-foreground"
-            >
-                {{ $t('No remote branches found') }}
-            </div>
-
-            <div
-                v-else
-                class="space-y-2"
-            >
-                <div
-                    v-for="branch in remoteBranches"
-                    :key="branch.name"
-                    class="flex items-center justify-between rounded-md border px-3 py-2"
-                >
-                    <div class="flex items-center gap-2">
-                        <GitBranchIcon class="size-4 text-muted-foreground" />
-                        <span class="text-sm font-mono">{{ branch.name }}</span>
-                    </div>
-
-                    <Button
-                        size="sm"
-                        variant="outline"
-                        :loading="fetchingBranch === branch.name"
-                        :disabled="!!fetchingBranch"
-                        @click="fetchToLocal(branch)"
-                    >
-                        <Download class="size-4" />
-                        {{ $t('Fetch to local') }}
-                    </Button>
-                </div>
-            </div>
-        </DialogContent>
-    </Dialog>
-
     <AlertDialog v-model:open="checkoutDialog">
         <AlertDialogContent>
             <AlertDialogHeader>
@@ -506,6 +465,28 @@ onMounted(async () => {
                     @click.prevent="checkout"
                 >
                     {{ $t('Checkout') }}
+                </AlertDialogAction>
+            </AlertDialogFooter>
+        </AlertDialogContent>
+    </AlertDialog>
+
+    <AlertDialog v-model:open="pullDialog">
+        <AlertDialogContent>
+            <AlertDialogHeader>
+                <AlertDialogTitle>{{ $t('Pull changes') }}</AlertDialogTitle>
+                <AlertDialogDescription>
+                    {{ $t('Pull may automatically checkout to the most recent commit.') }}
+                </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+                <AlertDialogCancel :disabled="pulling">
+                    {{ $t('Cancel') }}
+                </AlertDialogCancel>
+                <AlertDialogAction
+                    :disabled="pulling"
+                    @click.prevent="pull"
+                >
+                    {{ $t('Pull') }}
                 </AlertDialogAction>
             </AlertDialogFooter>
         </AlertDialogContent>
