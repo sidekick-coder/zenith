@@ -154,7 +154,7 @@ function getCheckoutRefOptions(commit: Commit): CheckoutRefOption[] {
                         label: ref.type === 'tag'
                             ? $t('Tag: :0', [ref.shortName])
                             : $t('Branch: :0', [ref.shortName]),
-                        value: ref.name,
+                        value: ref.shortName,
                     },
                 ]),
         ).values(),
@@ -186,9 +186,7 @@ async function checkout() {
 
     const [error] = await $fetch.try(`/api/modules/${props.module.id}/checkout`, {
         method: 'POST',
-        data: {
-            ref: checkoutRef.value ?? target.hash,
-        },
+        data: { ref: checkoutRef.value ?? target.hash, },
     })
 
     if (error) {
@@ -197,7 +195,7 @@ async function checkout() {
         return
     }
 
-    toast.success($t('Checked out :0', [target.shortHash]))
+    toast.success($t('Checked out successfully'))
 
     checkinOut.value = false
     checkoutDialog.value = false
