@@ -100,8 +100,23 @@ const reloadDebounced = debounce(reload, 500)
 
 arte
     .command('serve')
+    .allowUnknownOption()
+    .allowExcessArguments()
     .option('-w, --watch', 'Watch for changes and restart server')
     .action(async (options) => {
+        const serveIdx = process.argv.indexOf('serve')
+
+        if (serveIdx >= 0) {
+            const configArgs = process.argv
+                .slice(serveIdx + 1)
+                .filter(arg => arg.includes('='))
+                .map(arg => arg.replace(/^--/, ''))
+
+            if (configArgs.length > 0) {
+                process.env.CONFIG = configArgs.join(';')
+            }
+        }
+
         await start()
 
         if (!child) {
