@@ -4,6 +4,7 @@ import { debounce } from 'lodash-es'
 import { basePath } from '#server/utils/paths.ts'
 import logger from '#server/facades/logger.facade.ts'
 import arte from '#server/facades/arte.facade.ts'
+import config from '#server/facades/config.facade.ts'
 
 let child: cp.ChildProcess | null = null
 
@@ -24,23 +25,23 @@ async function start() {
     })
 
     child.on('error', (error) => {
-        logger.error('Server process error:', error)
+        logger.error('server error:', error)
     })
 
     child.on('exit', (code, signal) => {
         if (code !== null && code !== 0) {
-            logger.error(`Server process exited with code ${code}`)
+            logger.error(`server process exited with code ${code}`)
         }
 
         if (signal) {
-            logger.debug(`Server process killed with signal ${signal}`)
+            logger.debug(`server process killed with signal ${signal}`)
         }
     })
 
     // Listen for server-restart events from the child process
     child.on('message', (message) => {
         if (message === 'server-restart') {
-            logger.debug('Received server-restart event from child process')
+            if (config.get('arte.debug', false)) logger.debug('received server-restart event from child process')
 
             reload()
         }
@@ -72,8 +73,10 @@ async function stop() {
     }
 }
 
-async function reload(info: any) {
-    logger.debug('Reloading server...', info)
+async function reload(info?: any) {
+    if (config.get('arte.debug', false)) {
+        logger.debug('reloading...', info)
+    }
 
     await stop()
 
@@ -85,7 +88,10 @@ function kill() {
         child.kill('SIGTERM')
     }
 
-    logger.info('Shutting down...')
+    if (config.get('arte.debug', false)) {
+        logger.debug('shutting down...')
+    }
+
 
     process.exit(0)
 }
@@ -137,7 +143,9 @@ arte
             'yarn.lock'
         ]
 
-        logger.debug('Watching directories', entries)
+        if (config.get('arte.debug', false)) {
+            logger.debug('watching changes')
+        }
 
         const watcher = chokidar.watch(entries.map(entry => basePath(entry)), {
             persistent: true,
@@ -156,11 +164,11 @@ arte
         watcher.on('unlink', reloadDebounced)
 
         watcher.on('error', (error) => {
-            logger.error('Watcher error:', error)
+            if (config.get('arte.debug', false)) logger.error('watcher error:', error)
         })
 
         watcher.on('ready', () => {
-            logger.debug('Watcher is ready')
+            if (config.get('arte.debug', false)) logger.debug('watcher ready, watching for changes...')
         })
 
     })
