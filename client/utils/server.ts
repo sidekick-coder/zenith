@@ -43,13 +43,14 @@ export async function online(options: OnlineOptions = {}) {
         if (error) {
             await new Promise(resolve => setTimeout(resolve, 1000)) // wait a bit before retrying
             logger.warn('server is not online yet, retrying...')
-            return
+            continue
         }
 
-        logger.info('server is online')
 
         break
     }
+
+    logger.info('server is online')
 
     await new Promise(resolve => setTimeout(resolve, 5000))
 }
