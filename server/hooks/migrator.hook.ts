@@ -10,7 +10,7 @@ export default class MigratorLifecycleHook extends LifecycleHook {
     public logger = logger.child({ label: 'migrator' })
 
     public async onLoad(): Promise<void> {
-        if (!config.get('migrator.auto', false)) {
+        if (!config.get('database.migrator.auto', false)) {
             emmitter.emit('migrator:skipped')
             return
         }

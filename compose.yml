@@ -14,7 +14,7 @@ services:
         #     - ./.volumes/app/storage:/app/storage
         command:
             - "@config:database.default=memory"
-            - "@config:migrator.auto=true"
+            - "@config:database.migrator.auto=true"
 
             # auto-create users
             - "@config:users_auto=true"
