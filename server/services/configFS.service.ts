@@ -63,7 +63,7 @@ export default class ConfigFSService extends ConfigService {
             
             const key = path.basename(filename, '.json')
 
-            super.set(key, json)
+            super.set(key, json, 'filesystem')
 
             if (this.debug) {
                 this.logger.debug(`loaded config file: ${filename}`)
@@ -84,10 +84,10 @@ export default class ConfigFSService extends ConfigService {
         }
     }
 
-    public set(fullKey: string, value: any, source = 'runtime'): void {
+    public set(fullKey: string, value: any, source = 'unknown'): void {
         super.set(fullKey, value, source)
 
-        if (source === 'env') {
+        if (source === 'env' || source === 'runtime') {
             return
         }
 

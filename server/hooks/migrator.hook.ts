@@ -1,4 +1,5 @@
 import config from '#server/facades/config.facade.ts'
+import emmitter from '#server/facades/emmitter.facade.ts'
 import logger from '#server/facades/logger.facade.ts'
 import migrator from '#server/facades/migrator.facade.ts'
 import LifecycleHook from '#shared/entities/lifecycleHook.entity.ts'
@@ -7,7 +8,10 @@ export default class MigratorLifecycleHook extends LifecycleHook {
     public order = 3
 
     public async onLoad(): Promise<void> {
-        if (!config.get('migrator.auto', false)) return
+        if (!config.get('migrator.auto', false)) {
+            emmitter.emit('migrator:skipped')
+            return
+        }
 
         logger.info('migrator hook: running pending root migrations...')
 
@@ -29,5 +33,7 @@ export default class MigratorLifecycleHook extends LifecycleHook {
         if (results.some(r => r.result === 'failed')) {
             throw new Error('migrator hook: one or more migrations failed, aborting startup')
         }
+
+        emmitter.emit('migrator:completed')
     }
 }

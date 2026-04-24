@@ -27,13 +27,18 @@ export default class DatabaseLifecycleHook extends LifecycleHook {
 
         if (!config.has('database')) {
             config.set('setup.need_database', true, 'runtime')
+
+            service.logger.warn('using temporary connection, this is used only for setup, please configure a database connection')
         }
+    }
 
-        emmitter.on('http:started', async () => {
-            await service.load(service.defaultConnection || 'memory')
+    public async onLoad(): Promise<void> {
 
-            emmitter.emit('database:ready')
-        })
+        const service = di.get<DatabaseService>(DatabaseService)
+
+        await service.load(service.defaultConnection || 'memory')
+
+        emmitter.emit('database:ready')
     }
 
     public async onShutdown(): Promise<void> {

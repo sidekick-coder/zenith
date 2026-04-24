@@ -4,7 +4,7 @@ import config from '#client/facades/config.facade.ts'
 const setupGuard: NavigationGuard = (to) => {
     const setup = config.get<any>('setup')
     
-    const completed = setup?.need_database && setup?.user
+    const completed = !setup?.need_database && !setup?.need_users
     
     if (completed && to.path.startsWith('/setup')) {
         return '/'
@@ -22,11 +22,11 @@ const setupGuard: NavigationGuard = (to) => {
         return true
     }    
 
-    if (!setup?.need_database) {
+    if (setup?.need_database) {
         return to.path !== '/setup/database' ? '/setup/database' : true
     }
 
-    if (!setup?.user) {
+    if (setup?.need_users) {
         return to.path !== '/setup/user' ? '/setup/user' : true
     }
 

@@ -29,6 +29,12 @@ export default class ConfigLifecycleHook extends LifecycleHook {
             await s3.load()
 
             service = s3
+
+            logger.child({ label: 'config' }).info('using S3 configuration service', {
+                bucket: env.get('CONFIG_S3_BUCKET'),
+                region: env.get('CONFIG_S3_REGION'),
+                prefix: env.get('CONFIG_S3_PREFIX'),
+            })
         }
 
         if (!service) {
@@ -41,6 +47,8 @@ export default class ConfigLifecycleHook extends LifecycleHook {
             await configFS.load()
 
             service = configFS
+
+            logger.child({ label: 'config' }).info('using filesystem configuration service', { file: configPath(), })
         }
 
         if (!service) {

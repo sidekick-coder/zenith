@@ -9,21 +9,14 @@ services:
             - LOG_LEVEL=debug
         volumes:
             - ./.volumes/app/data:/data
+            - ./.volumes/app/config:/app/config
             - ./.volumes/app/modules:/app/modules
             - ./.volumes/app/storage:/app/storage
         command:
-            - "@config:setup.database=true"
-            - "@config:setup.user=true"
+            # - "@config:database.default=memory"
+            # - "@config:migrator.auto=true"
 
-            - "@config:database.default=storage"
-            - "@config:database.connections.storage.dialect=sqlite"
-            - "@config:database.connections.storage.database=/data/zenith.db"
-
-            - "@config:migrator.auto=true"
-
-            - "@config:users[1].username=${ZENITH_ADMIN_USERNAME:-admin}"
-            - "@config:users[1].email=${ZENITH_ADMIN_EMAIL:-admin@dev.com}"
-            - "@config:users[1].password=${ZENITH_ADMIN_PASSWORD:-admin-123}"
-            - "@config:users[1].permissions=admin"
-
-            - "@config:git.debug=true"
+            # - "@config:users[1].username=${ZENITH_ADMIN_USERNAME:-admin}"
+            # - "@config:users[1].email=${ZENITH_ADMIN_EMAIL:-admin@dev.com}"
+            # - "@config:users[1].password=${ZENITH_ADMIN_PASSWORD:-admin-123}"
+            # - "@config:users[1].permissions=admin"

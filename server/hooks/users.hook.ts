@@ -3,7 +3,7 @@ import logger from '#server/facades/logger.facade.ts'
 import User from '#server/entities/user.entity.ts'
 import { createUserPermission } from '#server/queries/createUserPermission.ts'
 import LifecycleHook from '#shared/entities/lifecycleHook.entity.ts'
-import emmitter from '#server/facades/emmitter.facade.ts'
+import { tryCatch } from '#shared/utils/tryCatch.ts'
 
 const PERMISSION_SHORTCUTS: Record<string, { action: string; subject: string }> = {
     admin: {
@@ -16,11 +16,17 @@ export default class UsersLifecycleHook extends LifecycleHook {
     public order = 10
 
     public async onLoad(): Promise<void> {
-        emmitter.on('database:ready', () => this.createUsers())
-    }
+        await User.boot()
 
-    public async createUsers(): Promise<void> {
-        User.boot()
+        const [error, count] = (await tryCatch(() => User.count()))
+
+        if (error || !count) {
+            config.set('setup.need_users', true, 'runtime')
+        }
+
+        if (!config.get('users_auto', false)) {
+            return
+        }
 
         const userEntries: any[] = []
 

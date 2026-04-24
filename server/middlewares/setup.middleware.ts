@@ -35,7 +35,9 @@ export class SetupMiddleware implements Middleware {
 
         const setup = config.get('setup')
 
-        if (setup && setup.database && setup.user) {
+        const completed = !setup?.need_database && !setup?.need_users
+
+        if (completed) {
             return
         }
 
