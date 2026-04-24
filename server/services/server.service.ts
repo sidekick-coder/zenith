@@ -2,11 +2,8 @@ import { mergeConfig, build as viteBuild  } from 'vite'
 import type { UserConfig } from 'vite'
 import { logger } from '#server/facades/logger.facade.ts'
 import { basePath } from '#server/utils/paths.ts'
-import ServerBooterService from '#server/services/serverBooter.service.ts'
 
 export default class ServerService {
-    public booter = new ServerBooterService()
-
     public reload(){
         logger.info('reload server')
 
@@ -46,9 +43,7 @@ export default class ServerService {
         await viteBuild(mergeConfig(common, { 
             build: {
                 outDir: basePath('client-dist/browser'),
-                rollupOptions: { 
-                    input: { app: 'client/entry-client.ts', },
-                },
+                rollupOptions: { input: { app: 'client/entry-client.ts', }, },
             },
         }))
 
