@@ -37,6 +37,7 @@ export default class AppLifecycleHook extends LifecycleHook {
         service.routes()
 
         service.start()
+
     }
 
     public async onShutdown(): Promise<void> {

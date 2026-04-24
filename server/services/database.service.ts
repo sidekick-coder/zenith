@@ -1,10 +1,9 @@
 import { MysqlDialect, PostgresDialect, SqliteDialect } from 'kysely'
-import type { Dialect, KyselyConfig, } from 'kysely'
+import type { Dialect } from 'kysely'
 import { Kysely } from 'kysely'
 import SQLite from 'better-sqlite3'
 import { createPool } from 'mysql2'
 import { Pool } from 'pg'
-import rootLogger from '../facades/logger.facade.ts'
 import type { Database } from '../contracts/database.contract.ts'
 import config from '#server/facades/config.facade.ts'
 import di from '#server/facades/di.facade.ts'
@@ -12,34 +11,23 @@ import { basePath } from '#server/utils/paths.ts'
 import validator from '#shared/services/validator.service.ts'
 import schemas from '#shared/validators/index.ts'
 import env from '#server/facades/env.facade.ts'
-
-// In-memory SQLite dialect for initialization
-// This is used to create the Kysely instance before loading the actual database connection
-const memory = new SqliteDialect({ database: new SQLite(':memory:') })
-
-const logger = rootLogger.child({ label: 'db' })
-
-interface DatabaseServiceOptions extends KyselyConfig {
-    dialect: Dialect
-    debug?: boolean
-}
+import LoggerService from '#shared/services/logger.service.ts'
 
 export default class DatabaseService extends Kysely<Database> {
-    public static memoryDialect = memory
+    public defaultConnection = 'memory'
+    public connections: Record<string, any> = {}
+    public currentConnection: string | null = null
 
-    public configConnectionName = 'initial'
-    public configConnection = ''
-    public dialect: 'sqlite' | 'mysql' | 'postgresql' = 'sqlite'
     public debug = false
-    public logger = logger.child({ label: 'database' })
+    public logger = new LoggerService()
 
-    constructor(config: DatabaseServiceOptions) {        
-        super(config)
+    public static createTemporatyDatabase() {
+        const dialect = new SqliteDialect({ database: new SQLite(':memory:') })
 
-        this.debug = config.debug || false
+        return new DatabaseService({ dialect })
     }
 
-    public createConnection(dialect: 'sqlite' | 'mysql' | 'postgresql', options: any) {
+    public createConnection(dialect: 'sqlite' | 'mysql' | 'memory' | 'postgresql', options: any) {
         const connection: any = { dialect }
 
         if (dialect === 'sqlite') {
@@ -47,7 +35,7 @@ export default class DatabaseService extends Kysely<Database> {
             database = database.startsWith('/') ? database : basePath(database)
             connection.database = database
         }
-    
+
         if (dialect === 'mysql') {
             connection.host = options.host || 'localhost'
             connection.port = options.port || 3306
@@ -55,7 +43,7 @@ export default class DatabaseService extends Kysely<Database> {
             connection.user = options.user
             connection.password = options.password
         }
-    
+
         if (dialect === 'postgresql') {
             connection.host = options.host || 'localhost'
             connection.port = options.port || 5432
@@ -67,7 +55,7 @@ export default class DatabaseService extends Kysely<Database> {
         return connection
     }
 
-    public async createDatabase(connection: Record<string, any>) {
+    public static async createDialectFromConnection(connection: Record<string, any>): Promise<Dialect> {
         let dialect: Dialect | undefined = undefined
 
         if (connection.dialect === 'sqlite') {
@@ -101,40 +89,41 @@ export default class DatabaseService extends Kysely<Database> {
             dialect = new PostgresDialect({ pool: pool, })
         }
 
+        if (connection.dialect === 'memory') {
+            dialect = new SqliteDialect({ database: new SQLite(':memory:') })
+        }
+
         if (!dialect) {
             throw new Error(`Unsupported database dialect: ${connection.dialect}`)
         }
 
-        const db = new DatabaseService({ dialect: dialect, })
+        return dialect
+    }
+
+    public async createDatabase(connection: Record<string, any>) {
+        const dialect = await DatabaseService.createDialectFromConnection(connection)
+
+        const db = new DatabaseService({ dialect: dialect })
 
         return db
     }
 
     public async load(connectionName?: string) {
-        const defaultConnection = config.get('database.default')
-        const connections = config.get('database.connections', {})
 
-        const name = connectionName || defaultConnection
+        const name = connectionName || this.defaultConnection
+        const connection = this.connections[connectionName || this.defaultConnection]
 
-        const connection = connections[name]
-
-        if (!connection && !env.get('ZARTE')) {
-            logger.warn(`Database connection "${name}" not found`)
-        }
-        
         if (!connection) {
-            return
+            throw new Error(`Database connection "${name}" not found in configuration`)
         }
 
-        if (this.configConnectionName === name && this.configConnection === connection.database) {
+        if (this.currentConnection === name) {
             return
         }
 
         const db = await this.createDatabase(connection)
 
-        db.configConnectionName = name
-        db.configConnection = connection.database
-        db.dialect = connection.dialect
+        db.currentConnection = name
 
         if (di.has(DatabaseService)) {
             await di.get<DatabaseService>(DatabaseService).destroy()
@@ -142,13 +131,9 @@ export default class DatabaseService extends Kysely<Database> {
 
         di.set(DatabaseService, db)
 
-        if (this.debug) {
-            this.logger.debug('connected to database', {
-                connection: name,
-                database: connection.database,
-                dialect: connection.dialect,
-            })
-
-        }
+        this.logger.info('loaded', {
+            connection: name,
+            dialect: connection.dialect,
+        })
     }
 }

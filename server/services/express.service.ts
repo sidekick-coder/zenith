@@ -11,6 +11,7 @@ import UploadService from '#server/services/upload.service.ts'
 import logger from '#server/facades/logger.facade.ts'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
 import env from '#server/facades/env.facade.ts'
+import emmitter from '#server/facades/emmitter.facade.ts'
 
 export interface LoadOptions {
     debug?: boolean;
@@ -25,7 +26,7 @@ export default class ExpressService {
     public server: Server | null = null
     public router: Router
     public exception: ExceptionService
-    public logger = logger.child({ label: 'express' })
+    public logger = logger.child({ label: 'http' })
     public debug = false
     public onUnhandlerRouted: ((req: express.Request, res: express.Response) => void) | null = null
 
@@ -142,6 +143,8 @@ export default class ExpressService {
                 host,
                 env: env.get('NODE_ENV'),
             })
+
+            emmitter.emit('http:started')
         })
     }
 
