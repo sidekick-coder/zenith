@@ -24,8 +24,6 @@ arte
     .option('-s, --sort <sort>', 'Sort by')
     .option('-w, --where <where>', 'Where conditions as key=value pairs (e.g., "name=John&age=25")')
     .action(async (options: TableListOptions) => {
-        await db.load()
-
         let table = options.table
 
         if (!table) {

@@ -10,11 +10,7 @@ arte
     .helpGroup('table')
     .action(async () => {
         const [error, response] = await tryCatch(async () => {
-            await db.load()
-
             const result = await db.introspection.getTables()
-
-            await db.destroy()
 
             return result
         })
