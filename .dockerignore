@@ -4,3 +4,5 @@ storage
 client-dist/
 modules/*
 !modules/.gitkeep
+config/*
+!config/.gitkeep

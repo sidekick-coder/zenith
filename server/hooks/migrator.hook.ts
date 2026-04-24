@@ -7,31 +7,34 @@ import LifecycleHook from '#shared/entities/lifecycleHook.entity.ts'
 export default class MigratorLifecycleHook extends LifecycleHook {
     public order = 3
 
+    public logger = logger.child({ label: 'migrator' })
+
     public async onLoad(): Promise<void> {
         if (!config.get('migrator.auto', false)) {
             emmitter.emit('migrator:skipped')
             return
         }
 
-        logger.info('migrator hook: running pending root migrations...')
+
+        this.logger.info('running pending root migrations...')
 
         const results = await migrator.latest({ root: true })
 
         if (!results.length) {
-            logger.info('migrator hook: no pending migrations')
+            this.logger.info('no pending migrations')
             return
         }
 
         for (const result of results) {
             if (result.result === 'failed') {
-                logger.error(`migrator hook: failed to run migration "${result.filename}": ${result.errorMessage}`)
+                this.logger.error(`failed "${result.filename}": ${result.errorMessage}`)
             } else {
-                logger.info(`migrator hook: ran migration "${result.filename}"`)
+                this.logger.info(`migrated "${result.filename}"`)
             }
         }
 
         if (results.some(r => r.result === 'failed')) {
-            throw new Error('migrator hook: one or more migrations failed, aborting startup')
+            throw new Error('one or more migrations failed, aborting startup')
         }
 
         emmitter.emit('migrator:completed')

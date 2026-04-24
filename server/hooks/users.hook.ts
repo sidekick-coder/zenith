@@ -15,16 +15,28 @@ const PERMISSION_SHORTCUTS: Record<string, { action: string; subject: string }> 
 export default class UsersLifecycleHook extends LifecycleHook {
     public order = 10
 
+    public logger = logger.child({ label: 'users' })
+
+    public async checkUserCount(): Promise<void> {
+        const [error, count] = (await tryCatch(() => User.count()))
+
+        if (error) {
+            config.set('setup.need_users', true, 'runtime')
+            return
+        }
+
+        if (!count) {
+            config.set('setup.need_users', true, 'runtime')
+
+            this.logger.info('no users found, setup is required')
+        }
+    }
+
     public async onLoad(): Promise<void> {
         await User.boot()
 
-        const [error, count] = (await tryCatch(() => User.count()))
-
-        if (error || !count) {
-            config.set('setup.need_users', true, 'runtime')
-        }
-
         if (!config.get('users_auto', false)) {
+            await this.checkUserCount()
             return
         }
 
@@ -52,7 +64,7 @@ export default class UsersLifecycleHook extends LifecycleHook {
             const name = userConfig.name ?? username
 
             if (!username || !email || !password) {
-                logger.warn('users hook: skipping user, missing required fields (username, email, password)')
+                this.logger.warn('skipping user, missing required fields (username, email, password)')
                 continue
             }
 
@@ -65,7 +77,7 @@ export default class UsersLifecycleHook extends LifecycleHook {
                     password,
                     name 
                 })
-                logger.info(`users hook: updated user "${username}"`)
+                this.logger.info(`updated user "${username}"`)
             } else {
                 await User.create({
                     id: userConfig.id,
@@ -75,7 +87,8 @@ export default class UsersLifecycleHook extends LifecycleHook {
                     name,
                     verified_at: new Date() 
                 })
-                logger.info(`users hook: created user "${username}"`)
+
+                this.logger.info(`created user "${username}"`)
             }
 
             const permissions: string[] = String(userConfig.permissions || '')
@@ -87,7 +100,7 @@ export default class UsersLifecycleHook extends LifecycleHook {
                 const shortcut = PERMISSION_SHORTCUTS[permission]
 
                 if (!shortcut) {
-                    logger.warn(`users hook: unknown permission shortcut "${permission}", skipping`)
+                    this.logger.warn(`unknown permission shortcut "${permission}", skipping`)
                     continue
                 }
 
@@ -97,8 +110,10 @@ export default class UsersLifecycleHook extends LifecycleHook {
                     origin: 'config',
                 })
 
-                logger.info(`users hook: assigned permission "${permission}" to user "${username}"`)
+                this.logger.info(`assigned permission "${permission}" to user "${username}"`)
             }
+
+            await this.checkUserCount()
         }
     }
 }

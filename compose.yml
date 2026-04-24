@@ -7,16 +7,18 @@ services:
             - 3001:3000
         environment:
             - LOG_LEVEL=debug
-        volumes:
-            - ./.volumes/app/data:/data
-            - ./.volumes/app/config:/app/config
-            - ./.volumes/app/modules:/app/modules
-            - ./.volumes/app/storage:/app/storage
+        # volumes:
+        #     - ./.volumes/app/data:/data
+        #     - ./.volumes/app/config:/app/config
+        #     - ./.volumes/app/modules:/app/modules
+        #     - ./.volumes/app/storage:/app/storage
         command:
-            # - "@config:database.default=memory"
-            # - "@config:migrator.auto=true"
+            - "@config:database.default=memory"
+            - "@config:migrator.auto=true"
 
-            # - "@config:users[1].username=${ZENITH_ADMIN_USERNAME:-admin}"
-            # - "@config:users[1].email=${ZENITH_ADMIN_EMAIL:-admin@dev.com}"
-            # - "@config:users[1].password=${ZENITH_ADMIN_PASSWORD:-admin-123}"
-            # - "@config:users[1].permissions=admin"
+            # auto-create users
+            - "@config:users_auto=true"
+            - "@config:users[1].username=${ZENITH_ADMIN_USERNAME:-admin}"
+            - "@config:users[1].email=${ZENITH_ADMIN_EMAIL:-admin@dev.com}"
+            - "@config:users[1].password=${ZENITH_ADMIN_PASSWORD:-admin-123}"
+            - "@config:users[1].permissions=admin"
