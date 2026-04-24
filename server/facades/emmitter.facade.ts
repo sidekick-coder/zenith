@@ -1,5 +1,5 @@
+import { EmmitterService } from '@sidekick-coder/zenith-kit/server'
 import di from './di.facade.ts'
-import EmmitterService from '#server/services/emmitter.service.ts'
 
 const service = new EmmitterService()
 

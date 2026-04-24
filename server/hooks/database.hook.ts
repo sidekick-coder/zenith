@@ -29,13 +29,11 @@ export default class DatabaseLifecycleHook extends LifecycleHook {
             config.set('setup.need_database', true, 'runtime')
         }
 
-        emmitter.on('http:started', async () => service.load(service.defaultConnection || 'memory'))
-    }
+        emmitter.on('http:started', async () => {
+            await service.load(service.defaultConnection || 'memory')
 
-    public async onLoad(): Promise<void> {
-        // const db = di.get<DatabaseService>(DatabaseService)
-        //
-        // await db.load(db.defaultConnection || 'memory')
+            emmitter.emit('database:ready')
+        })
     }
 
     public async onShutdown(): Promise<void> {

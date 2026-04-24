@@ -3,15 +3,23 @@ import logger from '#server/facades/logger.facade.ts'
 import User from '#server/entities/user.entity.ts'
 import { createUserPermission } from '#server/queries/createUserPermission.ts'
 import LifecycleHook from '#shared/entities/lifecycleHook.entity.ts'
+import emmitter from '#server/facades/emmitter.facade.ts'
 
 const PERMISSION_SHORTCUTS: Record<string, { action: string; subject: string }> = {
-    admin: { action: 'manage', subject: 'all' },
+    admin: {
+        action: 'manage',
+        subject: 'all' 
+    },
 }
 
 export default class UsersLifecycleHook extends LifecycleHook {
     public order = 10
 
-    public async onBoot(): Promise<void> {
+    public async onLoad(): Promise<void> {
+        emmitter.on('database:ready', () => this.createUsers())
+    }
+
+    public async createUsers(): Promise<void> {
         User.boot()
 
         const userEntries: any[] = []

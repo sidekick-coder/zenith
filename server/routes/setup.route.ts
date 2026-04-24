@@ -37,7 +37,7 @@ router.post('/database', async ({ body }) => {
     const driver = payload.type
     const options = payload.options || {}
 
-    if (config.get('setup.database')) {
+    if (!config.get('setup.need_database')) {
         throw new BaseException($t('Database setup already completed'), 400)
     }
 
@@ -46,9 +46,7 @@ router.post('/database', async ({ body }) => {
     
     config.set('database', {
         default: 'default',
-        connections: {
-            default: connection
-        }
+        connections: { default: connection }
     })
 
     const [error] = await tryCatch(async () => {
@@ -61,7 +59,7 @@ router.post('/database', async ({ body }) => {
         throw new BaseException($t('Failed to run migrations'), 500)
     }
 
-    config.set('setup.database', true)
+    config.set('setup.need_database', true, 'runtime')
 
     return { status: 200, }
 })
