@@ -58,10 +58,12 @@ export default class ConfigLifecycleHook extends LifecycleHook {
         
         di.set(ConfigService, service)
 
-        const envEntries = flatten(env.get('CONFIG') || {})
-
-        for (const [key, value] of Object.entries(envEntries)) {
+        for (const [key, value] of Object.entries(flatten(env.get('CONFIG') || {}))) {
             service.set(key, value, 'env')
+        }
+
+        for (const [key, value] of Object.entries(flatten(env.get('CONFIG_ARGUMENTS') || {}))) {
+            service.set(key, value, 'argument')
         }
     }
 }

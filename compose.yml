@@ -5,14 +5,14 @@ services:
         build: .
         ports:
             - 3001:3000
-        environment:
-            - LOG_LEVEL=debug
         # volumes:
         #     - ./.volumes/app/data:/data
         #     - ./.volumes/app/config:/app/config
         #     - ./.volumes/app/modules:/app/modules
         #     - ./.volumes/app/storage:/app/storage
         command:
+            # - "@logger:level=debug"
+
             - "@config:database.default=memory"
             - "@config:database.migrator.auto=true"
 
@@ -22,3 +22,22 @@ services:
             - "@config:users[1].email=${ZENITH_ADMIN_EMAIL:-admin@dev.com}"
             - "@config:users[1].password=${ZENITH_ADMIN_PASSWORD:-admin-123}"
             - "@config:users[1].permissions=admin"
+
+            # autoinstall modules 
+            - "@config:modules-installer.auto=true"
+
+            - "@config:modules-installer.modules.zenith-backup.url=https://github.com/sidekick-coder/zenith-backup.git"
+            - "@config:modules-installer.modules.zenith-backup.branch=build"
+            - "@config:modules-installer.modules.zenith-backup.npm-install=true"
+
+            - "@config:modules-installer.modules.zenith-blocks.url=git@github.com:sidekick-coder/zenith-blocks.git"
+            - "@config:modules-installer.modules.zenith-blocks.ssh_key=${BLOCKS_SSH_KEY}"
+            - "@config:modules-installer.modules.zenith-blocks.branch=build"
+            - "@config:modules-installer.modules.zenith-blocks.npm-install=true"
+
+            - "@config:modules-installer.modules.zenith-medias.url=git@github.com:sidekick-coder/zenith-blocks.git"
+            - "@config:modules-installer.modules.zenith-medias.ssh_key_file=./.ssh/id_ed25519"
+            - "@config:modules-installer.modules.zenith-medias.branch=build"
+            - "@config:modules-installer.modules.zenith-medias.npm-install=true"
+
+

@@ -44,6 +44,8 @@ const schema = v.object({
     CLIENT_CONFIG: configSchema,
     
     CONFIG: configSchema,
+    CONFIG_ARGUMENTS: configSchema,
+
     CONFIG_DEBUG: v.optional(boolean, 'false'),
     CONFIG_DRIVER: v.optional(v.picklist(['fs', 's3']), 'fs'),
     CONFIG_FS_PATH: v.optional(v.string(), basePath('storage', 'config')),

@@ -48,8 +48,8 @@ if (runtimeConfigPath && mergedConfig.length > 0) {
 }
 
 if (mergedConfig.length > 0) {
-    const existing = env.CONFIG ? env.CONFIG.split(';') : [];
-    env.CONFIG = [...existing, ...mergedConfig].join(';');
+    const existing = env.CONFIG_ARGUMENTS ? env.CONFIG_ARGUMENTS.split(';') : [];
+    env.CONFIG_ARGUMENTS = [...existing, ...mergedConfig].join(';');
 }
 
 const args = [

@@ -96,10 +96,10 @@ export default class ConfigS3Service extends ConfigService {
         }
     }
 
-    public set(fullKey: string, value: any, source = 'runtime'): void {
+    public set(fullKey: string, value: any, source = 's3'): void {
         super.set(fullKey, value, source)
 
-        if (source === 'env') {
+        if (source !== 's3') {
             return
         }
 

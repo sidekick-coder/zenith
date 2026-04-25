@@ -84,10 +84,10 @@ export default class ConfigFSService extends ConfigService {
         }
     }
 
-    public set(fullKey: string, value: any, source = 'unknown'): void {
+    public set(fullKey: string, value: any, source = 'filesystem'): void {
         super.set(fullKey, value, source)
 
-        if (source === 'env' || source === 'runtime') {
+        if (source !== 'filesystem') {
             return
         }
 
