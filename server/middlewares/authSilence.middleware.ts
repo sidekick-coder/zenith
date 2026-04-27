@@ -1,9 +1,13 @@
+import type { Token } from '@sidekick-coder/zenith-kit/shared'
 import auth from '#server/facades/auth.facade.ts'
 import type { HttpContext, Middleware, } from '#server/contracts/router.contract.ts'
 import type User from '#server/entities/user.entity.ts'
+import tokenRepository from '#server/facades/tokenRepository.ts'
+import userRepository from '#server/repositories/user.repository.ts'
 
 export type AuthSilenceMiddlewareContext = {
     user?: User
+    token?: Token
 }
 
 export class AuthSilenceMiddleware implements Middleware {
@@ -20,16 +24,23 @@ export class AuthSilenceMiddleware implements Middleware {
         }
 
         if (!token) {
-            return { user: undefined }
+            return { 
+                user: undefined,
+                token: undefined,
+            }
         }
 
-        const user = await auth.authenticate(token)
+        const tokenRow = await tokenRepository.findByToken(token)
+        let user: User | undefined = undefined
 
-        if (!user) {
-            return { user: undefined }
+        if (tokenRow) {
+            user = await userRepository.findOrFail(tokenRow.user_id)
         }
 
-        return { user }
+        return { 
+            user,
+            token: tokenRow || undefined,
+        }
     }
 }
 

@@ -6,9 +6,11 @@ import type {
 
 import Acl from '#server/entities/acl.entity.ts'
 import Permission from '#server/entities/permission.entity.ts'
-import type User from '#server/entities/user.entity.ts'
 import config from '#server/facades/config.facade.ts'
 import logger from '#server/facades/logger.facade.ts'
+import type User from '#shared/entities/user.entity.ts'
+import permissionRepository from '#server/facades/permissionRepository.ts'
+import permissionAssignmentRepository from '#server/facades/permissionAssignmentRepository.ts'
 
 export type AuthorizationContext = MiddlewareHandleResult<[AuthorizationMiddleware]>
 
@@ -38,19 +40,48 @@ export class AuthorizePermission implements Middleware {
 
 export class AuthorizationMiddleware implements Middleware {
     public async handle(ctx: AuthSilenceMiddlewareContext){
-        let user: any | null = null
+        const user: Pick<User, 'id' | 'name' | 'email'> | null = null
+        const token = ctx.token
+        let currentPermissions: Permission[] = []
+        const permissionContext = {} as Record<string, any>
 
-        if (ctx.user) {
-            user = {
-                id: ctx.user.id,
-                name: ctx.user.name,
-                email: ctx.user.email,
+        // if auth token load permissions for user
+        if (ctx.user && token.type === 'auth') {
+            const assignments = await permissionAssignmentRepository.findMany({
+                assignableId: String(ctx.user.id),
+                assignableType: 'user'
+            })
+
+            currentPermissions = await permissionRepository.findMany({ id: assignments.map(a => a.permission_id) })
+
+            permissionContext.auth = {
+                user: {
+                    id: ctx.user.id,
+                    name: ctx.user.name,
+                    email: ctx.user.email,
+                },
             }
         }
 
-        const permissions = Permission.applyContext(ctx.user?.permissions, {
-            auth: { user },
-        })
+        if (token && token.type === 'api') {
+            const assignments = await permissionAssignmentRepository.findMany({
+                assignableId: String(token.id),
+                assignableType: 'token'
+            })
+
+            currentPermissions = await permissionRepository.findMany({ id: assignments.map(a => a.permission_id) })
+
+            permissionContext.api = {
+                token: {
+                    id: token.id,
+                    name: token.name,
+                },
+            }
+        }
+
+        console.log('Current Permissions:', currentPermissions)
+
+        const permissions = Permission.applyContext(currentPermissions, permissionContext)
 
         const acl = new Acl({
             permissions,

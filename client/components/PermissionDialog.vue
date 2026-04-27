@@ -35,9 +35,18 @@ const props = defineProps({
     },
 })
 
+const isJsonString = (value: string) => {
+    try {
+        JSON.parse(value)
+        return true
+    } catch {
+        return false
+    }
+}
+
 const schema = validator.create(v => v.intersect([
     v.omit(schemas.permission.update, ['conditions']),
-    v.object({ conditions: v.nullish(v.string()), })
+    v.object({ conditions: v.nullish(v.pipe(v.string(), v.check(isJsonString, 'Conditions must be a valid JSON string'))) }),
 ]))
 
 const { handleSubmit, resetForm } = useForm({ validationSchema: toTypedSchema(schema), })
@@ -82,14 +91,19 @@ const onSubmit = handleSubmit(async (form) => {
 
 watch(open, (value) => {
     if (value) {
+        const conditions = props.permission?.conditions ? JSON.parse(props.permission.conditions as string) : null
+
         resetForm({
             values: {
-                ...props.permission,
-                conditions: props.permission?.conditions ? JSON.stringify(props.permission.conditions, null, 2) : '',
+                name: props.permission?.name || '',
+                description: props.permission?.description || '',
+                action: props.permission?.action || '',
+                subject: props.permission?.subject || '',   
+                conditions: conditions ? JSON.stringify(conditions, null, 2) : '',
             }
         })
     }
-})
+}, { immediate: true })
 </script>
 <template>
     <ClientOnly>

@@ -11,9 +11,18 @@ import { $fetch } from '#client/utils/fetcher.ts'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
 import Button from '#client/components/Button.vue'
 import Icon from '#client/components/Icon.vue'
-import AlertButton from '#client/components/AlertButton.vue'
 import { useFetchPagination } from '#client/composables/useFetchPagination.ts'
 import DialogForm from '#client/components/DialogForm.vue'
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from '#client/components/ui/dialog'
+import { Checkbox } from '#client/components/ui/checkbox'
+import { Label } from '#client/components/ui/label'
 
 interface TokenWithUser extends Token {
     user: {
@@ -32,14 +41,14 @@ const fields = {
     name: {
         component: 'text-field' as const,
         label: $t('Name'),
-        placeholder: $t('e.g. My CI token') 
+        placeholder: $t('e.g. My CI token')
     },
 }
 
 function onCreated(response: any) {
     router.push({
         path: `/admin/tokens/${response.id}`,
-        state: { token: response.token } 
+        state: { token: response.token }
     })
 }
 
@@ -49,6 +58,40 @@ const { items, total, load, reset } = useFetchPagination<TokenWithUser>('/api/to
 })
 
 const deletingItems = ref<number[]>([])
+const deleteDialogOpen = ref(false)
+const deleteTargetId = ref<number | null>(null)
+const deletePermissions = ref(false)
+
+function openDeleteDialog(id: number) {
+    deleteTargetId.value = id
+    deletePermissions.value = false
+    deleteDialogOpen.value = true
+}
+
+async function confirmDelete() {
+    if (!deleteTargetId.value) return
+
+    const id = deleteTargetId.value
+    deleteDialogOpen.value = false
+    deletingItems.value.push(id)
+
+    const [error] = await tryCatch(() => $fetch(`/api/tokens/${id}`, {
+        method: 'DELETE',
+        query: { delete_permissions: deletePermissions.value }
+    }))
+
+    if (error) {
+        toast.error($t('Failed to delete token.'))
+        deletingItems.value = deletingItems.value.filter(i => i !== id)
+        return
+    }
+
+    setTimeout(() => {
+        toast.success($t('Token deleted successfully.'))
+        deletingItems.value = deletingItems.value.filter(i => i !== id)
+        reset()
+    }, 1000)
+}
 
 const columns = defineColumns<TokenWithUser>([
     {
@@ -84,23 +127,6 @@ const columns = defineColumns<TokenWithUser>([
     },
     { id: 'actions' }
 ])
-
-async function destroy(id: number) {
-    deletingItems.value.push(id)
-    
-    const [error] = await tryCatch(() => $fetch(`/api/tokens/${id}`, { method: 'DELETE', }))
-
-    if (error) {
-        toast.error($t('Failed to delete token.'))
-        deletingItems.value = []
-        return
-    }
-
-    setTimeout(() => {
-        toast.success($t('Token deleted successfully.'))
-        reset()
-    }, 1000)
-}
 </script>
 <template>
     <AdminLayout>
@@ -182,16 +208,53 @@ async function destroy(id: number) {
                     >
                         <Icon name="pencil" />
                     </Button>
-                    <AlertButton 
+                    <Button
                         variant="ghost"
                         size="sm"
                         :loading="deletingItems.includes(row.id)"
-                        @confirm="destroy(row.id)"
+                        @click="openDeleteDialog(row.id)"
                     >
                         <Icon name="trash" />
-                    </AlertButton>
+                    </Button>
                 </div>
             </template>
         </DataTable>
+
+        <Dialog v-model:open="deleteDialogOpen">
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>{{ $t('Delete Token') }}</DialogTitle>
+                    <DialogDescription>
+                        {{ $t('This action cannot be undone.') }}
+                    </DialogDescription>
+                </DialogHeader>
+                <div class="flex items-center gap-3 py-2">
+                    <Checkbox
+                        id="delete-permissions"
+                        v-model="deletePermissions"
+                    />
+                    <Label
+                        for="delete-permissions"
+                        class="cursor-pointer"
+                    >
+                        {{ $t('Also delete related permissions') }}
+                    </Label>
+                </div>
+                <DialogFooter>
+                    <Button
+                        variant="outline"
+                        @click="deleteDialogOpen = false"
+                    >
+                        {{ $t('Cancel') }}
+                    </Button>
+                    <Button
+                        variant="destructive"
+                        @click="confirmDelete"
+                    >
+                        {{ $t('Delete') }}
+                    </Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
     </AdminLayout>
 </template>
