@@ -2,7 +2,7 @@
 import { Check, ChevronsUpDown } from 'lucide-vue-next'
 import { useField } from 'vee-validate'
 import { watchDebounced } from '@vueuse/core'
-import { computed, ref  } from 'vue'
+import { computed } from 'vue'
 import type { PropType } from 'vue'
 import { get } from 'lodash-es'
 import Icon from './Icon.vue'
@@ -25,9 +25,7 @@ import AvatarFallback from '#client/components/ui/avatar/AvatarFallback.vue'
 import $fetch from '#client/facades/fetch.facade.ts'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
 
-defineOptions({
-    inheritAttrs: false,
-})
+defineOptions({ inheritAttrs: false, })
 
 const props = defineProps({
     name: {
@@ -96,9 +94,7 @@ const props = defineProps({
     },
     listAttrs: {
         type: Object as PropType<Record<string, any>>,
-        default: () => ({
-            portable: false,
-        }),
+        default: () => ({ portable: false, }),
     },
 })
 
@@ -240,9 +236,7 @@ async function loadSelected(){
 
     const [error, response] = await tryCatch(() => {
         if (typeof props.fetchOption === 'string') {
-            return $fetch.get(props.fetchOption.replace(':value', value.value as any), {
-                method: 'GET',
-            })
+            return $fetch.get(props.fetchOption.replace(':value', value.value as any), { method: 'GET', })
         }
 
         return props.fetchOption!(value.value)

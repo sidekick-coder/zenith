@@ -99,22 +99,10 @@ const onSubmit = handleSubmit(async (data) => {
                     <FormAutocomplete
                         name="permission_id"
                         :label="$t('Permission')"
-                        :serialize="Permission.from"
                         fetch="/api/permissions"
                         label-key="name"
                         value-key="id"
-                    >
-                        <template #label="{ option }">
-                            <div class="flex flex-col text-left">
-                                <div class="font-medium">
-                                    {{ option.name }}
-                                </div>
-                                <div class="text-sm text-muted-foreground">
-                                    {{ option.description }}
-                                </div>
-                            </div>
-                        </template>
-                    </FormAutocomplete>
+                    />
                     
                     <DialogFooter>
                         <Button

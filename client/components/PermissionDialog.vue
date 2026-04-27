@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import { useForm } from 'vee-validate'
-import * as v from 'valibot'
 import { toTypedSchema } from '@vee-validate/valibot'
 import { ref, watch } from 'vue'
 import FormTextarea from './FormTextarea.vue'
@@ -33,19 +32,15 @@ const props = defineProps({
     permission: {
         type: Object as () => Permission,
         default: null,
-    },  
+    },
 })
 
 const schema = validator.create(v => v.intersect([
     v.omit(schemas.permission.update, ['conditions']),
-    v.object({
-        conditions: v.nullish(v.string()),
-    })
+    v.object({ conditions: v.nullish(v.string()), })
 ]))
 
-const { handleSubmit, resetForm } = useForm({
-    validationSchema: toTypedSchema(schema),
-})
+const { handleSubmit, resetForm } = useForm({ validationSchema: toTypedSchema(schema), })
 
 const onSubmit = handleSubmit(async (form) => {
     loading.value = true
@@ -74,13 +69,15 @@ const onSubmit = handleSubmit(async (form) => {
         return
     }
 
+    await new Promise(resolve => setTimeout(resolve, 800))
+
+    open.value = false
+    loading.value = false
+
+    resetForm()
+
+    emit('submit', response)
     
-    setTimeout(() => {
-        open.value = false
-        loading.value = false
-        resetForm()
-        emit('submit', response)
-    }, 500)
 })
 
 watch(open, (value) => {
@@ -114,9 +111,9 @@ watch(open, (value) => {
             </DialogTrigger>
             <DialogContent>
                 <DialogHeader>
-                    <DialogTitle>{{ permission ? $t('Edit user') : $t('Add new user') }}</DialogTitle>
+                    <DialogTitle>{{ permission ? $t('Edit permission') : $t('Add new permission') }}</DialogTitle>
                     <DialogDescription>
-                        {{ $t('Define details') }}
+                        {{ $t('Fill in the details below to edit permission') }}
                     </DialogDescription>
                 </DialogHeader>
                 <form

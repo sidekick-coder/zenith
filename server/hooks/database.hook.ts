@@ -1,3 +1,4 @@
+import { container } from '@sidekick-coder/zenith-kit/server'
 import config from '#server/facades/config.facade.ts'
 import di from '#server/facades/di.facade.ts'
 import emmitter from '#server/facades/emmitter.facade.ts'
@@ -39,6 +40,8 @@ export default class DatabaseLifecycleHook extends LifecycleHook {
         await service.load(service.defaultConnection || 'memory')
 
         emmitter.emit('database:ready')
+
+        container.set('database', di.get(DatabaseService))
     }
 
     public async onShutdown(): Promise<void> {

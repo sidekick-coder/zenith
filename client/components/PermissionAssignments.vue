@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import { toast } from 'vue-sonner'
-import type { ComponentExposed } from 'vue-component-type-helpers'
 import Card from './ui/card/Card.vue'
 import { CardContent, CardDescription, CardHeader, CardTitle } from './ui/card'
 import PermissionAssignmentDialog from './PermissionAssignmentDialog.vue'
@@ -28,6 +27,7 @@ import PermissionDialog from '#client/components/PermissionDialog.vue'
 import ObjectInspect from '#client/components/ObjectInspect.vue'
 import Permission from '#shared/entities/permission.entity.ts'
 import acl from '#client/facades/acl.facade.ts'
+import { useFetchPagination } from '#client/composables/useFetchPagination.ts'
 
 const TypedDataTable = DataTable as typeof DataTable<PermissionAssignment>
 
@@ -42,15 +42,17 @@ const props = defineProps({
     },
 })
 
-
-
-const loading = ref(false)
 const saving = ref(false)
-const tableRef = ref<ComponentExposed<typeof DataTable>>()
 const deletingItems = ref<number[]>([])
 
-const url = computed(() => `/api/permission-assignments?assign_type=${props.assignType}&assign_id=${props.assignId}`)
-const rows = ref<PermissionAssignment[]>([])
+const { items, loading, load } = useFetchPagination<PermissionAssignment>('/api/permission-assignments', {
+    query: {
+        assign_type: props.assignType,
+        assign_id: props.assignId,
+    },
+    serialize: PermissionAssignment.from,
+})
+
 const columns = defineColumns<PermissionAssignment>([
     {
         id: 'id',
@@ -86,14 +88,10 @@ const columns = defineColumns<PermissionAssignment>([
     { id: 'actions' }
 ])
 
-async function load() {
-    await tableRef.value?.load()
-}
-
 async function attach(permission: Permission) {
-    loading.value = true
+    saving.value = true
 
-    const [error, response] = await tryCatch(() => $fetch<PermissionAssignment>('/api/permission-assignments', {
+    const [error] = await tryCatch(() => $fetch<PermissionAssignment>('/api/permission-assignments', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -104,19 +102,14 @@ async function attach(permission: Permission) {
     }))
 
     if (error) {
-        loading.value = false
+        saving.value = false
         return
     }
 
-    const assignment = new PermissionAssignment(response)
-
-    assignment.permission = new Permission(permission)
-
-    rows.value.unshift(assignment)
-
     setTimeout(() => {
         toast.success($t('Attached successfully.'))
-        loading.value = false
+        saving.value = false
+        load()
     }, 800)
 }
 
@@ -171,7 +164,7 @@ async function detachAndDelete(item: PermissionAssignment, permission: Permissio
             <div class="flex  items-center gap-2">
                 <Button
                     variant="outline"
-                    :disabled="loading"
+                    :disabled="loading || saving"
                     @click="load"
                 >
                     {{ $t('Reload') }}
@@ -188,12 +181,9 @@ async function detachAndDelete(item: PermissionAssignment, permission: Permissio
         </CardHeader>
         <CardContent>
             <TypedDataTable
-                ref="tableRef"
                 v-model:loading="loading"
-                v-model:rows="rows"
+                v-model:rows="items"
                 :columns="columns"
-                :serialize="PermissionAssignment.from"
-                :fetch="url"
             >
                 <template #row-name="{ row }">
                     <div class="font-medium truncate">

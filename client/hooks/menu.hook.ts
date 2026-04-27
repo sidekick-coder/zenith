@@ -51,6 +51,14 @@ export default class MenuLifecycleHook extends LifecycleHook {
         })
 
         menu.add({
+            label: $t('Tokens'),
+            group: $t('Auth'),
+            layout: 'admin',
+            icon: 'Key',
+            to: '/admin/tokens'
+        })
+
+        menu.add({
             label: $t('Settings'),
             group: $t('Auth'),
             layout: 'admin',
