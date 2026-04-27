@@ -15,6 +15,14 @@ import AlertButton from '#client/components/AlertButton.vue'
 import { useFetchPagination } from '#client/composables/useFetchPagination.ts'
 import DialogForm from '#client/components/DialogForm.vue'
 
+interface TokenWithUser extends Token {
+    user: {
+        id: number
+        name: string
+        email: string
+    } | null
+}
+
 const loading = ref(false)
 const router = useRouter()
 
@@ -35,14 +43,14 @@ function onCreated(response: any) {
     })
 }
 
-const { items, total, load, reset } = useFetchPagination<Token>('/api/tokens', {
+const { items, total, load, reset } = useFetchPagination<TokenWithUser>('/api/tokens', {
     limit: 20,
-    query: { type: 'api', }
+    query: { with: 'user', }
 })
 
 const deletingItems = ref<number[]>([])
 
-const columns = defineColumns<Token>([
+const columns = defineColumns<TokenWithUser>([
     {
         id: 'id',
         label: 'ID',
@@ -135,6 +143,36 @@ async function destroy(id: number) {
             v-model:loading="loading"
             :columns="columns"
         >
+            <template #row-name="{ row }">
+                <span
+                    v-if="row.name"
+                    class="font-medium"
+                >
+                    {{ row.name }}
+                </span>
+                <span
+                    v-else
+                    class="text-sm text-muted-foreground"
+                >
+                    {{ $t('No name') }}
+                </span>
+            </template>
+
+            <template #row-user="{ row }">
+                <div
+                    v-if="row.user"
+                    class="flex flex-col gap-1"
+                >
+                    <div>{{ row.user.name }}</div>
+                    <div class="text-muted-foreground text-xs">
+                        {{ row.user.email }}
+                    </div>
+                </div>
+                <div v-else>
+                    {{ `#${row.user_id}` }}
+                </div>
+            </template>
+
             <template #row-actions="{ row }">
                 <div class="flex items-center gap-2 justify-end">
                     <Button

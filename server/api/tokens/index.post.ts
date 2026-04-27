@@ -32,5 +32,8 @@ export default async function({ acl, body, user }: HttpContext) {
         })
     }
 
-    return { ...created, token }
+    return {
+        ...created,
+        token 
+    }
 }
