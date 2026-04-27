@@ -7,12 +7,11 @@ import { toast } from 'vue-sonner'
 import { $fetch } from '#client/utils/fetcher.ts'
 import { Card, CardContent, CardHeader, CardTitle } from '#client/components/ui/card'
 import Button from '#client/components/Button.vue'
-import SettingLayout from '#client/layouts/SettingLayout.vue'
+import AdminLayout from '#client/layouts/AdminLayout.vue'
 import PageTitle from '#client/components/PageTitle.vue'
 import PageSubtitle from '#client/components/PageSubtitle.vue'
 import schemas from '#shared/validators/index.ts'
 import Icon from '#client/components/Icon.vue'
-import { $server } from '#client/utils/server.ts'
 import FormImageUploader from '#client/components/FormImageUploader.vue'
 import FormColorPicker from '#client/components/FormColorPicker.vue'
 
@@ -165,7 +164,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <SettingLayout>
+    <AdminLayout>
         <form @submit="onSubmit">
             <div class="mb-6 flex">
                 <div class="flex-1">
@@ -401,5 +400,5 @@ onMounted(() => {
                 </CardContent>
             </Card>
         </form>
-    </SettingLayout>
+    </AdminLayout>
 </template>

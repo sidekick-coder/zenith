@@ -20,7 +20,7 @@ import Card from '#client/components/ui/card/Card.vue'
 import CardFooter from '#client/components/ui/card/CardFooter.vue'
 import CardContent from '#client/components/ui/card/CardContent.vue'
 import settingSiteValidator from '#shared/validators/settingSite.validator.ts'
-import SettingLayout from '#client/layouts/SettingLayout.vue'
+import AdminLayout from '#client/layouts/AdminLayout.vue'
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -29,16 +29,13 @@ import {
 } from '#client/components/ui/dropdown-menu'
 import PageTitle from '#client/components/PageTitle.vue'
 import PageSubtitle from '#client/components/PageSubtitle.vue'
-import Image from '#client/components/Image.vue'
 
 const router = useRouter()
 
 const loading = ref(false)
 const saving = ref(false)
 const setting = ref<any>({})
-const { handleSubmit, setValues, setFieldValue } = useForm({
-    validationSchema: toTypedSchema(settingSiteValidator.create)
-})
+const { handleSubmit, setValues, setFieldValue } = useForm({ validationSchema: toTypedSchema(settingSiteValidator.create) })
 
 const availableRoutes = computed(() => {
     return router.getRoutes()
@@ -94,7 +91,7 @@ async function load(){
 onMounted(load)
 </script>
 <template>
-    <SettingLayout>
+    <AdminLayout>
         <form
             class="space-y-4 py-2"
             @submit.prevent="onSubmit"
@@ -170,5 +167,5 @@ onMounted(load)
                 </CardFooter>
             </Card>
         </form>
-    </SettingLayout>
+    </AdminLayout>
 </template>

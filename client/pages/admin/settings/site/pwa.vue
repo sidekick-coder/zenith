@@ -7,7 +7,7 @@ import { toast } from 'vue-sonner'
 import { $fetch } from '#client/utils/fetcher.ts'
 import { Card, CardContent } from '#client/components/ui/card'
 import Button from '#client/components/Button.vue'
-import SettingLayout from '#client/layouts/SettingLayout.vue'
+import AdminLayout from '#client/layouts/AdminLayout.vue'
 import PageTitle from '#client/components/PageTitle.vue'
 import PageSubtitle from '#client/components/PageSubtitle.vue'
 import schemas from '#shared/validators/index.ts'
@@ -37,9 +37,7 @@ async function load() {
         return
     }
     
-    resetForm({
-        values: response
-    })
+    resetForm({ values: response })
 
     if (response.icons) {
         response.icons.forEach((icon: any, index: number) => {
@@ -137,7 +135,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <SettingLayout>
+    <AdminLayout>
         <form @submit="onSubmit">
             <div class="mb-6 flex">
                 <div class="flex-1">
@@ -392,5 +390,5 @@ onMounted(() => {
                 </Card>
             </div>
         </form>
-    </SettingLayout>
+    </AdminLayout>
 </template>

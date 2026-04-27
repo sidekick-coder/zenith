@@ -71,4 +71,8 @@ export default class MenuService {
 
         return items
     }
+
+    public clear() {
+        this.items.clear()
+    }
 }

@@ -25,16 +25,6 @@ const userLinks = [
 
         <template #sidebar-footer>
             <SidebarFooter>
-                <SidebarMenu>
-                    <SidebarMenuItem>
-                        <SidebarMenuButton as-child>
-                            <RouterLink to="/admin/settings">
-                                <Icon name="Settings" />
-                                <span>{{ $t('Settings') }}</span>
-                            </RouterLink>
-                        </SidebarMenuButton>
-                    </SidebarMenuItem>
-                </SidebarMenu>
                 <AdminLayoutUserMenu
                     :links="userLinks"
                     @logout="auth.logout" 
