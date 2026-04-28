@@ -1,5 +1,4 @@
 import type { Token } from '@sidekick-coder/zenith-kit/shared'
-import auth from '#server/facades/auth.facade.ts'
 import type { HttpContext, Middleware, } from '#server/contracts/router.contract.ts'
 import type User from '#server/entities/user.entity.ts'
 import tokenRepository from '#server/facades/tokenRepository.ts'

@@ -40,13 +40,12 @@ export class AuthorizePermission implements Middleware {
 
 export class AuthorizationMiddleware implements Middleware {
     public async handle(ctx: AuthSilenceMiddlewareContext){
-        const user: Pick<User, 'id' | 'name' | 'email'> | null = null
         const token = ctx.token
         let currentPermissions: Permission[] = []
         const permissionContext = {} as Record<string, any>
 
         // if auth token load permissions for user
-        if (ctx.user && token.type === 'auth') {
+        if (ctx.user && token?.type === 'auth') {
             const assignments = await permissionAssignmentRepository.findMany({
                 assignableId: String(ctx.user.id),
                 assignableType: 'user'
@@ -78,8 +77,6 @@ export class AuthorizationMiddleware implements Middleware {
                 },
             }
         }
-
-        console.log('Current Permissions:', currentPermissions)
 
         const permissions = Permission.applyContext(currentPermissions, permissionContext)
 
