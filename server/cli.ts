@@ -64,15 +64,20 @@ const alias: Record<string, string> = {
     'drive': 'DriveLifecycleHook',
     'mailer': 'MailerLifecycleHook',
     'router': 'RouterLifecycleHook',
+    'shell': 'ExtrasLifecycleHook',
 }
 
 async function onPreAction(command: ArteService) {
     const needs = Array.from(command.needs).map(need => alias[need] || need)
     const defaults = ['ConfigLifecycleHook', 'TrasnlatorLifecycleHook']
 
+    needs.unshift(...defaults)
+
+
     hooks
-        .filter(hook => needs.includes(hook.hook_id) || defaults.includes(hook.hook_id))
+        .filter(h => needs.includes(h.hook_id))
         .forEach(hook => lifecycle.add(hook))
+
 
     await lifecycle.register()
 

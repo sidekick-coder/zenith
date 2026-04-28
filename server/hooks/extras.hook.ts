@@ -14,9 +14,7 @@ export default class ExtrasLifecycleHook extends LifecycleHook {
     public async onRegister(): Promise<void> {
         const config = di.get<ConfigService>(ConfigService)
 
-        emmitter.load({
-            debug: config.getOne<boolean>(['app.debug', 'emmitter.debug'], false),
-        })
+        emmitter.load({ debug: config.getOne<boolean>(['app.debug', 'emmitter.debug'], false), })
 
         shell.init({
             debug: config.getOne<boolean>(['app.debug', 'shell.debug'], false),
@@ -33,9 +31,7 @@ export default class ExtrasLifecycleHook extends LifecycleHook {
         const vite = di.get<ViteService>(ViteService)
 
         vite.on('vite:client-config', async (opt: ViteServiceEvents['vite:client-config']) => {
-            opt.config.set('oauth', {
-                google_enabled: config.get('oauth.google_enabled', false),
-            })
+            opt.config.set('oauth', { google_enabled: config.get('oauth.google_enabled', false), })
         })
     }
 }

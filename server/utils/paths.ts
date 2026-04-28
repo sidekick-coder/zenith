@@ -25,5 +25,5 @@ export function configPath(...args: string[]): string {
 }
 
 export function tmpPath(...args: string[]): string {
-    return storagePath('tmp', ...args)
+    return basePath('tmp', ...args)
 }
