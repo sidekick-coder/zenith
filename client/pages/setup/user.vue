@@ -2,8 +2,9 @@
 import { toTypedSchema } from '@vee-validate/valibot'
 import { useForm } from 'vee-validate'
 import * as v from 'valibot'
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { toast } from 'vue-sonner'
+import { kebabCase } from 'lodash-es'
 import Button from '#client/components/Button.vue'
 import Card from '#client/components/ui/card/Card.vue'
 import CardDescription from '#client/components/ui/card/CardDescription.vue'
@@ -18,7 +19,7 @@ import CardContent from '#client/components/ui/card/CardContent.vue'
 
 const isLoading = ref(false)
 
-const { handleSubmit } = useForm({
+const { handleSubmit, values, setFieldValue } = useForm({
     validationSchema: toTypedSchema(
         v.pipe(
             v.object({
@@ -62,6 +63,10 @@ const onSubmit = handleSubmit(async (payload) => {
         isLoading.value = false
         window.location.href = '/auth/login' // Redirect to the next step
     }, 1000)
+})
+
+watch(() => values.name, (name) => {
+    setFieldValue('username', kebabCase(name))
 })
 </script>
 

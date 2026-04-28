@@ -41,3 +41,4 @@ storage/uploads/*
 client-dist
 tmp
 docs/.vitepress/cache
+*.db

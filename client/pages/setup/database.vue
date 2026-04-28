@@ -16,6 +16,7 @@ import FormTextField from '#client/components/FormTextField.vue'
 import CardContent from '#client/components/ui/card/CardContent.vue'
 
 import FormSelect from '#client/components/FormSelect.vue'
+
 const isLoading = ref(false)
 const isTestLoading = ref(false)
 
@@ -116,7 +117,7 @@ const onSubmit = handleSubmit(async (data) => {
                         :label="$t('SQLite Database Path')"
                         placeholder="/path/to/database.sqlite"
                         autocomplete="off"
-                        value="storage/database.sqlite"
+                        value="zenith.db"
                     />
                 </template>
 
