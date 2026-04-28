@@ -68,7 +68,7 @@ const alias: Record<string, string> = {
 
 async function onPreAction(command: ArteService) {
     const needs = Array.from(command.needs).map(need => alias[need] || need)
-    const defaults = ['ConfigLifecycleHook', 'TranslatorLifecycleHook']
+    const defaults = ['ConfigLifecycleHook', 'TrasnlatorLifecycleHook']
 
     hooks
         .filter(hook => needs.includes(hook.hook_id) || defaults.includes(hook.hook_id))
