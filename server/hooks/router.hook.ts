@@ -18,8 +18,11 @@ export default class RouterLifecycleHook extends LifecycleHook {
         })
 
         router.use(setupMiddleware, 'global')
-        router.use(authSilenceMiddleware, 'global')
-        router.use(authorizationMiddleware, 'global')
+
+        if (config.has('database')) {
+            router.use(authSilenceMiddleware, 'global')
+            router.use(authorizationMiddleware, 'global')
+        }
 
         di.set(RouterSevice, router)
     }
