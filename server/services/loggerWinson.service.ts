@@ -121,7 +121,12 @@ export default class LoggerWinsonService extends LoggerService {
         }
 
         if (stack) {
-            result += `\n${stack}`
+            const lines = (stack as string).split('\n')
+                .slice(1)
+                .map(line => line.trim())
+                .join('\n')
+
+            result += '\n' + chalk.red(lines)
         }
 
         return result.trim()
