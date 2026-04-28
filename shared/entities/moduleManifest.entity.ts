@@ -1,22 +1,6 @@
-import { BaseEntity } from '#shared/mixins/index.ts'
-import { compose } from '#shared/utils/compose.ts'
+import { ModuleManifestEntity } from '@sidekick-coder/zenith-kit/shared'
 
-export interface ModuleManifestBuildImport {
-    from: string
-    to?: string
-    type: 'global_import'
-}
-export interface ModuleManifestBuild {
-    imports?: ModuleManifestBuildImport[]
-}
+/** @deprecated Please use @sidekick-coder/zenith-kit/shared */
+export default ModuleManifestEntity 
 
-export default class ModuleManifest extends compose(BaseEntity) {
-    public id: string
-    public name: string
-    public version: string
-    public description?: string
-    public enabled: boolean
-    public author?: string
-    public dependencies?: Record<string, string>
-    public build?: ModuleManifestBuild
-}
+

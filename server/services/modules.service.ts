@@ -1,6 +1,6 @@
 import fs from 'fs'
 import path from 'path'
-import { pathToFileURL } from 'url'
+import { ModuleEntity } from '@sidekick-coder/zenith-kit/server'
 import ModuleInstallerService from './moduleInstaller.service.ts'
 import ModuleUpgraderService from './moduleUpgrader.service.ts'
 import ModuleBuilderService from './moduleBuilder.service.ts'
@@ -8,11 +8,11 @@ import ModuleHooksService from './moduleHooks.service.ts'
 import config from '#server/facades/config.facade.ts'
 import { basePath } from '#server/utils/paths.ts'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
-import Module from '#server/entities/module.entity.ts'
 import logger from '#server/facades/logger.facade.ts'
 import ModuleManifest from '#shared/entities/moduleManifest.entity.ts'
 import type LifecycleHook from '#shared/entities/lifecycleHook.entity.ts'
 import env from '#server/facades/env.facade.ts'
+import { importOne } from '#server/utils/importOne.ts'
 
 interface ListOptions {
     enabled?: boolean;
@@ -24,6 +24,7 @@ interface Manifest {
     description?: string
     author?: string
     dependencies?: Record<string, string>
+    directory: string
 }
 
 export default class ModulesService {
@@ -32,15 +33,15 @@ export default class ModulesService {
     public builder: ModuleBuilderService
     public hooks: ModuleHooksService
     public manifests: Map<string, ModuleManifest>
-    public mods: (Module & LifecycleHook)[] = []
+    public mods: (ModuleEntity & LifecycleHook)[] = []
     public logger = logger.child({ label: 'modules' })
     public debug = false
-    
+
     public init(data: Partial<ModulesService> = {}) {
         this.manifests = data.manifests || new Map<string, ModuleManifest>()
         this.logger = data.logger || logger.child({ label: 'modules' })
         this.debug = data.debug || false
-    
+
         this.installer = data.installer || new ModuleInstallerService()
         this.upgrader = data.upgrader || new ModuleUpgraderService()
         this.builder = data.builder || new ModuleBuilderService()
@@ -55,7 +56,7 @@ export default class ModulesService {
         const folder = basePath('modules')
         const modulesDirectories = []
         const dirs = await fs.promises.readdir(folder, { withFileTypes: true })
-        
+
         const moduleNames = dirs
             .filter(dirent => dirent.isDirectory())
             .map(dirent => dirent.name)
@@ -77,7 +78,7 @@ export default class ModulesService {
 
 
         for (const moduleDirectory of modulesDirectories) {
-            const manifestPath = path.join(moduleDirectory , 'module.json')
+            const manifestPath = path.join(moduleDirectory, 'module.json')
             const name = path.basename(moduleDirectory)
 
             if (!fs.existsSync(manifestPath)) {
@@ -85,7 +86,7 @@ export default class ModulesService {
                 continue
             }
 
-            const [error, json] =  await tryCatch(async () => {
+            const [error, json] = await tryCatch(async () => {
                 const text = await fs.promises.readFile(manifestPath, 'utf-8')
 
                 return JSON.parse(text) as Manifest
@@ -100,6 +101,7 @@ export default class ModulesService {
                 ...json,
                 id: name,
                 enabled: config.get(`modules.${name}.enabled`, false),
+                directory: moduleDirectory,
             }))
 
             if (this.debug) {
@@ -139,7 +141,7 @@ export default class ModulesService {
         return sorted
     }
 
-    public async loadModulesInstances(){
+    public async loadModulesInstances() {
         this.mods = []
 
         const manifests = this.getManifestSortedByDependency()
@@ -148,37 +150,42 @@ export default class ModulesService {
             if (!manifest.enabled) {
                 continue
             }
-        
+
             const file = path.join(basePath('modules'), manifest.id, 'server/module.server.ts')
-        
-            if (!await fs.promises.stat(file).catch(() => false)) {
 
-                if (this.debug) {
-                    this.logger.debug(`No server module file found for '${manifest.id}', skipping`)
-                }
 
-                continue
-            }
 
-            const url = pathToFileURL(file)
+            const filenames = [
+                path.join(manifest.directory, 'server/module.server.ts'),
+                path.join(manifest.directory, 'server/module.server.js'),
+                path.join(manifest.directory, 'server/index.ts'),
+                path.join(manifest.directory, 'server/index.js'),
+                path.join(manifest.directory, 'server/server.ts'),
+                path.join(manifest.directory, 'server/server.js'),
+            ]
 
-            if (!env.production) {
-                url.searchParams.set('t', Date.now().toString())
-            }
+            const [error, ModClass] = await tryCatch(async () => {
+                const mod = await importOne(filenames)
 
-            const [error, ModClass] = await tryCatch(() => import(url.href).then(m => m.default || m))
+                return mod?.default || mod
+            })
 
             if (error) {
                 this.logger.error(`Failed to import module class for '${manifest.id}'`, error)
                 continue
             }
 
-            if (ModClass.prototype instanceof Module === false) {
+            if (!ModClass) {
+                this.logger.warn(`No server module file found for '${manifest.id}', skipping...`, { files: filenames })
+                continue
+            }
+
+            if (ModClass.prototype instanceof ModuleEntity === false) {
                 this.logger.error(`Module class for '${manifest.id}' does not extend Module base class`)
                 continue
             }
 
-            const modInstance = new ModClass() as Module
+            const modInstance = new ModClass() as ModuleEntity
 
             modInstance.setData(manifest)
 
@@ -198,7 +205,7 @@ export default class ModulesService {
         }
 
         const mods = manifests.map(manifest => {
-            const mod = new Module()
+            const mod = new ModuleEntity()
 
             mod.setData(manifest)
 
@@ -215,8 +222,8 @@ export default class ModulesService {
             return null
         }
 
-        const mod = new Module()
-        
+        const mod = new ModuleEntity()
+
         mod.setData(manifest)
 
         return mod
@@ -235,7 +242,7 @@ export default class ModulesService {
     public async enable(id: string) {
         const mod = await this.find(id)
 
-        await this.prepare(id)
+        // await this.prepare(id)
 
         if (!mod) {
             throw new Error(`Module ${id} not found`)
@@ -287,41 +294,41 @@ export default class ModulesService {
 
 
         const symlinks = [
-            { 
-                source: basePath('server'), 
-                target: path.join(rootDir, 'server') 
+            {
+                source: basePath('server'),
+                target: path.join(rootDir, 'server')
             },
-            { 
-                source: basePath('shared'), 
-                target: path.join(rootDir, 'shared') 
+            {
+                source: basePath('shared'),
+                target: path.join(rootDir, 'shared')
             },
-            { 
-                source: basePath('client'), 
-                target: path.join(rootDir, 'client') 
+            {
+                source: basePath('client'),
+                target: path.join(rootDir, 'client')
             },
-            { 
-                source: basePath('.ai'), 
-                target: path.join(rootDir, '.ai') 
+            {
+                source: basePath('.ai'),
+                target: path.join(rootDir, '.ai')
             },
-            { 
-                source: basePath('arte'), 
+            {
+                source: basePath('arte'),
                 target: mod.makePath('arte')
             },
         ]
 
         for (const dependency of Object.keys(mod.dependencies || {})) {
             symlinks.push(
-                { 
-                    source: basePath('modules', dependency, 'server'), 
-                    target: path.join(rootDir, 'modules', dependency, 'server') 
+                {
+                    source: basePath('modules', dependency, 'server'),
+                    target: path.join(rootDir, 'modules', dependency, 'server')
                 },
                 {
-                    source: basePath('modules', dependency, 'shared'), 
+                    source: basePath('modules', dependency, 'shared'),
                     target: path.join(rootDir, 'modules', dependency, 'shared')
                 },
-                { 
-                    source: basePath('modules', dependency, 'client'), 
-                    target: path.join(rootDir, 'modules', dependency, 'client') 
+                {
+                    source: basePath('modules', dependency, 'client'),
+                    target: path.join(rootDir, 'modules', dependency, 'client')
                 },
             )
         }
@@ -330,7 +337,7 @@ export default class ModulesService {
 
         for (const { source, target } of symlinks) {
             if (fs.existsSync(target)) {
-                
+
                 if (this.debug) {
                     logger.debug(`Target directory '${path.relative(basePath(), target)}' exist, skipping symlink`)
                 }
@@ -347,14 +354,14 @@ export default class ModulesService {
             // Create symlink
             const [symlinkError] = await tryCatch(() => {
                 const dir = path.dirname(target)
-                
+
                 if (!fs.existsSync(dir)) {
                     fs.mkdirSync(dir, { recursive: true })
                 }
 
                 fs.symlinkSync(source, target, 'dir')
             })
-            
+
             if (symlinkError) {
                 logger.error(`Failed to create symlink ${path.relative(basePath(), source)} -> ${path.relative(basePath(), target)}`)
                 throw new Error(`Failed to create symlink: ${symlinkError.message}`)
@@ -379,9 +386,9 @@ export default class ModulesService {
         logger.info(`uninstalling module '${id}'`)
 
         // Remove module folder        
-        fs.rmSync(moduleDir, { 
-            recursive: true, 
-            force: true 
+        fs.rmSync(moduleDir, {
+            recursive: true,
+            force: true
         })
 
         logger.info(`'${id}' uninstalled successfully`)

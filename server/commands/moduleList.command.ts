@@ -1,4 +1,3 @@
-import Table from 'cli-table3'
 import modules from '#server/facades/modules.facade.ts'
 import arte from '#server/facades/arte.facade.ts'
 
@@ -14,14 +13,23 @@ arte
             return
         }
 
-        const table = new Table({
-            head: ['Name', 'Path', 'Enabled'],
-            colWidths: [10, 50],
-        })
+        arte.table(items, [
+            {
+                label: 'ID',
+                value: 'id'
+            },
+            {
+                label: 'Name',
+                value: i => i.name 
+            },
+            {
+                label: 'Path',
+                value: i => i.makePath() 
+            },
+            {
+                label: 'Enabled',
+                value: i => i.enabled ? 'Yes' : 'No' 
+            },
+        ])
 
-        items.forEach(i => {
-            table.push([i.name, i.makePath(), i.enabled ? 'Yes' : 'No'])
-        })
-
-        console.log(table.toString())
     })

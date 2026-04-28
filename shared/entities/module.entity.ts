@@ -1,29 +1,5 @@
-import type ModuleManifest from './moduleManifest.entity.ts'
-import LifecycleHook from '#shared/entities/lifecycleHook.entity.ts'
-import { BaseEntity } from '#shared/mixins/index.ts'
-import { compose, mixin } from '#shared/utils/compose.ts'
+import { ModuleEntity } from '@sidekick-coder/zenith-kit/shared'
 
-interface ModuleUpgradeInfo {
-    source: 'git' | 'zip'
-    [key: string]: any
-}
+/** @deprecated Please use @sidekick-coder/zenith-kit/shared */
+export default ModuleEntity
 
-export default class Module extends compose(BaseEntity, mixin(LifecycleHook)) {
-    public id: string
-    public name: string
-    public enabled: boolean = false
-    public dependencies: Record<string, any> = {}
-    public build: ModuleManifest['build'] = {}
-
-    public upgrade_info?: ModuleUpgradeInfo
-
-    public setData(data: Partial<Module | ModuleManifest>) {
-        const filtered = Object.fromEntries(
-            Object.entries(data).filter(([_, v]) => v !== undefined)
-        )
-
-        Object.assign(this, filtered)
-
-        this.hook_id = `module:${this.id}`
-    }
-}
