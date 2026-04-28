@@ -2,8 +2,8 @@
 import fs from 'fs'
 import path from 'path'
 import { set } from 'lodash-es'
+import { basePath } from '../utils/index.ts'
 import ConfigService from '#shared/services/config.service.ts'
-import { configPath } from '#server/utils/paths.ts'
 import logger from '#server/facades/logger.facade.ts'
 import type LoggerService from '#shared/services/logger.service.ts'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
@@ -22,7 +22,7 @@ export default class ConfigFSService extends ConfigService {
     constructor(options: InitiOptions = {}) {
         super()
         this.debug = options.debug ?? false
-        this.directory = options.directory ?? configPath()
+        this.directory = options.directory ?? basePath('config')
         this.logger = options.logger ?? logger.child({ label: 'config' })
 
         if (this.debug) {

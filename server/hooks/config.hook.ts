@@ -3,7 +3,6 @@ import env from '#server/facades/env.facade.ts'
 import logger from '#server/facades/logger.facade.ts'
 import ConfigFSService from '#server/services/configFS.service.ts'
 import ConfigS3Service from '#server/services/configS3.service.ts'
-import { configPath } from '#server/utils/paths.ts'
 import LifecycleHook from '#shared/entities/lifecycleHook.entity.ts'
 import ConfigService from '#shared/services/config.service.ts'
 import { flatten } from '#shared/utils/flatten.ts'
@@ -39,7 +38,7 @@ export default class ConfigLifecycleHook extends LifecycleHook {
 
         if (!service) {
             const configFS = new ConfigFSService({
-                directory: configPath(),
+                directory: env.get('CONFIG_FS_PATH'),
                 debug: env.get('CONFIG_DEBUG'),
                 logger: logger.child({ label: 'config' }),
             })
@@ -48,7 +47,7 @@ export default class ConfigLifecycleHook extends LifecycleHook {
 
             service = configFS
 
-            logger.child({ label: 'config' }).info('using filesystem configuration service', { file: configPath(), })
+            logger.child({ label: 'config' }).info('using filesystem configuration service', { path: configFS.directory })
         }
 
         if (!service) {

@@ -20,10 +20,6 @@ export function storagePath(...args: string[]): string {
     return basePath('storage', ...args)
 }
 
-export function configPath(...args: string[]): string {
-    return basePath('config', ...args)
-}
-
 export function tmpPath(...args: string[]): string {
     return basePath('tmp', ...args)
 }

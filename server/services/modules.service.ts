@@ -53,14 +53,32 @@ export default class ModulesService {
 
     public async discover() {
         const folder = basePath('modules')
+        const modulesDirectories = []
         const dirs = await fs.promises.readdir(folder, { withFileTypes: true })
         
         const moduleNames = dirs
             .filter(dirent => dirent.isDirectory())
             .map(dirent => dirent.name)
 
-        for (const name of moduleNames) {
-            const manifestPath = path.join(folder, name, 'module.json')
+        modulesDirectories.push(...moduleNames.map(name => path.join(folder, name)))
+
+        if (env.has('MODULE_EXTRAS')) {
+            const extraPaths = env.get('MODULE_EXTRAS')
+
+            for (const extraPath of extraPaths) {
+                if (!fs.existsSync(extraPath)) {
+                    this.logger.warn(`Extra modules path '${extraPath}' does not exist, skipping`)
+                    continue
+                }
+
+                modulesDirectories.push(extraPath)
+            }
+        }
+
+
+        for (const moduleDirectory of modulesDirectories) {
+            const manifestPath = path.join(moduleDirectory , 'module.json')
+            const name = path.basename(moduleDirectory)
 
             if (!fs.existsSync(manifestPath)) {
                 this.logger.warn(`No manifest found for module '${name}', skipping`)

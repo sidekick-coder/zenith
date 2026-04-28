@@ -48,7 +48,7 @@ const schema = v.object({
 
     CONFIG_DEBUG: v.optional(boolean, 'false'),
     CONFIG_DRIVER: v.optional(v.picklist(['fs', 's3']), 'fs'),
-    CONFIG_FS_PATH: v.optional(v.string(), basePath('storage', 'config')),
+    CONFIG_FS_PATH: v.optional(v.string()),
     CONFIG_S3_BUCKET: v.optional(v.string()),
     CONFIG_S3_REGION: v.optional(v.string()),
     CONFIG_S3_ACCESS_KEY_ID: v.optional(v.string()),
@@ -56,6 +56,13 @@ const schema = v.object({
     CONFIG_S3_SESSION_TOKEN: v.optional(v.string()),
     CONFIG_S3_ENDPOINT: v.optional(v.string()),
     CONFIG_S3_PREFIX: v.optional(v.string(), ''),
+
+
+    MODULE_EXTRAS: v.optional(
+        v.pipe(v.string(), v.transform((value) => value.split(',').map(s => s.trim())
+            .filter(Boolean))),
+        '' 
+    ),
 })
 
 type EnvType = v.InferOutput<typeof schema>
@@ -87,6 +94,14 @@ export default class EnvService {
 
     public get test(): boolean {
         return this.get('NODE_ENV') === 'test'
+    }
+
+    public has<K extends keyof EnvType>(key: K): boolean {
+        if (!this.env) {
+            this.load()
+        }
+
+        return this.env![key] !== undefined
     }
 
     public get<K extends keyof EnvType>(key: K, defaultValue?: any): EnvType[K] {
