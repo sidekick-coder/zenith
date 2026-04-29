@@ -1,17 +1,4 @@
-export default class LifecycleHook {
-    public hook_id: string
-    public order?: number
-    public subhooks?: LifecycleHook[]
-    
-    constructor() {
-        if (!this.hook_id) {
-            this.hook_id = this.constructor.name
-        }
-    }
+import { LifecycleHook } from '@sidekick-coder/zenith-kit/shared'
 
-    public async onRegister(): Promise<void> {}
-    public async onLoad(): Promise<void> {}
-    public async onBoot(): Promise<void> {}
-    public async onShutdown(): Promise<void> {}
-
-}
+/** @deprecated Please use @sidekick-coder/zenith-kit/shared */
+export default LifecycleHook
