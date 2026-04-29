@@ -1,12 +1,11 @@
 import fs from 'fs'
 import path from 'path'
-import { ModuleEntity } from '@sidekick-coder/zenith-kit/server'
+import { ModuleEntity, basePath } from '@sidekick-coder/zenith-kit/server'
 import ModuleInstallerService from './moduleInstaller.service.ts'
 import ModuleUpgraderService from './moduleUpgrader.service.ts'
 import ModuleBuilderService from './moduleBuilder.service.ts'
 import ModuleHooksService from './moduleHooks.service.ts'
 import config from '#server/facades/config.facade.ts'
-import { basePath } from '#server/utils/paths.ts'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
 import logger from '#server/facades/logger.facade.ts'
 import ModuleManifest from '#shared/entities/moduleManifest.entity.ts'
@@ -63,8 +62,8 @@ export default class ModulesService {
 
         modulesDirectories.push(...moduleNames.map(name => path.join(folder, name)))
 
-        if (env.has('MODULE_EXTRAS')) {
-            const extraPaths = env.get('MODULE_EXTRAS')
+        if (env.has('ZENITH_MODULE_EXTRAS')) {
+            const extraPaths = env.get('ZENITH_MODULE_EXTRAS')
 
             for (const extraPath of extraPaths) {
                 if (!fs.existsSync(extraPath)) {

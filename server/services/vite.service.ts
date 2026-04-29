@@ -5,13 +5,13 @@ import { createLogger, createServer as createViteServer  } from 'vite'
 import type { ViteDevServer } from 'vite'
 import express from 'express'
 import type { Request, Response } from 'express'
-// eslint-disable-next-line import/extensions
+ 
 import { transformHtmlTemplate } from '@unhead/vue/server'
+import { basePath } from '@sidekick-coder/zenith-kit/server'
 import CookieService from './cookie.service.ts'
 import env from '#server/facades/env.facade.ts'
 import config from '#server/facades/config.facade.ts'
 import logger from '#server/facades/logger.facade.ts'
-import { basePath } from '#server/utils/paths.ts'
 import router from '#server/facades/router.facade.ts'
 import auth from '#server/facades/auth.facade.ts'
 import type User from '#server/entities/user.entity.ts'
@@ -97,7 +97,7 @@ export default class ViteService extends compose(Hooks) {
         }
 
         if (this.server && env.get('NODE_ENV') !== 'production') {
-            mod = await this.server.ssrLoadModule('/client/entry-server.ts') as any
+            mod = await this.server.ssrLoadModule(basePath('client', 'entry-server.ts'))
         }
 
         if (!mod) {
@@ -109,8 +109,6 @@ export default class ViteService extends compose(Hooks) {
         if (!this.entrypoint) {
             throw new Error('Failed to load Vite entrypoint')
         }
-
-       
 
         const options = {
             logger: this.logger,
@@ -151,7 +149,9 @@ export default class ViteService extends compose(Hooks) {
             customLogger: viteLogger,
             server: { middlewareMode: true },
             appType: 'custom',
-            publicDir: 'client/public',
+            publicDir: basePath('client', 'public'),
+            configFile: basePath('vite.config.ts'),
+            root: basePath(),
             resolve: { alias: { 'vue': 'vue/dist/vue.esm-bundler.js', } }
         })
 

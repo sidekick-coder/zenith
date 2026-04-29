@@ -1,16 +1,16 @@
 import fs from 'fs'
+import { ConfigManagerService, basePath, importAll } from '@sidekick-coder/zenith-kit/server'
 import ArteService from './services/arte.service.ts'
-import { importAll } from '#server/utils/importAll.ts'
-import { basePath } from '#server/utils/paths.ts'
 import env from '#server/facades/env.facade.ts'
 import di from '#server/facades/di.facade.ts'
 import LoggerService from '#shared/services/logger.service.ts'
 import LoggerWinsonService from '#server/services/loggerWinson.service.ts'
 import LifecycleService from '#shared/services/lifecycle.service.ts'
 import LifecycleHook from '#shared/entities/lifecycleHook.entity.ts'
+import ConfigService from '#shared/services/config.service.ts'
 
 const logger = LoggerWinsonService.create({
-    level: env.get('LOG_LEVEL', 'info'),
+    level: env.get('ZENITH_LOG_LEVEL', 'info'),
     transports: [
         LoggerWinsonService.console(),
         LoggerWinsonService.file(basePath('storage/logs/error.log'), 'error'),
@@ -18,13 +18,18 @@ const logger = LoggerWinsonService.create({
     ]
 })
 
-di.set(LoggerService, logger)
-
 env.load()
+
+const config = await ConfigManagerService
+    .create(env, logger.child({ label: 'config' }))
+    .load()
 
 const arte = new ArteService()
 
-di.set(ArteService, arte)
+di
+    .set(LoggerService, logger)
+    .set(ConfigService, config)
+    .set(ArteService, arte)
 
 const mods = await importAll(basePath('server/hooks'))
 
@@ -47,10 +52,14 @@ const moduleNames = fs.readdirSync(modulesPath, { withFileTypes: true })
     .map(dirent => dirent.name)
 
 for await (const name of moduleNames) {
+    if (!config.get(`modules.${name}.enabled`)) {
+        continue
+    }
+
     if (fs.existsSync(`${modulesPath}/${name}/server/commands`)) {
         await importAll(`${modulesPath}/${name}/server/commands`, {
             onError: ({ filename, error }) => {
-                logger.error(`Failed to import command from ${filename}`)
+                logger.error(`Failed to import command from ${filename}`, error)
             }
         })
     }
@@ -69,15 +78,13 @@ const alias: Record<string, string> = {
 
 async function onPreAction(command: ArteService) {
     const needs = Array.from(command.needs).map(need => alias[need] || need)
-    const defaults = ['ConfigLifecycleHook', 'TrasnlatorLifecycleHook']
+    const defaults = ['TrasnlatorLifecycleHook']
 
     needs.unshift(...defaults)
-
 
     hooks
         .filter(h => needs.includes(h.hook_id))
         .forEach(hook => lifecycle.add(hook))
-
 
     await lifecycle.register()
 
@@ -89,7 +96,6 @@ async function onPreAction(command: ArteService) {
 async function onPostAction() {
     await lifecycle.shutdown()
 }
-
 
 arte.name('arte')
     .hook('preAction', (_thisCommand, actionCommand) => onPreAction(actionCommand as any))

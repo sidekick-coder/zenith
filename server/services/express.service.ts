@@ -133,8 +133,8 @@ export default class ExpressService {
     }
 
     public start() {
-        const port = env.get('PORT')
-        const host = env.get('HOST')
+        const port = env.get('ZENITH_PORT')
+        const host = env.get('ZENITH_HOST')
 
         this.server = this.app.listen(port, host, () => {
             this.logger.info('server started', {

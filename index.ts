@@ -1,11 +1,10 @@
+import { ConfigManagerService } from '@sidekick-coder/zenith-kit/server'
+import { LifecycleService, LoggerService, LifecycleHook, ConfigService } from '@sidekick-coder/zenith-kit/shared'
 import di from '#server/facades/di.facade.ts'
 import env from '#server/facades/env.facade.ts'
 import LoggerWinsonService from '#server/services/loggerWinson.service.ts'
 import { importAll } from '#server/utils/importAll.ts'
 import { basePath } from '#server/utils/paths.ts'
-import LifecycleHook from '#shared/entities/lifecycleHook.entity.ts'
-import LifecycleService from '#shared/services/lifecycle.service.ts'
-import LoggerService from '#shared/services/logger.service.ts'
 
 // handle unhandled rejections
 process.on('unhandledRejection', (reason: any, promise) => {
@@ -33,19 +32,21 @@ const transports: any[] = [
 transports.push(env.development ? LoggerWinsonService.console() : LoggerWinsonService.consoleJson())
 
 const logger = LoggerWinsonService.create({
-    level: env.get('LOG_LEVEL', 'info'),
+    level: env.get('ZENITH_LOG_LEVEL', 'info'),
     transports: transports
 })
 
-di.set(LoggerService, logger)
+const config = await ConfigManagerService
+    .create(env, logger.child({ label: 'config' }))
+    .load()
+
+di
+    .set(LoggerService, logger)
+    .set(ConfigService, config)
 
 const lifecycle = new LifecycleService({
-    debug: env.get('LIFECYCLE_DEBUG'),
+    debug: env.get('ZENITH_LIFECYCLE_DEBUG', false),
     logger: logger.child({ label: 'lifecycle' }),
-    onError: (error, hookId, method) => {
-        logger.error(`lifecycle error in hook "${hookId}" on ${method}:`, error)
-        process.exit(1)
-    },
 })
 
 const mods = await importAll(basePath('server/hooks'))
@@ -65,5 +66,6 @@ await lifecycle.boot()
 
 process.on('SIGINT', async () => {
     await lifecycle.shutdown()
+
     process.exit(0)
 })

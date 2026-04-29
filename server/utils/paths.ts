@@ -1,11 +1,8 @@
-import path from 'path'
+import { basePath as kitBasePath } from '@sidekick-coder/zenith-kit/server'
 
-const __dirname = path.dirname(new URL(import.meta.url).pathname)
-
+/** @deprecated use basePath from zenith-kit instead */
 export function basePath(...args: string[]): string {
-    const root = path.resolve(__dirname, '..', '..')
-
-    return path.resolve(root, ...args)
+    return kitBasePath(...args)
 }
 
 export function serverPath(...args: string[]): string {
