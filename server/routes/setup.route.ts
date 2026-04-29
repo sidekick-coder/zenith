@@ -9,6 +9,7 @@ import drive from '#server/facades/drive.facade.ts'
 import { createUser } from '#server/queries/index.ts'
 import { createUserPermission } from '#server/queries/createUserPermission.ts'
 import { generateKey } from '#server/utils/index.ts'
+import server from '#server/facades/server.facade.ts'
 
 const router = root.prefix('/api/setup').group()
 
@@ -98,6 +99,9 @@ router.post('/user', async ({ body }) => {
 
     config.set('app.key', generateKey(32))
     config.set('setup.need_users', false, 'runtime')
+
+    // reload server 
+    setTimeout(() => server.reload(), 2000)
 
     return { status: 200, }
 })

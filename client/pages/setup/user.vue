@@ -41,15 +41,12 @@ const { handleSubmit, values, setFieldValue } = useForm({
     )
 })
 
-const onSubmit = handleSubmit(async (payload) => {
+const onSubmit = handleSubmit(async (data) => {
     isLoading.value = true
 
-    const [error] = await tryCatch(() => {
-        return $fetch('/api/setup/user', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', },
-            body: JSON.stringify(payload),
-        })
+    const [error] = await $fetch.try('/api/setup/user', {
+        method: 'POST',
+        data
     })
 
     if (error) {
@@ -59,10 +56,14 @@ const onSubmit = handleSubmit(async (payload) => {
 
     toast.success('User setup completed successfully!')
 
-    setTimeout(async () => {
-        isLoading.value = false
-        window.location.href = '/auth/login' // Redirect to the next step
-    }, 1000)
+    await new Promise(resolve => setTimeout(resolve, 500))
+
+    const url = new URL('/api/reloader', window.location.origin)
+
+    url.searchParams.append('redirect_to', '/auth/login')
+    url.searchParams.append('delay', '3000')
+
+    window.location.href = url.toString()
 })
 
 watch(() => values.name, (name) => {
@@ -75,9 +76,7 @@ watch(() => values.name, (name) => {
         class="h-dvh w-dvw flex items-center justify-center"
         @submit.prevent="onSubmit"
     >
-        <Card
-            class="w-full max-w-md"
-        >
+        <Card class="w-full max-w-md">
             <CardHeader>
                 <CardTitle>
                     {{ $t('Admin') }}
@@ -94,7 +93,7 @@ watch(() => values.name, (name) => {
                     placeholder="John Doe"
                     :tabindex="1"
                 />
-                
+
                 <FormTextField
                     name="username"
                     type="text"
@@ -108,7 +107,7 @@ watch(() => values.name, (name) => {
                     type="email"
                     :label="$t('Email')"
                     placeholder="john.doe@example.com"
-                />  
+                />
 
                 <FormTextField
                     name="password"
