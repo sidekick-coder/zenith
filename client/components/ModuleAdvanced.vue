@@ -65,18 +65,27 @@ async function runSeeds() {
 }
 
 async function uninstall(data: any) {
+    const url = new URL('/api/reloader', window.location.origin)
+
+    url.searchParams.append('redirect_to', '/admin/modules')
+    url.searchParams.append('delay', '3000')
+
+    $server.trapHot()
+
     const [error] = await $fetch.try(`/api/modules/${props.module.id}/uninstall`, {
         method: 'POST',
         data
     })
 
     if (error) {
+        $server.untrapHot()
         throw new Error(error.message || $t('Failed to uninstall module'))
     }
 
-    await $server.online({ timeout: 60000 })
+    await new Promise(resolve => setTimeout(resolve, 500))
 
-    window.location.href = '/admin/modules'
+    window.location.href = url.toString()
+
 }
 
 async function buildModule() {
@@ -181,7 +190,7 @@ async function buildModule() {
                     :title="$t('Uninstall Module')"
                     :description="$t('Are you sure you want to uninstall the module :0? This action cannot be undone.', [module.name])"
                     :submit-text="$t('Uninstall')"
-                    :fetch="data => uninstall(data)"
+                    :handle="data => uninstall(data)"
                     :schema="schemas.modules.uninstall"
                     :fields="{
                         rollback_migrations: {

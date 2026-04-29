@@ -60,9 +60,7 @@ interface ReloadOptions {
     href?: string
 }
 
-const kill = (event: any) => {
-    event.preventDefault()
-
+const kill = () => {
     throw '(skipping full reload)'
 }
 

@@ -1,6 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 import { ModuleEntity, basePath } from '@sidekick-coder/zenith-kit/server'
+import { BaseException } from '@sidekick-coder/zenith-kit/shared'
 import ModuleInstallerService from './moduleInstaller.service.ts'
 import ModuleUpgraderService from './moduleUpgrader.service.ts'
 import ModuleBuilderService from './moduleBuilder.service.ts'
@@ -380,12 +381,15 @@ export default class ModulesService {
 
     public async uninstall(id: string) {
         const mod = await this.findOrFail(id)
-        const moduleDir = mod.makePath()
+
+        if (!mod.directory.startsWith(basePath('modules'))) {
+            throw new BaseException('Only modules installed in the main modules directory can be uninstalled', 400)
+        }
 
         logger.info(`uninstalling module '${id}'`)
 
         // Remove module folder        
-        fs.rmSync(moduleDir, {
+        fs.rmSync(mod.directory, {
             recursive: true,
             force: true
         })

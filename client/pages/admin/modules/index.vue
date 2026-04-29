@@ -16,7 +16,6 @@ import Icon from '#client/components/Icon.vue'
 import PageTitle from '#client/components/PageTitle.vue'
 import PageSubtitle from '#client/components/PageSubtitle.vue'
 import DataTable, { defineColumns } from '#client/components/DataTable.vue'
-import { $server } from '#client/utils/server.ts'
 
 const items = ref<any[]>([])
 const loading = ref(false)

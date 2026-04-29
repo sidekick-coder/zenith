@@ -5,7 +5,6 @@ import * as v from 'valibot'
 import { toTypedSchema } from '@vee-validate/valibot'
 
 import $fetch from '#client/facades/fetch.facade.ts'
-import { $server } from '#client/utils/server.ts'
 import Dialog from '#client/components/ui/dialog/Dialog.vue'
 import DialogContent from '#client/components/ui/dialog/DialogContent.vue'
 import DialogScrollContent from '#client/components/ui/dialog/DialogScrollContent.vue'
@@ -17,6 +16,7 @@ import FormTextField from '#client/components/FormTextField.vue'
 import FormTextarea from '#client/components/FormTextarea.vue'
 import Button from '#client/components/Button.vue'
 import Icon from '#client/components/Icon.vue'
+import { $server } from '#client/utils/server.ts'
 
 const props = defineProps({
     open: {
@@ -45,6 +45,13 @@ const { handleSubmit, values, setFieldValue, resetForm } = useForm({
 const onSubmit = handleSubmit(async (data) => {
     installing.value = true
 
+    const url = new URL('/api/reloader', window.location.origin)
+
+    url.searchParams.append('redirect_to', `/admin/modules/${data.id}`)
+    url.searchParams.append('delay', '3000')
+
+    $server.trapHot()
+
     const [error] = await $fetch.try('/api/modules', {
         method: 'POST',
         data,
@@ -52,12 +59,13 @@ const onSubmit = handleSubmit(async (data) => {
 
     if (error) {
         installing.value = false
+        $server.untrapHot()
         return
     }
 
-    await $server.online({ timeout: 60000 })
+    await new Promise(resolve => setTimeout(resolve, 500))
 
-    window.location.reload()
+    window.location.href = url.toString()
 })
 
 function close() {

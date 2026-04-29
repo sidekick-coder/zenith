@@ -37,7 +37,7 @@ export default async function({ acl, body }: HttpContext) {
         throw new BaseException(`Failed to install module: ${error.message}`, 422)
     }
 
-    server.reload()
+    setTimeout(() => server.reload(), 2000)
 
     return { success: true }
 }

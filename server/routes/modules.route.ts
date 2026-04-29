@@ -70,7 +70,7 @@ router.post('/:id/uninstall', async ({ params, body, acl }) => {
 
     await modules.uninstall(params.id)
 
-    server.reload()
+    setTimeout(() => server.reload(), 2000)
 
     return { success: true, }
 })
