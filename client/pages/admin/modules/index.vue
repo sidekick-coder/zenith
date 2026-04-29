@@ -65,18 +65,19 @@ const showInstall = ref(false)
 async function toggle(item: any) {
     toggling.value = true
 
-    await $fetch.try(`/api/modules/${item.id}/toggle`, { method: 'POST', })
+    const [error] = await $fetch.try(`/api/modules/${item.id}/toggle`, { method: 'POST', })
 
-    await new Promise(resolve => setTimeout(resolve, 5000))
+    if (error) {
+        toggling.value = false
+        return
+    }
 
-    // await server restart
-    await $server.online({ timeout: 60000, })
+    const url = new URL('/api/reloader', window.location.origin)
 
-    await new Promise(resolve => setTimeout(resolve, 5000))
+    url.searchParams.append('redirect_to', window.location.href)
+    url.searchParams.append('delay', '3000')
 
-    setTimeout(() => {
-        window.location.reload()
-    }, 800)
+    window.location.href = url.toString()
 }
 </script>
 <template>

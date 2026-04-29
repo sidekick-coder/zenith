@@ -10,54 +10,11 @@ import { tryCatch } from '#shared/utils/tryCatch.ts'
 import BaseException from '#server/exceptions/base.ts'
 import validator from '#shared/services/validator.service.ts'
 import server from '#server/facades/server.facade.ts'
-import config from '#server/facades/config.facade.ts'
-import schemas from '#shared/validators/index.ts'
 import seeder from '#server/facades/seeder.facade.ts'
 
 const router = root.use(authMiddleware)
     .prefix('/api/modules')
     .group()
-
-router.get('/', ({ acl }) => {
-    acl.authorize('list', 'Module')
-
-    return modules.list()
-})
-
-router.get('/:id', async ({ params, acl, query }) => {
-
-    const payload = validator.validate(query, v => v.object({
-        include: v.optional(
-            v.pipe(
-                schemas.url.array(),
-                v.array(v.picklist(['upgrade_info']))
-            )
-        ),
-    }))
-
-    const mod = await modules.findOrFail(params.id)
-
-    acl.authorize('read', mod)
-
-    if (payload.include?.includes('upgrade_info')) {
-        const info = config.get(`modules.${mod.id}`)
-
-        mod.upgrade_info = info || {}
-    }
-
-    return mod
-})
-
-
-router.post('/:id/toggle', async ({ params, acl }) => {
-    acl.authorize('update', 'Module')
-
-    await modules.toggle(params.id)
-
-    await server.reload()
-})
-
-
 
 router.post('/:id/install-dependencies', async ({ params, acl }) => {
     acl.authorize('update', 'Module')
@@ -156,59 +113,6 @@ router.post('/upgrade/zip', async ({ upload, body, acl }) => {
     server.reload()
 
     return { success: true }
-})
-
-router.post('/upgrade/git', async ({ body, acl }) => {
-    acl.authorize('update', 'Module')
-
-    const options = validator.validate(body, v => v.object({
-        id: v.string(),
-        repository: v.string(),
-        branch: v.optional(v.string()),
-        key: v.optional(v.string()),
-    }))
-
-    const mod = await modules.find(options.id)
-    
-    if (!mod) {
-        throw new BaseException('Module not found', 404)
-    }
-
-    const [error] = await tryCatch(() => modules.upgrader.fromGit({
-        id: options.id,
-        repository: options.repository,
-        branch: options.branch,
-        key: options.key
-    }))
-
-    if (error) {
-        throw new BaseException(`Failed to upgrade module: ${error.message}`)
-    }
-
-    server.reload()
-
-    return { success: true }
-})
-
-router.post('/install/git', async ({ body, acl }) => {
-    acl.authorize('create', 'Module')
-
-    const options = validator.validate(body, v => v.object({
-        id: v.string(),
-        repository: v.string(),
-        branch: v.optional(v.string()),
-        key: v.optional(v.string()),
-    }))
-
-    const [error] = await tryCatch(() => modules.installer.install(options))
-
-    if (error) {
-        throw new BaseException(`Failed to install module: ${error.message}`)
-    }
-
-    await modules.prepare(options.id)
-
-    return { success: true, }
 })
 
 root.get('/static/modules/:id/:context/*', async ({ params, response }) => {
