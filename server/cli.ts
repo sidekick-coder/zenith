@@ -1,5 +1,5 @@
 import fs from 'fs'
-import { ConfigManagerService, EnvService, basePath, importAll } from '@sidekick-coder/zenith-kit/server'
+import { ConfigManagerService, basePath, importAll } from '@sidekick-coder/zenith-kit/server'
 import ArteService from './services/arte.service.ts'
 import env from '#server/facades/env.facade.ts'
 import di from '#server/facades/di.facade.ts'

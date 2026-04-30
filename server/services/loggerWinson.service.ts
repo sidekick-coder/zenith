@@ -1,6 +1,6 @@
 import winston from 'winston'
 import chalk from 'chalk'
-import LoggerService from '#shared/services/logger.service.ts'
+import { LoggerService } from '@sidekick-coder/zenith-kit/shared'
 
 const { format } = winston
 
