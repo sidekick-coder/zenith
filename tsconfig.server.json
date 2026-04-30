@@ -38,7 +38,7 @@
   "include": [
     "vite.config.ts",
     "index.ts",
-    "arte",
+    "artisan.js",
     "server/**/*.ts",
     "shared/**/*.ts",
     "modules/**/server/**/**/*.ts"

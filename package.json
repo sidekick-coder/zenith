@@ -11,11 +11,11 @@
         "#modules/*": "./modules/*"
     },
     "scripts": {
-        "start": "node arte serve",
-        "dev": "node arte serve -w",
-        "build": "node arte build",
+        "start": "node artisan serve",
+        "dev": "node artisan serve -w",
+        "build": "node artisan build",
         "lint": "eslint",
-        "test": "node arte test",
+        "test": "node artisan test",
         "test:unit": "vitest run --project unit",
         "test:int": "vitest run --project int",
         "docs:dev": "vitepress dev docs",
