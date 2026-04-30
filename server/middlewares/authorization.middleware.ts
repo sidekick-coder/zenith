@@ -8,7 +8,6 @@ import Acl from '#server/entities/acl.entity.ts'
 import Permission from '#server/entities/permission.entity.ts'
 import config from '#server/facades/config.facade.ts'
 import logger from '#server/facades/logger.facade.ts'
-import type User from '#shared/entities/user.entity.ts'
 import permissionRepository from '#server/facades/permissionRepository.ts'
 import permissionAssignmentRepository from '#server/facades/permissionAssignmentRepository.ts'
 

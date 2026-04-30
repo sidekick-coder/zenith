@@ -53,36 +53,49 @@ export default class ModulesService {
     }
 
     public async discover() {
-        const folder = basePath('modules')
-        const modulesDirectories = []
-        const dirs = await fs.promises.readdir(folder, { withFileTypes: true })
+        const entries = [] as { id: string, directory: string }[]
 
-        const moduleNames = dirs
-            .filter(dirent => dirent.isDirectory())
-            .map(dirent => dirent.name)
-
-        modulesDirectories.push(...moduleNames.map(name => path.join(folder, name)))
-
-        if (env.has('ZENITH_MODULE_EXTRAS')) {
-            const extraPaths = env.get('ZENITH_MODULE_EXTRAS')
-
-            for (const extraPath of extraPaths) {
-                if (!fs.existsSync(extraPath)) {
-                    this.logger.warn(`Extra modules path '${extraPath}' does not exist, skipping`)
-                    continue
-                }
-
-                modulesDirectories.push(extraPath)
+        for (const dirent of fs.readdirSync(basePath('modules'), { withFileTypes: true })) {
+            if (!dirent.isDirectory()) {
+                continue
             }
+
+            const id = dirent.name
+            const directory = basePath('modules', id)
+
+            entries.push({
+                id,
+                directory
+            })
+
         }
 
+        for (const e of Object.values<any>(env.get('ZENITH_MODULE_EXTRAS', {}))) {
+            const id = e.id
+            const directory = e.directory
 
-        for (const moduleDirectory of modulesDirectories) {
-            const manifestPath = path.join(moduleDirectory, 'module.json')
-            const name = path.basename(moduleDirectory)
+            if (!id || !directory) {
+                this.logger.warn('Invalid extra module entry, missing id or directory, skipping', e)
+                continue
+            }
+
+            if (!fs.existsSync(directory)) {
+                this.logger.warn(`Extra module directory '${directory}' does not exist, skipping`, e)
+                continue
+            }
+
+            entries.push({
+                id,
+                directory
+            })
+        }
+
+        for (const entry of entries) {
+            const manifestPath = path.join(entry.directory, 'module.json')
+            const id = entry.id
 
             if (!fs.existsSync(manifestPath)) {
-                this.logger.warn(`No manifest found for module '${name}', skipping`)
+                this.logger.warn(`No manifest found for module '${id}', skipping`)
                 continue
             }
 
@@ -93,19 +106,19 @@ export default class ModulesService {
             })
 
             if (error) {
-                this.logger.error(`Failed to read manifest for module '${name}'`, error)
+                this.logger.error(`Failed to read manifest for module '${id}'`, error)
                 continue
             }
 
-            this.manifests.set(name, ModuleManifest.from({
+            this.manifests.set(id, ModuleManifest.from({
                 ...json,
-                id: name,
-                enabled: config.get(`modules.${name}.enabled`, false),
-                directory: moduleDirectory,
+                id: id,
+                enabled: config.get(`modules.${id}.enabled`, false),
+                directory: entry.directory,
             }))
 
             if (this.debug) {
-                this.logger.debug(`discovered module '${name}'`, json)
+                this.logger.debug(`discovered module '${id}'`, json)
             }
         }
 
