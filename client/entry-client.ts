@@ -1,3 +1,6 @@
+import './imports'
+import './assets/styles.css'
+
 import { createHead } from '@unhead/vue/client'
 import type { App } from 'vue'
 import di from './utils/di'
@@ -7,10 +10,12 @@ import ModulesDevService from './services/modulesDev.service.ts'
 import type { Router } from './router.ts'
 import FetchBrowserService from './services/fetchBrowser.service.ts'
 import FetchService from './services/fetch.service.ts'
-import config from '#client/facades/config.facade'
+import ConfigService from '#shared/services/config.service.ts'
 import lifecycle from '#client/facades/lifecycle.facade.ts'
-import './imports'
-import './assets/styles.css'
+
+const config = new ConfigService()
+
+di.set(ConfigService, config)
 
 di.loadFromRecord(window.__CONTAINER__ || {})
 config.loadFromRecord(window.__CONFIG__ || [])

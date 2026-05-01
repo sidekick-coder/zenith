@@ -27,9 +27,7 @@ export default class AppLifecycleHook extends LifecycleHook {
         app.config.globalProperties.$d = $d
         app.config.globalProperties.$translator = $translator
 
-        app.use<Vue3TouchEventsOptions>(Vue3TouchEvents, {
-            disableClick: false,
-        })
+        app.use<Vue3TouchEventsOptions>(Vue3TouchEvents, { disableClick: false, })
     }
 
     public async onShutdown(): Promise<void> {

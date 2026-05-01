@@ -1,3 +1,6 @@
+import './imports'
+import './assets/styles.css'
+
 import { pathToFileURL } from 'url'
 import fs from 'fs'
 import { renderToString } from 'vue/server-renderer'
@@ -5,7 +8,6 @@ import type { App } from 'vue'
 import { createHead } from '@unhead/vue/server'
 import * as VueServerRenderer from 'vue/server-renderer'
 import di from './utils/di'
-import config from './facades/config.facade'
 import lifecycle from './facades/lifecycle.facade.ts'
 import ModulesService from './services/modules.service.ts'
 import ModulesNodeService from './services/modulesNode.service.ts'
@@ -15,8 +17,12 @@ import FetchNodeService from './services/fetchNode.service.ts'
 import FetchService from './services/fetch.service.ts'
 import RouterService from '#server/services/router.service.ts'
 import ViteEntryPointService from '#shared/services/viteEntryPoint.service.ts'
-import './imports'
-import './assets/styles.css'
+import ConfigService from '#shared/services/config.service.ts'
+
+
+const config = new ConfigService()
+
+di.set(ConfigService, config)
 
 if (!globalThis.imports) {
     globalThis.imports = new Map<string, () => Promise<any>>()

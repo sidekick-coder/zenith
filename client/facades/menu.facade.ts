@@ -1,5 +1,4 @@
-import MenuService from '#client/services/menu.service.ts'
+import { menu } from '@sidekick-coder/zenith-kit/client'
 
-const menu = new MenuService()
-
+/** @deprecated use menu from '@sidekick-coder/zenith-kit/client' instead */
 export default menu

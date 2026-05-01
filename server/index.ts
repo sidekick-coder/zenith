@@ -56,5 +56,3 @@ await lifecycle.register()
 await lifecycle.load()
 
 await lifecycle.boot()
-
-

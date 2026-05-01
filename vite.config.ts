@@ -1,3 +1,4 @@
+import path from 'node:path'
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import tailwindcss from '@tailwindcss/vite'
@@ -16,11 +17,19 @@ if (process.env.VITEST_ALLOWED_HOSTS) {
 
 export default defineConfig({
     clearScreen: false,
+    root: import.meta.dirname,
     plugins: [
-        vue({ template: { compilerOptions: { isCustomElement: (tag) => tag.startsWith('iconify-icon'), } } }), 
+        vue({ template: { compilerOptions: { isCustomElement: (tag) => tag.startsWith('iconify-icon'), } } }),
         tailwindcss()
     ],
-    publicDir: 'client/public',
+    publicDir: path.resolve(import.meta.dirname, 'client/public'),
+    resolve: {
+        // dedupe: ['vue'],
+        // alias: {
+        //     'vue/server-renderer': path.resolve(import.meta.dirname, 'node_modules/vue/server-renderer/index.mjs'),
+        //     vue: path.resolve(import.meta.dirname, 'node_modules/vue/dist/vue.esm-bundler.js'),
+        // }
+    },
     server: {
         allowedHosts,
         watch: {

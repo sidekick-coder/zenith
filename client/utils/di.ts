@@ -1,9 +1,7 @@
-import DIService from '#shared/services/di.service.ts'
-
-const di = new DIService()
+import { container } from '@sidekick-coder/zenith-kit/client'
 
 if (import.meta.env.DEV) {
-    globalThis.di = di
+    globalThis.di = container
 }
 
-export default di
+export default container

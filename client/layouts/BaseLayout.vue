@@ -8,6 +8,8 @@ import {
 import type { PropType } from 'vue'
 import { useRoute } from 'vue-router'
 import { truncate } from 'lodash-es'
+import { useHead } from '@unhead/vue'
+import { menu } from '@sidekick-coder/zenith-kit/client'
 import AdminLayoutDefaultMenu from './AdminLayoutDefaultMenu.vue'
 import AdminLayoutPlainMenu from './AdminLayoutPlainMenu.vue'
 import AdminLayoutUserMenu from './AdminLayoutUserMenu.vue'
@@ -34,10 +36,8 @@ import {
 } from '#client/components/ui/sidebar'
 import { $fetch } from '#client/utils/fetcher.ts'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
-import menu from '#client/facades/menu.facade.ts'
 import Icon from '#client/components/Icon.vue'
 import { cn } from '#client/lib/utils.ts'
-import { useHead } from '@unhead/vue'
 
 export interface BreadcrumbItem {
     label: string;
@@ -47,15 +47,9 @@ export interface BreadcrumbItem {
 </script>
 <script setup lang="ts">
 
-defineOptions({
-    inheritAttrs: false,
-})
+defineOptions({ inheritAttrs: false, })
 
-useHead({
-   bodyAttrs: {
-       class: 'admin',
-   },
-})
+useHead({ bodyAttrs: { class: 'admin', }, })
 
 const open = ref(true)
 const loading = ref(true)

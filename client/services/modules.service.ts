@@ -42,10 +42,12 @@ export default class ModulesService {
         for (const manifest of manifests) {
             const importFn = this.imports.get(manifest.id)
 
+
             if (!importFn) {
                 console.warn(`No import function found for module ${manifest.id}`)
                 continue
             }
+
 
             const [error, mod] = await tryCatch(async () => {
                 const modImport = await importFn()

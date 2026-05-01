@@ -149,10 +149,7 @@ export default class ViteService extends compose(Hooks) {
             customLogger: viteLogger,
             server: { middlewareMode: true },
             appType: 'custom',
-            publicDir: basePath('client', 'public'),
             configFile: basePath('vite.config.ts'),
-            root: basePath(),
-            resolve: { alias: { 'vue': 'vue/dist/vue.esm-bundler.js', } }
         })
 
         app.use(this.server.middlewares)

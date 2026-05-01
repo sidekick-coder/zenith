@@ -1,12 +1,7 @@
-import logger from '#client/facades/logger.facade.ts'
-import config from '#client/facades/config.facade.ts'
 import LifecycleService from '#shared/services/lifecycle.service.ts'
 import type LifecycleHook from '#shared/entities/lifecycleHook.entity.ts'
 
-const lifecycle = new LifecycleService({
-    debug: config.get('lifecycle.debug') || config.get('app.debug'),
-    logger: logger.child({ label: 'lifecycle' }),
-})
+const lifecycle = new LifecycleService()
 
 const hooks = Object
     .values<any>(import.meta.glob('../hooks/**/*.hook.ts', { eager: true }))
