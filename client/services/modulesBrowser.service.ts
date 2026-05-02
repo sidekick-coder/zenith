@@ -7,9 +7,6 @@ export default class ModulesBrowserService extends ModulesService {
     public async discover() {
         const manifests = di.get<ModuleManifest[]>('modules')
 
-        console.log('ModulesBrowserService: discovering modules', manifests)
-
-
         for (const manifest of manifests) {
             if (!manifest.entrypoints?.browser) continue 
 

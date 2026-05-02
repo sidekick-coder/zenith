@@ -12,12 +12,16 @@ import ModulesDevService from './services/modulesDev.service.ts'
 import type { Router } from './router.ts'
 import FetchBrowserService from './services/fetchBrowser.service.ts'
 import FetchService from './services/fetch.service.ts'
+import ClientLoggerService from './services/logger.service.ts'
 import ConfigService from '#shared/services/config.service.ts'
 import lifecycle from '#client/facades/lifecycle.facade.ts'
+import LoggerService from '#shared/services/logger.service.ts'
 
 const config = new ConfigService()
+const logger = new ClientLoggerService()
 
 di.set(ConfigService, config)
+di.set(LoggerService, logger)
 
 di.loadFromRecord(window.__CONTAINER__ || {})
 config.loadFromRecord(window.__CONFIG__ || [])

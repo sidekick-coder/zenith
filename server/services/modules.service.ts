@@ -28,6 +28,8 @@ interface Manifest {
 }
 
 export default class ModulesService {
+    public static __container_entry_key = 'ModulesService'
+
     public installer: ModuleInstallerService
     public upgrader: ModuleUpgraderService
     public builder: ModuleBuilderService

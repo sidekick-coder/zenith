@@ -1,11 +1,11 @@
 import { stripVTControlCharacters } from 'util'
 import fs from 'fs'
 import type { Application } from 'express'
-import { createLogger, createServer as createViteServer  } from 'vite'
+import { createLogger, createServer as createViteServer } from 'vite'
 import type { ViteDevServer } from 'vite'
 import express from 'express'
 import type { Request, Response } from 'express'
- 
+
 import { transformHtmlTemplate } from '@unhead/vue/server'
 import { basePath } from '@sidekick-coder/zenith-kit/server'
 import CookieService from './cookie.service.ts'
@@ -85,7 +85,7 @@ export default class ViteService extends compose(Hooks) {
         this.state.set(key, value)
     }
 
-    public async loadEntryNode(){
+    public async loadEntryNode() {
         const start = Date.now()
 
         if (this.debug) {
@@ -118,7 +118,9 @@ export default class ViteService extends compose(Hooks) {
             router: router
         }
 
-        await this.entrypoint.load(options)
+        const result = await this.entrypoint.load(options)
+
+        this.clientContainer.loadFromRecord(result.container || {})
 
         if (this.debug) {
             this.logger.debug(`vite entrypoint loaded in ${Date.now() - start}ms`)
@@ -130,7 +132,7 @@ export default class ViteService extends compose(Hooks) {
             app.use(express.static(basePath('client-dist', 'browser')))
             return
         }
-        
+
         const viteLogger = createLogger()
 
         const log: typeof viteLogger.info = (msg, opts) => {
@@ -187,7 +189,7 @@ export default class ViteService extends compose(Hooks) {
                 .child('link')
                 .attr('rel', 'stylesheet')
                 .attr('href', '/client/assets/styles.css')
-            
+
             head
                 .child('script')
                 .attr('type', 'module')
@@ -202,12 +204,12 @@ export default class ViteService extends compose(Hooks) {
         if (!manifest) {
             const text = await fs.promises.readFile(basePath('client-dist', 'browser', '.vite', 'manifest.json'), 'utf-8')
 
-            manifest = JSON.parse(text) 
+            manifest = JSON.parse(text)
 
             this.manifest = manifest
         }
 
-        let entry = null 
+        let entry = null
 
         for (const value of Object.values<any>(manifest)) {
             if (value.isEntry) {
@@ -221,7 +223,7 @@ export default class ViteService extends compose(Hooks) {
             return
         }
 
-        entry.css?.forEach( (file: string) => {
+        entry.css?.forEach((file: string) => {
             head.child('link')
                 .attr('rel', 'stylesheet')
                 .attr('href', `/${file}`)
@@ -250,7 +252,7 @@ export default class ViteService extends compose(Hooks) {
         const head = html.child('head')
 
         await this.head(head)
-        
+
         // body
         const body = html.child('body')
 
@@ -314,13 +316,13 @@ export default class ViteService extends compose(Hooks) {
     public async handle({ url, response, request }: HandleOptions) {
         const cookie = new CookieService(request, response)
 
-        const token = cookie.get('Authorization', '') 
-                || request.headers['authorization'] as string
-                || ''
+        const token = cookie.get('Authorization', '')
+            || request.headers['authorization'] as string
+            || ''
 
         const state = new Map<string, any>()
 
-        if (token) {                
+        if (token) {
             state.set('auth:user', await auth.authenticate(token))
         }
 
@@ -337,7 +339,7 @@ export default class ViteService extends compose(Hooks) {
 
         state.set('head', {
             title: config.get('site.name') || 'Zenith',
-            htmlAttrs: { 
+            htmlAttrs: {
                 lang: config.get('translator.defaultLocale') || 'en',
                 class: state.get('preferences:dark_mode') ? 'dark' : 'light'
             }
@@ -365,7 +367,7 @@ export default class ViteService extends compose(Hooks) {
             config: clientConfig.toRecord(),
         }
 
-        const [error, html] = await tryCatch( () => this.render(options) )
+        const [error, html] = await tryCatch(() => this.render(options))
 
         if (error) {
             Object.assign(error, { url })
@@ -374,7 +376,7 @@ export default class ViteService extends compose(Hooks) {
             response.status(500).end(error.stack)
             return
         }
-        
+
         return response
             .status(200)
             .set({ 'Content-Type': 'text/html' })
@@ -383,7 +385,7 @@ export default class ViteService extends compose(Hooks) {
 
     public async close() {
         if (!this.server) return
-        
+
         await this.server.close()
 
         if (this.debug) {

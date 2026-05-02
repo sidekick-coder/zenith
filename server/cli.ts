@@ -20,7 +20,11 @@ const logger = LoggerWinsonService.create({
 
 
 const config = await ConfigManagerService
-    .create(env, logger.child({ label: 'config' }))
+    .create({
+        env: env,
+        logger: logger.child({ label: 'config' }),
+        silent: true
+    })
     .load()
 
 const arte = new ArteService()

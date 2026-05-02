@@ -25,7 +25,10 @@ const logger = LoggerWinsonService.create({
 })
 
 const config = await ConfigManagerService
-    .create(env, logger.child({ label: 'config' }))
+    .create({ 
+        env: env, 
+        logger: logger.child({ label: 'config' }) 
+    })
     .load()
 
 const lifecycle = new LifecycleService({

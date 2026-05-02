@@ -1,10 +1,7 @@
-import ClientLoggerService from '#client/services/logger.service'
-import di from '#client/utils/di.ts'
+import { logger } from '@sidekick-coder/zenith-kit/client'
 
-const client = new ClientLoggerService()
-
-di.set('logger', client)
-
-const logger = di.proxy<ClientLoggerService>('logger')
-
+/** @deprecated use @sidekick-coder/zenith-kit/client instead */
 export default logger
+
+
+

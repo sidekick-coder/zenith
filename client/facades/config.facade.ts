@@ -1,10 +1,6 @@
-import { container } from '@sidekick-coder/zenith-kit/client'
-import ConfigService from '#shared/services/config.service.ts'
+import { config } from '@sidekick-coder/zenith-kit/client'
 
-const config = container.proxy<ConfigService>(ConfigService)
-
-if (import.meta.env.DEV) {
-    globalThis.config = config
-}
-
+/** @deprecated use @sidekick-coder/zenith-kit/client instead */
 export default config
+
+

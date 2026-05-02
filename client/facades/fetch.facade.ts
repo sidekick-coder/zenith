@@ -1,6 +1,7 @@
-import FetchService from '#client/services/fetch.service.ts'
-import di from '#client/utils/di.ts'
+import { $fetch } from '@sidekick-coder/zenith-kit/client'
 
-const $fetch = di.proxy<FetchService>(FetchService)
-
+/** @deprecated use @sidekick-coder/zenith-kit/client instead */
 export default $fetch
+
+
+

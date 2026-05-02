@@ -1,5 +1,4 @@
 import type Module from '#client/entities/module.entity.ts'
-import logger from '#client/facades/logger.facade.ts'
 import di from '#client/utils/di.ts'
 import type ModuleManifest from '#shared/entities/moduleManifest.entity.ts'
 import LoggerService from '#shared/services/logger.service.ts'
@@ -12,6 +11,8 @@ export interface ImportModule {
 export type ImportModuleFunction = () => Promise<ImportModule>
 
 export default class ModulesService {
+    public static __container_entry_key = 'ModulesService'
+
     public mods: Module[]
     public debug: boolean
     public logger: LoggerService
@@ -20,7 +21,7 @@ export default class ModulesService {
     constructor(data: Partial<ModulesService> = {}) {
         this.mods = []
         this.debug = data.debug ?? false
-        this.logger = data.logger || logger.child({ label: 'modules' })
+        this.logger = data.logger || new LoggerService()
         this.imports = new Map()
 
         if (this.debug) {
@@ -47,7 +48,6 @@ export default class ModulesService {
                 console.warn(`No import function found for module ${manifest.id}`)
                 continue
             }
-
 
             const [error, mod] = await tryCatch(async () => {
                 const modImport = await importFn()

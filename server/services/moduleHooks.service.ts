@@ -71,8 +71,4 @@ export default class ModuleHooksService {
 
     }
 
-    public async onRegister(): Promise<void> {}
-    public async onLoad(): Promise<void> {}
-    public async onBoot(): Promise<void> {}
-    public async onShutdown(): Promise<void> {}
 }

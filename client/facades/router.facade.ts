@@ -1,6 +1,8 @@
-import di from '#client/utils/di.ts'
-import type { Router } from '#client/router.ts'
+import { router } from '@sidekick-coder/zenith-kit/client'
 
-const router = di.proxy<Router>('router')
-
+/** @deprecated use @sidekick-coder/zenith-kit/client instead */
 export default router
+
+
+
+

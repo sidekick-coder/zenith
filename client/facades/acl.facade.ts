@@ -1,6 +1,4 @@
-import di from '#client/utils/di.ts'
-import type Acl from '#shared/entities/acl.entity.ts'
+import { acl } from '@sidekick-coder/zenith-kit/client'
 
-const acl = di.proxy<Acl>('acl')
-
+/** @deprecated use @sidekick-coder/zenith-kit/client instead */
 export default acl

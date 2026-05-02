@@ -80,7 +80,15 @@ export default class ModulesClientLifecycleHook extends LifecycleHook {
             }
         }
 
-        vite.addDependency('modules', mods)
+        const clientModules = mods.map((mod: any) => ({
+            id: mod.id,
+            name: mod.name,
+            description: mod.description,
+            version: mod.version,
+            entrypoints: mod.entrypoints
+        }))
+
+        vite.addDependency('modules', clientModules)
 
         vite.on('vite:render', ({ head }: ViteServiceEvents['vite:render']) => {
             assets.forEach(asset => {

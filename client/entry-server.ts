@@ -20,6 +20,7 @@ import FetchService from './services/fetch.service.ts'
 import RouterService from '#server/services/router.service.ts'
 import ViteEntryPointService from '#shared/services/viteEntryPoint.service.ts'
 import ConfigService from '#shared/services/config.service.ts'
+import LoggerService from '#shared/services/logger.service.ts'
 
 
 const config = new ConfigService()
@@ -44,30 +45,32 @@ export async function importDynamicModule(modulePath: string) {
 
 export default class EntryNode extends ViteEntryPointService {
     public load: ViteEntryPointService['load'] = async (options) => {
+        di.set(LoggerService, options.logger)
+        di.set('isServer', true)
+
         di.loadFromRecord(options.container || {})
 
         const serviceOptions = { debug: config.get('modules.debug') || config.get('app.debug') }
 
         const useNodeService = config.get('modules.node.service') === 'node' || import.meta.env.PROD
 
-        di.set(ModulesService, useNodeService
-            ? new ModulesNodeService(serviceOptions)
-            : new ModulesDevService(serviceOptions)
-        )
-        
+        const modulesService = useNodeService ? new ModulesNodeService(serviceOptions) : new ModulesDevService(serviceOptions)
+
+        await modulesService.discover()
+
+        di.set(ModulesService, modulesService)
         di.set(FetchService, new FetchNodeService())
         di.set(RouterService, options.router)
 
-        di.set('logger', options.logger)
 
-        di.set('isServer', true)
+        return { container: { modules: di.get('modules') } }
     }
 
     public render: ViteEntryPointService['render'] = async (context) => {
         config.loadFromRecord(context.config || {})
         di.set('state', context.state || {})
         di.set('cookies', context.cookies)
-        
+
         await lifecycle.register()
         await lifecycle.load()
         await lifecycle.boot()
