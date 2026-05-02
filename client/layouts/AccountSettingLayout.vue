@@ -1,8 +1,6 @@
 <script setup lang="ts">
+import { BaseLayout, UserMenu } from '@sidekick-coder/zenith-kit/client'
 import { SidebarFooter } from '../components/ui/sidebar'
-import AdminLayoutUserMenu from './AdminLayoutUserMenu.vue'
-import BaseLayout from './BaseLayout.vue'
-import auth from '#client/facades/auth.facade.ts'
 
 const userLinks = [
     {
@@ -25,9 +23,8 @@ const userLinks = [
 
         <template #sidebar-footer>
             <SidebarFooter>
-                <AdminLayoutUserMenu
+                <UserMenu
                     :links="userLinks"
-                    @logout="auth.logout" 
                 />
             </SidebarFooter>
         </template>

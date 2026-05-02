@@ -1,9 +1,6 @@
 <script setup lang="ts">
-import { SidebarFooter, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '../components/ui/sidebar'
-import AdminLayoutUserMenu from './AdminLayoutUserMenu.vue'
-import BaseLayout from './BaseLayout.vue'
-import Icon from '#client/components/Icon.vue'
-import auth from '#client/facades/auth.facade.ts'
+import { BaseLayout, UserMenu } from '@sidekick-coder/zenith-kit/client'
+import { SidebarFooter } from '../components/ui/sidebar'
 
 const userLinks = [
     {
@@ -21,14 +18,11 @@ const userLinks = [
         home-path="/admin"
         title="Admin Dashboard"
     >
-        <slot /> 
+        <slot />
 
         <template #sidebar-footer>
             <SidebarFooter>
-                <AdminLayoutUserMenu
-                    :links="userLinks"
-                    @logout="auth.logout" 
-                />
+                <UserMenu :links="userLinks" />
             </SidebarFooter>
         </template>
     </BaseLayout>
