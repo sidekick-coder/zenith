@@ -83,6 +83,7 @@ export default class ModulesClientLifecycleHook extends LifecycleHook {
         const clientModules = mods.map((mod: any) => ({
             id: mod.id,
             name: mod.name,
+            enabled: mod.enabled,
             description: mod.description,
             version: mod.version,
             entrypoints: mod.entrypoints
