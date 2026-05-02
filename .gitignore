@@ -43,3 +43,6 @@ client-dist
 tmp
 docs/.vitepress/cache
 *.db
+
+client/.modules/*
+!client/.modules/.gitkeep

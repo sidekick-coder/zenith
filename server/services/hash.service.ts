@@ -1,6 +1,8 @@
 import bcrypt from 'bcrypt'
 
 export default class HashService {
+    public static __container_entry_key = 'HashService'
+
     public hash(value: string): Promise<string> {
         return bcrypt.hash(value, 12)
     }

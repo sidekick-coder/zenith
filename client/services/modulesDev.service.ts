@@ -9,9 +9,16 @@ export default class ModulesDevService extends ModulesService {
         
         this.imports = new Map()
 
-        let imports: any = await import('#client/.runtime/modules.ts')
+        const files  = import.meta.glob('../.modules/*.ts', { eager: true })
 
-        imports = imports.default || imports
+
+        const imports: Record<string, any> = {}
+
+        for (const [path, mod] of Object.entries<any>(files)) {
+            const id = path.split('/').slice(-1)[0].split('.ts')[0]
+
+            imports[id] = mod.default || mod
+        }
 
     
         for (const [id, importFn] of Object.entries(imports)) {

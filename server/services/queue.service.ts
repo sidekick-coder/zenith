@@ -9,6 +9,8 @@ import LoggerService from '#shared/services/logger.service.ts'
 import db from '#server/facades/db.facade.ts'
 
 export default class QueueService {
+    public static __container_entry_key = 'MailerService'
+
     public jobs: Job[] = []
     public jobConstructors = new Map<string, typeof Job>()
     public intervalId: NodeJS.Timeout | null = null
@@ -149,9 +151,7 @@ export default class QueueService {
             return
         }
 
-        this.logger.info('started', {
-            jobs: this.jobConstructors.size
-        })
+        this.logger.info('started', { jobs: this.jobConstructors.size })
 
         let running = false
 
@@ -162,9 +162,7 @@ export default class QueueService {
 
             running = true
 
-            const pendingJobs = await Job.list({
-                query: q => q.selectAll().where('status', '=', 'pending')
-            })
+            const pendingJobs = await Job.list({ query: q => q.selectAll().where('status', '=', 'pending') })
 
             for await (const job of pendingJobs) {
                 await this.process(job)
@@ -215,9 +213,7 @@ export default class QueueService {
 
         }
 
-        const [error, all] = await tryCatch(async () => await Job.list({
-            query: q => q.selectAll().where('status', '=', 'pending')
-        }))
+        const [error, all] = await tryCatch(async () => await Job.list({ query: q => q.selectAll().where('status', '=', 'pending') }))
 
         if (error) {
             this.logger.error('failed to load pending jobs skipping start', error)

@@ -17,6 +17,9 @@ interface ValidateUploadOptions {
 }
 
 export default class DriveService {
+    public static __container_entry_key = 'DriveService'
+
+
     public gateways: Map<string, typeof BaseDrive>
     public drives: Map<string, BaseDrive> = new Map()
     public selected?: string
@@ -218,9 +221,7 @@ export default class DriveService {
         await DriveConfig.updateOrCreate('storage-uploads', {
             name: 'Uploads',
             type: 'fs',
-            config: {
-                directory: storagePath('uploads')
-            }
+            config: { directory: storagePath('uploads') }
         })
 
         if (!config.get('drive.default')) {

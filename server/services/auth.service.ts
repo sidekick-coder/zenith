@@ -27,6 +27,8 @@ export interface AuthResult {
 }
 
 export default class AuthService {
+    public static __container_entry_key = 'AuthService'
+
     private tokenService = new TokenService()
 
     async createTokenForUser(userId: number, type: string = 'auth', expiresInHours?: number) {

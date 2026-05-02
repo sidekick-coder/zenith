@@ -27,3 +27,5 @@ globalThis.$dt = service.datetime.bind(service)
 globalThis.$d = service.date.bind(service)
 globalThis.$translator = service
 
+
+export default service

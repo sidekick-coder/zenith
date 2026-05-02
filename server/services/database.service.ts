@@ -5,15 +5,15 @@ import SQLite from 'better-sqlite3'
 import { createPool } from 'mysql2'
 import { Pool } from 'pg'
 import type { Database } from '../contracts/database.contract.ts'
-import config from '#server/facades/config.facade.ts'
 import di from '#server/facades/di.facade.ts'
 import { basePath } from '#server/utils/paths.ts'
 import validator from '#shared/services/validator.service.ts'
 import schemas from '#shared/validators/index.ts'
-import env from '#server/facades/env.facade.ts'
 import LoggerService from '#shared/services/logger.service.ts'
 
 export default class DatabaseService extends Kysely<Database> {
+    public static __container_entry_key = 'DatabaseService'
+
     public defaultConnection = 'memory'
     public connections: Record<string, any> = {}
     public currentConnection: string | null = null

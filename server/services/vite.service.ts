@@ -52,6 +52,8 @@ export interface ViteServiceEvents {
 }
 
 export default class ViteService extends compose(Hooks) {
+    public static __container_entry_key = 'ViteService'
+
     public logger = logger.child({ label: 'vite' })
     public server: ViteDevServer | undefined
     public entrypoint: ViteEntryPointService | null = null

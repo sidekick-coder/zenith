@@ -22,6 +22,8 @@ export interface LoadOptions {
 }
 
 export default class ExpressService {
+    public static __container_entry_key = 'AppService'
+
     public app: express.Application
     public server: Server | null = null
     public router: Router

@@ -44,5 +44,7 @@ export default defineConfig({
                 '**/*.{test,spec}.{ts,js}', // Ignores test files
             ]
         },
-    }
+    },
+    build: { minify: process.env.NO_MINIFY === 'true' ? false : undefined, }
+
 })

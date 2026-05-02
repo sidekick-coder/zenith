@@ -7,10 +7,13 @@ export default class ModulesBrowserService extends ModulesService {
     public async discover() {
         const manifests = di.get<ModuleManifest[]>('modules')
 
-        for (const manifest of manifests) {
-            const url = new URL(`/static/modules/${manifest.id}/browser/module.client.js`, window.location.origin)
+        console.log('ModulesBrowserService: discovering modules', manifests)
 
-            url.searchParams.set('t', Date.now().toString()) // bust cache
+
+        for (const manifest of manifests) {
+            if (!manifest.entrypoints?.browser) continue 
+
+            const url = new URL(manifest.entrypoints.browser, window.location.origin)
 
             const importFn: ImportModuleFunction = () => import(/* @vite-ignore */ url.toString())
 

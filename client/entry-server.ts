@@ -1,5 +1,6 @@
-import './imports'
 import './translator.ts'
+
+import './imports'
 import './assets/styles.css'
 
 import { pathToFileURL } from 'url'

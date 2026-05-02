@@ -3,6 +3,8 @@ import chalk from 'chalk'
 import { table } from '../utils/index.ts'
 
 export default class ArteService extends Command {
+    public static __container_entry_key = 'ArteService'
+
     public needs: Set<string> = new Set()
     public table: typeof table = table
     public colors = chalk
