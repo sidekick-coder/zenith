@@ -2,6 +2,8 @@ import './translator.ts'
 
 import './imports'
 import './assets/styles.css'
+import '@sidekick-coder/zenith-kit/styles'
+
 
 import { pathToFileURL } from 'url'
 import fs from 'fs'
