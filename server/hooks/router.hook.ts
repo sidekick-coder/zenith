@@ -11,6 +11,8 @@ import RouterFileBaseRoutingService from '#server/services/routerFileBaseRouting
 
 export default class RouterLifecycleHook extends LifecycleHook {
     public order = 97
+    public hook_aliases = ['router']
+
     public async onRegister(): Promise<void> {
         const router = new RouterRegister({
             debug: config.get('router.debug') || config.get('app.debug') || false,

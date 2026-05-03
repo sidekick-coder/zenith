@@ -5,7 +5,6 @@ import env from '#server/facades/env.facade.ts'
 import di from '#server/facades/di.facade.ts'
 import LoggerService from '#shared/services/logger.service.ts'
 import LoggerWinsonService from '#server/services/loggerWinson.service.ts'
-import LifecycleHook from '#shared/entities/lifecycleHook.entity.ts'
 import ConfigService from '#shared/services/config.service.ts'
 
 const logger = LoggerWinsonService.create({
@@ -62,40 +61,22 @@ for await (const name of moduleNames) {
     }
 }
 
-const alias: Record<string, string> = {
-    'translator': 'TrasnlatorLifecycleHook',
-    'db': 'DatabaseLifecycleHook',
-    'modules': 'ModulesLifecycleHook',
-    'drive': 'DriveLifecycleHook',
-    'mailer': 'MailerLifecycleHook',
-    'router': 'RouterLifecycleHook',
-    'shell': 'ExtrasLifecycleHook',
-}
-
 async function onPreAction(command: ArteService) {
-    const needs = Array.from(command.needs).map(need => alias[need] || need)
+    const include = Array.from(command.needs)
     const defaults = ['TrasnlatorLifecycleHook']
 
-    needs.unshift(...defaults)
+    include.unshift(...defaults)
 
-    const exclude = lifecycle.list()
-        .filter(hook => !needs.includes(hook.hook_id))
-        .map(hook => hook.hook_id)
-
-    await lifecycle.emit(['register', 'load', 'boot'], { exclude })
+    await lifecycle.emit(['register', 'load', 'boot'], { include })
 }
 
 async function onPostAction(command: ArteService) {
-    const needs = Array.from(command.needs).map(need => alias[need] || need)
+    const include = Array.from(command.needs)
     const defaults = ['TrasnlatorLifecycleHook']
 
-    needs.unshift(...defaults)
-    
-    const exclude = lifecycle.list()
-        .filter(hook => !needs.includes(hook.hook_id))
-        .map(hook => hook.hook_id)
+    include.unshift(...defaults)
 
-    await lifecycle.emit('shutdown', { exclude })
+    await lifecycle.emit('shutdown', { include })
 }
 
 cli.name('arte')
