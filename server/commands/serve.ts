@@ -60,7 +60,7 @@ async function stop() {
             logger.warn('Server process did not exit in time, ending watching...')
 
             process.exit(1)
-        }, 3000)
+        }, 15000)
 
         current.once('exit', () => {
             clearTimeout(timeout)

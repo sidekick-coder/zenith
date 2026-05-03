@@ -41,8 +41,6 @@ container
     .set(ConfigService, config)
 
 async function exit(code = 0) {
-    await lifecycle.shutdown()
-
     process.exit(code)
 }
 
