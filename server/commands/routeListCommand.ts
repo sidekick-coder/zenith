@@ -2,29 +2,42 @@ import { orderBy } from 'lodash-es'
 import arte from '#server/facades/arte.facade.ts'
 import type { TableColumn } from '#server/utils/cliUi.ts'
 import router from '#server/facades/router.facade.ts'
-import { table  } from '#server/utils/cliUi.ts'
+import { table } from '#server/utils/cliUi.ts'
 
 arte
     .command('route:list')
-    .need('router', 'modules')
+    .need('router', 'modules', 'plugins')
     .option('--json', 'Output in JSON format')
     .option('--module,-m <module>', 'Filter by module name')
-    .option('--sort-by <field>', 'Sort by field (module, path, method)', 'module,path,method')
-    .option('--sort-desc <desc>', 'Sort in descending order', '')
-    .action(async (options) => {
+    .option('--sort-by <field>', 'Sort by field (module, path, method)')
+    .option('--sort-desc <desc>', 'Sort in descending order')
+    .action(async (options: any) => {
         let routes = router.list()
 
-        const sortBy: string[] = options['sortBy'].split(',').map((f: string) => f.trim())
-        const sortDesc = options['sortDesc']
-            .split(',')
-            .map((d: string) => d.trim())
-            .map((d: string) => d.length > 0)
+        routes = routes.map(r => ({
+            method: r.method,
+            path: r.path,
+            module: r.metadata?.module || 'unknown',
+            metadata: r.metadata,
+        }))
+
+        let sortBy: string[] = ['module']
+        let sortDesc: ('asc'|'desc')[] = ['desc']
 
         if (options.module) {
             routes = routes.filter(r => r.metadata?.module === options.module)
         }
 
-        routes = orderBy(routes, sortBy, sortBy.map((_, i) => sortDesc[i] ? 'desc' : 'asc'))
+
+        if (options['sortBy']) {
+            sortBy = options['sortBy'].split(',').map((f: string) => f.trim())
+        }
+
+        if (options['sortDesc']) {
+            sortDesc = options['sortDesc'].split(',').map((d: string) => d.trim())
+        }
+
+        routes = orderBy(routes, sortBy, sortDesc)
 
         if (options.json) {
             console.log(JSON.stringify(routes))
