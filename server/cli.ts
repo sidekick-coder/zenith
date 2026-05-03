@@ -1,11 +1,10 @@
 import fs from 'fs'
-import { ConfigManagerService, basePath, importAll } from '@sidekick-coder/zenith-kit/server'
+import { ConfigManagerService, basePath, LifecycleService, importAll } from '@sidekick-coder/zenith-kit/server'
 import ArteService from './services/arte.service.ts'
 import env from '#server/facades/env.facade.ts'
 import di from '#server/facades/di.facade.ts'
 import LoggerService from '#shared/services/logger.service.ts'
 import LoggerWinsonService from '#server/services/loggerWinson.service.ts'
-import LifecycleService from '#shared/services/lifecycle.service.ts'
 import LifecycleHook from '#shared/entities/lifecycleHook.entity.ts'
 import ConfigService from '#shared/services/config.service.ts'
 
@@ -27,24 +26,19 @@ const config = await ConfigManagerService
     })
     .load()
 
-const arte = new ArteService()
+const cli = new ArteService()
 
 di
     .set(LoggerService, logger)
     .set(ConfigService, config)
-    .set(ArteService, arte)
-
-const mods = await importAll(basePath('server/hooks'))
-
-const hooks: LifecycleHook[] = Object.values(mods)
-    .map(m => m.default || m)
-    .filter((HookClass: any) => HookClass.prototype instanceof LifecycleHook)
-    .map((HookClass: any) => new HookClass())
+    .set(ArteService, cli)
 
 const lifecycle = new LifecycleService({
-    debug: env.get('LIFECYCLE_DEBUG'),
+    debug: config.getOne(['lifecycle.debug', 'app.debug', 'debug'], false),
     logger: logger.child({ label: 'lifecycle' }),
 })
+
+await lifecycle.addDirectory(basePath('server/hooks'))
 
 await importAll(basePath('server/commands'), { exclude: ['test.ts'], })
 
@@ -68,7 +62,6 @@ for await (const name of moduleNames) {
     }
 }
 
-
 const alias: Record<string, string> = {
     'translator': 'TrasnlatorLifecycleHook',
     'db': 'DatabaseLifecycleHook',
@@ -85,22 +78,27 @@ async function onPreAction(command: ArteService) {
 
     needs.unshift(...defaults)
 
-    hooks
-        .filter(h => needs.includes(h.hook_id))
-        .forEach(hook => lifecycle.add(hook))
+    const exclude = lifecycle.list()
+        .filter(hook => !needs.includes(hook.hook_id))
+        .map(hook => hook.hook_id)
 
-    await lifecycle.register()
-
-    await lifecycle.load()
-
-    await lifecycle.boot()
+    await lifecycle.emit(['register', 'load', 'boot'], { exclude })
 }
 
-async function onPostAction() {
-    await lifecycle.shutdown()
+async function onPostAction(command: ArteService) {
+    const needs = Array.from(command.needs).map(need => alias[need] || need)
+    const defaults = ['TrasnlatorLifecycleHook']
+
+    needs.unshift(...defaults)
+    
+    const exclude = lifecycle.list()
+        .filter(hook => !needs.includes(hook.hook_id))
+        .map(hook => hook.hook_id)
+
+    await lifecycle.emit('shutdown', { exclude })
 }
 
-arte.name('arte')
+cli.name('arte')
     .hook('preAction', (_thisCommand, actionCommand) => onPreAction(actionCommand as any))
-    .hook('postAction', onPostAction)
+    .hook('postAction', (_thisCommand, actionCommand) => onPostAction(actionCommand as any))
     .parse()
