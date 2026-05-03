@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { BaseLayout, UserMenu } from '@sidekick-coder/zenith-kit/client'
+import { BaseLayout, UserMenu } from '@sidekick-coder/zenith-kit/components'
 import { SidebarFooter } from '../components/ui/sidebar'
 
 const userLinks = [
