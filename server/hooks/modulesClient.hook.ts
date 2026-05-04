@@ -5,7 +5,7 @@ import di from '#server/facades/di.facade.ts'
 import LifecycleHook from '#shared/entities/lifecycleHook.entity.ts'
 import modules from '#server/facades/modules.facade.ts'
 import type Module from '#shared/entities/module.entity.ts'
-import ViteService from '#server/services/vite.service.ts'
+// import ViteService from '#server/services/vite.service.ts'
 import type { ViteServiceEvents } from '#server/services/vite.service.ts'
 import env from '#server/facades/env.facade.ts'
 
@@ -42,7 +42,7 @@ export default class ModulesClientLifecycleHook extends LifecycleHook {
     }
 
     public async onLoad(): Promise<void> {
-        const vite = di.get<ViteService>(ViteService)
+        // const vite = di.get<ViteService>(ViteService)
 
         const mods = [] as any[]
         const assets = [] as any[]

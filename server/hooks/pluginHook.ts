@@ -1,5 +1,5 @@
 import { BaseException, LifecycleHook } from '@sidekick-coder/zenith-kit/shared'
-import { container, logger as baseLogger } from '@sidekick-coder/zenith-kit/server'
+import { container, logger as baseLogger, config } from '@sidekick-coder/zenith-kit/server'
 import env from '#server/facades/env.facade.ts'
 import PluginManagerDevelopmentService from '#server/services/PluginManagerDevelopmentService.ts'
 import PluginManagerService from '#server/services/PluginManagerService.ts'
@@ -15,7 +15,7 @@ export default class extends LifecycleHook {
         if (env.development) {
             manager = new PluginManagerDevelopmentService({
                 logger: logger,
-                debug: true 
+                debug: config.getOne(['plugin.debug', 'app.debug', 'debug'], false)
             })
 
             container.set(PluginManagerService, manager)

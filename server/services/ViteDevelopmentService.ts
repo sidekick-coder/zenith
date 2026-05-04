@@ -1,13 +1,12 @@
 import { stripVTControlCharacters } from 'util'
 import type { Application } from 'express'
-import { createLogger, createServer as createViteServer } from 'vite'
 import type { ViteDevServer } from 'vite'
+import { createLogger, createServer as createViteServer } from 'vite'
 import type { Request, Response } from 'express'
-
 import { transformHtmlTemplate } from '@unhead/vue/server'
 import { basePath, PageRequestContextEntity } from '@sidekick-coder/zenith-kit/server'
 import { LoggerService } from '@sidekick-coder/zenith-kit/shared'
-import env from '#server/facades/env.facade.ts'
+import ViteService from './ViteService.ts'
 import config from '#server/facades/config.facade.ts'
 import router from '#server/facades/router.facade.ts'
 import El from '#server/entities/el.entity.ts'
@@ -16,33 +15,14 @@ import emmitter from '#server/facades/emmitter.facade.ts'
 import BaseException from '#server/exceptions/base.ts'
 import type { EntryNodeRenderFunction } from '#shared/contracts/EntryNodeRenderContract.ts'
 
-interface HandleOptions {
-    url: string;
-    request: Request;
-    response: Response;
-}
-
 export interface ViteServiceOptions {
     debug?: boolean
     logger?: LoggerService
 }
 
-
-export default class ViteDevelopmentService {
-    public logger: LoggerService
+export default class ViteDevelopmentService extends ViteService {
     public server: ViteDevServer
     public renderFn: EntryNodeRenderFunction | null = null
-    public debug: boolean
-
-    constructor(options?: ViteServiceOptions) {
-        this.debug = !!options?.debug
-        this.logger = options?.logger || new LoggerService()
-
-        if (this.debug) {
-            this.logger.debug('initialized in debug mode')
-        }
-
-    }
 
     public async loadRenderFn() {
         if (!this.server) {
@@ -77,16 +57,14 @@ export default class ViteDevelopmentService {
     public async loadServer(app: Application) {
         const viteLogger = createLogger()
 
-        const log: typeof viteLogger.info = (msg, opts) => {
-            const sanitizedMsg = stripVTControlCharacters(msg)
-
-            if (this.debug) {
-                this.logger.debug(sanitizedMsg, opts)
-            }
+        viteLogger.info = (msg, opts) => {
+            this.logger.info(stripVTControlCharacters(msg), opts)
         }
 
-        viteLogger.info = (msg, opts) => log(msg, opts)
-        viteLogger.warn = (msg, opts) => log(msg, opts)
+        viteLogger.warn = (msg, opts) => {
+            this.logger.warn(stripVTControlCharacters(msg), opts)
+        }
+
         viteLogger.error = (msg, opts) => {
             this.logger.error(stripVTControlCharacters(msg), opts)
         }
@@ -152,15 +130,25 @@ export default class ViteDevelopmentService {
 
         await emmitter.emitAndWait('page:request:before-render', ctx)
 
+        if (this.debug) {
+            this.logger.debug('rendering page with Vite SSR', {
+                url: ctx.url,
+                state: ctx.nodeState,
+                container: ctx.nodeContainer.toRecord(),
+                config: ctx.nodeConfig.toRecord(),
+            })
+        }
 
         const rendered = await this.renderFn({
             url: ctx.url,
             cookies: ctx.cookies.toRecord(),
             config: ctx.nodeConfig.toRecord(),
+            container: ctx.nodeContainer.toRecord(),
             state: Object.fromEntries(ctx.nodeState),
             serverRouter: router,
             logger: this.logger,
             head: ctx.head,
+            debug: this.debug,
         })
 
         // update state
@@ -193,7 +181,9 @@ export default class ViteDevelopmentService {
         return result
     }
 
-    public async handle({ url, response, request }: HandleOptions) {
+    public async handle(request: Request, response: Response) {
+        const url = request.originalUrl
+
         if (!this.renderFn) {
             throw new BaseException('Vite entrypoint not loaded')
         }

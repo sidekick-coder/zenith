@@ -2,9 +2,10 @@ import type { PageRequestContextEntity } from '@sidekick-coder/zenith-kit/server
 import type { LoggerService } from '@sidekick-coder/zenith-kit/shared'
 import type { VueHeadClient } from '@unhead/vue'
 
-export default interface EntryNodeRenderContract {
+export interface EntryNodeRenderContract {
     url: string;
     config: Record<string, any>;
+    container: Record<string, any>;
     cookies: Record<string, string>;
     state: Record<string, any>;
     logger: LoggerService;

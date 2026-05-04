@@ -1,15 +1,14 @@
-import config from '#server/facades/config.facade.ts'
-import di from '#server/facades/di.facade.ts'
+import type { PageRequestContextEntity } from '@sidekick-coder/zenith-kit/server'
+import { config, container } from '@sidekick-coder/zenith-kit/server'
+import { LifecycleHook, LoggerService } from '@sidekick-coder/zenith-kit/shared'
+import emmitter from '#server/facades/emmitter.facade.ts'
 import TranslatorService from '#server/services/translator.service.ts'
-import ViteService from '#server/services/vite.service.ts'
-import type { ViteServiceEvents } from '#server/services/vite.service.ts'
-import LifecycleHook from '#shared/entities/lifecycleHook.entity.ts'
-import LoggerService from '#shared/services/logger.service.ts'
 
 export default class TrasnlatorLifecycleHook extends LifecycleHook {
     public order = 3
-    public async onRegister(): Promise<void> {
-        const logger = di.get<LoggerService>(LoggerService)
+
+    public async register(): Promise<void> {
+        const logger = container.get<LoggerService>(LoggerService)
 
         const service = new TranslatorService({
             debug: config.getOne(['translator.debug', 'app.debug'], false),
@@ -17,38 +16,38 @@ export default class TrasnlatorLifecycleHook extends LifecycleHook {
         })
 
         service.discover()
-        
+
         globalThis.$t = service.t.bind(service)
         globalThis.$dt = service.datetime.bind(service)
         globalThis.$d = service.date.bind(service)
         globalThis.$translator = service
 
-        di.set(TranslatorService, service)
+        container.set(TranslatorService, service)
     }
 
-    public async onLoad(): Promise<void> {
-        const service = di.get<TranslatorService>(TranslatorService)
+    public async onPageRequest(ctx: PageRequestContextEntity): Promise<void> {
+        const service = container.get<TranslatorService>(TranslatorService)
+
+        let locale = config.get('translator.defaultLocale', 'en-US')
+
+        const metas = ctx.nodeState.get('user:metas') || {}
+
+        if (metas['locale']) {
+            locale = metas['locale']
+        }
+
+        ctx.setState('translator:locales', service.locales)
+        ctx.setState('translator:locale', locale)
+        ctx.setState('translator:entries', await service.getEntries(locale))
+    }
+
+
+    public async load(): Promise<void> {
+        const service = container.get<TranslatorService>(TranslatorService)
         const defaultLocale = config.get('translator.defaultLocale', 'en-US')
 
         await service.load(defaultLocale)
 
-        if (di.has(ViteService)) {
-            const vite = di.get<ViteService>(ViteService)
-
-            // vite.on('vite:before-render', async ({ state }: ViteServiceEvents['vite:before-render']) => {
-            //     let locale = config.get('translator.defaultLocale', 'en-US')
-            //     const metas = state.get('user:metas') || {}
-            //
-            //     if (metas['locale']) {
-            //         locale = metas['locale']
-            //     }
-            //
-            //     state.set('translator:locales', service.locales)
-            //     state.set('translator:locale', locale)
-            //     state.set('translator:entries', await service.getEntries(locale))
-            // })
-        }
-
-        
+        emmitter.on('page:request:start', ctx => this.onPageRequest(ctx))
     }
 }
