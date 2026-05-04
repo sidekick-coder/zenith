@@ -26,22 +26,16 @@ export default class extends LifecycleHook {
         }
 
         for (const [id, value] of Object.entries(env.get('ZENITH_PLUGINS') || {})) {
-            manager.addPluginDir(id, value.directory)
+            manager.addDir(id, value.directory)
         }
 
-        await manager.discover()
+        await manager.register()
     }
 
     public async load() {
         const manager = container.get<PluginManagerService>(PluginManagerService)
 
         await manager.load()
-    }
-
-    public async boot() {
-        const manager = container.get<PluginManagerService>(PluginManagerService)
-
-        await manager.boot()
     }
 }
 

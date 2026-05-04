@@ -11,7 +11,8 @@ import { renderToString } from 'vue/server-renderer'
 import type { App } from 'vue'
 import { createHead } from '@unhead/vue/server'
 import * as VueServerRenderer from 'vue/server-renderer'
-import di from './utils/di'
+import { container } from '@sidekick-coder/zenith-kit/client'
+import { ConfigService, LoggerService } from '@sidekick-coder/zenith-kit/shared'
 import lifecycle from './facades/lifecycle.facade.ts'
 import ModulesService from './services/modules.service.ts'
 import ModulesNodeService from './services/modulesNode.service.ts'
@@ -21,13 +22,11 @@ import FetchNodeService from './services/fetchNode.service.ts'
 import FetchService from './services/fetch.service.ts'
 import RouterService from '#server/services/router.service.ts'
 import ViteEntryPointService from '#shared/services/viteEntryPoint.service.ts'
-import ConfigService from '#shared/services/config.service.ts'
-import LoggerService from '#shared/services/logger.service.ts'
 
 
 const config = new ConfigService()
 
-di.set(ConfigService, config)
+container.set(ConfigService, config)
 
 if (!globalThis.imports) {
     globalThis.imports = new Map<string, () => Promise<any>>()
@@ -37,20 +36,12 @@ if (import.meta.env.SSR) {
     globalThis.imports.set('vue/server-renderer', () => Promise.resolve(VueServerRenderer))
 }
 
-export async function importDynamicModule(modulePath: string) {
-    if (!fs.existsSync(modulePath)) return null
-
-    const fileUrl = pathToFileURL(modulePath).href
-
-    return await import(/* @vite-ignore */ fileUrl + `?t=${Date.now()}`) // bust cache
-}
-
 export default class EntryNode extends ViteEntryPointService {
     public load: ViteEntryPointService['load'] = async (options) => {
-        di.set(LoggerService, options.logger)
-        di.set('isServer', true)
+        container.set(LoggerService, options.logger)
+        container.set('isServer', true)
 
-        di.loadFromRecord(options.container || {})
+        container.loadFromRecord(options.container || {})
 
         const serviceOptions = { debug: config.get('modules.debug') || config.get('app.debug') }
 
@@ -60,25 +51,23 @@ export default class EntryNode extends ViteEntryPointService {
 
         await modulesService.discover()
 
-        di.set(ModulesService, modulesService)
-        di.set(FetchService, new FetchNodeService())
-        di.set(RouterService, options.router)
+        container.set(ModulesService, modulesService)
+        container.set(FetchService, new FetchNodeService())
+        container.set(RouterService, options.router)
 
 
-        return { container: { modules: di.get('modules') } }
+        return { container: { modules: container.get('modules') } }
     }
 
     public render: ViteEntryPointService['render'] = async (context) => {
         config.loadFromRecord(context.config || {})
-        di.set('state', context.state || {})
-        di.set('cookies', context.cookies)
+        container.set('state', context.state || {})
+        container.set('cookies', context.cookies)
 
-        await lifecycle.register()
-        await lifecycle.load()
-        await lifecycle.boot()
+        await lifecycle.emit(['register', 'load', 'boot'])
 
-        const router = di.get<Router>('router')
-        const app = di.get<App>('app')
+        const router = container.get<Router>('router')
+        const app = container.get<App>('app')
         const head = createHead({ init: [context.state.head] })
 
         app.use(head)
@@ -94,7 +83,7 @@ export default class EntryNode extends ViteEntryPointService {
         return {
             html,
             head,
-            state: di.get<Record<string, any>>('state')
+            state: container.get<Record<string, any>>('state')
         }
     }
 }

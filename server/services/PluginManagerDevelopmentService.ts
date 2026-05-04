@@ -1,53 +1,59 @@
 import fs from 'fs'
-import { PluginEntity } from '@sidekick-coder/zenith-kit/server'
+import { PluginEntity, PluginEntryEntity } from '@sidekick-coder/zenith-kit/server'
 import PluginManagerService from './PluginManagerService.ts'
 
 export default class PluginManagerDevelopmentService extends PluginManagerService {
-    private async loadPlugin(id: string) {
-        const plugin = this.pluginsDiscovered.get(id)
+    private async loadPluginServerEntry(plugin: PluginEntryEntity) {
+        const logger = this.logger.child({ pluginId: plugin.id })
 
-        if (!plugin) {
-            this.logger.error(`plugin with id ${id} not found in discovered plugins`)
+        const entry = plugin.makePath('src', 'server', 'index.ts')
+
+        if (!fs.existsSync(entry)) {
+            logger.warn(`${plugin.id} server entry not found, skipping...`)
             return
         }
 
-        if (!plugin.enabled) {
-            return
-        }
-
-        const serverIndexPath = plugin.makePath('src', 'server', 'index.ts')
-
-        if (!fs.existsSync(serverIndexPath)) {
-            this.logger.error(`server index file not found for plugin ${id} at path ${serverIndexPath}`)
-            return
-        }
-
-        let contructor = await import(serverIndexPath)
+        let contructor = await import(entry)
 
         contructor = contructor.default || contructor
 
         if (typeof contructor !== 'function') {
-            this.logger.error(`default export of plugin ${id} is not a constructor function`)
+            logger.error(`default export of plugin ${plugin.id} is not a constructor function`)
             return
         }
 
         if (!contructor.fromPluginDiscoverEntity) {
-            this.logger.error(`looks like plugin ${id} is not a instance of PluginEntity`)
+            logger.error(`looks like plugin ${plugin.id} is not a instance of PluginEntity`)
             return
         }
 
         const instance: PluginEntity = contructor.fromPluginDiscoverEntity(plugin)
 
-        this.pluginEntities.set(id, instance)
+        await instance.load()
 
         if (this.debug) {
-            this.logger.debug(`loaded plugin (${id} v${instance.version})`)
+            logger.debug(`loaded plugin (${plugin.id} v${instance.version})`)
         }
     }
 
+    public async loadPluginClientEntry(plugin: PluginEntryEntity): Promise<void> {
+        const logger = this.logger.child({ pluginId: plugin.id })
+
+        const entry = plugin.makePath('src', 'client', 'index.ts')
+
+        if (!fs.existsSync(entry)) {
+            logger.warn(`${plugin.id} client entry not found, skipping...`)
+            return
+        }
+
+    }
+
     public async load(): Promise<void> {
-        for (const id of this.pluginsDiscovered.keys()) {
-            await this.loadPlugin(id)
+        const plugins = Array.from(this.entries.values()).filter(plugin => plugin.enabled)
+
+        for (const plugin of plugins) {
+            await this.loadPluginServerEntry(plugin)
+            await this.loadPluginClientEntry(plugin)
         }
     }
 }

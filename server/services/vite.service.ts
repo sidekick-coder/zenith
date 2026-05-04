@@ -7,15 +7,11 @@ import express from 'express'
 import type { Request, Response } from 'express'
 
 import { transformHtmlTemplate } from '@unhead/vue/server'
-import { basePath } from '@sidekick-coder/zenith-kit/server'
-import CookieService from './cookie.service.ts'
+import { basePath, PageRequestContextEntity } from '@sidekick-coder/zenith-kit/server'
 import env from '#server/facades/env.facade.ts'
 import config from '#server/facades/config.facade.ts'
 import logger from '#server/facades/logger.facade.ts'
 import router from '#server/facades/router.facade.ts'
-import auth from '#server/facades/auth.facade.ts'
-import type User from '#server/entities/user.entity.ts'
-import Permission from '#server/entities/permission.entity.ts'
 import ConfigService from '#shared/services/config.service.ts'
 import DIService from '#shared/services/di.service.ts'
 import type ViteEntryPointService from '#shared/services/viteEntryPoint.service.ts'
@@ -24,6 +20,7 @@ import { tryCatch } from '#shared/utils/tryCatch.ts'
 import type { RenderOptions } from '#shared/services/viteEntryPoint.service.ts'
 import { compose } from '#shared/utils/compose.ts'
 import { Hooks } from '#server/mixins/hooks.mixin.ts'
+import emmitter from '#server/facades/emmitter.facade.ts'
 
 interface HandleOptions {
     url: string;
@@ -314,28 +311,17 @@ export default class ViteService extends compose(Hooks) {
     }
 
     public async handle({ url, response, request }: HandleOptions) {
-        const cookie = new CookieService(request, response)
-
-        const token = cookie.get('Authorization', '')
-            || request.headers['authorization'] as string
-            || ''
 
         const state = new Map<string, any>()
 
-        if (token) {
-            state.set('auth:user', await auth.authenticate(token))
-        }
+        const ctx = new PageRequestContextEntity({
+            state,
+            url,
+            request,
+            response,
+        })
 
-        if (state.get('auth:user')) {
-            const user = state.get('auth:user') as User
-            const permissions = Permission.applyContext(user.permissions, { auth: { user: user }, })
-
-            const metas = await user.$metas.all()
-
-            state.set('permissions', permissions)
-            state.set('user:metas', metas)
-            state.set('preferences:dark_mode', metas['admin-ui:dark_mode'] ?? false)
-        }
+        await emmitter.emitAndWait('page:request:start', ctx)
 
         state.set('head', {
             title: config.get('site.name') || 'Zenith',
@@ -353,7 +339,6 @@ export default class ViteService extends compose(Hooks) {
         clientConfig.set('branding', config.get('branding', {}))
         clientConfig.set('auth', config.get('auth', {}))
         clientConfig.set('setup', config.get('setup') || {})
-        clientConfig.set('cookie.prefix', config.get('cookie.prefix', ''))
 
         await this.emitAsync('vite:client-config', {
             config: clientConfig,
@@ -362,7 +347,7 @@ export default class ViteService extends compose(Hooks) {
 
         const options: RenderOptions = {
             url,
-            cookies: cookie.toRecord(),
+            cookies: ctx.cookies.toRecord(),
             state: Object.fromEntries(state),
             config: clientConfig.toRecord(),
         }

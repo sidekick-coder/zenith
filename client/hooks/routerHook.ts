@@ -1,6 +1,6 @@
 import type { App, DefineComponent } from 'vue'
 import { LifecycleHook } from '@sidekick-coder/zenith-kit/shared'
-import di from '../utils/di'
+import { container } from '@sidekick-coder/zenith-kit/client'
 import { createRouter } from '#client/router'
 import type { Router } from '#client/router'
 import guestGuard from '#client/guards/guest.guard.ts'
@@ -14,11 +14,11 @@ export default class extends LifecycleHook {
     public async onRegister(): Promise<void> {
         const router = createRouter()
 
-        di.set('router', router)
+        container.set('router', router)
     }
 
     public async onLoad(): Promise<void> {
-        const router = di.get<Router>('router')
+        const router = container.get<Router>('router')
 
         router.beforeEach(setupGuard)
 
@@ -51,8 +51,8 @@ export default class extends LifecycleHook {
     }
 
     public async onBoot(): Promise<void> {
-        const router = di.get<Router>('router')
-        const app = di.get<App>('app')
+        const router = container.get<Router>('router')
+        const app = container.get<App>('app')
 
         const homeRoute = config.get('site.home_route_path', '/hello')
             
