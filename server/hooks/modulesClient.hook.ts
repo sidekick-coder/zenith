@@ -89,19 +89,19 @@ export default class ModulesClientLifecycleHook extends LifecycleHook {
             entrypoints: mod.entrypoints
         }))
 
-        vite.addDependency('modules', clientModules)
-
-        vite.on('vite:render', ({ head }: ViteServiceEvents['vite:render']) => {
-            assets.forEach(asset => {
-                if (asset.endsWith('.css')) {
-                    head
-                        .child('link')
-                        .attr('type', 'text/css')
-                        .attr('rel', 'stylesheet')
-                        .attr('href', `/${asset}`)
-                }
-            })
-        })
+        // vite.addDependency('modules', clientModules)
+        //
+        // vite.on('vite:render', ({ head }: ViteServiceEvents['vite:render']) => {
+        //     assets.forEach(asset => {
+        //         if (asset.endsWith('.css')) {
+        //             head
+        //                 .child('link')
+        //                 .attr('type', 'text/css')
+        //                 .attr('rel', 'stylesheet')
+        //                 .attr('href', `/${asset}`)
+        //         }
+        //     })
+        // })
     }
 
     public async onShutdown(): Promise<void> {

@@ -356,9 +356,13 @@ export default class ViteService extends compose(Hooks) {
 
         if (error) {
             Object.assign(error, { url })
+            const status = (error as any).status || 500
+
             this.logger.error('Error during Vite SSR render', error)
+
             this.server?.ssrFixStacktrace(error)
-            response.status(500).end(error.stack)
+
+            response.status(status).end(error.stack)
             return
         }
 

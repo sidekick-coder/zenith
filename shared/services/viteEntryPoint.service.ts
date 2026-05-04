@@ -1,7 +1,6 @@
 import type LoggerService from './logger.service.ts'
 
 export interface LoadOptions {
-    container: Record<string, any>;
     logger: LoggerService;
     router: any;
 }
@@ -19,13 +18,9 @@ export interface RenderResult {
     state: Record<string, any>;
 }
 
-interface LoadResult {
-    container: Record<string, any>;
-}
-
 export default class ViteEntryPointService {
-    public async load(options: LoadOptions): Promise<LoadResult> {
-        return { container: options.container }
+    public async load(options: LoadOptions): Promise<void> {
+        // implementation here
     }
 
     public async render(context: RenderOptions): Promise<RenderResult> {

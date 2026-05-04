@@ -4,6 +4,7 @@ import LifecycleHook from '#shared/entities/lifecycleHook.entity.ts'
 import ViteService from '#server/services/vite.service.ts'
 import config from '#server/facades/config.facade.ts'
 import LoggerService from '#shared/services/logger.service.ts'
+import ViteDevelopmentService from '#server/services/ViteDevelopmentService.ts'
 
 export default class ViteLifecycleHook extends LifecycleHook {
     public order = 98
@@ -11,7 +12,7 @@ export default class ViteLifecycleHook extends LifecycleHook {
     public async onRegister(): Promise<void> {
         const logger = di.get<LoggerService>(LoggerService)
 
-        const service = new ViteService({
+        const service = new ViteDevelopmentService({
             logger: logger.child({ label: 'vite' }),
             debug: config.get('vite.debug') || config.get('app.debug'),
         })

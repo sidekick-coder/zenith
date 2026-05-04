@@ -30,8 +30,8 @@ export default class ExtrasLifecycleHook extends LifecycleHook {
     public async onLoad(): Promise<void> {
         const vite = di.get<ViteService>(ViteService)
 
-        vite.on('vite:client-config', async (opt: ViteServiceEvents['vite:client-config']) => {
-            opt.config.set('oauth', { google_enabled: config.get('oauth.google_enabled', false), })
-        })
+        // vite.on('vite:client-config', async (opt: ViteServiceEvents['vite:client-config']) => {
+        //     opt.config.set('oauth', { google_enabled: config.get('oauth.google_enabled', false), })
+        // })
     }
 }

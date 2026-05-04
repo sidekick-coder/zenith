@@ -8,7 +8,9 @@ import Permission from '#server/entities/permission.entity.ts'
 export default class extends LifecycleHook {
     public order = 3
 
-    public async onPageRequest({ cookies, state, request }: PageRequestContextEntity): Promise<void> {
+    public async onPageRequest(ctx: PageRequestContextEntity): Promise<void> {
+        const { request, cookies } = ctx
+
         const auth = container.get<AuthService>(AuthService)
 
         const token = cookies.get('Authorization', '')
@@ -25,14 +27,14 @@ export default class extends LifecycleHook {
             return
         }
 
-        state.set('auth:user', user)
+        ctx.setState('auth:user', user)
 
         const permissions = Permission.applyContext(user.permissions, { auth: { user: user }, })
         const metas = await user.$metas.all()
 
-        state.set('permissions', permissions)
-        state.set('user:metas', metas)
-        state.set('preferences:dark_mode', metas['admin-ui:dark_mode'] ?? false)
+        ctx.setState('permissions', permissions)
+        ctx.setState('user:metas', metas)
+        ctx.setState('preferences:dark_mode', metas['admin-ui:dark_mode'] ?? false)
 
     }
 
