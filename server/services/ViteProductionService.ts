@@ -78,16 +78,42 @@ export default class ViteProductionService extends ViteService {
 
         const scripts: ResolvableScript[] = []
         const links: ResolvableLink[] = []
+        const visited = new Set<string>()
 
+        const collectChunk = (key: string) => {
+            if (visited.has(key)) return
+            visited.add(key)
 
-        if (chunk.css) {
-            for (const css of chunk.css) {
-                links.push({
-                    rel: 'stylesheet',
-                    href: `/${css}`,
-                })
+            const c = manifest[key]
+
+            if (!c) return
+
+            if (c.css) {
+                for (const css of c.css) {
+                    links.push({
+                        rel: 'stylesheet',
+                        href: `/${css}`,
+                    })
+                }
+            }
+
+            if (c.imports) {
+                for (const imported of c.imports) {
+                    const importedChunk = manifest[imported]
+
+                    if (importedChunk) {
+                        links.push({
+                            rel: 'modulepreload',
+                            href: `/${importedChunk.file}`,
+                        })
+                    }
+
+                    collectChunk(imported)
+                }
             }
         }
+
+        collectChunk(entry)
 
         scripts.push({
             src: `/${chunk.file}`,
