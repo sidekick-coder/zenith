@@ -22,14 +22,21 @@ export default defineConfig({
         vue({ template: { compilerOptions: { isCustomElement: (tag) => tag.startsWith('iconify-icon'), } } }),
         tailwindcss()
     ],
-    publicDir: path.resolve(import.meta.dirname, 'client/public'),
-    resolve: {
-        // dedupe: ['vue'],
-        // alias: {
-        //     'vue/server-renderer': path.resolve(import.meta.dirname, 'node_modules/vue/server-renderer/index.mjs'),
-        //     vue: path.resolve(import.meta.dirname, 'node_modules/vue/dist/vue.esm-bundler.js'),
-        // }
+    optimizeDeps: {
+        exclude: [
+            '@sidekick-coder/zenith-kit',
+            '@sidekick-coder/zenith-kit/server',
+            '@sidekick-coder/zenith-kit/shared',
+        ] 
     },
+    publicDir: path.resolve(import.meta.dirname, 'client/public'),
+    // resolve: {
+    // dedupe: ['vue'],
+    // alias: {
+    //     'vue/server-renderer': path.resolve(import.meta.dirname, 'node_modules/vue/server-renderer/index.mjs'),
+    //     vue: path.resolve(import.meta.dirname, 'node_modules/vue/dist/vue.esm-bundler.js'),
+    // }
+    // },
     server: {
         allowedHosts,
         watch: {

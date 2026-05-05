@@ -23,9 +23,7 @@ if (!globalThis.imports) {
     globalThis.imports = new Map<string, () => Promise<any>>()
 }
 
-if (import.meta.env.SSR) {
-    globalThis.imports.set('vue/server-renderer', () => Promise.resolve(VueServerRenderer))
-}
+globalThis.imports.set('vue/server-renderer', () => Promise.resolve(VueServerRenderer))
 
 export default async function(ctx: EntryNodeRenderContract): Promise<EntryNodeRenderResult> {
     const config = new ConfigService()
@@ -53,7 +51,7 @@ export default async function(ctx: EntryNodeRenderContract): Promise<EntryNodeRe
 
     const router = container.get<Router>('router')
     const app = container.get<App>('app')
-    const head = createHead({ init: ctx.head  })
+    const head = createHead({ init: ctx.head })
 
     app.use(head)
 

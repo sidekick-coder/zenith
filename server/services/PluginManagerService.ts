@@ -8,7 +8,7 @@ export interface PluginDefinition {
     directory: string
 }
 
-interface PluginManagerServiceOptions {
+export interface PluginManagerServiceOptions {
     logger?: LoggerService
     debug?: boolean
 }

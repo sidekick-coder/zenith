@@ -1,26 +1,37 @@
-import { mergeConfig, build as viteBuild  } from 'vite'
+import fs from 'fs'
+import { mergeConfig, build as viteBuild } from 'vite'
 import type { UserConfig } from 'vite'
+import { basePath } from '@sidekick-coder/zenith-kit/server'
+import fg from 'fast-glob'
 import { logger } from '#server/facades/logger.facade.ts'
-import { basePath } from '#server/utils/paths.ts'
 
 export default class ServerService {
-    public reload(){
+    public reload() {
         logger.info('reload server')
 
         process.send?.('server-restart')
     }
 
     public async build() {
-        
+
+        // remove .plugins files 
+        const files = await fg(basePath('client/.plugins/*.ts'))
+
+        for (const file of files) {
+            logger.debug(`removing ${file}`)
+
+            fs.rmSync(file)
+        }
+
+
         const common: UserConfig = {
-            resolve: { 
+            resolve: {
                 alias: {
                     '#client': basePath('client'),
                     '#shared': basePath('shared'),
                 }
             },
             build: {
-                manifest: true,
                 rollupOptions: {
                     external: (id: string) => {
                         if (id.startsWith(basePath('modules'))) {
@@ -35,15 +46,16 @@ export default class ServerService {
 
         await viteBuild(mergeConfig(common, {
             build: {
-                ssr: 'client/entry-server.ts',
-                outDir: basePath('client-dist/node'),
+                ssr: 'client/entry-node.ts',
+                outDir: basePath('dist/client-node'),
             },
         }))
 
-        await viteBuild(mergeConfig(common, { 
+        await viteBuild(mergeConfig(common, {
             build: {
-                outDir: basePath('client-dist/browser'),
-                rollupOptions: { input: { app: 'client/entry-client.ts', }, },
+                outDir: basePath('dist/client-browser'),
+                manifest: true,
+                rollupOptions: { input: { app: 'client/entry-client.ts', } },
             },
         }))
 

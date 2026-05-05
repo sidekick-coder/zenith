@@ -1,17 +1,16 @@
 import fs from 'fs'
 import path from 'path'
 import { basePath } from '@sidekick-coder/zenith-kit/server'
-import di from '#server/facades/di.facade.ts'
 import LifecycleHook from '#shared/entities/lifecycleHook.entity.ts'
 import modules from '#server/facades/modules.facade.ts'
 import type Module from '#shared/entities/module.entity.ts'
-// import ViteService from '#server/services/vite.service.ts'
-import type { ViteServiceEvents } from '#server/services/vite.service.ts'
 import env from '#server/facades/env.facade.ts'
+import emmitter from '#server/facades/emmitter.facade.ts'
 
 export default class ModulesClientLifecycleHook extends LifecycleHook {
     public order = 5
     public mods: (Module & LifecycleHook)[] = []
+
 
     public async onRegister(): Promise<void> {
         // create client file to use on development 
@@ -89,7 +88,10 @@ export default class ModulesClientLifecycleHook extends LifecycleHook {
             entrypoints: mod.entrypoints
         }))
 
-        // vite.addDependency('modules', clientModules)
+        emmitter.on('page:request:start', ctx => {
+            ctx.setContainerValue('modules', clientModules)
+        })
+
         //
         // vite.on('vite:render', ({ head }: ViteServiceEvents['vite:render']) => {
         //     assets.forEach(asset => {

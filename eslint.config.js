@@ -10,6 +10,7 @@ export default defineConfigWithVueTs(
         ignores: [
             'node_modules',
             'loaders',
+            'dist',
             'client/dist',
             'client/components/ui',
             'server/templates',

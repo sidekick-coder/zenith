@@ -1,13 +1,12 @@
-import { stripVTControlCharacters } from 'util'
+import fs from 'fs'
 import type { Application } from 'express'
-import type { ViteDevServer } from 'vite'
-import { createLogger, createServer as createViteServer } from 'vite'
 import type { Request, Response } from 'express'
 import { transformHtmlTemplate } from '@unhead/vue/server'
 import { basePath, PageRequestContextEntity } from '@sidekick-coder/zenith-kit/server'
-import { LoggerService } from '@sidekick-coder/zenith-kit/shared'
+import express from 'express'
+import type { ManifestChunk } from 'vite'
+import type { ResolvableHead, ResolvableLink, ResolvableScript } from '@unhead/vue'
 import ViteService from './ViteService.ts'
-import config from '#server/facades/config.facade.ts'
 import router from '#server/facades/router.facade.ts'
 import El from '#server/entities/el.entity.ts'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
@@ -15,77 +14,91 @@ import emmitter from '#server/facades/emmitter.facade.ts'
 import BaseException from '#server/exceptions/base.ts'
 import type { EntryNodeRenderFunction } from '#shared/contracts/EntryNodeRenderContract.ts'
 
-export interface ViteServiceOptions {
-    debug?: boolean
-    logger?: LoggerService
-}
 
-export default class ViteDevelopmentService extends ViteService {
-    public server: ViteDevServer
+export default class ViteProductionService extends ViteService {
     public renderFn: EntryNodeRenderFunction | null = null
+    public manifest: Record<string, ManifestChunk> = {}
 
-    public async loadRenderFn() {
-        if (!this.server) {
-            throw new BaseException('Vite server not loaded')
+    public async loadManifest() {
+
+        const filename = basePath('dist', 'client-browser', '.vite', 'manifest.json')
+
+        if (!fs.existsSync(filename)) {
+            throw new BaseException('manifest not found, make sure to build the client before starting the server')
         }
 
+        const text = fs.readFileSync(filename, 'utf-8')
+
+        this.manifest = JSON.parse(text)
+    }
+
+    public async loadRenderFn() {
         const start = Date.now()
 
         if (this.debug) {
             this.logger.debug('loading vite entrypoint')
         }
 
-        let mod: any | null = null
+        const filename = basePath('dist', 'client-node', 'entry-node.js')
 
-        mod = await this.server.ssrLoadModule(basePath('client', 'entry-node.ts')) as any
+        if (!fs.existsSync(filename)) {
+            throw new BaseException('entrypoint not found, make sure to build the client before starting the server')
+        }
+
+        const mod = await import(filename)
 
         if (!mod) {
-            throw new BaseException('Failed to load Vite entrypoint module')
+            throw new BaseException('failed to load entrypoint module')
         }
 
         this.renderFn = mod.default || mod
 
         if (!this.renderFn) {
-            throw new BaseException('Failed to load Vite entrypoint')
+            throw new BaseException('failed to load entrypoint')
         }
 
         if (this.debug) {
-            this.logger.debug(`vite entrypoint loaded in ${Date.now() - start}ms`)
+            this.logger.debug(`entrypoint loaded in ${Date.now() - start}ms`)
         }
     }
+    public async load(app: Application) {
 
-    public async loadServer(app: Application) {
-        const viteLogger = createLogger()
+        await this.loadManifest()
+        await this.loadRenderFn()
 
-        viteLogger.info = (msg, opts) => {
-            this.logger.info(stripVTControlCharacters(msg), opts)
+        app.use(express.static(basePath('dist', 'client-browser')))
+    }
+
+    public chunksToHead(manifest: Record<string, ManifestChunk>, entry: string): { scripts: ResolvableScript[], links: ResolvableLink[] } {
+        const chunk = manifest[entry]
+
+        if (!chunk) {
+            throw new BaseException(`entry ${entry} not found in manifest`)
         }
 
-        viteLogger.warn = (msg, opts) => {
-            this.logger.warn(stripVTControlCharacters(msg), opts)
+        const scripts: ResolvableScript[] = []
+        const links: ResolvableLink[] = []
+
+
+        if (chunk.css) {
+            for (const css of chunk.css) {
+                links.push({
+                    rel: 'stylesheet',
+                    href: `/${css}`,
+                })
+            }
         }
 
-        viteLogger.error = (msg, opts) => {
-            this.logger.error(stripVTControlCharacters(msg), opts)
-        }
-
-        this.server = await createViteServer({
-            customLogger: viteLogger,
-            server: { middlewareMode: true },
-            appType: 'custom',
-            configFile: basePath('vite.config.ts'),
+        scripts.push({
+            src: `/${chunk.file}`,
+            type: 'module',
+            defer: true,
         })
 
-        app.use(this.server.middlewares)
-
-        if (this.debug) {
-            this.logger.debug('vite server loaded in middleware mode')
+        return {
+            scripts,
+            links
         }
-    }
-
-    public async load(app: Application) {
-        await this.loadServer(app)
-        await this.loadRenderFn()
     }
 
     public async render(ctx: PageRequestContextEntity): Promise<string> {
@@ -99,29 +112,27 @@ export default class ViteDevelopmentService extends ViteService {
 
         const body = html.child('body')
 
-        ctx.head.push({
-            link: [
-                {
-                    rel: 'stylesheet',
-                    href: '/client/assets/styles.css'
-                },
-            ],
-            script: [
-                {
-                    type: 'module',
-                    src: '/client/entry-client.ts'
-                },
-            ],
+        const { links, scripts } = this.chunksToHead(this.manifest, 'client/entry-client.ts')
+
+        console.log({
+            links,
+            scripts
         })
+
+        ctx.head.push({
+            link: links,
+            script: scripts,
+        } as any)
 
         await emmitter.emitAndWait('page:request:before-render', ctx)
 
         if (this.debug) {
-            this.logger.debug('rendering page with Vite SSR', {
+            this.logger.debug('render page', {
                 url: ctx.url,
                 state: ctx.nodeState,
                 container: ctx.nodeContainer.toRecord(),
                 config: ctx.nodeConfig.toRecord(),
+                head: ctx.head,
             })
         }
 
@@ -173,10 +184,6 @@ export default class ViteDevelopmentService extends ViteService {
             throw new BaseException('Vite entrypoint not loaded')
         }
 
-        if (!this.server) {
-            throw new BaseException('Vite server not loaded')
-        }
-
         const ctx = new PageRequestContextEntity({
             url,
             request,
@@ -192,9 +199,7 @@ export default class ViteDevelopmentService extends ViteService {
 
             const status = (error as any).status || 500
 
-            this.logger.error('Error during Vite SSR render', error)
-
-            this.server.ssrFixStacktrace(error)
+            this.logger.error(error.message, error)
 
             response.status(status).end(error.stack)
 
@@ -205,16 +210,6 @@ export default class ViteDevelopmentService extends ViteService {
             .status(200)
             .set({ 'Content-Type': 'text/html' })
             .end(html)
-    }
-
-    public async close() {
-        if (!this.server) return
-
-        await this.server.close()
-
-        if (this.debug) {
-            this.logger.debug('vite server closed')
-        }
     }
 }
 

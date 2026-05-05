@@ -15,14 +15,23 @@ process.on('uncaughtException', (error: Error) => {
 
 env.load()
 
+const prettyLogger = env.development || env.get('ZENITH_LOG_PRETTY', false)
+
+
+
 const logger = LoggerWinsonService.create({
     level: env.get('ZENITH_LOG_LEVEL', 'info'),
     transports: [
         LoggerWinsonService.file(basePath('logs/error.log'), 'error'),
         LoggerWinsonService.file(basePath('logs/app.log')),
-        env.development ? LoggerWinsonService.console() : LoggerWinsonService.consoleJson(),
+        prettyLogger ? LoggerWinsonService.console() : LoggerWinsonService.consoleJson(),
     ]
 })
+
+if (env.production && prettyLogger) {
+    logger.warn('Pretty logging is enabled in production.')
+}
+
 
 const config = await ConfigManagerService
     .create({ 
@@ -34,6 +43,11 @@ const config = await ConfigManagerService
 const lifecycle = new LifecycleService({
     debug: env.get('ZENITH_LIFECYCLE_DEBUG', false),
     logger: logger.child({ label: 'lifecycle' }),
+    onError: async (error) => {
+        logger.error(error.message, error)
+
+        await exit(1)
+    }
 })
 
 container
@@ -49,6 +63,7 @@ process.on('SIGINT', () => exit(0))
 process.on('message', (data: any) => {
     if (data?.type === 'shutdown') exit(0)
 })
+
 
 await lifecycle.addDirectory(basePath('server/hooks'))
 
