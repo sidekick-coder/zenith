@@ -48,6 +48,12 @@ export default class ExpressService {
         this.app.use(cors(options))
     }
 
+    public use: express.Application['use'] = (...args: any[]) => {
+        this.app.use(...args)
+
+        return this.app
+    }
+
     public routes() {
         this.app.use('*all', (req, res) => {
             const url = new URL(req.originalUrl, `http://${req.headers.host}`)

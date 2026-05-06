@@ -72,4 +72,22 @@ export default class PluginManagerService {
             await this.registerPlugin(id, directory)
         }
     }
+
+    public list() {
+        return Array.from(this.entries.values())
+    }
+
+    public findById(id: string) {
+        return this.entries.get(id)
+    }
+
+    public findByIdOrFail(id: string) {
+        const plugin = this.findById(id)
+
+        if (!plugin) {
+            throw new BaseException(`Plugin with id ${id} not found`)
+        }
+
+        return plugin
+    }
 }

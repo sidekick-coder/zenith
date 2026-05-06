@@ -1,11 +1,9 @@
 import { BaseException, LoggerService } from '@sidekick-coder/zenith-kit/shared'
 
-
-interface PluginManagerServiceOptions {
+export interface PluginManagerServiceOptions {
     logger?: LoggerService
     debug?: boolean
 }
-
 
 export default class PluginManagerService {
     public static __container_entry_key = 'PluginManagerService'

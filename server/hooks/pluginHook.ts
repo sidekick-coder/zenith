@@ -5,6 +5,7 @@ import PluginManagerDevelopmentService from '#server/services/PluginManagerDevel
 import PluginManagerService from '#server/services/PluginManagerService.ts'
 import type { PluginManagerServiceOptions } from '#server/services/PluginManagerService.ts'
 import PluginManagerProductionService from '#server/services/PluginManagerProductionService.ts'
+import emmitter from '#server/facades/emmitter.facade.ts'
 
 export default class extends LifecycleHook {
     public hook_aliases = ['plugin-manager', 'plugins']
@@ -14,7 +15,7 @@ export default class extends LifecycleHook {
 
         const options: PluginManagerServiceOptions = {
             logger: logger,
-            debug: config.getOne(['plugin.debug', 'app.debug', 'debug'], false)
+            debug: config.getOne(['plugin-manager.debug', 'app.debug', 'debug'], false)
         }
 
         let manager: PluginManagerService | null = null
@@ -47,6 +48,10 @@ export default class extends LifecycleHook {
         const manager = container.get<PluginManagerService>(PluginManagerService)
 
         await manager.load()
+
+        emmitter.on('page:request:start', async ctx => {
+            ctx.setConfigValue('plugin-manager', { debug: manager.debug })
+        })
     }
 }
 

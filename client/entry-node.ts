@@ -8,9 +8,8 @@ import { renderToString } from 'vue/server-renderer'
 import type { App } from 'vue'
 import { createHead } from '@unhead/vue/server'
 import * as VueServerRenderer from 'vue/server-renderer'
-import { container } from '@sidekick-coder/zenith-kit/client'
+import { container, LifecycleService } from '@sidekick-coder/zenith-kit/client'
 import { ConfigService, LoggerService } from '@sidekick-coder/zenith-kit/shared'
-import lifecycle from './facades/lifecycle.facade.ts'
 import ModulesService from './services/modules.service.ts'
 import ModulesNodeService from './services/modulesNode.service.ts'
 import type { Router } from './router.ts'
@@ -27,12 +26,20 @@ globalThis.imports.set('vue/server-renderer', () => Promise.resolve(VueServerRen
 
 export default async function(ctx: EntryNodeRenderContract): Promise<EntryNodeRenderResult> {
     const config = new ConfigService()
+    const logger = ctx.logger
 
     config.loadFromRecord(ctx.config)
     container.loadFromRecord(ctx.container)
 
     container.set(ConfigService, config)
     container.set(LoggerService, ctx.logger)
+
+    const lifecycle = new LifecycleService({
+        debug: config.getOne(['lifecycle.debug', 'app.debug', 'debug'], false),
+        logger: logger.child({ label: 'lifecycle' }),
+    })
+
+    lifecycle.addImports(import.meta.glob('./hooks/*.ts', { eager: true }))
 
     const serviceOptions = { debug: config.get('modules.debug') || config.get('app.debug') }
 

@@ -5,7 +5,7 @@ import { transformHtmlTemplate } from '@unhead/vue/server'
 import { basePath, PageRequestContextEntity } from '@sidekick-coder/zenith-kit/server'
 import express from 'express'
 import type { ManifestChunk } from 'vite'
-import type { ResolvableHead, ResolvableLink, ResolvableScript } from '@unhead/vue'
+import type { ResolvableLink, ResolvableScript } from '@unhead/vue'
 import ViteService from './ViteService.ts'
 import router from '#server/facades/router.facade.ts'
 import El from '#server/entities/el.entity.ts'
@@ -138,12 +138,7 @@ export default class ViteProductionService extends ViteService {
 
         const body = html.child('body')
 
-        const { links, scripts } = this.chunksToHead(this.manifest, 'client/entry-client.ts')
-
-        console.log({
-            links,
-            scripts
-        })
+        const { links, scripts } = this.chunksToHead(this.manifest, 'client/entry-browser.ts')
 
         ctx.head.push({
             link: links,
@@ -158,7 +153,6 @@ export default class ViteProductionService extends ViteService {
                 state: ctx.nodeState,
                 container: ctx.nodeContainer.toRecord(),
                 config: ctx.nodeConfig.toRecord(),
-                head: ctx.head,
             })
         }
 
@@ -186,7 +180,7 @@ export default class ViteProductionService extends ViteService {
             .html(`
                 window.__STATE__ = ${JSON.stringify(Object.fromEntries(ctx.browserState))};
                 window.__CONTAINER__ = ${JSON.stringify(ctx.browserContainer.toRecord())};
-                window.__CONFIG__ = ${JSON.stringify(ctx.browserConfig)};
+                window.__CONFIG__ = ${JSON.stringify(ctx.browserConfig.toRecord())};
             `)
 
         body

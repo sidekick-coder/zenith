@@ -22,13 +22,6 @@ export default defineConfig({
         vue({ template: { compilerOptions: { isCustomElement: (tag) => tag.startsWith('iconify-icon'), } } }),
         tailwindcss()
     ],
-    optimizeDeps: {
-        exclude: [
-            '@sidekick-coder/zenith-kit',
-            '@sidekick-coder/zenith-kit/server',
-            '@sidekick-coder/zenith-kit/shared',
-        ] 
-    },
     publicDir: path.resolve(import.meta.dirname, 'client/public'),
     // resolve: {
     // dedupe: ['vue'],

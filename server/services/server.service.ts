@@ -30,17 +30,6 @@ export default class ServerService {
                     '#client': basePath('client'),
                     '#shared': basePath('shared'),
                 }
-            },
-            build: {
-                rollupOptions: {
-                    external: (id: string) => {
-                        if (id.startsWith(basePath('modules'))) {
-                            return true
-                        }
-
-                        return false
-                    }
-                }
             }
         }
 
@@ -55,7 +44,7 @@ export default class ServerService {
             build: {
                 outDir: basePath('dist/client-browser'),
                 manifest: true,
-                rollupOptions: { input: { app: 'client/entry-client.ts', } },
+                rollupOptions: { input: { app: 'client/entry-browser.ts', } },
             },
         }))
 

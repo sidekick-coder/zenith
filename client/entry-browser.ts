@@ -6,7 +6,8 @@ import '@sidekick-coder/zenith-kit/styles'
 
 import { createHead } from '@unhead/vue/client'
 import type { App } from 'vue'
-import di from './utils/di'
+import { container, LifecycleService } from '@sidekick-coder/zenith-kit/client'
+import { ConfigService, LoggerService } from '@sidekick-coder/zenith-kit/shared'
 import ModulesService from './services/modules.service.ts'
 import ModulesBrowserService from './services/modulesBrowser.service.ts'
 import ModulesDevService from './services/modulesDev.service.ts'
@@ -14,41 +15,41 @@ import type { Router } from './router.ts'
 import FetchBrowserService from './services/fetchBrowser.service.ts'
 import FetchService from './services/fetch.service.ts'
 import ClientLoggerService from './services/logger.service.ts'
-import ConfigService from '#shared/services/config.service.ts'
-import lifecycle from '#client/facades/lifecycle.facade.ts'
-import LoggerService from '#shared/services/logger.service.ts'
 
 const config = new ConfigService()
 const logger = new ClientLoggerService()
 
-di.set(ConfigService, config)
-di.set(LoggerService, logger)
-
-di.loadFromRecord(window.__CONTAINER__ || {})
+container.loadFromRecord(window.__CONTAINER__ || {})
 config.loadFromRecord(window.__CONFIG__ || [])
 
-di.set('state', window.__STATE__ || {})
-di.set(FetchService, new FetchBrowserService())
-di.set('isServer', false)
+const lifecycle = new LifecycleService({
+    debug: config.getOne(['lifecycle.debug', 'app.debug', 'debug'], false),
+    logger: logger.child({ label: 'lifecycle' }),
+})
+
+container
+    .set(ConfigService, config)
+    .set(LifecycleService, lifecycle)
+    .set(LoggerService, logger)
+    .set(FetchService, new FetchBrowserService())
+    .set('state', window.__STATE__ || {})
+
+lifecycle.addImports(import.meta.glob('./hooks/*.ts', { eager: true }))
 
 const serviceOptions = { debug: config.get('modules.debug') || config.get('app.debug') }
 
 const useBrowserService = config.get('modules.browser.service') === 'browser' || import.meta.env.PROD
 
-di.set(ModulesService, useBrowserService
+container.set(ModulesService, useBrowserService
     ? new ModulesBrowserService(serviceOptions) 
     : new ModulesDevService(serviceOptions)
 )
 
 async function main(){
-    await lifecycle.register()
+    await lifecycle.emit(['register', 'load', 'boot'])
     
-    await lifecycle.load()
-    
-    await lifecycle.boot()
-    
-    const app = di.get<App>('app')
-    const router = di.get<Router>('router')
+    const app = container.get<App>('app')
+    const router = container.get<Router>('router')
     
     const head = createHead({ init: window.__STATE__?.head ? [window.__STATE__.head] : [] })
     
