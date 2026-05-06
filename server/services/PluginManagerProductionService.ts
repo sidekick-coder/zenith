@@ -5,6 +5,7 @@ import { container, PluginEntity, PluginEntryEntity } from '@sidekick-coder/zeni
 import PluginManagerService from './PluginManagerService.ts'
 import ExpressService from './express.service.ts'
 import emmitter from '#server/facades/emmitter.facade.ts'
+import { resolveHeadAssetsFromManifest } from '#server/utils/resolveHeadAssetsFromManifest.ts'
 
 export default class PluginManagerProductionService extends PluginManagerService {
     private async loadPluginServerEntry(plugin: PluginEntryEntity) {
@@ -83,6 +84,8 @@ export default class PluginManagerProductionService extends PluginManagerService
         const plugins = Array.from(this.entries.values()).filter(plugin => plugin.enabled)
 
         const entries = [] as any
+        const links = [] as any
+        const scripts = [] as any
 
         for (const plugin of plugins) {
             const logger = this.logger.child({ pluginId: plugin.id })
@@ -102,6 +105,32 @@ export default class PluginManagerProductionService extends PluginManagerService
                 logger.warn(`${plugin.id} client browser entry not found in manifest, skipping...`)
                 return
             }
+
+            const result = resolveHeadAssetsFromManifest({
+                manifest,
+                entry: 'src/client/index.ts',
+                baseUrl: `/plugins/${plugin.id}/vendor`
+            })
+
+            // convert scripts to preload links 
+            result.scripts.forEach((script: any) => {
+                links.push({
+                    rel: 'modulepreload',
+                    href: script.src
+                })
+            })
+
+            links.push(...result.links)
+
+            // also add any css files to links
+            Object.values(manifest).forEach((chunk: any) => {
+                if (chunk.file.endsWith('.css')) {
+                    links.push({
+                        rel: 'stylesheet',
+                        href: `/plugins/${plugin.id}/vendor/${chunk.file}`
+                    })
+                }
+            })
 
             const pluginEntry = {
                 id: plugin.id,
@@ -124,7 +153,14 @@ export default class PluginManagerProductionService extends PluginManagerService
             }
 
         }
-        emmitter.on('page:request:start', c => c.setBrowserContainerValue('plugin:entries', entries))
+        emmitter.on('page:request:before-render', c => {
+            c.setBrowserContainerValue('plugin:entries', entries)
+
+            c.head.push({
+                link: links,
+                script: scripts
+            })
+        })
     }
 
 

@@ -37,7 +37,7 @@ export default class PluginManagerProductionBrowserService extends PluginMangerS
 
             const pluginModule = await fn!()
 
-            const contructor = pluginModule.default as any as typeof PluginEntity
+            const contructor = pluginModule.default || pluginModule as any as typeof PluginEntity
 
             if (!contructor.from) {
                 this.logger.error(`Looks like plugin ${e.id} is not an instance of PluginEntity, missing static from method`)
