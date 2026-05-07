@@ -22,6 +22,12 @@ export default class extends LifecycleHook {
 
         router.beforeEach(setupGuard)
 
+        router.beforeEach(async (to) => {
+            container.set('route', to)
+
+            return true
+        })
+
         router.auto(import.meta.glob<DefineComponent>('../pages/admin/**/*.vue',), {
             strip: ['pages'],
             guards: [authGuard]
