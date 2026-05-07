@@ -77,6 +77,26 @@ export default class PluginManagerService {
         return Array.from(this.entries.values())
     }
 
+    public enable(id: string) {
+        const plugin = this.findByIdOrFail(id)
+
+        config.set(`plugins.${plugin.id}.enabled`, true)
+    }
+
+    public disable(id: string) {
+        const plugin = this.findByIdOrFail(id)
+
+        config.set(`plugins.${plugin.id}.enabled`, false)
+    }
+
+    public toggle(id: string) {
+        if (config.get(`plugins.${id}.enabled`)) {
+            return this.disable(id)
+        }
+
+        return this.enable(id)
+    }
+
     public findById(id: string) {
         return this.entries.get(id)
     }

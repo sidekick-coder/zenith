@@ -2,13 +2,13 @@ import { container, config, MenuService } from '@sidekick-coder/zenith-kit/clien
 import { LifecycleHook } from '@sidekick-coder/zenith-kit/shared'
 
 export default class extends LifecycleHook {
-    public async onRegister(): Promise<void> {
+    public async register(): Promise<void> {
         const menu = new MenuService()
 
         container.set(MenuService, menu)
     }
 
-    public async onLoad(): Promise<void> {
+    public async load(): Promise<void> {
         const menu = container.get<MenuService>(MenuService)
 
         // auth

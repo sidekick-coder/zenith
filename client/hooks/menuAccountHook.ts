@@ -1,8 +1,10 @@
-import menu from '#client/facades/menu.facade.ts'
-import LifecycleHook from '#shared/entities/lifecycleHook.entity.ts'
+import { container, MenuService } from '@sidekick-coder/zenith-kit/client'
+import { LifecycleHook } from '@sidekick-coder/zenith-kit/shared'
 
-export default class MenuAccountLifecycleHook extends LifecycleHook {
-    public async onLoad(): Promise<void> {
+export default class extends LifecycleHook {
+    public async load(): Promise<void> {
+        const menu = container.get<MenuService>(MenuService)
+
         const layout = 'account-setting'
 
         menu.add({
