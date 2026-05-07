@@ -109,7 +109,7 @@ export default class ViteDevelopmentService extends ViteService {
             script: [
                 {
                     type: 'module',
-                    src: '/client/entry-client.ts'
+                    src: '/client/entry-browser.ts'
                 },
             ],
         })

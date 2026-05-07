@@ -1,7 +1,7 @@
-import { container, MenuService } from '@sidekick-coder/zenith-kit/client'
-import LifecycleHook from '#shared/entities/lifecycleHook.entity.ts'
+import { container, config, MenuService } from '@sidekick-coder/zenith-kit/client'
+import { LifecycleHook } from '@sidekick-coder/zenith-kit/shared'
 
-export default class MenuLifecycleHook extends LifecycleHook {
+export default class extends LifecycleHook {
     public async onRegister(): Promise<void> {
         const menu = new MenuService()
 
@@ -144,13 +144,22 @@ export default class MenuLifecycleHook extends LifecycleHook {
             icon: 'Puzzle',
             group: $t('Modules'),
         })
+
+        menu.add({
+            layout: 'admin',
+            label: $t('Plugins'),
+            to: '/admin/plugins',
+            icon: 'Puzzle',
+            group: $t('Plugins'),
+        })
+
     }
     
     public async onBoot(): Promise<void> {
-        // const menu = container.get<MenuService>(MenuService)
-        //
-        // // config.get<string>('menu.hide', '').split(',')
-        //     .map((s: string) => s.trim())
-        //     .forEach(id => menu.remove(id))
+        const menu = container.get<MenuService>(MenuService)
+
+        config.get<string>('menu.hide', '').split(',')
+            .map((s: string) => s.trim())
+            .forEach(id => menu.remove(id))
     }
 }

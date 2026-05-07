@@ -3,8 +3,6 @@ import { config, container, logger } from '@sidekick-coder/zenith-kit/client'
 import PluginManagerService from '#client/services/PluginManagerService.ts'
 import type { PluginManagerServiceOptions } from '#client/services/PluginManagerService.ts'
 import PluginManagerDevelopmentService from '#client/services/PluginManagerDevelopmentService.ts'
-import PluginManagerProductionNodeService from '#client/services/PluginManagerProductionNodeService.ts'
-import PluginManagerProductionBrowserService from '#client/services/PluginManagerProductionBrowserService.ts'
 
 export default class extends LifecycleHook {
     public order = 998
@@ -17,16 +15,20 @@ export default class extends LifecycleHook {
             logger: logger.child({ label: 'plugin-manager' }),
         }
 
-        if (import.meta.env.DEV) {
-            manager = new PluginManagerDevelopmentService(options)
-        }
-
         if (import.meta.env.PROD && !import.meta.env.SSR) {
+            const PluginManagerProductionBrowserService = (await import('#client/services/PluginManagerProductionBrowserService.ts')).default 
+
             manager = new PluginManagerProductionBrowserService(options)
         }
 
         if (import.meta.env.PROD && import.meta.env.SSR) {
+            const PluginManagerProductionNodeService = (await import('#client/services/PluginManagerProductionNodeService.ts')).default
+
             manager = new PluginManagerProductionNodeService(options)
+        }
+
+        if (import.meta.env.DEV) {
+            manager = new PluginManagerDevelopmentService(options)
         }
 
         if (!manager) {

@@ -38,6 +38,12 @@ export default class extends LifecycleHook {
             manager.addDir(id, value.directory)
         }
 
+        for (const [id, value] of Object.entries<any>(config.get('plugins', {}))) {
+            if (value.directory) {
+                manager.addDir(id, value.directory)
+            }
+        }
+
         container.set(PluginManagerService, manager)
 
         await manager.register()
