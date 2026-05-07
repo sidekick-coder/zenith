@@ -56,7 +56,7 @@ export default class extends LifecycleHook {
         
     }
 
-    public async onBoot(): Promise<void> {
+    public async boot(): Promise<void> {
         const router = container.get<Router>('router')
         const app = container.get<App>('app')
 
