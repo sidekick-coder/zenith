@@ -1,3 +1,4 @@
+import { confirm } from '@inquirer/prompts'
 import { migrator } from '@sidekick-coder/zenith-kit/server'
 import arte from '#server/facades/arte.facade.ts'
 
@@ -13,21 +14,41 @@ arte.command('migrator:down')
     .option('-n, --step-number <number>', 'Number of migrations to rollback', Number)
     .option('-s, --source <string>', 'Filter by source name')
     .action(async (options: Options) => {
-        let results = await migrator.down(options.step, { source: options.source })
+        const step = options.step ?? 1
 
-        results = results.map(m => ({
-            name: m.name,
-            filename: m.filename,
-            source: m.source,
-            result: m.result,
-            error: m.error ? m.error.message : null,
-        }))
+        let executed = await migrator.list({ source: options.source })
 
+        executed = executed
+            .filter(m => m.executedAt)
+            .sort((a, b) => b.name.localeCompare(a.name))
+            .slice(0, step)
 
-        if (results.length === 0) {
+        if (executed.length === 0) {
             console.log('No migrations to rollback')
             return
         }
 
-        arte.table(results)
+        arte.table(executed, [
+            { label: 'name', value: 'name' },
+            { label: 'source', value: i => i.source || arte.colors.dim('root'), width: 20 },
+        ])
+
+        const confirmed = await confirm({
+            message: `Rollback ${executed.length} migration(s)?`,
+            default: false,
+        })
+
+        if (!confirmed) {
+            console.log('Cancelled')
+            return
+        }
+
+        const results = await migrator.down(options.step, { source: options.source })
+
+        arte.table(results.map(m => ({
+            name: m.name,
+            source: m.source,
+            result: m.result === 'success' ? arte.colors.green(m.result) : arte.colors.red(m.result),
+            error: m.error ? m.error.message : null,
+        })))
     })

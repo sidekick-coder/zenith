@@ -14,23 +14,45 @@ arte.command('migrator:fresh')
     .option('-s, --source <string>', 'Filter by source name')
     .option('-n, --steps <number>', 'Number of migrations to rollback before running fresh', Number)
     .action(async (options: Options) => {
-        let results = await migrator.fresh({
+        let toRollback = await migrator.list({ source: options.source })
+
+        toRollback = toRollback
+            .filter(m => m.executedAt)
+            .sort((a, b) => b.name.localeCompare(a.name))
+
+        if (options.steps !== undefined) {
+            toRollback = toRollback.slice(0, options.steps)
+        }
+
+        if (toRollback.length === 0) {
+            console.log('No migrations to rollback')
+            return
+        }
+
+        arte.table(toRollback, [
+            { label: 'name', value: 'name' },
+            { label: 'source', value: i => i.source || arte.colors.dim('root'), width: 20 },
+        ])
+
+        const confirmed = await confirm({
+            message: `Rollback ${toRollback.length} migration(s) and re-run them?`,
+            default: false,
+        })
+
+        if (!confirmed) {
+            console.log('Cancelled')
+            return
+        }
+
+        const results = await migrator.fresh({
             source: options.source,
             steps: options.steps,
         })
 
-        results = results.map(m => ({
+        arte.table(results.map(m => ({
             name: m.name,
-            filename: m.filename,
             source: m.source,
-            result: m.result,
+            result: m.result === 'success' ? arte.colors.green(m.result) : arte.colors.red(m.result),
             error: m.error ? m.error.message : null,
-        }))
-
-        if (!results.length) {
-            console.log('No migrations to run')
-            return
-        }
-
-        arte.table(results)
+        })))
     })
