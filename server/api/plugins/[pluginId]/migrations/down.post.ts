@@ -1,6 +1,7 @@
 import type { HttpContext } from '@sidekick-coder/zenith-kit/server'
 import { validator } from '@sidekick-coder/zenith-kit/shared'
-import { migrator, BaseException } from '@sidekick-coder/zenith-kit/server'
+import { migrator } from '@sidekick-coder/zenith-kit/server'
+import { BaseException } from '@sidekick-coder/zenith-kit/shared'
 import pluginManager from '#server/facades/pluginManager.ts'
 
 export default async function ({ params, body, acl }: HttpContext) {
@@ -10,9 +11,7 @@ export default async function ({ params, body, acl }: HttpContext) {
 
     acl.authorize('rollback', plugin)
 
-    const payload = validator.validate(body, v => v.object({
-        steps: v.optional(v.pipe(v.number(), v.integer()), 1),
-    }))
+    const payload = validator.validate(body, v => v.object({ steps: v.optional(v.pipe(v.number(), v.integer()), 1), }))
 
     const results = await migrator.down(payload.steps, { source: plugin.id })
 

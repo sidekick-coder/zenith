@@ -108,7 +108,7 @@ export default class ExpressService {
             method: request.method.toLowerCase(),
             params: Route.params(route.path, url.pathname),
             query: Route.query(url.href),
-            body: request.body,
+            body: request.body || {},
 
             upload: new UploadService(request, response),
             cookie: new CookieService(request, response)

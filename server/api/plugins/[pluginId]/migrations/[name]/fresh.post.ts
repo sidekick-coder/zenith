@@ -1,7 +1,6 @@
 import type { HttpContext } from '@sidekick-coder/zenith-kit/server'
-import { validator } from '@sidekick-coder/zenith-kit/shared'
+import { validator, BaseException } from '@sidekick-coder/zenith-kit/shared'
 import { migrator } from '@sidekick-coder/zenith-kit/server'
-import { BaseException } from '@sidekick-coder/zenith-kit/shared'
 import pluginManager from '#server/facades/pluginManager.ts'
 
 export default async function ({ params, acl }: HttpContext) {
@@ -10,7 +9,7 @@ export default async function ({ params, acl }: HttpContext) {
 
     const plugin = pluginManager.findByIdOrFail(pluginId)
 
-    acl.authorize('migrate', plugin)
+    acl.authorize('fresh', plugin)
 
     const migrations = await migrator.list({ source: plugin.id })
 
@@ -18,6 +17,12 @@ export default async function ({ params, acl }: HttpContext) {
 
     if (!migration) {
         throw new BaseException(`Migration "${name}" not found for plugin "${plugin.id}"`)
+    }
+
+    const rollback = await migrator.rollbackFile(migration.filename)
+
+    if (rollback.result === 'failed') {
+        throw new BaseException(rollback.error?.message ?? 'Rollback failed')
     }
 
     const result = await migrator.migrateFile(migration.filename)

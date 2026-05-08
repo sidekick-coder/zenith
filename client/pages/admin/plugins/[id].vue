@@ -9,19 +9,19 @@ import { Tabs, TabsList, TabsTrigger } from '#client/components/ui/tabs'
 import { Skeleton } from '#client/components/ui/skeleton'
 import TextField from '#client/components/TextField.vue'
 import { $fetch } from '#client/utils/fetcher.ts'
+import PluginMigrations from '#client/components/PluginMigrations.vue'
 
 const route = useRoute()
 const pluginId = computed(() => route.params.id as string)
 
 const item = ref<any>(null)
 const loading = ref(true)
-const tab = ref('plugintab', 'migrations')
+const tab = ref('migrations')
 
 const tabs: any[] = [
     {
         id: 'migrations',
         label: $t('Migrations'),
-        // component: defineAsyncComponent(() => import('#client/components/ModuleMigrations.vue')),
     },
 ]
 
@@ -43,9 +43,15 @@ await load()
 </script>
 
 <template>
-    <AdminLayout>
+    <AdminLayout
+        :breadcrumbs="[
+            { label: $t('Plugins'), href: '/admin/plugins' },
+            { label: item?.name || pluginId, href: `/admin/plugins/${pluginId}` },
+        ]"
+    >
         <div
-            v-if="loading"
+            v-if="
+                loading"
             class="flex flex-col space-y-3"
         >
             <Skeleton class="h-[125px] w-full rounded-xl" />
@@ -126,6 +132,11 @@ await load()
                         </TabsTrigger>
                     </TabsList>
                 </Tabs>
+
+                <PluginMigrations
+                    v-if="item && tab === 'migrations'"
+                    :plugin="item"
+                />
             </div>
         </div>
     </AdminLayout>

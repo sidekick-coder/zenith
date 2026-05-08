@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import { ref } from 'vue'
 import { toast } from 'vue-sonner'
-import Button from './Button.vue'
+import { ZButton as Button } from '@sidekick-coder/zenith-kit/components'
 import ClientOnly from './ClientOnly.vue'
 import {
     AlertDialog,

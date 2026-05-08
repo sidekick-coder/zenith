@@ -1,6 +1,7 @@
 import type { HttpContext } from '@sidekick-coder/zenith-kit/server'
 import { validator } from '@sidekick-coder/zenith-kit/shared'
-import { migrator, BaseException } from '@sidekick-coder/zenith-kit/server'
+import { migrator } from '@sidekick-coder/zenith-kit/server'
+import { BaseException } from '@sidekick-coder/zenith-kit/shared'
 import pluginManager from '#server/facades/pluginManager.ts'
 
 export default async function ({ params, body, acl }: HttpContext) {
