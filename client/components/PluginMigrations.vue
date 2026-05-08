@@ -224,8 +224,7 @@ async function fresh() {
                         class="w-full justify-start"
                         @confirm="fresh"
                     >
-                        <RefreshCw class="size-4 mr-2" />
-                        {{ $t('Fresh all') }}
+                        {{ $t('Fresh') }}
                     </AlertButton>
 
                     <AlertButton
@@ -237,8 +236,7 @@ async function fresh() {
                         class="w-full justify-start"
                         @confirm="rollback"
                     >
-                        <Undo2 class="size-4 mr-2" />
-                        {{ $t('Rollback all') }}
+                        {{ $t('Rollback') }}
                     </AlertButton>
                 </DropdownMenuContent>
             </DropdownMenu>
@@ -252,11 +250,11 @@ async function fresh() {
                 hide-pagination
             >
                 <template #row-actions="{ row }">
-                    <div class="flex justify-end gap-2">
+                    <div class="flex justify-end">
                         <AlertButton
                             v-if="row.status === 'pending'"
                             size="icon"
-                            variant="default"
+                            variant="ghost"
                             :tooltip="$t('Up')"
                             :disabled="!!operation || !!loadingMigration"
                             :loading="loadingMigration === row.name"
@@ -269,7 +267,7 @@ async function fresh() {
                         <AlertButton
                             v-if="row.status === 'executed'"
                             size="icon"
-                            variant="outline"
+                            variant="ghost"
                             :tooltip="$t('Fresh')"
                             :disabled="!!operation || !!loadingMigration"
                             :loading="loadingMigration === row.name"
@@ -282,7 +280,7 @@ async function fresh() {
                         <AlertButton
                             v-if="row.status === 'executed'"
                             size="icon"
-                            variant="destructive"
+                            variant="ghost"
                             :tooltip="$t('Down')"
                             :disabled="!!operation || !!loadingMigration"
                             :loading="loadingMigration === row.name"
