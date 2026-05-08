@@ -1,5 +1,5 @@
 import fs from 'fs'
-import { basePath, PluginEntity, PluginEntryEntity } from '@sidekick-coder/zenith-kit/server'
+import { basePath, migrator, PluginEntity, PluginEntryEntity } from '@sidekick-coder/zenith-kit/server'
 import PluginManagerService from './PluginManagerService.ts'
 import emmitter from '#server/facades/emmitter.facade.ts'
 
@@ -31,6 +31,17 @@ export default class PluginManagerDevelopmentService extends PluginManagerServic
         const instance: PluginEntity = contructor.fromPluginDiscoverEntity(plugin)
 
         await instance.load()
+
+        if (plugin.makePath('src', 'server', 'migrations')) {
+            migrator.addSource({
+                id: plugin.id,
+                directory: plugin.makePath('src', 'server', 'migrations'),
+            })
+
+            if (this.debug) {
+                logger.debug(`added plugin ${plugin.id} migrations to migrator`)
+            }
+        }
 
         if (this.debug) {
             logger.debug(`loaded plugin (${plugin.id} v${instance.version})`)

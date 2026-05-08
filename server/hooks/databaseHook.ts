@@ -8,6 +8,7 @@ import LifecycleHook from '#shared/entities/lifecycleHook.entity.ts'
 
 export default class DatabaseLifecycleHook extends LifecycleHook {
     public order = 2
+    public hook_aliases = ['database', 'db']
 
     public async onRegister(): Promise<void> {
 
