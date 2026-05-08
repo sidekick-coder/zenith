@@ -6,10 +6,6 @@ export default class extends LifecycleHook {
         const menu = new MenuService()
 
         container.set(MenuService, menu)
-    }
-
-    public async load(): Promise<void> {
-        const menu = container.get<MenuService>(MenuService)
 
         // auth
         menu.add({
