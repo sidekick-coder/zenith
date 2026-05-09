@@ -1,9 +1,36 @@
 import fs from 'fs'
-import { basePath, migrator, PluginEntity, PluginEntryEntity } from '@sidekick-coder/zenith-kit/server'
+import { basePath, migrator, PluginEntity, PluginEntryEntity, SeederService, container, MigratorService } from '@sidekick-coder/zenith-kit/server'
 import PluginManagerService from './PluginManagerService.ts'
 import emmitter from '#server/facades/emmitter.facade.ts'
+import seeder from '#server/facades/seeder.facade.ts'
 
 export default class PluginManagerDevelopmentService extends PluginManagerService {
+    private async loadPluginSources(plugin: PluginEntity) {
+        const logger = this.logger.child({ pluginId: plugin.id })
+
+        if (container.has(MigratorService)) {
+            migrator.addSource({
+                id: plugin.id,
+                directory: plugin.makePath('src', 'server', 'migrations'),
+            })
+
+            if (this.debug) {
+                logger.debug(`added plugin ${plugin.id} migrations to migrator`)
+            }
+        }
+
+        if (container.has(SeederService)) {
+            seeder.addSource({
+                id: plugin.id,
+                directory: plugin.makePath('src', 'server', 'seeders'),
+            })
+
+            if (this.debug) {
+                logger.debug(`added plugin ${plugin.id} seeders to seeder`)
+            }
+        }
+    }
+
     private async loadPluginServerEntry(plugin: PluginEntryEntity) {
         const logger = this.logger.child({ pluginId: plugin.id })
 
@@ -32,16 +59,7 @@ export default class PluginManagerDevelopmentService extends PluginManagerServic
 
         await instance.load()
 
-        if (plugin.makePath('src', 'server', 'migrations')) {
-            migrator.addSource({
-                id: plugin.id,
-                directory: plugin.makePath('src', 'server', 'migrations'),
-            })
-
-            if (this.debug) {
-                logger.debug(`added plugin ${plugin.id} migrations to migrator`)
-            }
-        }
+        this.loadPluginSources(instance)
 
         if (this.debug) {
             logger.debug(`loaded plugin (${plugin.id} v${instance.version})`)

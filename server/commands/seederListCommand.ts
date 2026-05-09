@@ -8,10 +8,10 @@ interface SeederListOptions {
 }
 
 arte.command('seeder:list')
-    .need('seeder')
+    .need('seeder', 'plugins')
     .helpGroup('database')
     .description('List all available seed files')
-    .option('-m, --source <source>', 'Filter seeds by source')
+    .option('-s, --source <source>', 'Filter seeds by source')
     .option('-n, --name <names...>', 'Filter seeds by name(s)')
     .action(async (options: SeederListOptions) => {
         const seeds = await seeder.list({

@@ -10,7 +10,7 @@ interface SeederRunOptions {
 }
 
 arte.command('seeder:run')
-    .need('seeder', 'database')
+    .need('seeder', 'database', 'plugins')
     .helpGroup('database')
     .description('Run database seed files')
     .option('-s, --source <source>', 'Filter seeds by module name')
