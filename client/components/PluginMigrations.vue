@@ -52,7 +52,7 @@ const columns = defineColumns<Migration>([
 async function load() {
     loading.value = true
 
-    const [, data] = await $fetch.try(`/api/plugins/${props.plugin.id}/migrations`)
+    const [, data] = await $fetch.try(`/api/migrations?source=${props.plugin.id}`)
 
     migrations.value = Array.isArray(data) ? (data as Migration[]).reverse() : []
 
@@ -68,7 +68,7 @@ async function migrateOne(migration: Migration) {
     loadingMigration.value = migration.name
 
     const [error] = await $fetch.try(
-        `/api/plugins/${props.plugin.id}/migrations/${encodeURIComponent(migration.name)}/up`,
+        `/api/migrations/${encodeURIComponent(migration.name)}/up`,
         { method: 'POST' }
     )
 
@@ -84,7 +84,7 @@ async function rollbackOne(migration: Migration) {
     loadingMigration.value = migration.name
 
     const [error] = await $fetch.try(
-        `/api/plugins/${props.plugin.id}/migrations/${encodeURIComponent(migration.name)}/down`,
+        `/api/migrations/${encodeURIComponent(migration.name)}/down`,
         { method: 'POST' }
     )
 
@@ -100,7 +100,7 @@ async function freshOne(migration: Migration) {
     loadingMigration.value = migration.name
 
     const [error] = await $fetch.try(
-        `/api/plugins/${props.plugin.id}/migrations/${encodeURIComponent(migration.name)}/fresh`,
+        `/api/migrations/${encodeURIComponent(migration.name)}/fresh`,
         { method: 'POST' }
     )
 
@@ -115,7 +115,7 @@ async function freshOne(migration: Migration) {
 async function up() {
     operation.value = 'up'
 
-    const [error] = await $fetch.try(`/api/plugins/${props.plugin.id}/migrations/up`, { method: 'POST', })
+    const [error] = await $fetch.try(`/api/migrations/up`, { method: 'POST', body: { source: props.plugin.id } })
 
     operation.value = undefined
 
@@ -128,7 +128,7 @@ async function up() {
 async function down() {
     operation.value = 'down'
 
-    const [error] = await $fetch.try(`/api/plugins/${props.plugin.id}/migrations/down`, { method: 'POST', })
+    const [error] = await $fetch.try(`/api/migrations/down`, { method: 'POST', body: { source: props.plugin.id } })
 
     operation.value = undefined
 
@@ -141,7 +141,7 @@ async function down() {
 async function rollback() {
     operation.value = 'rollback'
 
-    const [error] = await $fetch.try(`/api/plugins/${props.plugin.id}/migrations/rollback`, { method: 'POST', })
+    const [error] = await $fetch.try(`/api/migrations/rollback`, { method: 'POST', body: { source: props.plugin.id } })
 
     operation.value = undefined
 
@@ -154,7 +154,7 @@ async function rollback() {
 async function fresh() {
     operation.value = 'fresh'
 
-    const [error] = await $fetch.try(`/api/plugins/${props.plugin.id}/migrations/fresh`, { method: 'POST', })
+    const [error] = await $fetch.try(`/api/migrations/fresh`, { method: 'POST', body: { source: props.plugin.id } })
 
     operation.value = undefined
 

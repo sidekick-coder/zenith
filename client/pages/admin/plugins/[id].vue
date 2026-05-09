@@ -10,6 +10,7 @@ import { Skeleton } from '#client/components/ui/skeleton'
 import TextField from '#client/components/TextField.vue'
 import { $fetch } from '#client/utils/fetcher.ts'
 import PluginMigrations from '#client/components/PluginMigrations.vue'
+import PluginSeeders from '#client/components/PluginSeeders.vue'
 
 const route = useRoute()
 const pluginId = computed(() => route.params.id as string)
@@ -22,6 +23,10 @@ const tabs: any[] = [
     {
         id: 'migrations',
         label: $t('Migrations'),
+    },
+    {
+        id: 'seeders',
+        label: $t('Seeders'),
     },
 ]
 
@@ -135,6 +140,11 @@ await load()
 
                 <PluginMigrations
                     v-if="item && tab === 'migrations'"
+                    :plugin="item"
+                />
+
+                <PluginSeeders
+                    v-if="item && tab === 'seeders'"
                     :plugin="item"
                 />
             </div>
