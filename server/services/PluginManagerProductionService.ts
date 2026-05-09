@@ -1,13 +1,40 @@
 import fs from 'fs'
 import path from 'path'
 import express from 'express'
-import { container, PluginEntity, PluginEntryEntity } from '@sidekick-coder/zenith-kit/server'
+import { container, migrator, MigratorService, PluginEntity, PluginEntryEntity, SeederService } from '@sidekick-coder/zenith-kit/server'
 import PluginManagerService from './PluginManagerService.ts'
 import ExpressService from './express.service.ts'
 import emmitter from '#server/facades/emmitter.facade.ts'
 import { resolveHeadAssetsFromManifest } from '#server/utils/resolveHeadAssetsFromManifest.ts'
+import seeder from '#server/facades/seeder.facade.ts'
 
 export default class PluginManagerProductionService extends PluginManagerService {
+    private async loadPluginSources(plugin: PluginEntity) {
+        const logger = this.logger.child({ pluginId: plugin.id })
+
+        if (container.has(MigratorService)) {
+            migrator.addSource({
+                id: plugin.id,
+                directory: plugin.makePath('dist', 'server', 'migrations'),
+            })
+
+            if (this.debug) {
+                logger.debug(`added plugin ${plugin.id} migrations to migrator`)
+            }
+        }
+
+        if (container.has(SeederService)) {
+            seeder.addSource({
+                id: plugin.id,
+                directory: plugin.makePath('dist', 'server', 'seeders'),
+            })
+
+            if (this.debug) {
+                logger.debug(`added plugin ${plugin.id} seeders to seeder`)
+            }
+        }
+    }
+
     private async loadPluginServerEntry(plugin: PluginEntryEntity) {
         const logger = this.logger.child({ pluginId: plugin.id })
 
@@ -35,6 +62,8 @@ export default class PluginManagerProductionService extends PluginManagerService
         const instance: PluginEntity = contructor.fromPluginDiscoverEntity(plugin)
 
         await instance.load()
+
+        this.loadPluginSources(instance)
 
         logger.info(`plugin loaded (${plugin.id} v${instance.version})`)
     }
