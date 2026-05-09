@@ -11,11 +11,11 @@ export default class extends LifecycleHook {
     public hook_aliases = ['plugin-manager', 'plugins']
 
     public async register(){
-        const logger = baseLogger.child({ label: 'plugin-manager' })
+        const logger = baseLogger.child({ label: 'plugins' })
 
         const options: PluginManagerServiceOptions = {
             logger: logger,
-            debug: config.getOne(['plugin-manager.debug', 'app.debug', 'debug'], false)
+            debug: config.getOne(['plugins.debug', 'app.debug', 'debug'], false)
         }
 
         let manager: PluginManagerService | null = null
@@ -34,15 +34,13 @@ export default class extends LifecycleHook {
             throw new BaseException('Failed to initialize PluginManagerService')
         }
 
-        for (const [id, value] of Object.entries(env.get('ZENITH_PLUGINS') || {})) {
-            manager.addDir(id, value.directory)
+        const dirs = config.get<string[]>('plugins.dirs', [])
+
+        if (env.has('ZENITH_PLUGINS_DIRS')) {
+            dirs.push(...env.get('ZENITH_PLUGINS_DIRS')!)
         }
 
-        for (const [id, value] of Object.entries<any>(config.get('plugins', {}))) {
-            if (value.directory) {
-                manager.addDir(id, value.directory)
-            }
-        }
+        manager.addDir(...dirs)
 
         container.set(PluginManagerService, manager)
 

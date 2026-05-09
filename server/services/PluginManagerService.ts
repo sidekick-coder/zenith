@@ -1,7 +1,9 @@
 import fs from 'fs'
 import path from 'path'
-import { config, PluginEntryEntity } from '@sidekick-coder/zenith-kit/server'
+import { config, GitGateway, PluginEntryEntity } from '@sidekick-coder/zenith-kit/server'
 import { BaseException, LoggerService } from '@sidekick-coder/zenith-kit/shared'
+import cosmicconfig from 'cosmiconfig'
+import { tryCatch } from '#shared/utils/tryCatch.ts'
 
 export interface PluginDefinition {
     id: string
@@ -17,14 +19,14 @@ export interface PluginManagerServiceOptions {
 export default class PluginManagerService {
     public static __container_entry_key = 'PluginManagerService'
     public entries: Map<string, PluginEntryEntity>
-    public dirs: Map<string, string>
+    public dirs: Set<string>
     public logger: LoggerService
     public debug = false
 
     constructor(options: PluginManagerServiceOptions) {
         this.logger = options.logger || new LoggerService()
         this.entries = new Map()
-        this.dirs = new Map()
+        this.dirs = new Set()
         this.debug = options.debug || false
 
         if (this.debug) {
@@ -32,44 +34,90 @@ export default class PluginManagerService {
         }
     }
 
-    public addDir(pluginId: string, directory: string) {
-        this.dirs.set(pluginId, directory)
+    public addDir(...dirs: string[]) {
+        dirs.forEach(dir => this.dirs.add(dir))
     }
 
     public async load(): Promise<void> {
         throw new BaseException('Plugin loading not implemented yet')
     }
 
-    private async registerPlugin(id: string, directory: string) {
-        let pkg = {} as any
-        let manifest = {} as any
+    private async registerPlugin(directory: string) {
+        const pkg = {} as any
+        const manifest = {} as any
+        const pluginConfig = {} as any
+        const git = {} as any
 
         if (fs.existsSync(path.join(directory, 'package.json'))) {
-            pkg = JSON.parse(fs.readFileSync(path.join(directory, 'package.json'), 'utf-8'))
+            const json = JSON.parse(fs.readFileSync(path.join(directory, 'package.json'), 'utf-8'))
+
+            Object.assign(pkg, json)
         }
 
         if (fs.existsSync(path.join(directory, 'manifest.json'))) {
-            manifest = JSON.parse(fs.readFileSync(path.join(directory, 'manifest.json'), 'utf-8'))
+            const json = JSON.parse(fs.readFileSync(path.join(directory, 'manifest.json'), 'utf-8'))
+
+            Object.assign(manifest, json)
+        }
+
+        const explorer = cosmicconfig.cosmiconfigSync('zenith', {
+            searchPlaces: [
+                'zenith.config.js',
+                'zenith.config.yml',
+                'zenith.config.yaml',
+            ]
+        })
+
+        const result = explorer.search(directory)
+
+        if (result && result.config) {
+            Object.assign(pluginConfig, result.config)
+        }
+
+        if (!pluginConfig.id) {
+            this.logger.error('plugin config must have an id', { directory })
+            return
+        }
+
+        const gitGateay = new GitGateway({
+            logger: this.logger.child({ plugin: pluginConfig.id }),
+            cwd: directory,
+        })
+
+        const [error, gitInfo] = await tryCatch(() => gitGateay.getInfo())
+
+        if (error) {
+            this.logger.warn('failed to get git info for plugin', {
+                directory,
+                error 
+            })
+            return
         }
 
         const plugin = PluginEntryEntity.from({
-            id,
+            id: pluginConfig.id,
+            aliases: pluginConfig.aliases || [],
             directory,
-            name: manifest.name || pkg.name || id,
-            version: manifest.version || pkg.version || '0.0.0',
-            enabled: config.get(`plugins.${id}.enabled`, false),
+            name: manifest.name || pkg.name || pluginConfig.id,
+            version: `${gitInfo?.head || 'unknown'}@${gitInfo?.shortHash || 'unknown'}`,
+            enabled: config.get(`plugins.registry.${pluginConfig.id}.enabled`, false),
         })
 
         if (this.debug) {
-            this.logger.debug(`discovered plugin ${id}`, plugin)
+            this.logger.debug(`discovered plugin ${plugin.name} (${plugin.id})`, {
+                id: plugin.id,
+                name: plugin.name,
+                version: plugin.version,
+                directory: plugin.directory,
+            })
         }
 
-        this.entries.set(id, plugin)
+        this.entries.set(pluginConfig.id, plugin)
     }
 
     public async register() {
-        for (const [id, directory] of this.dirs.entries()) {
-            await this.registerPlugin(id, directory)
+        for (const directory of this.dirs.values()) {
+            await this.registerPlugin(directory)
         }
     }
 
@@ -78,34 +126,46 @@ export default class PluginManagerService {
     }
 
     public enable(id: string) {
-        const plugin = this.findByIdOrFail(id)
+        const plugin = this.findOrFail(id)
 
-        config.set(`plugins.${plugin.id}.enabled`, true)
+        config.set(`plugins.registry.${plugin.id}.enabled`, true)
     }
 
     public disable(id: string) {
-        const plugin = this.findByIdOrFail(id)
+        const plugin = this.findOrFail(id)
 
-        config.set(`plugins.${plugin.id}.enabled`, false)
+        config.set(`plugins.registry.${plugin.id}.enabled`, false)
     }
 
     public toggle(id: string) {
-        if (config.get(`plugins.${id}.enabled`)) {
+        if (config.get(`plugins.registry.${id}.enabled`)) {
             return this.disable(id)
         }
 
         return this.enable(id)
     }
 
-    public findById(id: string) {
-        return this.entries.get(id)
+    public find(idNameOrAlias: string) {
+        const all = this.list()
+
+        let search = all.find(p => p.id === idNameOrAlias)
+
+        if (!search) {
+            search = all.find(p => p.name === idNameOrAlias)
+        }
+
+        if (!search) {
+            search = all.find(p => p.aliases?.includes(idNameOrAlias))
+        }
+
+        return search
     }
 
-    public findByIdOrFail(id: string) {
-        const plugin = this.findById(id)
+    public findOrFail(id: string) {
+        const plugin = this.find(id)
 
         if (!plugin) {
-            throw new BaseException(`Plugin with id ${id} not found`)
+            throw new BaseException(`Plugin "${id}" not found`)
         }
 
         return plugin

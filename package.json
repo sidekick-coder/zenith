@@ -53,6 +53,7 @@
         "commander": "^14.0.0",
         "cookie-parser": "^1.4.7",
         "cors": "^2.8.5",
+        "cosmiconfig": "^9.0.1",
         "date-fns": "^4.1.0",
         "dotenv": "^17.2.3",
         "echarts": "^6.0.0",
