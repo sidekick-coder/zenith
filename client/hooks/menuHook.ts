@@ -89,7 +89,7 @@ export default class extends LifecycleHook {
             icon: 'Mail',
             group: $t('Mail')
         })
-        
+
         menu.add({
             layout: 'admin',
             label: $t('Templates'),
@@ -97,6 +97,24 @@ export default class extends LifecycleHook {
             icon: 'Mail',
             group: $t('Mail')
         })
+
+        // database 
+        menu.add({
+            layout: 'admin',
+            label: $t('Migrations'),
+            to: '/admin/migrations',
+            icon: 'Database',
+            group: $t('Database')
+        })
+
+        menu.add({
+            layout: 'admin',
+            label: $t('Seeders'),
+            to: '/admin/seeders',
+            icon: 'Database',
+            group: $t('Database')
+        })
+
 
         // site
         menu.add({
@@ -150,7 +168,7 @@ export default class extends LifecycleHook {
         })
 
     }
-    
+
     public async onBoot(): Promise<void> {
         const menu = container.get<MenuService>(MenuService)
 
