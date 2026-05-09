@@ -1,8 +1,8 @@
+import { migrator } from '@sidekick-coder/zenith-kit/server'
 import BaseException from '#server/exceptions/base.ts'
 import root from '#server/facades/router.facade.ts'
 import config from '#server/facades/config.facade.ts'
 
-import migrator from '#server/facades/migrator.facade.ts'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
 import db from '#server/facades/db.facade.ts'
 import drive from '#server/facades/drive.facade.ts'
@@ -58,7 +58,8 @@ router.post('/database', async ({ body }) => {
 
     const [error] = await tryCatch(async () => {
         await db.load('default')
-        await migrator.latest({ root: true })
+
+        await migrator.latest({ source: 'root' })
     })
 
     if (error) {
