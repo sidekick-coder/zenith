@@ -1,19 +1,22 @@
 import arte from '#server/facades/arte.facade.ts'
-import { table } from '#server/utils/cliUi.ts'
 import seeder from '#server/facades/seeder.facade.ts'
 import logger from '#server/facades/logger.facade.ts'
 
-arte.command('seed:list')
+interface SeederListOptions {
+    source?: string
+    name?: string
+}
+
+arte.command('seeder:list')
+    .need('seeder')
     .helpGroup('database')
     .description('List all available seed files')
-    .option('-m, --module <moduleName>', 'Filter seeds by module name')
-    .option('-r, --root', 'Show only root seeds')
+    .option('-m, --source <source>', 'Filter seeds by source')
     .option('-n, --name <names...>', 'Filter seeds by name(s)')
-    .action(async (options) => {
+    .action(async (options: SeederListOptions) => {
         const seeds = await seeder.list({
-            module: options.module,
-            root: options.root,
-            name: options.name
+            source: options.source,
+            name: options.name,
         })
 
         if (seeds.length === 0) {
@@ -21,14 +24,18 @@ arte.command('seed:list')
             return
         }
 
-        table(seeds, [
+        arte.table(seeds, [
             {
                 label: 'Name',
                 value: 'name'
             },
             {
-                label: 'Module',
-                value: 'module',
+                label: 'Filename',
+                value: 'filename'
+            },
+            {
+                label: 'Source',
+                value: 'source',
                 width: 20,
             },
         ])

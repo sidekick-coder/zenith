@@ -1,5 +1,5 @@
-import SeederService from '#server/services/seeder.service.ts'
+import { container, SeederService } from '@sidekick-coder/zenith-kit/server'
 
-const seeder = new SeederService()
+const seeder = container.proxy<SeederService>(SeederService)
 
 export default seeder

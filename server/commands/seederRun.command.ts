@@ -2,20 +2,24 @@ import { confirm } from '@inquirer/prompts'
 import arte from '#server/facades/arte.facade.ts'
 import seeder from '#server/facades/seeder.facade.ts'
 import logger from '#server/facades/logger.facade.ts'
-import { table } from '#server/utils/cliUi.ts'
 
-arte.command('seed:run')
+interface SeederRunOptions {
+    source?: string
+    name?: string | string[]
+    yes?: boolean
+}
+
+arte.command('seeder:run')
+    .need('seeder', 'database')
     .helpGroup('database')
     .description('Run database seed files')
-    .option('-m, --module <moduleName>', 'Filter seeds by module name')
-    .option('-r, --root', 'Run only root seeds')
+    .option('-s, --source <source>', 'Filter seeds by module name')
     .option('-n, --name <names...>', 'Filter seeds by name(s)')
     .option('-y, --yes', 'Skip confirmation prompt')
-    .action(async (options) => {
+    .action(async (options: SeederRunOptions) => {
         const seeds = await seeder.list({
-            module: options.module,
-            root: options.root,
-            name: options.name
+            name: options.name,
+            source: options.source,
         })
 
         if (seeds.length === 0) {
@@ -23,20 +27,10 @@ arte.command('seed:run')
             return
         }
 
-        table(seeds, [
-            {
-                label: 'Name',
-                value: 'name'
-            },
-            {
-                label: 'Module',
-                value: 'module',
-                width: 20,
-            },
-        ])
+        arte.table(seeds)
 
         if (!options.yes) {
-            const confirmation = await confirm({ 
+            const confirmation = await confirm({
                 message: `Do you want to run ${seeds.length} seed(s)?`,
                 default: false
             })
@@ -48,8 +42,7 @@ arte.command('seed:run')
         }
 
         const results = await seeder.run({
-            module: options.module,
-            root: options.root,
+            source: options.source,
             name: options.name
         })
 
@@ -58,18 +51,18 @@ arte.command('seed:run')
 
         for (const result of results) {
             const moduleInfo = result.module ? ` (${result.module})` : ' (root)'
-            
+
             if (result.result === 'success') {
                 logger.info(`✓ ${result.filename}${moduleInfo}`)
                 successCount++
             }
-            
-            if (result.result === 'failed') {                
+
+            if (result.result === 'failed') {
                 logger.error(`Error running ${result.filename}${moduleInfo}`, result.error)
-                
+
                 failedCount++
             }
         }
-        
+
         logger.info(`Completed: ${successCount} succeeded, ${failedCount} failed`)
     })

@@ -3,7 +3,7 @@ import { serverPath } from '#server/utils/paths.ts'
 import EmailTemplate from '#server/entities/emailTemplate.entity.ts'
 import { undeleted } from '#server/queries/softDelete.ts'
 
-export async function run(): Promise<void> {
+export default async function(): Promise<void> {
     const items = [
         {
             name: 'Welcome',
