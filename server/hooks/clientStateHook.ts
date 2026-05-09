@@ -37,7 +37,7 @@ export default class extends LifecycleHook {
         ctx.setBrowserState('site', config.get('site', {}))
         ctx.setBrowserState('branding', config.get('branding', {}))
         ctx.setBrowserState('auth', config.get('auth', {}))
-        ctx.setBrowserState('setup', config.get('setup') || {})
+        ctx.setConfigValue('setup', config.get('setup') || {})
     }
 
     public async register(): Promise<void> {

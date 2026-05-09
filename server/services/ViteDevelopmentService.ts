@@ -7,7 +7,6 @@ import { transformHtmlTemplate } from '@unhead/vue/server'
 import { basePath, PageRequestContextEntity } from '@sidekick-coder/zenith-kit/server'
 import { LoggerService } from '@sidekick-coder/zenith-kit/shared'
 import ViteService from './ViteService.ts'
-import config from '#server/facades/config.facade.ts'
 import router from '#server/facades/router.facade.ts'
 import El from '#server/entities/el.entity.ts'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
@@ -149,7 +148,7 @@ export default class ViteDevelopmentService extends ViteService {
             .html(`
                 window.__STATE__ = ${JSON.stringify(Object.fromEntries(ctx.browserState))};
                 window.__CONTAINER__ = ${JSON.stringify(ctx.browserContainer.toRecord())};
-                window.__CONFIG__ = ${JSON.stringify(ctx.browserConfig)};
+                window.__CONFIG__ = ${JSON.stringify(ctx.browserConfig.toRecord())};
             `)
 
         body
