@@ -5,9 +5,9 @@ import pluginManager from '#server/facades/pluginManager.ts'
 export default function ({ acl, params }: HttpContext) {
     const pluginId = validator.validate(params.pluginId, v => v.string())
 
-    const plugin = pluginManager.findByIdOrFail(pluginId)
+    const plugin = pluginManager.findOrFail(pluginId)
 
-    acl.authorize('list', plugin)
+    acl.authorize('read', 'Plugin', plugin)
 
     return plugin
 }
