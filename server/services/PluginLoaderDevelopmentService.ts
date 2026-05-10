@@ -1,9 +1,8 @@
 import fs from 'fs'
-import { basePath, migrator, PluginEntity, PluginEntryEntity, SeederService, container, MigratorService } from '@sidekick-coder/zenith-kit/server'
+import { basePath, PluginEntity, PluginEntryEntity } from '@sidekick-coder/zenith-kit/server'
 import type { EventContract } from '@sidekick-coder/zenith-kit/server'
 import PluginLoaderService from './PluginLoaderService.ts'
 import emmitter from '#server/facades/emmitter.facade.ts'
-import seeder from '#server/facades/seeder.facade.ts'
 
 export default class PluginLoaderDevelopmentService extends PluginLoaderService {
     private async onBeforeCliLoad({ cli }: EventContract['cli:before-load']) {

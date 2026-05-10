@@ -1,7 +1,7 @@
-import { ConfigManagerService, LifecycleService, basePath } from '@sidekick-coder/zenith-kit/server'
+import { ConfigManagerService, LifecycleService, container, basePath } from '@sidekick-coder/zenith-kit/server'
 import { LoggerService, ConfigService } from '@sidekick-coder/zenith-kit/shared'
+import PluginManagerService from './services/PluginManagerService.ts'
 import env from '#server/facades/env.facade.ts'
-import container from '#server/facades/di.facade.ts'
 import LoggerWinsonService from '#server/services/loggerWinson.service.ts'
 
 // handle unhandled rejections
@@ -16,8 +16,6 @@ process.on('uncaughtException', (error: Error) => {
 env.load()
 
 const prettyLogger = env.development || env.get('ZENITH_LOG_PRETTY', false)
-
-
 
 const logger = LoggerWinsonService.create({
     level: env.get('ZENITH_LOG_LEVEL', 'info'),
@@ -40,6 +38,14 @@ const config = await ConfigManagerService
     })
     .load()
 
+const pluginManager = await PluginManagerService
+    .create()
+    .setConfig(config)
+    .setEnv(env)
+    .setLogger(logger.child({ label: 'plugins' }))
+    .setDebug(config.getOne(['plugins.debug', 'app.debug', 'debug'], false))
+    .load()
+
 const lifecycle = new LifecycleService({
     debug: env.get('ZENITH_LIFECYCLE_DEBUG', false),
     logger: logger.child({ label: 'lifecycle' }),
@@ -51,6 +57,7 @@ const lifecycle = new LifecycleService({
 })
 
 container
+    .set(PluginManagerService, pluginManager)
     .set(LoggerService, logger)
     .set(ConfigService, config)
 
@@ -63,7 +70,6 @@ process.on('SIGINT', () => exit(0))
 process.on('message', (data: any) => {
     if (data?.type === 'shutdown') exit(0)
 })
-
 
 await lifecycle.addDirectory(basePath('server/hooks'))
 

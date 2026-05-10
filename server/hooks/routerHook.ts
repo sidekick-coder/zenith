@@ -1,9 +1,7 @@
 import { LifecycleHook } from '@sidekick-coder/zenith-kit/shared'
-import di from '#server/facades/di.facade.ts'
-import RouterSevice from '#server/services/router.service.ts'
+import { emmitter, config, container, RouterService } from '@sidekick-coder/zenith-kit/server'
 import RouterRegister from '#server/services/routerRegister.service.ts'
 import { serverPath } from '#server/utils/paths.ts'
-import config from '#server/facades/config.facade.ts'
 import setupMiddleware from '#server/middlewares/setup.middleware.ts'
 import authSilenceMiddleware from '#server/middlewares/authSilence.middleware.ts'
 import authorizationMiddleware from '#server/middlewares/authorization.middleware.ts'
@@ -26,11 +24,13 @@ export default class extends LifecycleHook {
             router.use(authorizationMiddleware, 'global')
         }
 
-        di.set(RouterSevice, router)
+        container.set(RouterService, router)
+
+        await emmitter.emitAndWait('router:registered', { router })
     }
 
     public async onLoad(): Promise<void> {
-        const router = di.get<RouterRegister>(RouterSevice)
+        const router = container.get<RouterRegister>(RouterService)
 
         router.addDir(serverPath('routes'), { module: 'root' })
 
@@ -40,17 +40,20 @@ export default class extends LifecycleHook {
             .setRouter(router)
             .setModule('root')
             .load()
+
+        await emmitter.emitAndWait('router:loaded', { router })
+
     }
 
     public async onBoot(): Promise<void> {
-        const router = di.get<RouterRegister>(RouterSevice)
+        const router = container.get<RouterRegister>(RouterService)
 
         await router.load()
     }
 
     public async onShutdown(): Promise<void> {
-        const router = di.get<RouterRegister>(RouterSevice)
+        const router = container.get<RouterRegister>(RouterService)
 
-        await router.clear()
+        router.clear()
     }
 }
