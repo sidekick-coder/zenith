@@ -1,7 +1,6 @@
-import di from './di.facade.ts'
-import ArteService from '#server/services/arte.service.ts'
+import { CliService, container } from '@sidekick-coder/zenith-kit/server'
 
-const arte = di.proxy<ArteService>(ArteService)
+const arte = container.proxy<CliService>(CliService)
 
 export default arte
 

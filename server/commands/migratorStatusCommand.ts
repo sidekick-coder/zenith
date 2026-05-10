@@ -1,9 +1,12 @@
-import { migrator } from '@sidekick-coder/zenith-kit/server'
+import { CliCommand, migrator } from '@sidekick-coder/zenith-kit/server'
 import { orderBy } from 'lodash-es'
 import arte from '#server/facades/arte.facade.ts'
 
-arte
-    .command('migrator:status')
+const command = new CliCommand('migrator:status')
+
+const colors = command.colors
+
+command
     .need('db', 'migrator', 'plugins')
     .helpGroup('migration')
     .option('-s, --source <source>', 'Filter by source')
@@ -27,13 +30,14 @@ arte
             {
                 label: 'source',
                 width: 20,
-                value: i => i.source || arte.colors.dim('root'),
+                value: i => i.source || colors.dim('root'),
             },
             {
                 label: 'status',
-                value: i => i.status === 'Executed' ? arte.colors.green(i.status) : arte.colors.yellow(i.status),
+                value: i => i.status === 'Executed' ? colors.green(i.status) : colors.yellow(i.status),
                 width: 20,
             },
         ])
     })
 
+arte.addCommand(command)

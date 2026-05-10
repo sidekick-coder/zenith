@@ -24,9 +24,11 @@ export default class extends LifecycleHook {
         })
 
         container.set(MigratorService, migrator)
+
+        await emmitter.emitAndWait('migrator:registered', { migrator })
     }
 
-    public async onLoad(): Promise<void> {
+    public async load(): Promise<void> {
         if (!config.get('database.migrator.auto', false)) {
             emmitter.emit('migrator:skipped')
             return

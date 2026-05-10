@@ -1,52 +1,69 @@
 import fs from 'fs'
 import path from 'path'
-import { config, GitGateway, PluginEntryEntity } from '@sidekick-coder/zenith-kit/server'
-import { BaseException, LoggerService } from '@sidekick-coder/zenith-kit/shared'
+import { EnvService, GitGateway, PluginEntryEntity } from '@sidekick-coder/zenith-kit/server'
+import { BaseException, ConfigService, LoggerService } from '@sidekick-coder/zenith-kit/shared'
 import cosmicconfig from 'cosmiconfig'
+import type PluginLoaderService from './PluginLoaderService.ts'
+import type { PluginLoaderServiceOptions } from './PluginLoaderService.ts'
+import PluginLoaderDevelopmentService from './PluginLoaderDevelopmentService.ts'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
-
-export interface PluginDefinition {
-    id: string
-    directory: string
-}
 
 export interface PluginManagerServiceOptions {
     logger?: LoggerService
+    env?: EnvService
     debug?: boolean
+    config?: ConfigService
 }
 
 
 export default class PluginManagerService {
     public static __container_entry_key = 'PluginManagerService'
     public entries: Map<string, PluginEntryEntity>
-    public dirs: Set<string>
     public logger: LoggerService
     public debug = false
+    public env: EnvService
+    public config: ConfigService
 
     constructor(options: PluginManagerServiceOptions) {
         this.logger = options.logger || new LoggerService()
         this.entries = new Map()
-        this.dirs = new Set()
         this.debug = options.debug || false
+        this.env = options.env || new EnvService()
+        this.config = options.config || new ConfigService()
 
         if (this.debug) {
             this.logger.debug('initialized in debug mode')
         }
     }
 
-    public addDir(...dirs: string[]) {
-        dirs.forEach(dir => this.dirs.add(dir))
+    public static create(options: PluginManagerServiceOptions = {}) {
+        return new PluginManagerService(options)
     }
 
-    public async load(): Promise<void> {
-        throw new BaseException('Plugin loading not implemented yet')
+    public setEnv(env: EnvService) {
+        this.env = env
+        return this
     }
 
-    private async registerPlugin(directory: string) {
+    public setLogger(logger: LoggerService) {
+        this.logger = logger
+        return this
+    }
+
+    public setConfig(config: ConfigService) {
+        this.config = config
+        return this
+    }
+
+    public setDebug(debug: boolean) {
+        this.debug = debug
+        return this
+    }
+
+    private async loadPluginDir(directory: string) {
         const pkg = {} as any
         const manifest = {} as any
         const pluginConfig = {} as any
-        const git = {} as any
 
         if (fs.existsSync(path.join(directory, 'package.json'))) {
             const json = JSON.parse(fs.readFileSync(path.join(directory, 'package.json'), 'utf-8'))
@@ -89,7 +106,7 @@ export default class PluginManagerService {
         if (error) {
             this.logger.warn('failed to get git info for plugin', {
                 directory,
-                error 
+                error
             })
             return
         }
@@ -100,7 +117,7 @@ export default class PluginManagerService {
             directory,
             name: manifest.name || pkg.name || pluginConfig.id,
             version: `${gitInfo?.head || 'unknown'}@${gitInfo?.shortHash || 'unknown'}`,
-            enabled: config.get(`plugins.registry.${pluginConfig.id}.enabled`, false),
+            enabled: this.config.get(`plugins.registry.${pluginConfig.id}.enabled`, false),
         })
 
         if (this.debug) {
@@ -115,10 +132,41 @@ export default class PluginManagerService {
         this.entries.set(pluginConfig.id, plugin)
     }
 
-    public async register() {
-        for (const directory of this.dirs.values()) {
-            await this.registerPlugin(directory)
+    public async loadEntries(): Promise<void> {
+        const configDirs = this.config.get<string[]>('plugins.dirs', [])
+        const envDirs = this.env.get('ZENITH_PLUGINS_DIRS') || []
+        
+        const dirs = new Set<string>([...configDirs, ...envDirs])
+
+        for (const dir of dirs) {
+            await this.loadPluginDir(dir)
         }
+    }
+
+    public async load() {
+        await this.loadEntries()
+
+        let loader: PluginLoaderService | null = null
+
+        if (this.env.development) {
+            loader = new PluginLoaderDevelopmentService()
+        }
+
+        if (this.env.production) {
+            // manager = new PluginManagerProductionService(options)
+        }
+
+        if (!loader) {
+            throw new BaseException('Failed to initialize PluginManagerService')
+        }
+
+        await loader
+            .setLogger(this.logger.child({ label: 'plugin.loader' }))
+            .setDebug(this.debug)
+            .setEntries(this.entries)
+            .load()
+
+        return this
     }
 
     public list() {
@@ -128,17 +176,17 @@ export default class PluginManagerService {
     public enable(id: string) {
         const plugin = this.findOrFail(id)
 
-        config.set(`plugins.registry.${plugin.id}.enabled`, true)
+        this.config.set(`plugins.registry.${plugin.id}.enabled`, true)
     }
 
     public disable(id: string) {
         const plugin = this.findOrFail(id)
 
-        config.set(`plugins.registry.${plugin.id}.enabled`, false)
+        this.config.set(`plugins.registry.${plugin.id}.enabled`, false)
     }
 
     public toggle(id: string) {
-        if (config.get(`plugins.registry.${id}.enabled`)) {
+        if (this.config.get(`plugins.registry.${id}.enabled`)) {
             return this.disable(id)
         }
 

@@ -22,6 +22,8 @@ export default class extends LifecycleHook {
         })
 
         container.set(SeederService, seeder)
+
+        await emmitter.emitAndWait('seeder:registered', { seeder })
     }
 }
 
