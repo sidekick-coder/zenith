@@ -1,5 +1,5 @@
 import { LifecycleHook } from '@sidekick-coder/zenith-kit/shared'
-import { emmitter, config, container, RouterService } from '@sidekick-coder/zenith-kit/server'
+import { emmitter, config, container, RouterService, logger } from '@sidekick-coder/zenith-kit/server'
 import RouterRegister from '#server/services/routerRegister.service.ts'
 import { serverPath } from '#server/utils/paths.ts'
 import setupMiddleware from '#server/middlewares/setup.middleware.ts'
@@ -13,8 +13,8 @@ export default class extends LifecycleHook {
 
     public async onRegister(): Promise<void> {
         const router = new RouterRegister({
-            debug: config.get('router.debug') || config.get('app.debug') || false,
-            metadata: { id: 'main-router', }
+            debug: config.getOne(['router.debug', 'app.debug', 'debug'], false),
+            logger: logger.child({ label: 'router' }) 
         })
 
         router.use(setupMiddleware, 'global')

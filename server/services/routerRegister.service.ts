@@ -61,7 +61,7 @@ export default class RouterRegister<C = {}> extends Router<C> {
         const [error] = await tryCatch(() => import(unached))
 
         this.off('added', hook)
-    
+
         if (error) {
             Object.assign(error, entry)
 
@@ -120,9 +120,7 @@ export default class RouterRegister<C = {}> extends Router<C> {
         }
 
         if (this.debug) {
-            this.logger.debug('load files', {
-                files: Array.from(loaded).map(p => path.relative(process.cwd(), p)),
-            })
+            this.logger.debug('load files', { files: Array.from(loaded).map(p => path.relative(process.cwd(), p)), })
         }
     }
 }
