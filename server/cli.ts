@@ -1,4 +1,4 @@
-import { ConfigManagerService, basePath, LifecycleService, importAll } from '@sidekick-coder/zenith-kit/server'
+import { ConfigManagerService, EmmitterService, basePath, LifecycleService, importAll } from '@sidekick-coder/zenith-kit/server'
 import { container, CliService } from '@sidekick-coder/zenith-kit/server'
 import { LoggerService, ConfigService } from '@sidekick-coder/zenith-kit/shared'
 import PluginManagerService from './services/PluginManagerService.ts'
@@ -6,6 +6,7 @@ import emmitter from './facades/emmitter.facade.ts'
 import env from '#server/facades/env.facade.ts'
 import LoggerWinsonService from '#server/services/loggerWinson.service.ts'
 
+// logger
 const logger = LoggerWinsonService.create({
     level: env.get('ZENITH_LOG_LEVEL', 'info'),
     transports: [
@@ -15,6 +16,9 @@ const logger = LoggerWinsonService.create({
     ]
 })
 
+container.set(LoggerService, logger)
+
+// config
 const config = await ConfigManagerService
     .create({
         env: env,
@@ -23,6 +27,17 @@ const config = await ConfigManagerService
     })
     .load()
 
+container.set(ConfigService, config) 
+
+// emmitter
+const emmiter = new EmmitterService({
+    debug: config.getOne(['emmitter.debug', 'app.debug', 'debug'], false),
+    logger: logger.child({ label: 'emmitter' }),
+})
+
+container.set(EmmitterService, emmiter)
+
+// plugins
 const pluginManager = await PluginManagerService
     .create()
     .setConfig(config)
@@ -31,6 +46,8 @@ const pluginManager = await PluginManagerService
     .setDebug(config.getOne(['plugins.debug', 'app.debug', 'debug'], false))
     .load()
 
+container.set(PluginManagerService, pluginManager)
+
 const cli = await CliService
     .create()
     .setLogger(logger.child({ label: 'cli' }))
@@ -38,21 +55,16 @@ const cli = await CliService
     .setEmmitter(emmitter)
     .load()
 
+container.set(CliService, cli)
+
 const lifecycle = new LifecycleService({
     debug: config.getOne(['lifecycle.debug', 'app.debug', 'debug'], false),
     logger: logger.child({ label: 'lifecycle' }),
 })
 
-container
-    .set(LoggerService, logger)
-    .set(ConfigService, config)
-    .set(CliService, cli)
-    .set(PluginManagerService, pluginManager)
-
 await lifecycle.addDirectory(basePath('server/hooks'))
 
 await importAll(basePath('server/commands'), { exclude: ['test.ts'], })
-
 
 async function onPreAction(command: CliService) {
     const include = Array.from(command.needs)
