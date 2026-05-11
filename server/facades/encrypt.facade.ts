@@ -1,5 +1,4 @@
-import EncryptService from '#server/services/encrypt.service.ts'
+import { encrypt } from '@sidekick-coder/zenith-kit/server'
 
-const encrypt = new EncryptService()
-
+/** @deprecated Use `@sidekick-coder/zenith-kit/server` instead. */
 export default encrypt

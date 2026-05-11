@@ -9,7 +9,7 @@ import config from '#server/facades/config.facade.ts'
 let child: cp.ChildProcess | null = null
 
 async function start() {
-    const modulePath = basePath('server/index.ts')
+    const modulePath = basePath('server/server.ts')
     const execArgv = [
         '--no-warnings',
         '--experimental-strip-types'

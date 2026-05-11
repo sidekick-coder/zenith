@@ -5,7 +5,7 @@ import PluginLoaderService from './PluginLoaderService.ts'
 import emmitter from '#server/facades/emmitter.facade.ts'
 
 export default class PluginLoaderDevelopmentService extends PluginLoaderService {
-    private async onBeforeCliLoad({ cli }: EventContract['cli:before-load']) {
+    private async onBeforeCliRegistered({ cli }: EventContract['cli:registered']) {
         for (const plugin of this.entries.values()) {
             if (!plugin.enabled) continue
 
@@ -142,8 +142,7 @@ export default class PluginLoaderDevelopmentService extends PluginLoaderService 
         await this.loadServerPLugins()
         await this.loadClientPLugin()
 
-        emmitter.on('cli:before-load', this.onBeforeCliLoad.bind(this))
-
+        emmitter.on('cli:registered', this.onBeforeCliRegistered.bind(this))
         emmitter.on('migrator:registered', this.onMigratorRegistered.bind(this))
         emmitter.on('seeder:registered', this.onSeederRegistered.bind(this))
     }

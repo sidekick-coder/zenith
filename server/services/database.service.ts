@@ -17,6 +17,7 @@ export default class DatabaseService extends Kysely<Database> {
     public defaultConnection = 'memory'
     public connections: Record<string, any> = {}
     public currentConnection: string | null = null
+    public currentConnectionDialectName: string | null = null
 
     public debug = false
     public logger = new LoggerService()
@@ -104,6 +105,8 @@ export default class DatabaseService extends Kysely<Database> {
         const dialect = await DatabaseService.createDialectFromConnection(connection)
 
         const db = new DatabaseService({ dialect: dialect })
+
+        db.currentConnectionDialectName = connection.dialect
 
         return db
     }

@@ -21,8 +21,12 @@ export default class QueueLifecycleHook extends LifecycleHook {
         const queue = di.get<QueueSevice>(QueueSevice)
 
         await queue.load()
+    }
 
-        emmitter.on('http:started', () => queue.start())
+    public async onBoot(): Promise<void> {
+        const queue = di.get<QueueSevice>(QueueSevice)
+
+        await queue.start()
     }
     
     public async onShutdown(): Promise<void> {

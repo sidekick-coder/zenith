@@ -1,30 +1,30 @@
+import { container, EncryptService } from '@sidekick-coder/zenith-kit/server'
 import di from '#server/facades/di.facade.ts'
-import config from '#server/facades/config.facade.ts'
-import emmitter from '#server/facades/emmitter.facade.ts'
-import encrypt from '#server/facades/encrypt.facade.ts'
 import logger from '#server/facades/logger.facade.ts'
 import shell from '#server/facades/shell.facade.ts'
-// import ViteService from '#server/services/vite.service.ts'
-import type { ViteServiceEvents } from '#server/services/vite.service.ts'
 import LifecycleHook from '#shared/entities/lifecycleHook.entity.ts'
 import ConfigService from '#shared/services/config.service.ts'
+import env from '#server/facades/env.facade.ts'
 
 export default class ExtrasLifecycleHook extends LifecycleHook {
     public order = 3
     public async onRegister(): Promise<void> {
         const config = di.get<ConfigService>(ConfigService)
 
-        emmitter.load({ debug: config.getOne<boolean>(['app.debug', 'emmitter.debug'], false), })
-
         shell.init({
             debug: config.getOne<boolean>(['app.debug', 'shell.debug'], false),
             logger: logger.child({ label: 'shell' }),
         })
 
-        encrypt.load({
+        const encrypt = new EncryptService({
             key: config.get('app.key', 'zenith'),
-            debug: config.getOne<boolean>(['app.debug', 'encrypt.debug'], false),
+            debug: config.getOne<boolean>(['encrypt.debug', 'app.debug'], false),
+            logger: logger.child({ label: 'encrypt' }),
+            env: env
         })
+
+        container.set(EncryptService, encrypt)
+
     }
 
     public async onLoad(): Promise<void> {
