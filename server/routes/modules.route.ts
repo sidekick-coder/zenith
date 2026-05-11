@@ -1,7 +1,7 @@
 import path from 'path'
 import fs from 'fs'
 import mime from 'mime'
-import migrator from '#server/facades/migrator.facade.ts'
+import { migrator } from '@sidekick-coder/zenith-kit/server'
 import root from '#server/facades/router.facade.ts'
 import authMiddleware from '#server/middlewares/auth.middleware.ts'
 import modules from '#server/facades/modules.facade.ts'

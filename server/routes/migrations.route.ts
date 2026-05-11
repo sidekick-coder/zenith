@@ -1,10 +1,11 @@
 import path from 'path'
-import migrator from '#server/facades/migrator.facade.ts'
+import { migrator } from '@sidekick-coder/zenith-kit/server'
 import root from '#server/facades/router.facade.ts'
 import authMiddleware from '#server/middlewares/auth.middleware.ts'
 import BaseException from '#server/exceptions/base.ts'
 import validator from '#shared/services/validator.service.ts'
 import { basePath } from '#server/utils/paths.ts'
+
 
 const router = root.use(authMiddleware)
     .prefix('/api/migrations')
