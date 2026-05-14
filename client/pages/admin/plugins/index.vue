@@ -42,7 +42,6 @@ const columns = defineColumns<any>([
         id: 'version',
         label: $t('Version'),
         field: 'version',
-        width: 120
     },
     { id: 'actions' }
 ])
