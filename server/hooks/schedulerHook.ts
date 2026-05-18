@@ -1,0 +1,47 @@
+import { basePath, config, container, SchedulerService } from '@sidekick-coder/zenith-kit/server'
+import { LifecycleHook } from '@sidekick-coder/zenith-kit/shared'
+import emmitter from '#server/facades/emmitter.facade.ts'
+import logger from '#server/facades/logger.facade.ts'
+
+export default class extends LifecycleHook {
+    public order = 3
+    public hook_aliases = ['scheduler']
+
+    public async register(){
+        const scheduler = new SchedulerService({
+            logger: logger.child({ label: 'scheduler' }),
+            debug: config.getOne(['seeder.debug', 'app.debug', 'debug'], false),
+        })
+
+        scheduler.addDir(basePath('server/routines'))
+
+        container.set(SchedulerService, scheduler)
+
+        await emmitter.emitAndWait('scheduler:registered', { scheduler })
+    }
+
+    public async load(){
+        const scheduler = container.get<SchedulerService>(SchedulerService)
+
+        await scheduler.load()
+
+        await emmitter.emitAndWait('scheduler:loaded', { scheduler })
+    }
+
+    public async boot(){
+        const scheduler = container.get<SchedulerService>(SchedulerService)
+
+        await scheduler.boot()
+
+        await emmitter.emitAndWait('scheduler:booted', { scheduler })
+    }
+
+    public async onShutdown(): Promise<void> {
+        const scheduler = container.get<SchedulerService>(SchedulerService)
+
+        await scheduler.shutdown()
+
+        await emmitter.emitAndWait('scheduler:shutdowned', { scheduler })
+    }
+}
+

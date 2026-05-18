@@ -1,4 +1,4 @@
-import { container } from '@sidekick-coder/zenith-kit/server'
+import { container, emmitter } from '@sidekick-coder/zenith-kit/server'
 import config from '#server/facades/config.facade.ts'
 import ExpressService from '#server/services/express.service.ts'
 import RouterRegister from '#server/services/routerRegister.service.ts'
@@ -10,8 +10,6 @@ export default class AppLifecycleHook extends LifecycleHook {
     public async onRegister(): Promise<void> {
         const service = new ExpressService()
 
-        container.set(ExpressService, service)
-
         const origins = config.get('cors.origins', '')
             .split(',')
             .map((o: string) => o.trim())
@@ -22,6 +20,9 @@ export default class AppLifecycleHook extends LifecycleHook {
             origin: origins.length > 0 ? origins : undefined,
         })
 
+        container.set(ExpressService, service)
+
+        await emmitter.emitAndWait('http:registered', service)
     }
 
     public async onLoad(): Promise<void> {
@@ -29,6 +30,8 @@ export default class AppLifecycleHook extends LifecycleHook {
         const router = container.get<RouterRegister>(RouterService)
 
         service.router = router
+
+        await emmitter.emitAndWait('http:loaded', service)
     }
     
     public async onBoot(): Promise<void> {
@@ -38,11 +41,14 @@ export default class AppLifecycleHook extends LifecycleHook {
 
         service.start()
 
+        await emmitter.emitAndWait('http:booted', service)
     }
 
     public async onShutdown(): Promise<void> {
         const service = container.get<ExpressService>(ExpressService)
 
         await service.stop()
+
+        await emmitter.emitAndWait('http:shutdown', service)
     }
 }

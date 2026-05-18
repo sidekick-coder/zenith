@@ -1,10 +1,4 @@
-import di from './di.facade.ts'
-import ScheduleService from '#server/services/schedule.service.ts'
+import { scheduler } from '@sidekick-coder/zenith-kit/server'
 
-const key = 'scheduler'
-
-di.set(key, new ScheduleService())
-
-const scheduler = di.proxy<ScheduleService>(key)
-
+/** @deprecated use @sidekick-coder/zenith-kit/server directly */
 export default scheduler

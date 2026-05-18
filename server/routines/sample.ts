@@ -1,5 +1,5 @@
-import scheduler from '#server/facades/scheduler.facade.ts'
+import { RoutineEntity } from '@sidekick-coder/zenith-kit/server'
 
-// scheduler.add('root', '* * * * *', async () => {
-// console.log('Running scheduled task every minute')
-// })
+export default class extends RoutineEntity {
+
+}
