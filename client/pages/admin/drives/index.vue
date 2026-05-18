@@ -14,9 +14,7 @@ import { useFetchPagination } from '#client/composables/useFetchPagination.ts'
 import DialogForm from '#client/components/DialogForm.vue'
 import DriveConfig from '#shared/entities/driveConfig.entity.ts'
 
-const { items, total, loading, load, reset } = useFetchPagination<Drive>('/api/drives', {
-    limit: 20,
-})
+const { items, total, loading, load, reset } = useFetchPagination<Drive>('/api/drives', { limit: 20, })
 
 const generating = ref(false)
 const settingDefault = ref<Record<string, boolean>>({})
@@ -44,9 +42,7 @@ const columns = defineColumns<Drive>([
 async function generateDefaults(){
     generating.value = true
 
-    const [error] = await $fetch.try('/api/drives/generate-defaults', {
-        method: 'POST'
-    })
+    const [error] = await $fetch.try('/api/drives/generate-defaults', { method: 'POST' })
 
     if (error) {
         generating.value = false
@@ -64,9 +60,7 @@ async function generateDefaults(){
 async function setDefault(drive: Drive) {
     settingDefault.value[drive.id] = true
 
-    const [error] = await $fetch.try(`/api/drives/${drive.id}/set-default`, {
-        method: 'POST'
-    })
+    const [error] = await $fetch.try(`/api/drives/${drive.id}/set-default`, { method: 'POST' })
 
     if (error) {
         settingDefault.value[drive.id] = false

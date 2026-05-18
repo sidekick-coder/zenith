@@ -9,12 +9,13 @@ import * as VueUse from '@vueuse/core'
 import * as UnheadVue from '@unhead/vue' 
 import * as UnheadVueComponents from '@unhead/vue/components'
 
-globalThis.imports = globalThis.imports || new Map<string, () => Promise<any>>()
+globalThis.imports = globalThis.imports || new Map<string, any>()
 
 globalThis.imports.set('vue', () => Promise.resolve(Vue))
 globalThis.imports.set('reka-ui', () => Promise.resolve(RekaUI))
 globalThis.imports.set('vue-router', () => Promise.resolve(VueRouter))
 globalThis.imports.set('vee-validate', () => Promise.resolve(VeeValidate))
+globalThis.imports.set('static:vee-validate', VeeValidate)
 globalThis.imports.set('vue-sonner', () => Promise.resolve(VueSonner))
 globalThis.imports.set('@vueuse/core', () => Promise.resolve(VueUse))
 globalThis.imports.set('@unhead/vue', () => Promise.resolve(UnheadVue))

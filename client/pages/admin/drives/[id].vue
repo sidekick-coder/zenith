@@ -1,15 +1,13 @@
 <script setup lang="ts">
 import { ref, onMounted, computed, defineAsyncComponent } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
 import { useForm } from 'vee-validate'
 import { useRouteQuery } from '@vueuse/router'
-import { toTypedSchema } from '@vee-validate/valibot'
-import * as v from 'valibot'
 import { toast } from 'vue-sonner'
+import { route, router } from '@sidekick-coder/zenith-kit/client'
 import AdminLayout from '#client/layouts/AdminLayout.vue'
 import Button from '#client/components/Button.vue'
 import FormTextField from '#client/components/FormTextField.vue'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '#client/components/ui/card'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '#client/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '#client/components/ui/tabs'
 import { Skeleton } from '#client/components/ui/skeleton'
 import PageTitle from '#client/components/PageTitle.vue'
@@ -18,13 +16,15 @@ import { $fetch } from '#client/utils/fetcher.ts'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
 import DriveConfig from '#shared/entities/driveConfig.entity.ts'
 
-const route = useRoute()
 const driveId = computed(() => route.params.id as string)
 
 const drive = ref<DriveConfig>()
 const loading = ref(true)
 const saving = ref(false)
-const tab = useRouteQuery('tab', 'config')
+const tab = useRouteQuery('tab', 'config', {
+    route,
+    router
+})
 
 const tabs = [
     {

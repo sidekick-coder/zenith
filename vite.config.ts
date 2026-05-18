@@ -3,7 +3,6 @@ import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import tailwindcss from '@tailwindcss/vite'
 
-
 let allowedHosts = [
     'localhost',
 ]
@@ -18,6 +17,7 @@ if (process.env.VITEST_ALLOWED_HOSTS) {
 export default defineConfig({
     clearScreen: false,
     root: import.meta.dirname,
+    optimizeDeps: { exclude: ['@sidekick-coder/zenith-kit/client', '@sidekick-coder/zenith-kit/server', '@sidekick-coder/zenith-kit/shared', '@sidekick-coder/zenith-kit/components'], },
     plugins: [
         vue({ template: { compilerOptions: { isCustomElement: (tag) => tag.startsWith('iconify-icon'), } } }),
         tailwindcss()
