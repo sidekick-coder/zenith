@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { ref, onMounted, computed, defineAsyncComponent } from 'vue'
 import { useForm } from 'vee-validate'
-import { useRouteQuery } from '@vueuse/router'
 import { toast } from 'vue-sonner'
-import { route, router } from '@sidekick-coder/zenith-kit/client'
+import { route } from '@sidekick-coder/zenith-kit/client'
+import { useRouteQuery } from '@sidekick-coder/zenith-kit/components'
 import AdminLayout from '#client/layouts/AdminLayout.vue'
 import Button from '#client/components/Button.vue'
 import FormTextField from '#client/components/FormTextField.vue'
@@ -21,10 +21,7 @@ const driveId = computed(() => route.params.id as string)
 const drive = ref<DriveConfig>()
 const loading = ref(true)
 const saving = ref(false)
-const tab = useRouteQuery('tab', 'config', {
-    route,
-    router
-})
+const tab = useRouteQuery('tab', 'config')
 
 const tabs = [
     {
