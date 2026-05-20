@@ -1,5 +1,4 @@
-import ShellService from '#server/services/shell.service.ts'
+import { shell } from '@sidekick-coder/zenith-kit/server'
 
-const shell = new ShellService()
-
+/** @deprecated  use @sidekick-coder/zenith-kit/server's shell instead */
 export default shell
