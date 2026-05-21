@@ -152,6 +152,9 @@ export default class PluginManagerService {
 
         await this.shell.command('git', ['clone', repository, destination])
 
+        // fetch all 
+        await this.shell.command('git', ['fetch', '--all', '--tags'], { cwd: destination })
+
         this.logger.info('downloaded plugin', {
             repository,
             destination 
