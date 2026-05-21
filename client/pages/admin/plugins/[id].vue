@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, defineAsyncComponent } from 'vue'
 import { useRoute } from 'vue-router'
+import { useRouteQuery } from '@sidekick-coder/zenith-kit/components'
 import AdminLayout from '#client/layouts/AdminLayout.vue'
 import PageTitle from '#client/components/PageTitle.vue'
 import PageSubtitle from '#client/components/PageSubtitle.vue'
@@ -9,24 +10,30 @@ import { Tabs, TabsList, TabsTrigger } from '#client/components/ui/tabs'
 import { Skeleton } from '#client/components/ui/skeleton'
 import TextField from '#client/components/TextField.vue'
 import { $fetch } from '#client/utils/fetcher.ts'
-import PluginMigrations from '#client/components/PluginMigrations.vue'
-import PluginSeeders from '#client/components/PluginSeeders.vue'
+import TabsContent from '#client/components/ui/tabs/TabsContent.vue'
 
 const route = useRoute()
 const pluginId = computed(() => route.params.id as string)
 
 const item = ref<any>(null)
 const loading = ref(true)
-const tab = ref('migrations')
+const tab = useRouteQuery('tab', 'migrations')
 
 const tabs: any[] = [
     {
         id: 'migrations',
         label: $t('Migrations'),
+        component: defineAsyncComponent(() => import('#client/components/PluginMigrations.vue')),
     },
     {
         id: 'seeders',
         label: $t('Seeders'),
+        component: defineAsyncComponent(() => import('#client/components/PluginSeeders.vue')),
+    },
+    {
+        id: 'versions',
+        label: $t('Versions'),
+        component: defineAsyncComponent(() => import('#client/components/PluginVersions.vue')),
     },
 ]
 
@@ -136,17 +143,18 @@ await load()
                             {{ t.label }}
                         </TabsTrigger>
                     </TabsList>
+                    <TabsContent
+                        v-for="t in tabs"
+                        :key="t.id"
+                        :value="t.id"
+                    >
+                        <component
+                            :is="t.component"
+                            :key="t.id"
+                            :plugin="item"
+                        />
+                    </TabsContent>
                 </Tabs>
-
-                <PluginMigrations
-                    v-if="item && tab === 'migrations'"
-                    :plugin="item"
-                />
-
-                <PluginSeeders
-                    v-if="item && tab === 'seeders'"
-                    :plugin="item"
-                />
             </div>
         </div>
     </AdminLayout>
