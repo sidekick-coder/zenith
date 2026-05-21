@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { GitCommit, GitBranch, Tag, Download, Check, Info, GitPullRequest } from 'lucide-vue-next'
+import { GitCommit, GitBranch, Tag, Download, Info, GitPullRequest } from 'lucide-vue-next'
 import { $fetch } from '#client/utils/fetcher.ts'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '#client/components/ui/card'
 import { Badge } from '#client/components/ui/badge'
@@ -22,6 +22,7 @@ import {
     DialogTitle,
     DialogDescription,
 } from '#client/components/ui/dialog'
+import PluginVersionTable from '#client/components/PluginVersionTable.vue'
 
 defineOptions({ inheritAttrs: false })
 
@@ -47,7 +48,6 @@ interface VersionItem {
     body: string
     date: string
     author: string
-    isCurrent: boolean
 }
 
 const channels: { id: ChannelId; label: string }[] = [
@@ -90,6 +90,47 @@ const currentVersionLabel = computed(() => {
     return `${version.value.channel}@${version.value.commit_hash}`
 })
 
+const currentBranch = computed(() => {
+    if (!currentChannel.value.startsWith('branch:')) return undefined
+
+    return currentChannel.value.replace('branch:', '')
+})
+
+const placeholderTags: VersionItem[] = [
+    {
+        ref: 'v2.1.0',
+        label: 'v2.1.0',
+        description: 'Release v2.1.0 - stability improvements',
+        body: '## What\'s new\n- Improved error handling\n- Reduced memory usage\n- Fixed edge case in parser',
+        date: '2026-05-01T12:00:00Z',
+        author: 'Alice' 
+    },
+    {
+        ref: 'v2.0.1',
+        label: 'v2.0.1',
+        description: 'Release v2.0.1 - hotfix',
+        body: 'Hotfix for critical crash on Windows when path contains spaces.',
+        date: '2026-04-20T08:00:00Z',
+        author: 'Bob' 
+    },
+    {
+        ref: 'v2.0.0',
+        label: 'v2.0.0',
+        description: 'Release v2.0.0 - major update',
+        body: '## Breaking changes\n- New config format (see migration guide)\n- Dropped Node 16 support\n\n## New features\n- Plugin API v2\n- Hot reload support',
+        date: '2026-04-01T10:00:00Z',
+        author: 'Alice' 
+    },
+    {
+        ref: 'v1.5.3',
+        label: 'v1.5.3',
+        description: 'Release v1.5.3 - bug fixes',
+        body: 'Various minor bug fixes and performance improvements.',
+        date: '2026-03-15T09:00:00Z',
+        author: 'Carol' 
+    },
+]
+
 async function loadVersion() {
     const [, data] = await $fetch.try(`/api/plugins/${props.plugin.id}/version`)
 
@@ -101,145 +142,6 @@ async function loadVersion() {
         }
     }
 }
-
-const placeholderData: Record<ChannelId, VersionItem[]> = {
-    'commits': [
-        {
-            ref: 'a1b2c3d',
-            label: 'a1b2c3d',
-            description: 'fix: resolve plugin initialization bug',
-            body: 'The plugin was failing to initialize when the config file was missing optional fields.\n\nThis patch adds default values for all optional config keys so initialization always succeeds.',
-            date: '2026-05-21T14:00:00Z',
-            author: 'Alice',
-            isCurrent: true 
-        },
-        {
-            ref: 'e4f5g6h',
-            label: 'e4f5g6h',
-            description: 'feat: add new configuration options',
-            body: 'Added support for `timeout`, `retries`, and `verbose` configuration keys.\n\nBreaking: `logLevel` renamed to `log_level`.',
-            date: '2026-05-20T10:30:00Z',
-            author: 'Bob',
-            isCurrent: false 
-        },
-        {
-            ref: 'i7j8k9l',
-            label: 'i7j8k9l',
-            description: 'chore: update dependencies',
-            body: 'Bumped all dependencies to their latest patch versions.',
-            date: '2026-05-18T09:00:00Z',
-            author: 'Alice',
-            isCurrent: false 
-        },
-        {
-            ref: 'm1n2o3p',
-            label: 'm1n2o3p',
-            description: 'docs: improve readme',
-            body: 'Rewrote the Getting Started section and added a configuration reference table.',
-            date: '2026-05-15T16:45:00Z',
-            author: 'Carol',
-            isCurrent: false 
-        },
-        {
-            ref: 'q4r5s6t',
-            label: 'q4r5s6t',
-            description: 'refactor: clean up core module',
-            body: 'Extracted helper functions into separate utilities. No functional changes.',
-            date: '2026-05-12T11:20:00Z',
-            author: 'Bob',
-            isCurrent: false 
-        },
-    ],
-    'branch:main': [
-        {
-            ref: 'a1b2c3d',
-            label: 'a1b2c3d',
-            description: 'fix: resolve plugin initialization bug',
-            body: 'The plugin was failing to initialize when the config file was missing optional fields.\n\nThis patch adds default values for all optional config keys so initialization always succeeds.',
-            date: '2026-05-21T14:00:00Z',
-            author: 'Alice',
-            isCurrent: true 
-        },
-        {
-            ref: 'e4f5g6h',
-            label: 'e4f5g6h',
-            description: 'feat: add new configuration options',
-            body: 'Added support for `timeout`, `retries`, and `verbose` configuration keys.',
-            date: '2026-05-20T10:30:00Z',
-            author: 'Bob',
-            isCurrent: false 
-        },
-        {
-            ref: 'i7j8k9l',
-            label: 'i7j8k9l',
-            description: 'chore: update dependencies',
-            body: 'Bumped all dependencies to their latest patch versions.',
-            date: '2026-05-18T09:00:00Z',
-            author: 'Alice',
-            isCurrent: false 
-        },
-    ],
-    'branch:build': [
-        {
-            ref: 'u7v8w9x',
-            label: 'u7v8w9x',
-            description: 'build: compile production assets',
-            body: 'Compiled and minified all production assets for deployment.',
-            date: '2026-05-21T15:00:00Z',
-            author: 'CI',
-            isCurrent: false 
-        },
-        {
-            ref: 'y1z2a3b',
-            label: 'y1z2a3b',
-            description: 'build: optimize bundle size',
-            body: 'Applied tree-shaking and code splitting to reduce the final bundle by ~20%.',
-            date: '2026-05-19T13:00:00Z',
-            author: 'CI',
-            isCurrent: false 
-        },
-    ],
-    'tags': [
-        {
-            ref: 'v2.1.0',
-            label: 'v2.1.0',
-            description: 'Release v2.1.0 - stability improvements',
-            body: '## What\'s new\n- Improved error handling\n- Reduced memory usage\n- Fixed edge case in parser',
-            date: '2026-05-01T12:00:00Z',
-            author: 'Alice',
-            isCurrent: false 
-        },
-        {
-            ref: 'v2.0.1',
-            label: 'v2.0.1',
-            description: 'Release v2.0.1 - hotfix',
-            body: 'Hotfix for critical crash on Windows when path contains spaces.',
-            date: '2026-04-20T08:00:00Z',
-            author: 'Bob',
-            isCurrent: false 
-        },
-        {
-            ref: 'v2.0.0',
-            label: 'v2.0.0',
-            description: 'Release v2.0.0 - major update',
-            body: '## Breaking changes\n- New config format (see migration guide)\n- Dropped Node 16 support\n\n## New features\n- Plugin API v2\n- Hot reload support',
-            date: '2026-04-01T10:00:00Z',
-            author: 'Alice',
-            isCurrent: false 
-        },
-        {
-            ref: 'v1.5.3',
-            label: 'v1.5.3',
-            description: 'Release v1.5.3 - bug fixes',
-            body: 'Various minor bug fixes and performance improvements.',
-            date: '2026-03-15T09:00:00Z',
-            author: 'Carol',
-            isCurrent: false 
-        },
-    ],
-}
-
-const items = computed<VersionItem[]>(() => placeholderData[currentChannel.value])
 
 function openDetail(item: VersionItem) {
     detailTarget.value = item
@@ -257,12 +159,8 @@ function checkout() {
     checkinOut.value = true
 
     setTimeout(() => {
-        placeholderData[currentChannel.value].forEach(i => { i.isCurrent = false })
-        checkoutTarget.value!.isCurrent = true
-
         if (version.value) {
             version.value.commit_hash = checkoutTarget.value!.ref
-            version.value.head = checkoutTarget.value!.ref
         }
 
         checkinOut.value = false
@@ -347,23 +245,26 @@ onMounted(loadVersion)
                 </Button>
             </div>
 
-            <div class="rounded-md border divide-y">
+            <PluginVersionTable
+                v-if="currentChannel !== 'tags'"
+                :plugin-id="plugin.id"
+                :branch="currentBranch"
+                :commit-hash="version?.commit_hash"
+                @checkout="requestCheckout"
+                @detail="openDetail"
+            />
+
+            <div
+                v-else
+                class="rounded-md border divide-y"
+            >
                 <div
-                    v-for="item in items"
+                    v-for="item in placeholderTags"
                     :key="item.ref"
-                    class="flex items-center justify-between gap-4 px-4 py-3 transition-colors"
-                    :class="item.isCurrent ? 'bg-primary/5' : 'hover:bg-muted/50'"
+                    class="flex items-center justify-between gap-4 px-4 py-3 transition-colors hover:bg-muted/50"
                 >
                     <div class="flex items-center gap-3 min-w-0">
-                        <div
-                            class="flex items-center justify-center size-5 rounded-full border-2 shrink-0 transition-colors"
-                            :class="item.isCurrent ? 'border-primary bg-primary text-primary-foreground' : 'border-muted-foreground/30'"
-                        >
-                            <Check
-                                v-if="item.isCurrent"
-                                class="size-3"
-                            />
-                        </div>
+                        <div class="flex items-center justify-center size-5 rounded-full border-2 shrink-0 border-muted-foreground/30" />
 
                         <div class="min-w-0">
                             <div class="flex items-center gap-2">
@@ -382,13 +283,6 @@ onMounted(loadVersion)
                     </div>
 
                     <div class="flex items-center gap-2 shrink-0">
-                        <Badge
-                            v-if="item.isCurrent"
-                            variant="secondary"
-                        >
-                            {{ $t('Current') }}
-                        </Badge>
-
                         <Button
                             variant="ghost"
                             size="icon"
@@ -399,7 +293,6 @@ onMounted(loadVersion)
                         </Button>
 
                         <Button
-                            v-if="!item.isCurrent"
                             variant="outline"
                             size="sm"
                             @click="requestCheckout(item)"

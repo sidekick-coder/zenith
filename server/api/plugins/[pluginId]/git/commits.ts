@@ -20,9 +20,15 @@ export default async function({ acl, params, query }: HttpContext) {
 
     const repository = new GitCommitRepository(gateway)
 
+    let branch = payload.branch 
+
+    if (branch === 'build') {
+        branch = 'origin/build'
+    }
+
     return await repository.list({
         page: payload.page,
         perPage: payload.perPage,
-        branch: payload.branch,
+        branch: branch,
     })
 }
