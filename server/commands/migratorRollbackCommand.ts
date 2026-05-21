@@ -7,7 +7,7 @@ interface Options {
 }
 
 arte.command('migrator:rollback')
-    .need('db', 'migrator')
+    .need('db', 'migrator', 'shell', 'drive')
     .helpGroup('migration')
     .description('Rollback pending migrations')
     .option('-s, --source <string>', 'Filter by source name')

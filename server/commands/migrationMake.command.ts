@@ -12,7 +12,7 @@ interface MigrationMakeOptions {
 }
 
 arte.command('migration:make')
-    .need('modules')
+    .need('db', 'migrator', 'shell', 'drive')
     .argument('<name>', 'Migration name')
     .option('-m, --module <module>', 'Module name')
     .option('--ts', 'Use TypeScript', 'true')

@@ -1,14 +1,17 @@
 import { confirm } from '@inquirer/prompts'
-import { migrator } from '@sidekick-coder/zenith-kit/server'
-import arte from '#server/facades/arte.facade.ts'
+import { CliCommand, migrator } from '@sidekick-coder/zenith-kit/server'
 
 interface Options {
     step?: number
     source?: string
 }
 
-arte.command('migrator:down')
-    .need('db', 'migrator', 'plugins')
+const command = new CliCommand('migrator:down')
+
+const colors = command.colors
+
+command
+    .need('db', 'migrator', 'shell', 'drive')
     .helpGroup('migration')
     .description('Rollback executed migrations')
     .option('-n, --step-number <number>', 'Number of migrations to rollback', Number)
@@ -28,9 +31,16 @@ arte.command('migrator:down')
             return
         }
 
-        arte.table(executed, [
-            { label: 'name', value: 'name' },
-            { label: 'source', value: i => i.source || arte.colors.dim('root'), width: 20 },
+        command.table(executed, [
+            {
+                label: 'name',
+                value: 'name' 
+            },
+            {
+                label: 'source',
+                value: i => i.source || command.colors.dim('root'),
+                width: 20 
+            },
         ])
 
         const confirmed = await confirm({
@@ -43,12 +53,17 @@ arte.command('migrator:down')
             return
         }
 
-        const results = await migrator.down(options.step, { source: options.source })
+        const results = await migrator.rollback({
+            source: options.source,
+            steps: step 
+        })
 
-        arte.table(results.map(m => ({
+        command.table(results.map(m => ({
             name: m.name,
             source: m.source,
-            result: m.result === 'success' ? arte.colors.green(m.result) : arte.colors.red(m.result),
+            result: m.result === 'success' ? colors.green(m.result) : colors.red(m.result),
             error: m.error ? m.error.message : null,
         })))
     })
+
+export default command

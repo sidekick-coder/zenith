@@ -1,21 +1,23 @@
 import { confirm } from '@inquirer/prompts'
-import { migrator } from '@sidekick-coder/zenith-kit/server'
-import arte from '#server/facades/arte.facade.ts'
+import { CliCommand, migrator } from '@sidekick-coder/zenith-kit/server'
 
 interface Options {
     step?: number
     source?: string
 }
 
-arte.command('migrator:up')
-    .need('db', 'migrator', 'plugins')
+const command = new CliCommand('migrator:up')
+
+const colors = command.colors
+
+command
+    .need('db', 'migrator', 'shell', 'drive')
     .helpGroup('migration')
     .description('Run pending migrations')
     .option('-n, --step-number <number>', 'Number of migrations to run', Number)
     .option('-s, --source <string>', 'Filter by source name')
     .action(async (options: Options) => {
         const step = options.step ?? 1
-
         let pending = await migrator.list({ source: options.source })
 
         pending = pending
@@ -28,9 +30,16 @@ arte.command('migrator:up')
             return
         }
 
-        arte.table(pending, [
-            { label: 'name', value: 'name' },
-            { label: 'source', value: i => i.source || arte.colors.dim('root'), width: 20 },
+        command.table(pending, [
+            {
+                label: 'name',
+                value: 'name' 
+            },
+            {
+                label: 'source',
+                value: i => i.source || colors.dim('root'),
+                width: 20 
+            },
         ])
 
         const confirmed = await confirm({
@@ -43,12 +52,17 @@ arte.command('migrator:up')
             return
         }
 
-        const results = await migrator.up(options.step, { source: options.source })
+        const results = await migrator.migrate({
+            source: options.source,
+            steps: step 
+        })
 
-        arte.table(results.map(m => ({
+        command.table(results.map(m => ({
             name: m.name,
             source: m.source,
-            result: m.result === 'success' ? arte.colors.green(m.result) : arte.colors.red(m.result),
+            result: m.result === 'success' ? colors.green(m.result) : colors.red(m.result),
             error: m.error ? m.error.message : null,
         })))
     })
+
+export default command

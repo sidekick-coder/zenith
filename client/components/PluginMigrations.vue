@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { toast } from 'vue-sonner'
-import { RefreshCw, Undo2, EllipsisVertical, ArrowUp, ArrowDown } from 'lucide-vue-next'
+import { RefreshCw, EllipsisVertical, ArrowUp, ArrowDown } from 'lucide-vue-next'
 import { $fetch } from '#client/utils/fetcher.ts'
 import DataTable, { defineColumns } from '#client/components/DataTable.vue'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '#client/components/ui/card'
@@ -68,8 +68,15 @@ async function migrateOne(migration: Migration) {
     loadingMigration.value = migration.name
 
     const [error] = await $fetch.try(
-        `/api/migrations/${encodeURIComponent(migration.name)}/up`,
-        { method: 'POST' }
+        '/api/migrations/migrate',
+        {
+            method: 'POST',
+            data: {
+                source: props.plugin.id,
+                name: migration.name,
+                steps: 1,
+            } 
+        }
     )
 
     loadingMigration.value = null
@@ -84,8 +91,15 @@ async function rollbackOne(migration: Migration) {
     loadingMigration.value = migration.name
 
     const [error] = await $fetch.try(
-        `/api/migrations/${encodeURIComponent(migration.name)}/down`,
-        { method: 'POST' }
+        '/api/migrations/rollback',
+        {
+            method: 'POST',
+            data: {
+                source: props.plugin.id,
+                name: migration.name,
+                steps: 1,
+            } 
+        }
     )
 
     loadingMigration.value = null
@@ -100,8 +114,14 @@ async function freshOne(migration: Migration) {
     loadingMigration.value = migration.name
 
     const [error] = await $fetch.try(
-        `/api/migrations/${encodeURIComponent(migration.name)}/fresh`,
-        { method: 'POST' }
+        '/api/migrations/fresh',
+        {
+            method: 'POST',
+            data: {
+                source: props.plugin.id,
+                name: migration.name 
+            } 
+        }
     )
 
     loadingMigration.value = null
@@ -115,7 +135,13 @@ async function freshOne(migration: Migration) {
 async function up() {
     operation.value = 'up'
 
-    const [error] = await $fetch.try(`/api/migrations/up`, { method: 'POST', body: { source: props.plugin.id } })
+    const [error] = await $fetch.try('/api/migrations/migrate', {
+        method: 'POST',
+        data: {
+            source: props.plugin.id,
+            steps: 1 
+        } 
+    })
 
     operation.value = undefined
 
@@ -128,7 +154,13 @@ async function up() {
 async function down() {
     operation.value = 'down'
 
-    const [error] = await $fetch.try(`/api/migrations/down`, { method: 'POST', body: { source: props.plugin.id } })
+    const [error] = await $fetch.try('/api/migrations/rollback', {
+        method: 'POST',
+        data: {
+            source: props.plugin.id,
+            steps: 1 
+        } 
+    })
 
     operation.value = undefined
 
@@ -141,7 +173,10 @@ async function down() {
 async function rollback() {
     operation.value = 'rollback'
 
-    const [error] = await $fetch.try(`/api/migrations/rollback`, { method: 'POST', body: { source: props.plugin.id } })
+    const [error] = await $fetch.try('/api/migrations/rollback', {
+        method: 'POST',
+        data: { source: props.plugin.id } 
+    })
 
     operation.value = undefined
 
@@ -154,7 +189,10 @@ async function rollback() {
 async function fresh() {
     operation.value = 'fresh'
 
-    const [error] = await $fetch.try(`/api/migrations/fresh`, { method: 'POST', body: { source: props.plugin.id } })
+    const [error] = await $fetch.try('/api/migrations/fresh', {
+        method: 'POST',
+        data: { source: props.plugin.id } 
+    })
 
     operation.value = undefined
 

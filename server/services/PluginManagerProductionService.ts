@@ -12,7 +12,7 @@ export default class PluginManagerProductionService extends PluginManagerService
     private async loadPluginSources(plugin: PluginEntity) {
         const logger = this.logger.child({ pluginId: plugin.id })
 
-        if (container.has(MigratorService)) {
+        if (container.has(MigratorService) && fs.existsSync(plugin.makePath('dist', 'server', 'migrations'))) {
             migrator.addSource({
                 id: plugin.id,
                 directory: plugin.makePath('dist', 'server', 'migrations'),

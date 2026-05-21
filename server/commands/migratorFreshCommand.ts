@@ -8,7 +8,7 @@ interface Options {
 }
 
 arte.command('migrator:fresh')
-    .need('db', 'migrator', 'plugins')
+    .need('db', 'migrator', 'shell', 'drive')
     .helpGroup('migration')
     .description('Rollback all migrations and re-run them')
     .option('-s, --source <string>', 'Filter by source name')
@@ -30,8 +30,15 @@ arte.command('migrator:fresh')
         }
 
         arte.table(toRollback, [
-            { label: 'name', value: 'name' },
-            { label: 'source', value: i => i.source || arte.colors.dim('root'), width: 20 },
+            {
+                label: 'name',
+                value: 'name' 
+            },
+            {
+                label: 'source',
+                value: i => i.source || arte.colors.dim('root'),
+                width: 20 
+            },
         ])
 
         const confirmed = await confirm({

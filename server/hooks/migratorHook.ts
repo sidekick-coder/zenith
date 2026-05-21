@@ -1,8 +1,5 @@
-import { basePath, container, MigratorService } from '@sidekick-coder/zenith-kit/server'
+import { basePath, container, emmitter, logger, config, MigratorService } from '@sidekick-coder/zenith-kit/server'
 import { BaseException, LifecycleHook } from '@sidekick-coder/zenith-kit/shared'
-import config from '#server/facades/config.facade.ts'
-import emmitter from '#server/facades/emmitter.facade.ts'
-import logger from '#server/facades/logger.facade.ts'
 import db from '#server/facades/db.facade.ts'
 
 export default class extends LifecycleHook {

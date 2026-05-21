@@ -4,7 +4,6 @@ import { EnvService, GitGateway, PluginEntryEntity } from '@sidekick-coder/zenit
 import { BaseException, ConfigService, LoggerService } from '@sidekick-coder/zenith-kit/shared'
 import cosmicconfig from 'cosmiconfig'
 import type PluginLoaderService from './PluginLoaderService.ts'
-import type { PluginLoaderServiceOptions } from './PluginLoaderService.ts'
 import PluginLoaderDevelopmentService from './PluginLoaderDevelopmentService.ts'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
 

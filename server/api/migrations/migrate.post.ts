@@ -3,21 +3,22 @@ import { validator, BaseException } from '@sidekick-coder/zenith-kit/shared'
 import { migrator } from '@sidekick-coder/zenith-kit/server'
 
 export default async function ({ acl, body }: HttpContext) {
-    acl.authorize('rollback', 'Migration')
+    acl.authorize('migrate', 'Migration')
 
     const payload = validator.validate(body, v => v.object({
+        name: v.optional(v.extras.url.array(v.string())),
         source: v.optional(v.string()),
         steps: v.optional(v.pipe(v.number(), v.integer()), 1),
     }))
 
     const { steps, ...filters } = payload
 
-    const results = await migrator.down(steps, filters)
+    const results = await migrator.up(steps, filters)
 
     const failed = results.find(r => r.result === 'failed')
 
     if (failed) {
-        throw new BaseException(failed.error?.message ?? 'Rollback failed')
+        throw new BaseException(failed.error?.message ?? 'Migration failed')
     }
 
     return results

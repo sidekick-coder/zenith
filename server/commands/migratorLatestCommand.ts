@@ -7,7 +7,7 @@ interface Options {
 }
 
 arte.command('migrator:latest')
-    .need('db', 'migrator', 'plugins')
+    .need('db', 'migrator', 'shell', 'drive')
     .helpGroup('migration')
     .description('Run all pending migrations')
     .option('-s, --source <string>', 'Filter by source name')
@@ -24,8 +24,15 @@ arte.command('migrator:latest')
         }
 
         arte.table(pending, [
-            { label: 'name', value: 'name' },
-            { label: 'source', value: i => i.source || arte.colors.dim('root'), width: 20 },
+            {
+                label: 'name',
+                value: 'name' 
+            },
+            {
+                label: 'source',
+                value: i => i.source || arte.colors.dim('root'),
+                width: 20 
+            },
         ])
 
         const confirmed = await confirm({

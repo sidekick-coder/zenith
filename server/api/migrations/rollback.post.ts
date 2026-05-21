@@ -6,6 +6,7 @@ export default async function ({ acl, body }: HttpContext) {
     acl.authorize('rollback', 'Migration')
 
     const payload = validator.validate(body, v => v.object({
+        name: v.optional(v.extras.url.array(v.string())),
         source: v.optional(v.string()),
         steps: v.optional(v.pipe(v.number(), v.integer())),
     }))

@@ -150,14 +150,14 @@ export default class extends LifecycleHook {
         })
 
         // modules
-        menu.add({
-            id: 'module-all',
-            layout: 'admin',
-            label: $t('All'),
-            to: '/admin/modules',
-            icon: 'Puzzle',
-            group: $t('Modules'),
-        })
+        // menu.add({
+        //     id: 'module-all',
+        //     layout: 'admin',
+        //     label: $t('All'),
+        //     to: '/admin/modules',
+        //     icon: 'Puzzle',
+        //     group: $t('Modules'),
+        // })
 
         menu.add({
             layout: 'admin',
