@@ -46,3 +46,10 @@ docs/.vitepress/cache
 
 client/.plugins/*
 !client/.plugins/.gitkeep
+
+upload/*
+!upload/.gitkeep
+
+plugins/*
+!plugins/.gitkeep
+

@@ -1,6 +1,6 @@
 import fs from 'fs'
 import path from 'path'
-import { EnvService, GitGateway, PluginEntryEntity } from '@sidekick-coder/zenith-kit/server'
+import { EnvService, GitGateway, PluginEntryEntity, ShellService } from '@sidekick-coder/zenith-kit/server'
 import { BaseException, ConfigService, LoggerService } from '@sidekick-coder/zenith-kit/shared'
 import cosmicconfig from 'cosmiconfig'
 import type PluginLoaderService from './PluginLoaderService.ts'
@@ -22,6 +22,8 @@ export default class PluginManagerService {
     public debug = false
     public env: EnvService
     public config: ConfigService
+    public shell: ShellService
+    public dirs: Set<string>
 
     constructor(options: PluginManagerServiceOptions) {
         this.logger = options.logger || new LoggerService()
@@ -29,6 +31,8 @@ export default class PluginManagerService {
         this.debug = options.debug || false
         this.env = options.env || new EnvService()
         this.config = options.config || new ConfigService()
+        this.shell = new ShellService({ logger: this.logger.child({ label: 'plugin.shell' }) })
+        this.dirs = new Set()
 
         if (this.debug) {
             this.logger.debug('initialized in debug mode')
@@ -131,18 +135,51 @@ export default class PluginManagerService {
         this.entries.set(pluginConfig.id, plugin)
     }
 
-    public async loadEntries(): Promise<void> {
-        const configDirs = this.config.get<string[]>('plugins.dirs', [])
-        const envDirs = this.env.get('ZENITH_PLUGINS_DIRS') || []
-        
-        const dirs = new Set<string>([...configDirs, ...envDirs])
+    public async downloadPlugin(item: any) {
+        const repository = item.repository 
+        const destination = item.destination
 
-        for (const dir of dirs) {
+        if (!repository || !destination) {
+            this.logger.error('invalid plugin download entry', { item })
+            return
+        }
+
+        if (fs.existsSync(destination)) {
+            this.logger.warn('plugin destination already exists, skipping download', { destination })
+            this.dirs.add(destination)
+            return
+        }
+
+        await this.shell.command('git', ['clone', repository, destination])
+
+        this.logger.info('downloaded plugin', {
+            repository,
+            destination 
+        })
+
+        this.dirs.add(destination)
+    }
+
+    public async downloadPendingPlugins() {
+        const dowloads = this.config.get<string[]>('plugins.downloads', [])
+
+        for (const item of dowloads) {
+            await this.downloadPlugin(item)
+        }
+    }
+
+    public async loadEntries(): Promise<void> {
+        for (const dir of this.dirs) {
             await this.loadPluginDir(dir)
         }
     }
 
     public async load() {
+        this.config.get<string[]>('plugins.dirs', []).forEach(dir => this.dirs.add(dir))
+        this.env.get('ZENITH_PLUGINS_DIRS', []).forEach((dir: string) => this.dirs.add(dir))
+
+        await this.downloadPendingPlugins()
+
         await this.loadEntries()
 
         let loader: PluginLoaderService | null = null
