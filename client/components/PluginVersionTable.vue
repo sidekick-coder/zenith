@@ -22,11 +22,13 @@ const props = defineProps({
     },
 })
 
+const limit = 10
+
 const commits = ref<GitCommitEntity[]>([])
 const loading = ref(false)
-const page = ref(1)
-const perPage = ref(10)
-const totalPages = ref(1)
+const cursor = ref<string | null>(null)
+const cursorPrevious = ref<string | null>(null)
+const cursorNext = ref<string | null>(null)
 
 function isCurrentItem(c: GitCommitEntity) {
     return c.hash === props.currentCommitHash || c.short_hash === props.currentCommitHash
@@ -37,29 +39,43 @@ async function load() {
 
     commits.value = []
 
-    const query: Record<string, any> = {
-        page: page.value,
-        perPage: perPage.value,
+    const query: Record<string, any> = { limit, }
+
+    if (cursor.value) {
+        query.cursor = cursor.value
     }
 
-    const [error, response] = await $fetch.try(`/api/plugins/${props.pluginId}/git/commits`, { query: query, })
+    const [error, response] = await $fetch.try(`/api/plugins/${props.pluginId}/git/commits`, { query })
 
     if (error) {
+        loading.value = false
         return
     }
 
-    commits.value = response
+    commits.value = response.items
+    cursorPrevious.value = response.cursor_previous
+    cursorNext.value = response.cursor_next
 
     loading.value = false
 }
 
+function goNext() {
+    cursor.value = cursorNext.value
+
+    load()
+}
+
+function goPrev() {
+    cursor.value = cursorPrevious.value
+
+    load()
+}
+
 watch(() => props.branch, () => {
-    page.value = 1
+    cursor.value = null
 
     load()
 })
-
-watch(page, load)
 
 onMounted(load)
 </script>
@@ -135,19 +151,16 @@ onMounted(load)
             </div>
 
             <div
-                v-if="totalPages > 1"
-                class="flex items-center justify-between px-4 py-3"
+                v-if="cursorPrevious || cursorNext"
+                class="flex items-center justify-end px-4 py-3"
             >
-                <p class="text-sm text-muted-foreground">
-                    {{ $t('Page :0 of :1', [page, totalPages]) }}
-                </p>
                 <div class="flex items-center gap-1">
                     <Button
                         variant="outline"
                         size="icon"
                         class="size-8"
-                        :disabled="page <= 1"
-                        @click="page--"
+                        :disabled="!cursorPrevious"
+                        @click="goPrev"
                     >
                         <ChevronLeft class="size-4" />
                     </Button>
@@ -155,8 +168,8 @@ onMounted(load)
                         variant="outline"
                         size="icon"
                         class="size-8"
-                        :disabled="page >= totalPages"
-                        @click="page++"
+                        :disabled="!cursorNext"
+                        @click="goNext"
                     >
                         <ChevronRight class="size-4" />
                     </Button>
