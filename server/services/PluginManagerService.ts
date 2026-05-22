@@ -114,14 +114,17 @@ export default class PluginManagerService {
             return
         }
 
+        const version_channel = this.config.get(`plugins.registry.${pluginConfig.id}.version_channel`, 'commits')
+        const version = `${version_channel}@${gitInfo.shortHash}`
+
         const plugin = PluginEntryEntity.from({
             id: pluginConfig.id,
             aliases: pluginConfig.aliases || [],
             directory,
             name: manifest.name || pkg.name || pluginConfig.id,
-            version: `${gitInfo?.head || 'unknown'}@${gitInfo?.shortHash || 'unknown'}`,
-            version_channel:this.config.get(`plugins.registry.${pluginConfig.id}.version_channel`, 'commits'),
-            version_available_channels: pluginConfig.version_channels || ['branch:main'],
+            version,
+            version_channel,
+            version_available_channels: pluginConfig.version_available_channels || ['branch:main'],
             enabled: this.config.get(`plugins.registry.${pluginConfig.id}.enabled`, false),
         })
 

@@ -34,14 +34,14 @@ const columns = defineColumns<any>([
         field: 'name',
     },
     {
-        id: 'directory',
-        label: $t('Directory'),
-        field: 'directory',
-    },
-    {
         id: 'version',
         label: $t('Version'),
         field: 'version',
+    },
+    {
+        id: 'directory',
+        label: $t('Directory'),
+        field: 'directory',
     },
     { id: 'actions' }
 ])
@@ -169,6 +169,13 @@ async function confirmToggle() {
                         </div>
                     </div>
                 </div>
+            </template>
+            <template #row-version="{ row }">
+                <router-link
+                    :to="`/admin/plugins/${row.id}?tab=versions`"
+                >
+                    {{ row.version }}
+                </router-link>
             </template>
 
             <template #row-actions="{ row }">

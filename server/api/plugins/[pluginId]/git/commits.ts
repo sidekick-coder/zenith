@@ -1,6 +1,7 @@
 import { validator } from '@sidekick-coder/zenith-kit/shared'
 import type { HttpContext } from '#server/contracts/httpContext.contract.ts'
 import pluginManager from '#server/facades/pluginManager.ts'
+import BaseException from '#server/exceptions/base.ts'
 
 export default async function({ acl, params, query }: HttpContext) {
     const payload = validator.validate(query, v => v.object({
@@ -18,13 +19,26 @@ export default async function({ acl, params, query }: HttpContext) {
 
     if (payload.branches) {
         const all = await plugin.branches.list()
+        const valid = [] as string[]
 
         const names = all.map(b => b.name)
 
-        const validBranches = payload.branches
-            .filter(b => names.includes(b))
+        // match all local and remote branches with the requested branches
+        for (const requested of payload.branches) {
+            const local = names.find(n => n === requested)
 
-        payload.branches = validBranches
+            if (local) {
+                valid.push(local)
+            }
+
+            const remotes = names.filter(n => n.endsWith(`/${requested}`))
+
+            if (remotes.length) {
+                valid.push(...remotes)
+            }
+        }
+
+        payload.branches = valid
     }
 
     return await plugin.commits.list(payload)
