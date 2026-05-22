@@ -57,8 +57,8 @@ await load()
 <template>
     <AdminLayout
         :breadcrumbs="[
-            { label: $t('Plugins'), href: '/admin/plugins' },
-            { label: item?.name || pluginId, href: `/admin/plugins/${pluginId}` },
+            { label: $t('Plugins'), to: '/admin/plugins' },
+            { label: item?.name || pluginId, to: `/admin/plugins/${pluginId}` },
         ]"
     >
         <div

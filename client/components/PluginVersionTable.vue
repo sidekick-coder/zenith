@@ -1,26 +1,11 @@
 <script setup lang="ts">
 import { ref, watch, onMounted } from 'vue'
-import { Check, Info, GitPullRequest, ChevronLeft, ChevronRight } from 'lucide-vue-next'
+import { Check, GitPullRequest, ChevronLeft, ChevronRight } from 'lucide-vue-next'
+import type { GitCommitEntity } from '@sidekick-coder/zenith-kit/shared'
 import { $fetch } from '#client/utils/fetcher.ts'
 import { Badge } from '#client/components/ui/badge'
 import { Button } from '#client/components/ui/button'
 
-interface Commit {
-    hash: string
-    shortHash: string
-    message: string
-    authorName: string
-    date: string
-}
-
-interface VersionItem {
-    ref: string
-    label: string
-    description: string
-    body: string
-    date: string
-    author: string
-}
 
 const props = defineProps({
     pluginId: {
@@ -29,63 +14,48 @@ const props = defineProps({
     },
     branch: {
         type: String,
-        required: false,
+        default: null
     },
-    commitHash: {
+    currentCommitHash: {
         type: String,
-        required: false,
+        default: null
     },
 })
 
-const emit = defineEmits<{
-    checkout: [item: VersionItem]
-    detail: [item: VersionItem]
-}>()
-
-const commits = ref<Commit[]>([])
+const commits = ref<GitCommitEntity[]>([])
 const loading = ref(false)
 const page = ref(1)
 const perPage = ref(10)
-const total = ref(0)
 const totalPages = ref(1)
 
-function toVersionItem(c: Commit): VersionItem {
-    return {
-        ref: c.hash,
-        label: c.shortHash,
-        description: c.message,
-        body: '',
-        date: c.date,
-        author: c.authorName,
-    }
-}
-
-function isCurrentItem(c: Commit) {
-    return c.hash === props.commitHash || c.shortHash === props.commitHash
+function isCurrentItem(c: GitCommitEntity) {
+    return c.hash === props.currentCommitHash || c.short_hash === props.currentCommitHash
 }
 
 async function load() {
     loading.value = true
 
-    const [, data] = await $fetch.try(`/api/plugins/${props.pluginId}/git/commits`, {
-        query: {
-            page: page.value,
-            perPage: perPage.value,
-            ...(props.branch ? { branch: props.branch } : {}),
-        },
-    })
+    commits.value = []
 
-    if (data && typeof data === 'object' && 'items' in data) {
-        commits.value = (data as any).items
-        total.value = (data as any).total
-        totalPages.value = (data as any).totalPages
+    const query: Record<string, any> = {
+        page: page.value,
+        perPage: perPage.value,
     }
+
+    const [error, response] = await $fetch.try(`/api/plugins/${props.pluginId}/git/commits`, { query: query, })
+
+    if (error) {
+        return
+    }
+
+    commits.value = response
 
     loading.value = false
 }
 
 watch(() => props.branch, () => {
     page.value = 1
+
     load()
 })
 
@@ -135,12 +105,12 @@ onMounted(load)
                                 variant="outline"
                                 class="font-mono text-xs shrink-0"
                             >
-                                {{ commit.shortHash }}
+                                {{ commit.short_hash }}
                             </Badge>
                             <span class="text-sm truncate">{{ commit.message }}</span>
                         </div>
                         <p class="text-xs text-muted-foreground mt-0.5">
-                            {{ commit.authorName }} · {{ new Date(commit.date).toLocaleString() }}
+                            Author · {{ $dt(commit.date) }}
                         </p>
                     </div>
                 </div>
@@ -154,19 +124,9 @@ onMounted(load)
                     </Badge>
 
                     <Button
-                        variant="ghost"
-                        size="icon"
-                        class="size-8"
-                        @click="emit('detail', toVersionItem(commit))"
-                    >
-                        <Info class="size-4" />
-                    </Button>
-
-                    <Button
                         v-if="!isCurrentItem(commit)"
                         variant="outline"
                         size="sm"
-                        @click="emit('checkout', toVersionItem(commit))"
                     >
                         <GitPullRequest class="size-3.5" />
                         {{ $t('Checkout') }}

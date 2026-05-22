@@ -120,6 +120,8 @@ export default class PluginManagerService {
             directory,
             name: manifest.name || pkg.name || pluginConfig.id,
             version: `${gitInfo?.head || 'unknown'}@${gitInfo?.shortHash || 'unknown'}`,
+            version_channel:this.config.get(`plugins.registry.${pluginConfig.id}.version_channel`, 'commits'),
+            version_available_channels: pluginConfig.version_channels || ['branch:main'],
             enabled: this.config.get(`plugins.registry.${pluginConfig.id}.enabled`, false),
         })
 
@@ -144,21 +146,22 @@ export default class PluginManagerService {
             return
         }
 
-        if (fs.existsSync(destination)) {
-            this.logger.warn('plugin destination already exists, skipping download', { destination })
+        const exists = fs.existsSync(destination)
+
+        if (exists && this.debug) {
+            this.logger.debug('plugin destination already exists, skipping download', item)
+        }
+
+        if (exists) {
             this.dirs.add(destination)
             return
         }
 
         await this.shell.command('git', ['clone', repository, destination])
 
-        // fetch all 
         await this.shell.command('git', ['fetch', '--all', '--tags'], { cwd: destination })
 
-        this.logger.info('downloaded plugin', {
-            repository,
-            destination 
-        })
+        this.logger.info('downloaded plugin', item)
 
         this.dirs.add(destination)
     }

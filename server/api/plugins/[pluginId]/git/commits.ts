@@ -1,13 +1,12 @@
-import { GitCommitRepository, GitGateway } from '@sidekick-coder/zenith-kit/server'
+import { validator } from '@sidekick-coder/zenith-kit/shared'
 import type { HttpContext } from '#server/contracts/httpContext.contract.ts'
-import validator from '#shared/services/validator.service.ts'
 import pluginManager from '#server/facades/pluginManager.ts'
 
 export default async function({ acl, params, query }: HttpContext) {
     const payload = validator.validate(query, v => v.object({
-        page: v.optional(v.pipe(v.string(), v.transform(Number))),
-        perPage: v.optional(v.pipe(v.string(), v.transform(Number)), '10'),
-        branch: v.optional(v.string()),
+        limit: v.optional(v.pipe(v.string(), v.transform(Number))),
+        cursor: v.optional(v.string()),
+        branches: v.optional(v.extras.url.array(v.string())),
     }))
 
     const pluginId = validator.validate(params.pluginId, v => v.string())
@@ -16,19 +15,17 @@ export default async function({ acl, params, query }: HttpContext) {
 
     acl.authorize('read', 'Plugin', plugin)
 
-    const gateway = new GitGateway({ cwd: plugin.directory })
 
-    const repository = new GitCommitRepository(gateway)
+    if (payload.branches) {
+        const all = await plugin.branches.list()
 
-    let branch = payload.branch 
+        const names = all.map(b => b.name)
 
-    if (branch === 'build') {
-        branch = 'origin/build'
+        const validBranches = payload.branches
+            .filter(b => names.includes(b))
+
+        payload.branches = validBranches
     }
 
-    return await repository.list({
-        page: payload.page,
-        perPage: payload.perPage,
-        branch: branch,
-    })
+    return await plugin.commits.list(payload)
 }

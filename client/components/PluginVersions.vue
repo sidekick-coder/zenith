@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { GitCommit, GitBranch, Tag, Download, Info, GitPullRequest } from 'lucide-vue-next'
+import { GitCommit, GitBranch, Download } from 'lucide-vue-next'
 import { $fetch } from '#client/utils/fetcher.ts'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '#client/components/ui/card'
 import { Badge } from '#client/components/ui/badge'
@@ -33,12 +33,11 @@ const props = defineProps({
     },
 })
 
-type ChannelId = 'commits' | 'branch:main' | 'branch:build' | 'tags'
-
 interface Version {
-    channel: ChannelId | null
-    head: string | null
-    commit_hash: string
+    version_channel: string
+    version_available_channels: string[]
+    git_head: string
+    git_commit_hash: string
 }
 
 interface VersionItem {
@@ -50,28 +49,17 @@ interface VersionItem {
     author: string
 }
 
-const channels: { id: ChannelId; label: string }[] = [
+const channels: { id: string; label: string }[] = [
     {
         id: 'commits',
         label: 'Commits' 
     },
-    {
-        id: 'branch:main',
-        label: 'Branch: main' 
-    },
-    {
-        id: 'branch:build',
-        label: 'Branch: build' 
-    },
-    {
-        id: 'tags',
-        label: 'Tags' 
-    },
 ]
 
 const version = ref<Version | null>(null)
-const currentChannel = ref<ChannelId>('commits')
+const currentChannel = ref<string>('commits')
 const fetching = ref(false)
+const tableKey = ref(0)
 const checkinOut = ref(false)
 
 const checkoutDialog = ref(false)
@@ -83,11 +71,11 @@ const detailTarget = ref<VersionItem | null>(null)
 const currentVersionLabel = computed(() => {
     if (!version.value) return null
 
-    if (!version.value.channel) return `commits:${version.value.commit_hash}`
+    if (version.value.version_channel?.startsWith('branch:')) {
+        return version.value.version_channel
+    }
 
-    if (version.value.channel.startsWith('branch:')) return version.value.channel
-
-    return `${version.value.channel}@${version.value.commit_hash}`
+    return `commits:${version.value.git_commit_hash}`
 })
 
 const currentBranch = computed(() => {
@@ -96,50 +84,23 @@ const currentBranch = computed(() => {
     return currentChannel.value.replace('branch:', '')
 })
 
-const placeholderTags: VersionItem[] = [
-    {
-        ref: 'v2.1.0',
-        label: 'v2.1.0',
-        description: 'Release v2.1.0 - stability improvements',
-        body: '## What\'s new\n- Improved error handling\n- Reduced memory usage\n- Fixed edge case in parser',
-        date: '2026-05-01T12:00:00Z',
-        author: 'Alice' 
-    },
-    {
-        ref: 'v2.0.1',
-        label: 'v2.0.1',
-        description: 'Release v2.0.1 - hotfix',
-        body: 'Hotfix for critical crash on Windows when path contains spaces.',
-        date: '2026-04-20T08:00:00Z',
-        author: 'Bob' 
-    },
-    {
-        ref: 'v2.0.0',
-        label: 'v2.0.0',
-        description: 'Release v2.0.0 - major update',
-        body: '## Breaking changes\n- New config format (see migration guide)\n- Dropped Node 16 support\n\n## New features\n- Plugin API v2\n- Hot reload support',
-        date: '2026-04-01T10:00:00Z',
-        author: 'Alice' 
-    },
-    {
-        ref: 'v1.5.3',
-        label: 'v1.5.3',
-        description: 'Release v1.5.3 - bug fixes',
-        body: 'Various minor bug fixes and performance improvements.',
-        date: '2026-03-15T09:00:00Z',
-        author: 'Carol' 
-    },
-]
-
 async function loadVersion() {
-    const [, data] = await $fetch.try(`/api/plugins/${props.plugin.id}/version`)
+    const [error, data] = await $fetch.try(`/api/plugins/${props.plugin.id}/version`)
 
-    if (data && typeof data === 'object' && 'commit_hash' in data) {
-        version.value = data as Version
+    if (error) {
+        return
+    }
 
-        if (version.value.channel) {
-            currentChannel.value = version.value.channel
-        }
+    version.value = data as Version
+
+    currentChannel.value = version.value.version_channel || 'commits'
+
+    if (version.value.version_available_channels) {
+        version.value.version_available_channels
+            .forEach(c => channels.push({
+                id: c,
+                label: c,
+            }))
     }
 }
 
@@ -169,9 +130,11 @@ function checkout() {
     }, 800)
 }
 
-function fetchChanges() {
+async function fetchChanges() {
     fetching.value = true
-    setTimeout(() => { fetching.value = false }, 1500)
+    await $fetch.try(`/api/plugins/${props.plugin.id}/git/fetch`, { method: 'POST' })
+    tableKey.value++
+    fetching.value = false
 }
 
 onMounted(loadVersion)
@@ -229,12 +192,8 @@ onMounted(loadVersion)
                     size="sm"
                     @click="currentChannel = channel.id"
                 >
-                    <Tag
-                        v-if="channel.id === 'tags'"
-                        class="size-3.5"
-                    />
                     <GitBranch
-                        v-else-if="channel.id.startsWith('branch:')"
+                        v-if="channel.id.startsWith('branch:')"
                         class="size-3.5"
                     />
                     <GitCommit
@@ -246,63 +205,14 @@ onMounted(loadVersion)
             </div>
 
             <PluginVersionTable
-                v-if="currentChannel !== 'tags'"
+                :key="tableKey"
                 :plugin-id="plugin.id"
                 :branch="currentBranch"
-                :commit-hash="version?.commit_hash"
+                :current-commit-hash="version?.git_commit_hash"
+                :channel="currentChannel"
                 @checkout="requestCheckout"
                 @detail="openDetail"
             />
-
-            <div
-                v-else
-                class="rounded-md border divide-y"
-            >
-                <div
-                    v-for="item in placeholderTags"
-                    :key="item.ref"
-                    class="flex items-center justify-between gap-4 px-4 py-3 transition-colors hover:bg-muted/50"
-                >
-                    <div class="flex items-center gap-3 min-w-0">
-                        <div class="flex items-center justify-center size-5 rounded-full border-2 shrink-0 border-muted-foreground/30" />
-
-                        <div class="min-w-0">
-                            <div class="flex items-center gap-2">
-                                <Badge
-                                    variant="outline"
-                                    class="font-mono text-xs shrink-0"
-                                >
-                                    {{ item.label }}
-                                </Badge>
-                                <span class="text-sm truncate">{{ item.description }}</span>
-                            </div>
-                            <p class="text-xs text-muted-foreground mt-0.5">
-                                {{ item.author }} · {{ new Date(item.date).toLocaleString() }}
-                            </p>
-                        </div>
-                    </div>
-
-                    <div class="flex items-center gap-2 shrink-0">
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            class="size-8"
-                            @click="openDetail(item)"
-                        >
-                            <Info class="size-4" />
-                        </Button>
-
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            @click="requestCheckout(item)"
-                        >
-                            <GitPullRequest class="size-3.5" />
-                            {{ $t('Checkout') }}
-                        </Button>
-                    </div>
-                </div>
-            </div>
         </CardContent>
     </Card>
 
