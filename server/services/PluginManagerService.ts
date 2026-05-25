@@ -32,7 +32,10 @@ export default class PluginManagerService {
         this.debug = options.debug || false
         this.env = options.env || new EnvService()
         this.config = options.config || new ConfigService()
-        this.shell = new ShellService({ logger: this.logger.child({ label: 'plugin.shell' }) })
+        this.shell = new ShellService({
+            logger: this.logger.child({ label: 'plugin.shell' }),
+            debug: this.debug 
+        })
         this.dirs = new Set()
 
         if (this.debug) {
@@ -144,7 +147,7 @@ export default class PluginManagerService {
     public async downloadPlugin(item: any) {
         const repository = item.repository 
         const destination = item.destination
-        const sshKeyFilename = item.ssh_key_filename
+        const sshKeyFile = item.ssh_key_file
         const sshKey = item.ssh_key
 
         if (!repository || !destination) {
@@ -163,34 +166,15 @@ export default class PluginManagerService {
             return
         }
 
-        const env: Record<string, string> = { GIT_SSH_COMMAND: 'ssh -o StrictHostKeyChecking=no' }
+        const git = await GitGateway.clone(repository, destination, {
+            logger: this.logger.child({ label: 'plugin.git' }),
+            shell: this.shell,
+            debug: this.debug,
+            sshKeyFile: sshKeyFile,
+            sshKey: sshKey,
+        })
 
-        if (sshKeyFilename) {
-            env.GIT_SSH_COMMAND = `ssh -i ${sshKeyFilename} -o StrictHostKeyChecking=no`
-        }
-
-        if (sshKey) {
-            const sshKeyPath = tmpPath(createId('plugin_ssh_key'))
-
-            fs.writeFileSync(sshKeyPath, sshKey, { mode: 0o600 })
-
-            env.GIT_SSH_COMMAND = `ssh -i ${sshKeyPath} -o StrictHostKeyChecking=no`
-        }
-
-        const [cloneError] = await $try(() => this.shell.command('git', ['clone', repository, destination], { env }))
-
-        if (cloneError) {
-            return this.logger.error(cloneError)
-        }
-
-        const [fetchError] = await $try(() => this.shell.command('git', ['fetch', '--all', '--tags'], {
-            cwd: destination,
-            env 
-        }))
-
-        if (fetchError) {
-            return this.logger.error(fetchError)
-        }
+        await git.fetchAll()
 
         this.logger.info('downloaded plugin', {
             repository,
