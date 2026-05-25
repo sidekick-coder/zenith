@@ -1,11 +1,12 @@
 import fs from 'fs'
 import path from 'path'
-import { EnvService, GitGateway, PluginEntryEntity, ShellService } from '@sidekick-coder/zenith-kit/server'
+import { EnvService, GitGateway, PluginEntryEntity, ShellService, tmpPath } from '@sidekick-coder/zenith-kit/server'
 import { BaseException, ConfigService, LoggerService } from '@sidekick-coder/zenith-kit/shared'
 import cosmicconfig from 'cosmiconfig'
 import type PluginLoaderService from './PluginLoaderService.ts'
 import PluginLoaderDevelopmentService from './PluginLoaderDevelopmentService.ts'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
+import { createId } from '#shared/utils/createId.ts'
 
 export interface PluginManagerServiceOptions {
     logger?: LoggerService
@@ -143,6 +144,8 @@ export default class PluginManagerService {
     public async downloadPlugin(item: any) {
         const repository = item.repository 
         const destination = item.destination
+        const sshKeyFilename = item.ssh_key_filename
+        const sshKey = item.ssh_key
 
         if (!repository || !destination) {
             this.logger.error('invalid plugin download entry', { item })
@@ -160,11 +163,39 @@ export default class PluginManagerService {
             return
         }
 
-        await this.shell.command('git', ['clone', repository, destination])
+        const env: Record<string, string> = { GIT_SSH_COMMAND: 'ssh -o StrictHostKeyChecking=no' }
 
-        await this.shell.command('git', ['fetch', '--all', '--tags'], { cwd: destination })
+        if (sshKeyFilename) {
+            env.GIT_SSH_COMMAND = `ssh -i ${sshKeyFilename} -o StrictHostKeyChecking=no`
+        }
 
-        this.logger.info('downloaded plugin', item)
+        if (sshKey) {
+            const sshKeyPath = tmpPath(createId('plugin_ssh_key'))
+
+            fs.writeFileSync(sshKeyPath, sshKey, { mode: 0o600 })
+
+            env.GIT_SSH_COMMAND = `ssh -i ${sshKeyPath} -o StrictHostKeyChecking=no`
+        }
+
+        const [cloneError] = await $try(() => this.shell.command('git', ['clone', repository, destination], { env }))
+
+        if (cloneError) {
+            return this.logger.error(cloneError)
+        }
+
+        const [fetchError] = await $try(() => this.shell.command('git', ['fetch', '--all', '--tags'], {
+            cwd: destination,
+            env 
+        }))
+
+        if (fetchError) {
+            return this.logger.error(fetchError)
+        }
+
+        this.logger.info('downloaded plugin', {
+            repository,
+            destination,
+        })
 
         this.dirs.add(destination)
     }

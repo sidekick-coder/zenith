@@ -1,9 +1,11 @@
 import { ConfigManagerService, EmmitterService, basePath, LifecycleService } from '@sidekick-coder/zenith-kit/server'
 import { container } from '@sidekick-coder/zenith-kit/server'
-import { LoggerService, ConfigService } from '@sidekick-coder/zenith-kit/shared'
+import { LoggerService, ConfigService, tryCatch } from '@sidekick-coder/zenith-kit/shared'
 import PluginManagerService from './services/PluginManagerService.ts'
 import env from '#server/facades/env.facade.ts'
 import LoggerWinsonService from '#server/services/loggerWinson.service.ts'
+
+globalThis.$try = tryCatch
 
 process.on('unhandledRejection', (reason: any, promise) => {
     console.error('Unhandled Rejection at:', promise, 'reason:', reason)
