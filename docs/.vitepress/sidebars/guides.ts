@@ -18,10 +18,6 @@ export const guidesSidebar: DefaultTheme.SidebarItem[] = [
                 link: '/guides/installation/docker'
             },
             {
-                text: 'Docker Compose',
-                link: '/guides/installation/docker-compose'
-            },
-            {
                 text: 'Setup',
                 link: '/guides/installation/setup'
             },

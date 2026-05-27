@@ -30,9 +30,7 @@ export default defineConfig({
         },
     },
     themeConfig: {
-        search: {
-            provider: 'local'
-        },
+        search: { provider: 'local' },
         socialLinks: [
             {
                 icon: 'github',
