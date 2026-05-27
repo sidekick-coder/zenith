@@ -1,23 +1,38 @@
 ---
 layout: home
 hero:
-  name: Zenith CMS
-  text: The CMS to conquer it all.
-  tagline: Modular, flexible, and developer-friendly content management system for any project.
+  name: Zenith
+  text: Plugin based engine to build apps with Vue and Nodejs
+  tagline: Build your app with powerful plugins and a modern developer experience.
   actions:
     - theme: brand
       text: Get Started
-      link: /guides/installation/docker
+      link: /guides/introduction/what-is-it
     - theme: alt
       text: GitHub
       link: https://github.com/sidekick-coder/zenith
 features:
-  - title: Modular Architecture
-    details: Build and extend with powerful modules.
-  - title: Powerful API
-    details: Integrate easily with your stack.
-  - title: Easy Customization
-    details: Adapt Zenith to your needs.
-  - title: Modern Developer Experience
-    details: Built for productivity and flexibility.
+  - title: Dashboard
+    details: Ready to use and customizable dashboard.
+
+  - title: Auth & Permissions
+    details: Built-in user management and access control.
+
+  - title: Plugin System
+    details: Easily extend functionality with reusable plugins.
+
+  - title: Scheduler
+    details: Built-in task scheduling for background jobs.
+
+  - title: Queues
+    details: Manage background tasks with a powerful queue system.
+
+  - title: Mail
+    details: Integrated email sending capabilities.
+
+  - title: Drive
+    details: Local or s3 compatible file storage support.
+
+  - title: Docker
+    details: Docker friendly for easy deployment and development.
 ---
