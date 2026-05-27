@@ -27,4 +27,17 @@ export const guidesSidebar: DefaultTheme.SidebarItem[] = [
             },
         ],
     },
+    {
+        text: 'Plugins',
+        items: [
+            {
+                text: 'Introduction',
+                link: '/guides/plugins/introduction'
+            },
+            {
+                text: 'Creating a Plugin',
+                link: '/guides/plugins/creating-a-plugin'
+            }
+        ]
+    }
 ]

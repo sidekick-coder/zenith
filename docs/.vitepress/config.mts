@@ -23,8 +23,8 @@ export default defineConfig({
                 nav,
                 sidebar: {
                     '/guides/': guidesSidebar,
-                    '/core/': coreSidebar,
-                    '/modules/': modulesSidebar,
+                    // '/core/': coreSidebar,
+                    // '/modules/': modulesSidebar,
                 },
             }
         },

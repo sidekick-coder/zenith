@@ -7,12 +7,12 @@ export const nav = [
         text: 'Guides',
         link: '/guides/installation/docker'
     },
-    {
-        text: 'Core',
-        link: '/core/introduction'
-    },
-    {
-        text: 'Modules',
-        link: '/modules/introduction'
-    },
+    // {
+    //     text: 'Core',
+    //     link: '/core/introduction'
+    // },
+    // {
+    //     text: 'Modules',
+    //     link: '/modules/introduction'
+    // },
 ]
