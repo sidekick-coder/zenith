@@ -8,47 +8,47 @@ import LifecycleHook from '#shared/entities/lifecycleHook.entity.ts'
 export default class AppLifecycleHook extends LifecycleHook {
     public order = 99
     public async onRegister(): Promise<void> {
-        const service = new ExpressService()
+        const http = new ExpressService()
 
         const origins = config.get('cors.origins', '')
             .split(',')
             .map((o: string) => o.trim())
             .filter((o: string) => o.length > 0)
     
-        service.cors({
+        http.cors({
             credentials: true,
             origin: origins.length > 0 ? origins : undefined,
         })
 
-        container.set(ExpressService, service)
+        container.set(ExpressService, http)
 
-        await emmitter.emitAndWait('http:registered', service)
+        await emmitter.emitAndWait('http:registered', { http })
     }
 
     public async onLoad(): Promise<void> {
-        const service = container.get<ExpressService>(ExpressService)
+        const http = container.get<ExpressService>(ExpressService)
         const router = container.get<RouterRegister>(RouterService)
 
-        service.router = router
+        http.router = router
 
-        await emmitter.emitAndWait('http:loaded', service)
+        await emmitter.emitAndWait('http:loaded', { http })
     }
     
     public async onBoot(): Promise<void> {
-        const service = container.get<ExpressService>(ExpressService)
+        const http = container.get<ExpressService>(ExpressService)
         
-        service.routes()
+        http.routes()
 
-        service.start()
+        http.start()
 
-        await emmitter.emitAndWait('http:booted', service)
+        await emmitter.emitAndWait('http:booted', { http })
     }
 
     public async onShutdown(): Promise<void> {
-        const service = container.get<ExpressService>(ExpressService)
+        const http = container.get<ExpressService>(ExpressService)
 
-        await service.stop()
+        await http.stop()
 
-        await emmitter.emitAndWait('http:shutdown', service)
+        await emmitter.emitAndWait('http:shutdown', { http })
     }
 }

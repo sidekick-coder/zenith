@@ -1,12 +1,12 @@
 import fs from 'fs'
 import path from 'path'
-import { EnvService, GitGateway, PluginEntryEntity, ShellService, tmpPath } from '@sidekick-coder/zenith-kit/server'
+import { EnvService, GitGateway, PluginEntryEntity, ShellService } from '@sidekick-coder/zenith-kit/server'
 import { BaseException, ConfigService, LoggerService } from '@sidekick-coder/zenith-kit/shared'
 import cosmicconfig from 'cosmiconfig'
 import type PluginLoaderService from './PluginLoaderService.ts'
 import PluginLoaderDevelopmentService from './PluginLoaderDevelopmentService.ts'
+import PluginLoaderProductionService from './PluginLoaderProductionService.ts'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
-import { createId } from '#shared/utils/createId.ts'
 
 export interface PluginManagerServiceOptions {
     logger?: LoggerService
@@ -213,7 +213,7 @@ export default class PluginManagerService {
         }
 
         if (this.env.production) {
-            // manager = new PluginManagerProductionService(options)
+            loader = new PluginLoaderProductionService()
         }
 
         if (!loader) {

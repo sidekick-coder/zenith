@@ -65,7 +65,7 @@ arte
             columns.unshift({
                 label: 'Module',
                 value: row => row.metadata?.module || 'unknown',
-                width: 10,
+                width: 15,
             })
         }
 

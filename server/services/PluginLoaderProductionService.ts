@@ -1,18 +1,34 @@
 import fs from 'fs'
 import path from 'path'
+import { basePath, container, PluginEntity, PluginEntryEntity } from '@sidekick-coder/zenith-kit/server'
+import type { EventContract } from '@sidekick-coder/zenith-kit/server'
 import express from 'express'
-import { container, migrator, MigratorService, PluginEntity, PluginEntryEntity, SeederService } from '@sidekick-coder/zenith-kit/server'
-import PluginManagerService from './PluginManagerService.ts'
+import PluginLoaderService from './PluginLoaderService.ts'
 import ExpressService from './express.service.ts'
 import emmitter from '#server/facades/emmitter.facade.ts'
 import { resolveHeadAssetsFromManifest } from '#server/utils/resolveHeadAssetsFromManifest.ts'
-import seeder from '#server/facades/seeder.facade.ts'
 
-export default class PluginManagerProductionService extends PluginManagerService {
-    private async loadPluginSources(plugin: PluginEntity) {
-        const logger = this.logger.child({ pluginId: plugin.id })
+export default class PluginLoaderProductionService extends PluginLoaderService {
+    private async onBeforeCliRegistered({ cli }: EventContract['cli:registered']) {
+        for (const plugin of this.entries.values()) {
+            if (!plugin.enabled) continue
 
-        if (container.has(MigratorService) && fs.existsSync(plugin.makePath('dist', 'server', 'migrations'))) {
+            const commandsFolder = plugin.makePath('dist', 'server', 'commands')
+
+            if (!fs.existsSync(commandsFolder)) {
+                continue
+            }
+
+            cli.addDir(commandsFolder)
+        }
+    }
+
+    private async onMigratorRegistered({ migrator }: EventContract['migrator:loaded']) {
+        const entries = Array.from(this.entries.values()).filter(plugin => plugin.enabled)
+
+        for (const plugin of entries) {
+            const logger = this.logger.child({ pluginId: plugin.id })
+
             migrator.addSource({
                 id: plugin.id,
                 directory: plugin.makePath('dist', 'server', 'migrations'),
@@ -22,8 +38,14 @@ export default class PluginManagerProductionService extends PluginManagerService
                 logger.debug(`added plugin ${plugin.id} migrations to migrator`)
             }
         }
+    }
 
-        if (container.has(SeederService)) {
+    private async onSeederRegistered({ seeder }: EventContract['seeder:loaded']) {
+        const entries = Array.from(this.entries.values()).filter(plugin => plugin.enabled)
+
+        for (const plugin of entries) {
+            const logger = this.logger.child({ pluginId: plugin.id })
+
             seeder.addSource({
                 id: plugin.id,
                 directory: plugin.makePath('dist', 'server', 'seeders'),
@@ -32,8 +54,19 @@ export default class PluginManagerProductionService extends PluginManagerService
             if (this.debug) {
                 logger.debug(`added plugin ${plugin.id} seeders to seeder`)
             }
+
         }
     }
+
+    private async onHttpRegistered({ http }: EventContract['http:registered']) {
+        const entries = Array.from(this.entries.values()).filter(plugin => plugin.enabled)
+
+        for (const plugin of entries) {
+            http.use(`/plugins/${plugin.id}/vendor`, express.static(plugin.makePath('dist', 'client-browser')))
+        }
+
+    }
+
 
     private async loadPluginServerEntry(plugin: PluginEntryEntity) {
         const logger = this.logger.child({ pluginId: plugin.id })
@@ -61,11 +94,13 @@ export default class PluginManagerProductionService extends PluginManagerService
 
         const instance: PluginEntity = contructor.fromPluginDiscoverEntity(plugin)
 
+        console.log('instance', instance)
+
         await instance.load()
 
-        this.loadPluginSources(instance)
-
-        logger.info(`plugin loaded (${plugin.id} v${instance.version})`)
+        if (this.debug) {
+            logger.debug(`loaded plugin (${plugin.id} ${instance.version})`)
+        }
     }
 
     public async loadServerPLugins(): Promise<void> {
@@ -171,17 +206,18 @@ export default class PluginManagerProductionService extends PluginManagerService
 
             entries.push(pluginEntry)
 
-            if (container.has(ExpressService)) {
-                const http = container.get<ExpressService>(ExpressService)
-
-                http.use(`/plugins/${plugin.id}/vendor`, express.static(plugin.makePath('dist', 'client-browser')))
-            }
+            // if (container.has(ExpressService)) {
+            //     const http = container.get<ExpressService>(ExpressService)
+            //
+            //     http.use(`/plugins/${plugin.id}/vendor`, express.static(plugin.makePath('dist', 'client-browser')))
+            // }
 
             if (this.debug) {
                 logger.debug('load client-browser plugin entry: ' + pluginEntry.id, { entry: pluginEntry })
             }
 
         }
+
         emmitter.on('page:request:before-render', c => {
             c.setBrowserContainerValue('plugin:entries', entries)
 
@@ -193,20 +229,14 @@ export default class PluginManagerProductionService extends PluginManagerService
     }
 
 
-
     public async load(): Promise<void> {
         await this.loadServerPLugins()
         await this.loadClientNodePLugins()
         await this.loadClientBrowserPlugins()
-    }
 
-    public async cleanup(): Promise<void> {
-        // const files = await fs.promises.readdir(basePath('client/.plugins'))
-        //
-        // const plguinFiles = files.filter(file => file.endsWith('.ts'))
-        //
-        // for (const file of plguinFiles) {
-        //     await fs.promises.unlink(basePath('client/.plugins', file))
-        // }
+        emmitter.on('cli:registered', this.onBeforeCliRegistered.bind(this))
+        emmitter.on('migrator:registered', this.onMigratorRegistered.bind(this))
+        emmitter.on('seeder:registered', this.onSeederRegistered.bind(this))
+        emmitter.on('http:registered', this.onHttpRegistered.bind(this))
     }
 }

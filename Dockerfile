@@ -26,9 +26,6 @@ ENV RUNTIME_CONFIG_PATH=/tmp/runtime-config.txt
 
 EXPOSE 3000
 
-ENTRYPOINT ["node", "arte", "serve"]
+ENTRYPOINT ["node", "zenith", "serve"]
+
 CMD []
-#
-# ENTRYPOINT ["docker/entrypoint.sh"]
-#
-# CMD ["node", "arte", "serve"]
