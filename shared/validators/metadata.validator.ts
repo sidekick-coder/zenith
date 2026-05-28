@@ -1,5 +1,4 @@
 import validator from '#shared/services/validator.service.ts'
-import MetadataQueryService from '#server/services/metadataQuery.service.ts'
 import type { Database } from '#server/contracts/database.contract.ts'
 
 export const filter = validator.create(v => v.object({
@@ -48,5 +47,4 @@ export const query = <T extends keyof Database>(table: T, foreignKey: keyof Data
         return result
     }),
     v.record(v.string(), filter),
-    v.transform((data) => new MetadataQueryService(data, table, foreignKey))
 ))

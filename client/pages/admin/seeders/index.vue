@@ -63,7 +63,10 @@ async function runAll() {
     const body: any = {}
     if (source.value) body.source = source.value
 
-    const [error] = await $fetch.try('/api/seeders/run', { method: 'POST', body })
+    const [error] = await $fetch.try('/api/seeders/run', {
+        method: 'POST',
+        body 
+    })
 
     runningAll.value = false
 
@@ -77,7 +80,10 @@ async function runOne(seeder: Seeder) {
 
     const [error] = await $fetch.try('/api/seeders/run', {
         method: 'POST',
-        body: { source: seeder.source, names: [seeder.name] },
+        body: {
+            source: seeder.source,
+            names: [seeder.name] 
+        },
     })
 
     runningSeed.value = null

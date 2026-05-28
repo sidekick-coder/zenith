@@ -1,4 +1,4 @@
-import type { PageRequestContextEntity } from '@sidekick-coder/zenith-kit/server'
+// import type { PageRequestContextEntity } from '@sidekick-coder/zenith-kit/server'
 import type { LoggerService } from '@sidekick-coder/zenith-kit/shared'
 import type { VueHeadClient } from '@unhead/vue'
 
@@ -9,7 +9,7 @@ export interface EntryNodeRenderContract {
     cookies: Record<string, string>;
     state: Record<string, any>;
     logger: LoggerService;
-    head: PageRequestContextEntity['head'];
+    head: any;
     serverRouter: any
 }
 

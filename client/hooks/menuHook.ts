@@ -142,22 +142,18 @@ export default class extends LifecycleHook {
         })
 
         menu.add({
-            id: 'translator-general',
-            group: $t('Translator'),
-            label: $t('General'),
+            group: $t('Others'),
+            label: $t('Translator'),
             layout: 'admin',
             to: '/admin/translator/general'
         })
 
-        // modules
-        // menu.add({
-        //     id: 'module-all',
-        //     layout: 'admin',
-        //     label: $t('All'),
-        //     to: '/admin/modules',
-        //     icon: 'Puzzle',
-        //     group: $t('Modules'),
-        // })
+        menu.add({
+            group: $t('Others'),
+            label: $t('Webhook senders'),
+            layout: 'admin',
+            to: '/admin/webhook-senders',
+        })
 
         menu.add({
             layout: 'admin',
