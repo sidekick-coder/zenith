@@ -1,5 +1,9 @@
 <script setup lang="ts">
-import { useFetchPagination, ZDataTable, ZDialogForm, ZAlertButton, PageTitle, PageSubtitle, ZButton, defineColumns, defineFormFields, Badge } from '@sidekick-coder/zenith-kit/components'
+import {
+    useFetchPagination,
+    Switch,
+    ZDataTable, ZDialogForm, ZAlertButton, PageTitle, PageSubtitle, ZButton, defineColumns, defineFormFields, Badge
+} from '@sidekick-coder/zenith-kit/components'
 import { onMounted, onServerPrefetch, ref } from 'vue'
 import { RefreshCw } from 'lucide-vue-next'
 import { validator } from '@sidekick-coder/zenith-kit/shared'
@@ -13,6 +17,11 @@ import Icon from '#client/components/Icon.vue'
 const { items, loading, load, hydrate } = useFetchPagination('/api/webhook-senders', { limit: 100, })
 
 const columns = defineColumns([
+    {
+        id: 'enabled',
+        label: $t('Enabled'),
+        field: 'enabled',
+    },
     {
         id: 'name',
         label: $t('Name'),
@@ -135,11 +144,12 @@ function toRequestData(data: Record<string, any>) {
 
 // actions
 const deletingItems = ref<string[]>([])
+const toggling = ref<string[]>([])
 
 async function create(data: Record<string, any>) {
     const [error] = await fetcher.try('/api/webhook-senders', {
         method: 'POST',
-        data: toRequestData(data) 
+        data: toRequestData(data)
     })
 
     if (error) {
@@ -155,7 +165,7 @@ async function create(data: Record<string, any>) {
 async function update(id: string, data: Record<string, any>) {
     const [error] = await fetcher.try(`/api/webhook-senders/${id}`, {
         method: 'PUT',
-        data: toRequestData(data) 
+        data: toRequestData(data)
     })
 
     if (error) {
@@ -169,7 +179,7 @@ async function update(id: string, data: Record<string, any>) {
 
 async function destroy(id: string) {
     deletingItems.value.push(id)
-    
+
     const [error] = await fetcher.try(`/api/webhook-senders/${id}`, { method: 'DELETE' })
 
     if (error) {
@@ -180,6 +190,25 @@ async function destroy(id: string) {
     await new Promise(resolve => setTimeout(resolve, 1000))
 
     toast.success($t('Deleted successfully.'))
+
+    load()
+}
+
+async function toggle(row: WebhookSender) {
+    toggling.value.push(row.id)
+
+    const [error] = await fetcher.try(`/api/webhook-senders/${row.id}/toggle`, { method: 'POST' })
+
+    if (error) {
+        toggling.value = []
+        return
+    }
+
+    await new Promise(resolve => setTimeout(resolve, 800))
+
+    toast.success($t('Updated successfully.'))
+
+    toggling.value = []
 
     load()
 }
@@ -230,6 +259,20 @@ async function destroy(id: string) {
             :rows="items"
             :columns="columns"
         >
+            <template #row-enabled="{ row }">
+                <Icon
+                    v-if="toggling.includes(row.id)"
+                    name="Loader2"
+                    class="animate-spin"
+                />
+
+                <Switch
+                    v-else
+                    :model-value="!!row.enabled"
+                    @click="toggle(row)"
+                />
+            </template>
+
             <template #row-event="{ row }">
                 <div class="flex flex-col gap-1">
                     <Badge
@@ -250,7 +293,7 @@ async function destroy(id: string) {
                         :submit-text="$t('Update')"
                         :schema="schema"
                         :values="toForm(row)"
-                        :handle="(data) => update(row.id, data)"
+                        :handle="(data: any) => update(row.id, data)"
                         @submit="load"
                     >
                         <ZButton

@@ -5,6 +5,7 @@ export type WebhookSender = v.InferOutput<typeof webhookSenderSchema>
 export const webhookSenderSchema = v.object({
     id: v.string(),
     name: v.string(),
+    enabled: v.boolean(),
 
     trigger_events: v.array(v.string()),
 
@@ -14,6 +15,6 @@ export const webhookSenderSchema = v.object({
     request_body: v.optional(v.string()),
 })
 
-export const webhookSenderCreateSchema = v.omit(webhookSenderSchema, ['id'])
+export const webhookSenderCreateSchema = v.omit(webhookSenderSchema, ['id', 'enabled'])
 
 export const webhookSenderUpdateSchema = v.partial(webhookSenderCreateSchema)
