@@ -1,6 +1,3 @@
-import { EmmitterService } from '@sidekick-coder/zenith-kit/server'
-import di from './di.facade.ts'
-
-const emmitter = di.proxy<EmmitterService>(EmmitterService)
+import { emmitter } from '@sidekick-coder/zenith-kit/server'
 
 export default emmitter

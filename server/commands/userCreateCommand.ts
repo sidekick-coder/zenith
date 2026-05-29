@@ -1,56 +1,50 @@
-import arte from '#server/facades/arte.facade.ts'
-import userRepository from '#server/repositories/user.repository.ts'
+import { CliCommand, userRepository } from '@sidekick-coder/zenith-kit/server'
 
-arte.command('user:create')
-    .need('db')
+const command = new CliCommand('user:create')
+
+command
+    .need('db', 'hasher')
     .helpGroup('user')
     .description('Create a new user')
-    .requiredOption('-u, --username <username>', 'User name')
-    .requiredOption('-e, --email <email>', 'User email')
-    .requiredOption('-p, --password <password>', 'User password')
-    .option('-s, --skip-if-exists', 'Skip if user already exists')
+    .option('-u, --username <username>', 'User name')
+    .option('-e, --email <email>', 'User email')
+    .option('-p, --password <password>', 'User password')
     .option('--json', 'Output result as JSON')
     .action(async (options) => {
-        const { username, email, password } = options
-
-        // Check if user already exists
-        const existingUser = await userRepository.exists(email)
-
-        if (existingUser && options.skipIfExists) {
-            console.log(`⚠️ User with email '${email}' already exists. Skipping creation.`)
-            return
+        const payload = {
+            username: options.username,
+            email: options.email,
+            password: options.password,
+            verified_at: new Date().toISOString(),
         }
 
-        if (existingUser) {
-            throw new Error(`User with email '${email}' already exists.`)
+        if (!payload.username) {
+            payload.username = await command.inquirer.input({ message: 'Enter username:', })
         }
 
-        const userData = {
-            name: username,
-            username,
-            email,
-            password, // Raw password
-            verified_at: new Date(), // Mark as verified by default for CLI-created users
+        if (!payload.email) {
+            payload.email = await command.inquirer.input({ message: 'Enter email:', })
         }
 
-        const newUser = await userRepository.create(userData)
+        if (!payload.password) {
+            payload.password = await command.inquirer.password({ message: 'Enter password:', })
 
-        if (!newUser) {
-            console.log('❌ Failed to create user')
-            return
+            const confirmPassword = await command.inquirer.password({ message: 'Confirm password:', })
+
+            if (payload.password !== confirmPassword) {
+                console.log('❌ Passwords do not match')
+                return
+            }
         }
+
+        const user = await userRepository.create(payload)
 
         if (options.json) {
-            console.log(JSON.stringify({
-                id: newUser.id,
-                username: newUser.username,
-                email: newUser.email,
-            }))
+            console.log(JSON.stringify(user))
             return
         }
 
-        console.log(`✓ User '${username}' created successfully`)
-        console.log(`  ID: ${newUser.id}`)
-        console.log(`  Username: ${newUser.username}`)
-        console.log(`  Email: ${newUser.email}`)
+        command.object(user)
     })
+
+export default command

@@ -46,10 +46,14 @@ export default class WebhookSenderManager {
         const eventData = options.eventData
         const eventOptions = options.eventOptions
 
-        let body = undefined 
+        let body = undefined
 
         if (sender.request_body) {
-            const compiled = template(sender.request_body, { interpolate: /{{([\s\S]+?)}}/g })
+            const json = typeof sender.request_body === 'string' ? sender.request_body : JSON.stringify(sender.request_body)
+
+            console.log('Executing webhook sender with body template:', json)
+
+            const compiled = template(json, { interpolate: /{{([\s\S]+?)}}/g })
 
             body = compiled({
                 data: eventData,
@@ -57,24 +61,33 @@ export default class WebhookSenderManager {
             })
         }
 
-        const [error, response] = await $try(() => fetch(sender.request_url, {
+        const fetchOptions: RequestInit = {
             method: sender.request_method,
             headers: sender.request_headers,
             body: ['PUT', 'POST'].includes(sender.request_method || 'GET') ? body : undefined,
-        }))
+        }
+
+        const [error, response] = await $try(() => fetch(sender.request_url, fetchOptions))
 
         if (error) {
+            Object.assign(error, {
+                sender_id: sender.id,
+                sender_name: sender.name,
+                url: sender.request_url,
+                method: sender.request_method,
+            })
+
             return this.logger.error('failed to send webhook', error)
         }
 
         if (this.debug) {
             this.logger.debug('sent webhook', {
-                id: sender.id,
-                name: sender.name,
-                url: sender.request_url,
-                method: sender.request_method,
-                status: response.status,
-                response: response.status >= 400 ? await response.text() : undefined,
+                request_url: sender.request_url,
+                request_method: fetchOptions.method,
+                request_headers: fetchOptions.headers,
+                request_body: fetchOptions.body ? JSON.parse(fetchOptions.body as string) : undefined,
+                response_status: response.status,
+                response_text: response.status >= 400 ? await response.text() : undefined,
             })
         }
     }

@@ -50,6 +50,7 @@ export default class User extends composeWith(
 
     public static async afterCreate(user: User) {
         emmitter.emit('user:after-create', { user })
+        emmitter.emit('user:created', { user })
     }
 
     public static boot(){

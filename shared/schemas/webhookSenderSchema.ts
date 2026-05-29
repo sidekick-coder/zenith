@@ -12,7 +12,7 @@ export const webhookSenderSchema = v.object({
     request_url: v.string(),
     request_method: v.optional(v.picklist(['GET', 'POST', 'PUT', 'DELETE'])),
     request_headers: v.optional(v.record(v.string(), v.string())),
-    request_body: v.optional(v.string()),
+    request_body: v.optional(v.union([v.string(), v.record(v.string(), v.any())])),
 })
 
 export const webhookSenderCreateSchema = v.omit(webhookSenderSchema, ['id', 'enabled'])
