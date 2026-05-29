@@ -1,9 +1,7 @@
 <script setup lang="ts">
 import { useRoute, useRouter } from 'vue-router'
-import {
-    defineAsyncComponent, onMounted, ref 
-} from 'vue'
-import { useRouteQuery } from '@vueuse/router'
+import { defineAsyncComponent, onMounted, ref } from 'vue'
+import { useRouteQuery } from '@sidekick-coder/zenith-kit/components'
 import { toast } from 'vue-sonner'
 import AdminLayout from '#client/layouts/AdminLayout.vue'
 
@@ -40,17 +38,13 @@ const tabs = [
         id: 'roles',
         label: $t('Roles'),
         component: defineAsyncComponent(() => import('#client/components/UserRoles.vue')),
-        props: { 
-            userId: userId
-        },
+        props: { userId: userId },
     },
     {
         id: 'oauth-accounts',
         label: $t('OAuth Accounts'),
         component: defineAsyncComponent(() => import('#client/components/UserOauthAccounts.vue')),
-        props: { 
-            userId: userId
-        },
+        props: { userId: userId },
     },
     {
         id: 'permissions',
