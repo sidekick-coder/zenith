@@ -1,4 +1,4 @@
-import { migrator } from '@sidekick-coder/zenith-kit/server'
+import { migrator, userRepository } from '@sidekick-coder/zenith-kit/server'
 import BaseException from '#server/exceptions/base.ts'
 import root from '#server/facades/router.facade.ts'
 import config from '#server/facades/config.facade.ts'
@@ -6,7 +6,6 @@ import config from '#server/facades/config.facade.ts'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
 import db from '#server/facades/db.facade.ts'
 import drive from '#server/facades/drive.facade.ts'
-import { createUser } from '#server/queries/index.ts'
 import { createUserPermission } from '#server/queries/createUserPermission.ts'
 import { generateKey } from '#server/utils/index.ts'
 import server from '#server/facades/server.facade.ts'
@@ -83,12 +82,12 @@ router.post('/user', async ({ body }) => {
         throw new BaseException($t('Username, Email and password are required'), 400)
     }
 
-    const user = await createUser({
+    const user = await userRepository.create({
         name: payload.name,
         username: payload.username,
         email: payload.email,
         password: payload.password,
-        verified_at: new Date(),
+        verified_at: new Date().toISOString(),
     })
 
     await createUserPermission(user.id, {

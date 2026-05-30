@@ -1,16 +1,30 @@
 import { password as passwordPrompt } from '@inquirer/prompts'
+import type { UserEntity } from '@sidekick-coder/zenith-kit/shared'
+import { userRepository } from '@sidekick-coder/zenith-kit/server'
 import arte from '#server/facades/arte.facade.ts'
-import User from '#server/entities/user.entity.ts'
 
 arte.command('user:password')
     .need('db')
     .helpGroup('user')
     .description('Update user password')
-    .requiredOption('-u, --uuid <uuid>', 'Email or username')
-    .action(async (options: { uuid: string, password: string }) => {
-        const { uuid } = options
+    .option('-i, --id <id>', 'user id')
+    .option('-u, --username <username>', 'username')
+    .option('-e, --email <email>', 'email')
+    .action(async (options: any) => {
 
-        const user = await User.findByUUID(uuid)
+        let user: UserEntity | null = null
+
+        if (options.id) {
+            user = await userRepository.findByIdOrFail(options.id)
+        }
+
+        if (options.username) {
+            user = await userRepository.findOne({ username: options.username })
+        }
+
+        if (options.email) {
+            user = await userRepository.findOne({ email: options.email })
+        }
 
         if (!user) {
             console.log('❌ User not found')
@@ -26,7 +40,7 @@ arte.command('user:password')
             return
         }
 
-        await User.updateById(user.id, { password })
+        await userRepository.updateById(user.id, { password })
 
         console.log(`✓ Password updated successfully for user '${user.username}'`)
     })

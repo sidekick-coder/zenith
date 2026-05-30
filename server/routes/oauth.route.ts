@@ -1,4 +1,5 @@
 import { randomBytes, randomUUID } from 'crypto'
+import { userRepository } from '@sidekick-coder/zenith-kit/server'
 import rootRouter from '#server/facades/router.facade.ts'
 import BaseException from '#server/exceptions/base.ts'
 import validator from '#shared/services/validator.service.ts'
@@ -7,7 +8,6 @@ import env from '#server/facades/env.facade.ts'
 import OauthToken from '#server/entities/oauthToken.entity.ts'
 import OauthAccount from '#server/entities/oauthAccount.entity.ts'
 import { undeleted } from '#server/queries/softDelete.ts'
-import User from '#server/entities/user.entity.ts'
 import auth from '#server/facades/auth.facade.ts'
 
 const router = rootRouter.prefix('/api/oauth').group()
@@ -25,7 +25,7 @@ router.post('/', async ({ body, user }) => {
     }
 
     const url = new URL('https://accounts.google.com/o/oauth2/auth')
-    const redirectURI = new URL('/api/oauth/google', env.get('APP_URL'))
+    const redirectURI = new URL('/api/oauth/google', env.get('ZENITH_APP_URL'))
 
     url.searchParams.append('client_id', config.get('oauth.google_client_id', ''))
     url.searchParams.append('redirect_uri', redirectURI.toString())
@@ -53,9 +53,7 @@ router.post('/', async ({ body, user }) => {
 
     url.searchParams.append('state', token.token)
 
-    return {
-        url: url.toString(),
-    }
+    return { url: url.toString(), }
 })
 
 router.get('/google', async ({ query, response, cookie }) => {
@@ -63,7 +61,7 @@ router.get('/google', async ({ query, response, cookie }) => {
     const code = query.code 
     const state = query.state
 
-    let errorUrl = new URL('/errors/oauth', env.get('APP_URL'))
+    let errorUrl = new URL('/errors/oauth', env.get('ZENITH_APP_URL'))
 
     errorUrl.searchParams.append('title', $t('OAuth Error'))
     errorUrl.searchParams.append('message', $t('There was an error during the OAuth process. Please try again or contact support.'))
@@ -88,10 +86,10 @@ router.get('/google', async ({ query, response, cookie }) => {
     // await oauthToken.destroy()
 
     if (oauthToken.metadata.error_url) {
-        errorUrl = new URL(oauthToken.metadata.error_url, env.get('APP_URL'))
+        errorUrl = new URL(oauthToken.metadata.error_url, env.get('ZENITH_APP_URL'))
     }
 
-    const successUrl = new URL(oauthToken.metadata.success_url || '/', env.get('APP_URL'))
+    const successUrl = new URL(oauthToken.metadata.success_url || '/', env.get('ZENITH_APP_URL'))
 
     const credentials = await fetch('https://oauth2.googleapis.com/token', {
         method: 'POST',
@@ -99,7 +97,7 @@ router.get('/google', async ({ query, response, cookie }) => {
             code,
             client_id: config.get('oauth.google_client_id', ''),
             client_secret: config.get('oauth.google_client_secret', ''),
-            redirect_uri: new URL('/api/oauth/google', env.get('APP_URL')).toString(),
+            redirect_uri: new URL('/api/oauth/google', env.get('ZENITH_APP_URL')).toString(),
             grant_type: 'authorization_code',
         }),
     }).then((res) => res.json() as any)
@@ -109,11 +107,7 @@ router.get('/google', async ({ query, response, cookie }) => {
         return
     }
 
-    const googleUser = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
-        headers: {
-            Authorization: `Bearer ${credentials.access_token}`,
-        },
-    }).then((res) => res.json() as any)
+    const googleUser = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', { headers: { Authorization: `Bearer ${credentials.access_token}`, }, }).then((res) => res.json() as any)
 
     if (!googleUser || !googleUser.id) {
         errorUrl.searchParams.set('message', $t('Failed to retrieve user information from Google. Please try again.'))
@@ -137,7 +131,7 @@ router.get('/google', async ({ query, response, cookie }) => {
             return
         }
 
-        const user = await User.create({
+        const user = await userRepository.create({
             name: googleUser.name || 'Google User',
             username: googleUser.name + randomUUID(),
             email: googleUser.email,
@@ -185,7 +179,7 @@ router.get('/google', async ({ query, response, cookie }) => {
             return
         }
 
-        const user = await User.find(oauthAccount.user_id)
+        const user = await userRepository.findById(oauthAccount.user_id)
 
         if (!user) {
             errorUrl.searchParams.set('message', $t('The user linked to your Google account could not be found. Please contact support.'))
@@ -212,12 +206,7 @@ router.get('/google', async ({ query, response, cookie }) => {
     }
 
     if (oauthToken.action === 'connect') {
-        const user = await User.findOne({
-            where: eb => eb.and([
-                eb('id', '=', oauthToken.user_id),
-                undeleted(eb)
-            ])
-        })
+        const user = await userRepository.findById(oauthToken.user_id!)
 
         if (!user) {
             errorUrl.searchParams.set('message', $t('Could not find the user associated with this OAuth request.'))

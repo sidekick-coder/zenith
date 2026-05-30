@@ -4,6 +4,8 @@ import { LifecycleHook } from '@sidekick-coder/zenith-kit/shared'
 import emmitter from '#server/facades/emmitter.facade.ts'
 import AuthService from '#server/services/auth.service.ts'
 import Permission from '#server/entities/permission.entity.ts'
+import UserMeta from '#server/entities/userMeta.entity.ts'
+import { loadPermissions } from '#server/loaders/createPermissionLoader.ts'
 
 export default class extends LifecycleHook {
     public order = 3
@@ -27,15 +29,22 @@ export default class extends LifecycleHook {
             return
         }
 
+        await loadPermissions(user, {
+            assignableType: 'user',
+            assignableId: e => String(e.id),
+        })
+
         ctx.setState('auth:user', user)
 
         const permissions = Permission.applyContext(user.permissions, { auth: { user: user }, })
-        const metas = await user.$metas.all()
+
+        const metasRows = await UserMeta.list({ where: eb => eb('user_id', '=', user.id) })
+
+        const metas = Object.fromEntries(metasRows.map(m => [m.name, m.value]))
 
         ctx.setState('permissions', permissions)
         ctx.setState('user:metas', metas)
         ctx.setState('preferences:dark_mode', metas['admin-ui:dark_mode'] ?? false)
-
     }
 
     public async register(): Promise<void> {

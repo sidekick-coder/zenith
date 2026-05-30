@@ -1,7 +1,8 @@
+import { UserEntity } from '@sidekick-coder/zenith-kit/shared'
+import { userRepository } from '@sidekick-coder/zenith-kit/server'
 import hasher from '#server/facades/hasher.facade.ts'
 import db from '#server/facades/db.facade.ts'
 import TokenService from '#server/services/token.service.ts'
-import User from '#server/entities/user.entity.ts'
 import EmailTemplate from '#server/entities/emailTemplate.entity.ts'
 import mailer from '#server/facades/mailer.facade.ts'
 import env from '#server/facades/env.facade.ts'
@@ -20,7 +21,7 @@ export interface RegisterCredentials {
 }
 
 export interface AuthResult {
-    user: User | null
+    user: UserEntity | null
     token?: string
     success: boolean
     message: string
@@ -88,7 +89,7 @@ export default class AuthService {
         })
 
         return {
-            user: User.from({
+            user: UserEntity.from({
                 id: user.id,
                 username: user.username,
                 email: user.email,
@@ -125,21 +126,7 @@ export default class AuthService {
             return null
         }
 
-        const row = await db.selectFrom('users')
-            .selectAll()
-            .where('id', '=', token.user_id)
-            .where('deleted_at', 'is', null)
-            .executeTakeFirst()
-
-        if (!row) {
-            return null
-        }
-
-        const user = User.from(row)
-
-        await user.loadPermissions()
-
-        return user
+        return await userRepository.findById(token.user_id)
     }
 
     async register(credentials: RegisterCredentials): Promise<AuthResult> {
@@ -166,7 +153,7 @@ export default class AuthService {
         const needVerifyEmail = config.get('auth.enable_email_verification', false)
 
         // Create new user
-        const newUser = await User.create({
+        const newUser = await userRepository.create({
             name: username,
             username,
             email,
@@ -179,7 +166,7 @@ export default class AuthService {
         }
 
         return {
-            user: User.from({
+            user: UserEntity.from({
                 id: newUser.id!,
                 username: newUser.username,
                 email: newUser.email,
@@ -195,7 +182,7 @@ export default class AuthService {
     }
 
     async sendVerifyEmail(email: string) {
-        const user = await User.findByEmail(email)
+        const user = await userRepository.findOne({ email })
 
         if (!user) {
             return false
@@ -244,13 +231,13 @@ export default class AuthService {
             return false
         }
 
-        const user = await User.findOrFail(tokenData.user_id)
+        const user = await userRepository.findByIdOrFail(tokenData.user_id)
 
         if (user.verified_at) {
             return false
         }
 
-        await User.updateById(user.id, { verified_at: new Date() })
+        await userRepository.updateById(user.id, { verified_at: new Date() })
 
         await this.tokenService.revokeToken(token)
 
@@ -258,7 +245,7 @@ export default class AuthService {
     }
 
     async forgetPassword(email: string) {
-        const user = await User.findByEmail(email)
+        const user = await userRepository.findOne({ email })
 
         if (!user) {
             return false
@@ -301,9 +288,9 @@ export default class AuthService {
             return false
         }
 
-        const user = await User.findOrFail(tokenData.user_id)
+        const user = await userRepository.findByIdOrFail(tokenData.user_id)
 
-        await User.updateById(user.id, { password: newPassword })
+        await userRepository.updateById(user.id, { password: newPassword })
 
         // Revoke the password reset token after successful use
         await this.tokenService.revokeToken(token)

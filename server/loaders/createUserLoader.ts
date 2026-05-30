@@ -1,6 +1,6 @@
 import { set, get } from 'lodash-es'
+import { userRepository } from '@sidekick-coder/zenith-kit/server'
 import { defineLoader } from './defineLoader.ts'
-import User from '#server/entities/user.entity.ts'
 
 interface UserLoaderOptions { 
     idKey?: string
@@ -17,7 +17,7 @@ export async function loadUser<T extends Record<string, any>>(entities: T[], opt
         return
     }
 
-    const users = await User.list({ where: (eb) => eb('id', 'in', ids) })
+    const users = await userRepository.findMany({ id: ids })
 
     const map = new Map(users.map(u => [u.id, u]))
 

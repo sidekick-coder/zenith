@@ -17,7 +17,6 @@ In most cases the shared entity is already enough. Only reach for a client entit
 Place the file in `client/entities/` using the naming convention `<name>.entity.ts`. Extend the shared entity directly:
 
 ```ts
-// client/entities/user.entity.ts
 import Base from '#shared/entities/user.entity.ts'
 import { composeWith } from '#shared/utils/compose.ts'
 

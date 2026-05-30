@@ -1,5 +1,5 @@
+import { UserEntity } from '@sidekick-coder/zenith-kit/shared'
 import BelongsTo from './belongsTo.relation.ts'
-import User from '#server/entities/user.entity.ts'
 
 export default class BelongsToUser extends BelongsTo {
     constructor() {
@@ -11,7 +11,7 @@ export default class BelongsToUser extends BelongsTo {
             targetKey: 'user_id',
 
             property: 'user',
-            serialize: row => User.from(row)
+            serialize: row => UserEntity.from(row)
         })
 
     }

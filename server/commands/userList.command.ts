@@ -1,6 +1,7 @@
 
 import { program } from 'commander'
-import User from '#server/entities/user.entity.ts'
+import { validator } from '@sidekick-coder/zenith-kit/shared'
+import { userRepository } from '@sidekick-coder/zenith-kit/server'
 import { table } from '#server/utils/cliUi.ts'
 
 program.command('user:list')
@@ -9,15 +10,12 @@ program.command('user:list')
     .option('-o, --offset <offset>', 'Offset for listing users', '0')
     .action(async (options: any) => {
 
-        const query = User.select().selectAll()
+        const payload = validator.validate(options, v => v.object({
+            limit: v.optional(v.extras.url.number(), 10),
+            offset: v.optional(v.extras.url.number())
+        }))
 
-        query.limit(options.limit ? Number(options.limit) : 10)
-
-        if (options.offset) {
-            query.offset(Number(options.offset))
-        }
-
-        const users = await User.list({ query: () => query })
+        const users = await userRepository.findMany(payload)
 
         if (!users.length) {
             console.log('No users found.')

@@ -1,9 +1,9 @@
+import { userRepository } from '@sidekick-coder/zenith-kit/server'
 import arte from '#server/facades/arte.facade.ts'
 import { create } from '#server/queries/create.ts'
 import Permission from '#shared/entities/permission.entity.ts'
 import { findOneOrFail, findOne } from '#server/queries/index.ts'
 import cli from '#server/services/cli.service.ts'
-import User from '#server/entities/user.entity.ts'
 
 arte.command('permission:attach')
     .need('db')
@@ -33,7 +33,7 @@ arte.command('permission:attach')
 
         // if user check if user exists
         if (type === 'user') {
-            await User.findOrFail(Number(id))
+            await userRepository.findByIdOrFail(Number(id))
         }
 
         // if role check if role exists

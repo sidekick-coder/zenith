@@ -1,16 +1,14 @@
-import { container } from '@sidekick-coder/zenith-kit/client'
-import LifecycleHook from '#shared/entities/lifecycleHook.entity.ts'
-import AuthService from '#client/services/auth.service.ts'
-import User from '#shared/entities/user.entity.ts'
+import { container, AuthService } from '@sidekick-coder/zenith-kit/client'
+import { UserEntity, LifecycleHook } from '@sidekick-coder/zenith-kit/shared'
 
 export default class AuthLifecycleHook extends LifecycleHook {
     public async onRegister(): Promise<void> {
         const state = container.get<Record<string, any>>('state')
 
-        let user = null as User | null
+        let user = null as UserEntity | null
 
         if (state['auth:user']) {
-            user = User.from(state['auth:user'])
+            user = UserEntity.from(state['auth:user'])
         }
 
         const auth = new AuthService({ user })

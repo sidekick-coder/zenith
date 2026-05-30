@@ -1,9 +1,9 @@
+import { userRepository } from '@sidekick-coder/zenith-kit/server'
 import rootRouter from '#server/facades/router.facade.ts'
 import authMiddleware from '#server/middlewares/auth.middleware.ts'
 import validator from '#shared/services/validator.service.ts'
 import schemas from '#shared/validators/index.ts'
 import { undeleted } from '#server/queries/index.ts'
-import User from '#server/entities/user.entity.ts'
 import OauthAccount from '#server/entities/oauthAccount.entity.ts'
 
 const router = rootRouter.use(authMiddleware)
@@ -11,10 +11,10 @@ const router = rootRouter.use(authMiddleware)
     .group()
 
 router.get('/', async ({ query, acl, params }) => {
-    const payload = validator.validate(query, schemas.pagination.schema)
+    const payload = validator.validate(query, v => v.extras.pagination())
     const userId = validator.validate(params.user_id, schemas.url.number())
 
-    const user = await User.findOrFail(userId)
+    const user = await userRepository.findByIdOrFail(userId)
 
     acl.authorize('read', user)
 
@@ -31,7 +31,7 @@ router.get('/:id', async ({ params, acl }) => {
     const userId = validator.validate(params.user_id, schemas.url.number())
     const accountId = validator.validate(params.id, schemas.url.number())
 
-    const user = await User.findOrFail(userId)
+    const user = await userRepository.findByIdOrFail(userId)
 
     acl.authorize('read', user)
 
@@ -54,7 +54,7 @@ router.delete('/:id', async ({ params, acl }) => {
     const userId = validator.validate(params.user_id, schemas.url.number())
     const accountId = validator.validate(params.id, schemas.url.number())
 
-    const user = await User.findOrFail(userId)
+    const user = await userRepository.findByIdOrFail(userId)
 
     acl.authorize('update', user)
 

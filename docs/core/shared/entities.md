@@ -14,7 +14,6 @@ Place the file in `shared/entities/` using the naming convention `<name>.entity.
 Extend `BaseEntity` and optionally compose additional mixins:
 
 ```ts
-// shared/entities/user.entity.ts
 import type Permission from './permission.entity.ts'
 import type Role from './role.entity.ts'
 import { BaseEntity, Timestamp, SoftDelete } from '#shared/mixins/index.ts'

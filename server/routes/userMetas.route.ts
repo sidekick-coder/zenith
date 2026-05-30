@@ -1,7 +1,7 @@
+import { userRepository } from '@sidekick-coder/zenith-kit/server'
 import rootRouter from '#server/facades/router.facade.ts'
 import authMiddleware from '#server/middlewares/auth.middleware.ts'
 import UserMeta from '#server/entities/userMeta.entity.ts'
-import User from '#server/entities/user.entity.ts'
 import validator from '#shared/services/validator.service.ts'
 import schemas from '#shared/validators/index.ts'
 import { undeleted } from '#server/queries/index.ts'
@@ -11,17 +11,13 @@ const router = rootRouter.use(authMiddleware)
     .group()
 
 router.get('/', async ({ params, acl, query }) => {
-    const userId = validator.validate(params.userId, schemas.query.number)
+    const userId = validator.validate(params.userId, v => v.extras.url.number())
     
-    const user = await User.findOneOrFail({
-        query: q => q.where('id', '=', userId)
-            .where(undeleted)
-            .selectAll()
-    })
+    const user = await userRepository.findByIdOrFail(userId)
 
     acl.authorize('read', user)
 
-    const payload = validator.validate(query, schemas.pagination.schema)
+    const payload = validator.validate(query, v => v.extras.pagination())
 
     const pagination = await UserMeta.paginate({
         page: payload.page,
@@ -36,35 +32,28 @@ router.get('/', async ({ params, acl, query }) => {
 })
 
 router.get('/:id', async ({ params, acl }) => {
-    const userId = validator.validate(params.userId, schemas.query.number)
-    const metaId = validator.validate(params.id, schemas.query.number)
+    const userId = validator.validate(params.userId, v => v.extras.url.number())
+    const metaId = validator.validate(params.id, v => v.extras.url.number())
 
-    const user = await User.findOneOrFail({
-        query: q => q.where('id', '=', userId)
-            .where(undeleted)
-            .selectAll()
-    })
+    const user = await userRepository.findByIdOrFail(userId)
 
     acl.authorize('read', user)
 
     const userMeta = await UserMeta.findOneOrFail({
-        query: q => q.where('id', '=', metaId)
+        query: q => q
+            .selectAll()
+            .where('id', '=', metaId)
             .where('user_id', '=', userId)
             .where(undeleted)
-            .selectAll()
     })
 
     return userMeta
 })
 
 router.put('/', async ({ params, body, acl }) => {
-    const userId = validator.validate(params.userId, schemas.query.number)
-    
-    const user = await User.findOneOrFail({
-        query: q => q.where('id', '=', userId)
-            .where(undeleted)
-            .selectAll()
-    })
+    const userId = validator.validate(params.userId, v => v.extras.url.number())
+
+    const user = await userRepository.findByIdOrFail(userId)
 
     acl.authorize('update', user)
 
@@ -93,22 +82,19 @@ router.put('/', async ({ params, body, acl }) => {
 })
 
 router.delete('/:id', async ({ params, acl }) => {
-    const userId = validator.validate(params.userId, schemas.query.number)
-    const metaId = validator.validate(params.id, schemas.query.number)
+    const userId = validator.validate(params.userId, v => v.extras.url.number())
+    const metaId = validator.validate(params.id, v => v.extras.url.number())
 
-    const user = await User.findOneOrFail({
-        query: q => q.where('id', '=', userId)
-            .where(undeleted)
-            .selectAll()
-    })
+    const user = await userRepository.findByIdOrFail(userId)
 
     acl.authorize('update', user)
 
     const userMeta = await UserMeta.findOneOrFail({
-        query: q => q.where('id', '=', metaId)
+        query: q => q
+            .selectAll()
+            .where('id', '=', metaId)
             .where('user_id', '=', userId)
             .where(undeleted)
-            .selectAll()
     })
 
     await userMeta.softDelete()

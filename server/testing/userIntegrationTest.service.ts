@@ -1,9 +1,9 @@
 import type { StartedTestContainer } from 'testcontainers'
+import { UserEntity } from '@sidekick-coder/zenith-kit/shared'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
-import User from '#shared/entities/user.entity.ts'
 import type Permission from '#shared/entities/permission.entity.ts'
 
-export class TestUser extends User {
+export class TestUser extends UserEntity {
     public async addPermission(payload: Pick<Permission, 'name' | 'action' | 'subject'>) {
         const error = new Error('Method not implemented.')
         
@@ -36,7 +36,7 @@ export default class UserIntegrationTestService {
         return json
     }
 
-    public async create(payload: Pick<Required<User>, 'email' | 'password' | 'username'>) {
+    public async create(payload: Pick<Required<UserEntity>, 'email' | 'password' | 'username'>) {
         const { email, password, username } = payload
 
         const args = ['node', 'arte', 'user:create']

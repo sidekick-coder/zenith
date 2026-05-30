@@ -1,8 +1,8 @@
+import { LifecycleHook } from '@sidekick-coder/zenith-kit/shared'
+import { userRepository } from '@sidekick-coder/zenith-kit/server'
 import config from '#server/facades/config.facade.ts'
 import logger from '#server/facades/logger.facade.ts'
-import User from '#server/entities/user.entity.ts'
 import { createUserPermission } from '#server/queries/createUserPermission.ts'
-import LifecycleHook from '#shared/entities/lifecycleHook.entity.ts'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
 
 const PERMISSION_SHORTCUTS: Record<string, { action: string; subject: string }> = {
@@ -18,7 +18,7 @@ export default class UsersLifecycleHook extends LifecycleHook {
     public logger = logger.child({ label: 'users' })
 
     public async checkUserCount(): Promise<void> {
-        const [error, count] = (await tryCatch(() => User.count()))
+        const [error, count] = await tryCatch(() => userRepository.count())
 
         if (error) {
             config.set('setup.need_users', true, 'runtime')
@@ -33,8 +33,6 @@ export default class UsersLifecycleHook extends LifecycleHook {
     }
 
     public async onLoad(): Promise<void> {
-        await User.boot()
-
         if (!config.get('users_auto', false)) {
             await this.checkUserCount()
             return
@@ -68,10 +66,10 @@ export default class UsersLifecycleHook extends LifecycleHook {
                 continue
             }
 
-            const existing = await User.find(userConfig.id)
+            const existing = await userRepository.findById(userConfig.id)
 
             if (existing) {
-                await User.updateById(userConfig.id, {
+                await userRepository.updateById(userConfig.id, {
                     username,
                     email,
                     password,
@@ -79,7 +77,7 @@ export default class UsersLifecycleHook extends LifecycleHook {
                 })
                 this.logger.info(`updated user "${username}"`)
             } else {
-                await User.create({
+                await userRepository.create({
                     id: userConfig.id,
                     username,
                     email,

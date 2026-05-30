@@ -1,11 +1,11 @@
 import type { Token } from '@sidekick-coder/zenith-kit/shared'
-import type { AuthSilenceMiddleware, AuthSilenceMiddlewareContext } from './authSilence.middleware'
+import { UserEntity } from '@sidekick-coder/zenith-kit/shared'
+import type { AuthSilenceMiddlewareContext } from './authSilence.middleware'
 import BaseException from '#server/exceptions/base.ts'
-import type User from '#server/entities/user.entity.ts'
 import type {  Middleware, } from '#server/contracts/router.contract.ts'
 
 export type AuthMiddlewareContext = {
-    user: User
+    user: UserEntity
     token: Token
 }
 
