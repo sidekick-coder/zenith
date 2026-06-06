@@ -1,10 +1,9 @@
-import { container } from '@sidekick-coder/zenith-kit/server'
+import { container, DatabaseGateway } from '@sidekick-coder/zenith-kit/server'
+import { LifecycleHook } from '@sidekick-coder/zenith-kit/shared'
 import config from '#server/facades/config.facade.ts'
-import di from '#server/facades/di.facade.ts'
 import emmitter from '#server/facades/emmitter.facade.ts'
 import logger from '#server/facades/logger.facade.ts'
 import DatabaseService from '#server/services/database.service.ts'
-import LifecycleHook from '#shared/entities/lifecycleHook.entity.ts'
 
 export default class DatabaseLifecycleHook extends LifecycleHook {
     public order = 2
@@ -25,7 +24,7 @@ export default class DatabaseLifecycleHook extends LifecycleHook {
         service.logger = logger.child({ label: 'db' })
         service.debug = config.getOne(['database.debug', 'app.debug'], false)
 
-        di.set(DatabaseService, service)
+        container.set(DatabaseService, service)
 
         if (!config.has('database')) {
             config.set('setup.need_database', true, 'runtime')
@@ -36,17 +35,17 @@ export default class DatabaseLifecycleHook extends LifecycleHook {
 
     public async onLoad(): Promise<void> {
 
-        const service = di.get<DatabaseService>(DatabaseService)
+        const service = container.get<DatabaseService>(DatabaseService)
 
         await service.load(service.defaultConnection || 'memory')
 
         emmitter.emit('database:ready')
 
-        container.set('database', di.get(DatabaseService))
+        container.set(DatabaseGateway, container.get(DatabaseService))
     }
 
     public async onShutdown(): Promise<void> {
-        const db = di.get<DatabaseService>(DatabaseService)
+        const db = container.get<DatabaseService>(DatabaseService)
 
         await db.destroy()
     }

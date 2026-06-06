@@ -4,8 +4,8 @@ import { Kysely } from 'kysely'
 import SQLite from 'better-sqlite3'
 import { createPool } from 'mysql2'
 import { Pool } from 'pg'
+import { DatabaseGateway, container } from '@sidekick-coder/zenith-kit/server'
 import type { Database } from '../contracts/database.contract.ts'
-import di from '#server/facades/di.facade.ts'
 import { basePath } from '#server/utils/paths.ts'
 import validator from '#shared/services/validator.service.ts'
 import schemas from '#shared/validators/index.ts'
@@ -128,11 +128,12 @@ export default class DatabaseService extends Kysely<Database> {
 
         db.currentConnection = name
 
-        if (di.has(DatabaseService)) {
-            await di.get<DatabaseService>(DatabaseService).destroy()
+        if (container.has(DatabaseGateway)) {
+            await container.get<DatabaseGateway<any>>(DatabaseGateway).destroy()
         }
 
-        di.set(DatabaseService, db)
+        container.set(DatabaseService, db)
+        container.set(DatabaseGateway, db)
 
         this.logger.info('loaded', {
             connection: name,
