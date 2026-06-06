@@ -19,11 +19,15 @@ export default class PluginLoaderDevelopmentService extends PluginLoaderService 
         }
     }
 
-    private async onMigratorRegistered({ migrator }: EventContract['migrator:loaded']) {
-        const entries = Array.from(this.entries.values()).filter(plugin => plugin.enabled)
+    private async onMigratorRegistered({ migrator }: EventContract['migrator:registered']) {
+        const entries = Array.from(this.entries.values())
 
         for (const plugin of entries) {
             const logger = this.logger.child({ pluginId: plugin.id })
+
+            if (!fs.existsSync(plugin.makePath('src', 'server', 'migrations'))) {
+                continue
+            }
 
             migrator.addSource({
                 id: plugin.id,
