@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, defineAsyncComponent } from 'vue'
+import { ref, computed, defineAsyncComponent, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useRouteQuery } from '@sidekick-coder/zenith-kit/components'
 import AdminLayout from '#client/layouts/AdminLayout.vue'
@@ -51,7 +51,7 @@ async function load() {
     loading.value = false
 }
 
-await load()
+onMounted(load)
 </script>
 
 <template>

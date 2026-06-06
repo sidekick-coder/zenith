@@ -10,6 +10,7 @@ import config from '#client/facades/config.facade.ts'
 
 export default class extends LifecycleHook {
     public hook_aliases = ['router']
+    public order = 10
 
     public async onRegister(): Promise<void> {
         const router = createRouter()
@@ -19,6 +20,8 @@ export default class extends LifecycleHook {
 
     public async onLoad(): Promise<void> {
         const router = container.get<Router>('router')
+
+        container.set('route', router.currentRoute)
 
         router.beforeEach(setupGuard)
 

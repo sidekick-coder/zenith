@@ -10,7 +10,6 @@ import setupGuard from './guards/setup.guard'
 
 export interface Router extends VueRouter {
     auto: typeof auto;
-    
 }
 
 

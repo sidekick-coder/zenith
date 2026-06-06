@@ -8,6 +8,7 @@ import * as VueSonner from 'vue-sonner'
 import * as VueUse from '@vueuse/core' 
 import * as UnheadVue from '@unhead/vue' 
 import * as UnheadVueComponents from '@unhead/vue/components'
+import { container, VUE_CONTAINER_KEY, VUE_ROUTER_CONTAINER_KEY } from '@sidekick-coder/zenith-kit/client'
 
 globalThis.imports = globalThis.imports || new Map<string, any>()
 
@@ -30,34 +31,5 @@ globalThis.importAsync = async (id: string): Promise<any> => {
     return importFn()
 }
 
-//
-// // Handle #client and #shared imports
-// for (const [path, mod] of Object.entries(import.meta.glob('./{lib,utils,entities,guards,facades,composables,components}/**/*.ts'))) {
-//     const id = path.replace('./', '#client/')
-//
-//     globalThis.imports.set(id, mod)
-//     globalThis.imports.set(id.replace('.ts', ''), mod)
-//
-//     if (path.endsWith('index.ts')) {
-//         const indexId = id.replace('/index.ts', '')
-//
-//         globalThis.imports.set(indexId, mod)
-//     }
-// }
-//
-// for (const [path, importFn] of Object.entries(import.meta.glob<any>('./{components,layouts}/**/*.vue'))) {
-//     const id = path.replace('./', '#client/')
-//
-//     const ext = path.split('.').pop()
-//
-//     globalThis.imports.set(id, importFn)
-//     globalThis.imports.set(id.replace(`.${ext}`, ''), importFn)
-// }
-//
-// for (const [path, mod] of Object.entries(import.meta.glob('./../shared/**'))) {
-//     const id = path.replace('../shared/', '#shared/')
-//
-//     globalThis.imports.set(id, mod)
-//     globalThis.imports.set(id.replace('.ts', ''), mod)
-// }
-//
+container.set(VUE_CONTAINER_KEY, Vue)
+container.set(VUE_ROUTER_CONTAINER_KEY, VueRouter)
