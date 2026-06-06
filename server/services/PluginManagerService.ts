@@ -69,19 +69,12 @@ export default class PluginManagerService {
 
     private async loadPluginDir(directory: string) {
         const pkg = {} as any
-        const manifest = {} as any
         const pluginConfig = {} as any
 
         if (fs.existsSync(path.join(directory, 'package.json'))) {
             const json = JSON.parse(fs.readFileSync(path.join(directory, 'package.json'), 'utf-8'))
 
             Object.assign(pkg, json)
-        }
-
-        if (fs.existsSync(path.join(directory, 'manifest.json'))) {
-            const json = JSON.parse(fs.readFileSync(path.join(directory, 'manifest.json'), 'utf-8'))
-
-            Object.assign(manifest, json)
         }
 
         const explorer = cosmicconfig.cosmiconfigSync('zenith', {
@@ -125,7 +118,7 @@ export default class PluginManagerService {
             id: pluginConfig.id,
             aliases: pluginConfig.aliases || [],
             directory,
-            name: manifest.name || pkg.name || pluginConfig.id,
+            name: pluginConfig.name || pkg.name || pluginConfig.id || 'unknown',
             version,
             version_channel,
             version_available_channels: pluginConfig.version_available_channels || ['branch:main'],
