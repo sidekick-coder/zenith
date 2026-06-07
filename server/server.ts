@@ -1,12 +1,14 @@
 import { basePath } from '@sidekick-coder/zenith-kit/server'
 import { createApp } from './app.ts'
-import env from '#server/facades/env.facade.ts'
 import LoggerWinsonService from '#server/services/loggerWinson.service.ts'
 
-const prettyLogger = env.development || env.get('ZENITH_LOG_PRETTY', false)
+const isDev = process.env.NODE_ENV !== 'production' && process.env.NODE_ENV !== 'test'
+const isProd = process.env.NODE_ENV === 'production'
+
+const prettyLogger = isDev || process.env.ZENITH_LOG_PRETTY === 'true' 
 
 const logger = LoggerWinsonService.create({
-    level: env.get('ZENITH_LOG_LEVEL', 'info'),
+    level: process.env.ZENITH_LOG_LEVEL || 'info',
     transports: [
         LoggerWinsonService.file(basePath('logs/error.log'), 'error'),
         LoggerWinsonService.file(basePath('logs/app.log')),
@@ -14,7 +16,7 @@ const logger = LoggerWinsonService.create({
     ]
 })
 
-if (env.production && prettyLogger) {
+if (isProd && prettyLogger) {
     logger.warn('Pretty logging is enabled in production.')
 }
 

@@ -1,6 +1,5 @@
 import { BaseException, LifecycleHook, LoggerService } from '@sidekick-coder/zenith-kit/shared'
-import { container } from '@sidekick-coder/zenith-kit/server'
-import ExpressService from '#server/services/express.service.ts'
+import { container, HttpService } from '@sidekick-coder/zenith-kit/server'
 import ViteService from '#server/services/ViteService.ts'
 import type { ViteServiceOptions } from '#server/services/ViteService.ts'
 import config from '#server/facades/config.facade.ts'
@@ -10,6 +9,7 @@ import ViteProductionService from '#server/services/ViteProductionService.ts'
 
 export default class ViteLifecycleHook extends LifecycleHook {
     public order = 98
+    public hook_aliases = ['vite']
 
     public async onRegister(): Promise<void> {
         const logger = container.get<LoggerService>(LoggerService)
@@ -21,7 +21,7 @@ export default class ViteLifecycleHook extends LifecycleHook {
             debug: config.getOne(['app.debug', 'vite.debug', 'debug'], false),
         }
 
-        if (env.development) {
+        if (env.development || env.test) {
             service = new ViteDevelopmentService(options)
         }
 
@@ -37,7 +37,7 @@ export default class ViteLifecycleHook extends LifecycleHook {
     }
 
     public async onLoad(): Promise<void> {
-        const app = container.get<ExpressService>(ExpressService)
+        const app = container.get<HttpService>(HttpService)
         const vite = container.get<ViteService>(ViteService)
 
         await vite.load(app.app)

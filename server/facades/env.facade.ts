@@ -1,7 +1,4 @@
-import EnvService from '#server/services/env.service.ts'
+import { env } from '@sidekick-coder/zenith-kit/server'
 
-const env = new EnvService()
-
-env.load()
-
+/** @deprecated Use `import { env } from '@sidekick-coder/zenith-kit/server'` instead. */
 export default env

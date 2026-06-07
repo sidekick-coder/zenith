@@ -1,4 +1,4 @@
-// eslint-disable-next-line import/extensions
+ 
 import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
@@ -22,9 +22,9 @@ export default defineConfig({
             },
             {
                 test: {
-                    name: 'integration',
-                    include: ['**/*.int.test.ts'],
-                    exclude: ['**/modules/**'],
+                    name: 'int',
+                    include: ['server/tests/int/**/*.test.ts'],
+                    setupFiles: ['server/tests/int/setup.ts'],
                     testTimeout: 60000, // Increase timeout for integration tests
                     hookTimeout: 60000, // Increase hook timeout for integration tests
                 }

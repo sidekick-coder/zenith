@@ -8,7 +8,7 @@ import { tryCatch } from '#shared/utils/tryCatch.ts'
 const PERMISSION_SHORTCUTS: Record<string, { action: string; subject: string }> = {
     admin: {
         action: 'manage',
-        subject: 'all' 
+        subject: 'all'
     },
 }
 
@@ -33,23 +33,21 @@ export default class UsersLifecycleHook extends LifecycleHook {
     }
 
     public async onLoad(): Promise<void> {
-        if (!config.get('users_auto', false)) {
+        if (!config.get('users.auto', false)) {
             await this.checkUserCount()
             return
         }
 
+        const configEntries = config.get<any[]>('users.registry', [])
+
         const userEntries: any[] = []
 
-        for (const [key, entry] of config.entries.entries()) {
-            const match = key.match(/^users\[(\d+)\]$/)
-
-            if (match) {
-                userEntries.push({
-                    id: Number(match[1]),
-                    ...entry.value 
-                })
-            }
-        }
+        configEntries.forEach((entry, id) => {
+            userEntries.push({
+                id: id,
+                ...entry
+            })
+        })
 
         if (!userEntries.length) return
 
@@ -73,7 +71,7 @@ export default class UsersLifecycleHook extends LifecycleHook {
                     username,
                     email,
                     password,
-                    name 
+                    name
                 })
                 this.logger.info(`updated user "${username}"`)
             } else {
@@ -83,7 +81,7 @@ export default class UsersLifecycleHook extends LifecycleHook {
                     email,
                     password,
                     name,
-                    verified_at: new Date() 
+                    verified_at: new Date().toISOString(),
                 })
 
                 this.logger.info(`created user "${username}"`)

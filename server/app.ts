@@ -1,9 +1,9 @@
 import { ConfigManagerService, EmmitterService, basePath, LifecycleService } from '@sidekick-coder/zenith-kit/server'
 import { container } from '@sidekick-coder/zenith-kit/server'
 import { LoggerService, ConfigService, tryCatch } from '@sidekick-coder/zenith-kit/shared'
+import { EnvService } from '@sidekick-coder/zenith-kit/server'
 import PluginManagerService from './services/PluginManagerService.ts'
 import WebhookSenderManager from './managers/WebhookSenderManager.ts'
-import env from '#server/facades/env.facade.ts'
 import LoggerWinsonService from '#server/services/loggerWinson.service.ts'
 
 globalThis.$try = tryCatch
@@ -18,9 +18,16 @@ process.on('uncaughtException', (error: Error) => {
 
 interface AppOptions {
     logger?: LoggerService
+    config?: ConfigService
 }
 
 export async function createApp(options: AppOptions = {}) {
+    const env = new EnvService()
+
+    env.load()
+
+    container.set(EnvService, env)
+
     // logger
     let logger: LoggerService = options.logger as LoggerService
 
@@ -38,13 +45,17 @@ export async function createApp(options: AppOptions = {}) {
     container.set(LoggerService, logger)
 
     // config
-    const config = await ConfigManagerService
-        .create({
-            env: env,
-            logger: logger.child({ label: 'config' }),
-            silent: true
-        })
-        .load()
+    let config: ConfigService = options.config as ConfigService
+
+    if (!options.config) {
+        config = await ConfigManagerService
+            .create({
+                env: env,
+                logger: logger.child({ label: 'config' }),
+                silent: true
+            })
+            .load()
+    }
 
     container.set(ConfigService, config)
 

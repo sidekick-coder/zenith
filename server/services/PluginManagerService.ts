@@ -201,7 +201,7 @@ export default class PluginManagerService {
 
         let loader: PluginLoaderService | null = null
 
-        if (this.env.development) {
+        if (this.env.development || this.env.test) {
             loader = new PluginLoaderDevelopmentService()
         }
 
@@ -210,7 +210,7 @@ export default class PluginManagerService {
         }
 
         if (!loader) {
-            throw new BaseException('Failed to initialize PluginManagerService')
+            throw new BaseException(`Failed to initialize PluginManagerService in ${this.env.get('NODE_ENV')} environment`)
         }
 
         await loader

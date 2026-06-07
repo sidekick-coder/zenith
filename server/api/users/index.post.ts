@@ -17,5 +17,7 @@ export default defineHandler(async (ctx) => {
 
     const user = await userRepository.create(payload)
 
+    delete user.password
+
     return user
 })
