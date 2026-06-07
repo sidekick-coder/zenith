@@ -33,7 +33,17 @@ export default class extends LifecycleHook {
 
         router.auto(import.meta.glob<DefineComponent>('../pages/admin/**/*.vue',), {
             strip: ['pages'],
-            guards: [authGuard]
+            guards: [authGuard],
+            refine: (records) => records.map(record => {
+                const layoutedPages = ['/admin/users', '/admin/users/:id', '/admin/roles']
+
+                if (layoutedPages.includes(record.path)) {
+                    record.meta = { layout: 'admin', }
+                }
+
+                return record
+            })
+
         })
 
         router.auto(import.meta.glob<DefineComponent>('../pages/auth/**/*.vue',), {
@@ -45,18 +55,18 @@ export default class extends LifecycleHook {
             strip: ['pages'],
             exclude: ['/admin', '/auth'],
         })
-        
+
         router.addRoute({
             path: '/admin',
             redirect: '/admin/users',
         })
-        
+
         router.addRoute({
             path: '/admin/settings',
             redirect: '/admin/settings/auth/layout',
         })
 
-        
+
     }
 
     public async boot(): Promise<void> {
@@ -64,10 +74,10 @@ export default class extends LifecycleHook {
         const app = container.get<App>('app')
 
         const homeRoute = config.get('site.home_route_path', '/hello')
-            
+
         const route = router.resolve(homeRoute)
         const record = route.matched[route.matched.length - 1]
-        
+
         if (record) {
             router.addRoute({
                 ...record,

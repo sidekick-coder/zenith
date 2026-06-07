@@ -3,8 +3,8 @@ import { useRoute, useRouter } from 'vue-router'
 import { defineAsyncComponent, onMounted, ref } from 'vue'
 import { useRouteQuery } from '@sidekick-coder/zenith-kit/components'
 import { toast } from 'vue-sonner'
-import AdminLayout from '#client/layouts/AdminLayout.vue'
 
+import { layout } from '@sidekick-coder/zenith-kit/client'
 import Tabs from '#client/components/ui/tabs/Tabs.vue'
 import TabsList from '#client/components/ui/tabs/TabsList.vue'
 import TabsTrigger from '#client/components/ui/tabs/TabsTrigger.vue'
@@ -50,9 +50,9 @@ const tabs = [
         id: 'permissions',
         label: $t('Permissions'),
         component: defineAsyncComponent(() => import('#client/components/PermissionAssignments.vue')),
-        props: { 
+        props: {
             assignType: 'user',
-            assignId: userId 
+            assignId: userId
         },
     },
     {
@@ -63,9 +63,9 @@ const tabs = [
     },
 ]
 
-async function load(){
+async function load() {
     loading.value = true
-    
+
     const [error, response] = await tryCatch(() => $fetch<User>(`/api/users/${route.params.id}`))
 
     if (error) {
@@ -77,46 +77,49 @@ async function load(){
 
     user.value = response
 
-    setTimeout(() => {
-        loading.value = false
-    }, 800)
+    layout.setOptions({
+        breadcrumbs: [
+            {
+                label: $t('Users'),
+                to: '/admin/users'
+            },
+            { label: response.name || response.username, }
+        ]
+    })
+
+    await new Promise((resolve) => setTimeout(resolve, 800))
+
+    loading.value = false
 }
 
 onMounted(load)
 </script>
 <template>
-    <AdminLayout
-        :breadcrumbs="[
-            { label: $t('Users'), to: '/admin/users' },
-            { label: user?.name || $t('Loading...') }
-        ]"
+    <Tabs
+        v-model="tab"
+        default-value="details"
     >
-        <Tabs
-            v-model="tab"
-            default-value="details" 
-        >
-            <TabsList>
-                <TabsTrigger
-                    v-for="t in tabs"
-                    :key="t.id"
-                    :value="t.id"
-                >
-                    {{ t.label }}
-                </TabsTrigger>
-            </TabsList>
-                                
-            <TabsContent
+        <TabsList>
+            <TabsTrigger
                 v-for="t in tabs"
                 :key="t.id"
                 :value="t.id"
             >
-                <component
-                    :is="t.component"
-                    v-if="t.component && user"
-                    v-model="user"
-                    v-bind="t.props"
-                />
-            </TabsContent>
-        </Tabs>
-    </AdminLayout>
+                {{ t.label }}
+            </TabsTrigger>
+        </TabsList>
+
+        <TabsContent
+            v-for="t in tabs"
+            :key="t.id"
+            :value="t.id"
+        >
+            <component
+                :is="t.component"
+                v-if="t.component && user"
+                v-model="user"
+                v-bind="t.props"
+            />
+        </TabsContent>
+    </Tabs>
 </template>

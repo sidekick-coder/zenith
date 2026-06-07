@@ -4,7 +4,6 @@ import { toast } from 'vue-sonner'
 import { useRouter } from 'vue-router'
 import DataTable, { defineColumns } from '#client/components/DataTable.vue'
 
-import AdminLayout from '#client/layouts/AdminLayout.vue'
 import { $fetch } from '#client/utils/fetcher.ts'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
 import Button from '#client/components/Button.vue'
@@ -16,9 +15,7 @@ import { useFetchPagination } from '#client/composables/useFetchPagination.ts'
 
 const router = useRouter()
 
-const { items, total, loading, reset } = useFetchPagination<Role>('/api/roles', {
-    limit: 20,
-})
+const { items, total, loading, reset } = useFetchPagination<Role>('/api/roles', { limit: 20, })
 
 const saving = ref(false)
 const deletingItems = ref<number[]>([])
@@ -83,46 +80,44 @@ async function destroy(id: number) {
 }
 </script>
 <template>
-    <AdminLayout>
-        <div class="flex">
-            <h1 class="text-2xl font-bold mb-4 text-foreground flex-1">
-                {{ $t('Roles') }}
-            </h1>
-            <div>
-                <Button
-                    :loading="saving"
-                    @click="create"
-                >
-                    {{ $t('Add new') }}
-                </Button>
-            </div>
+    <div class="flex">
+        <h1 class="text-2xl font-bold mb-4 text-foreground flex-1">
+            {{ $t('Roles') }}
+        </h1>
+        <div>
+            <Button
+                :loading="saving"
+                @click="create"
+            >
+                {{ $t('Add new') }}
+            </Button>
         </div>
+    </div>
 
-        <DataTable 
-            v-model:rows="items"
-            v-model:total="total"
-            v-model:loading="loading"
-            :columns="columns"
-        >
-            <template #row-actions="{ row }">
-                <div class="flex items-center gap-2 justify-end">
-                    <Button
-                        variant="ghost"
-                        :to="`/admin/roles/${row.id}`"
-                        size="sm"
-                    >
-                        <Icon name="pencil" />
-                    </Button>
-                    <AlertButton
-                        variant="ghost"
-                        size="sm"
-                        :loading="deletingItems.includes(row.id)"
-                        @confirm="destroy(row.id)"
-                    >
-                        <Icon name="trash" />
-                    </AlertButton>
-                </div>
-            </template>
-        </DataTable>
-    </AdminLayout>
+    <DataTable 
+        v-model:rows="items"
+        v-model:total="total"
+        v-model:loading="loading"
+        :columns="columns"
+    >
+        <template #row-actions="{ row }">
+            <div class="flex items-center gap-2 justify-end">
+                <Button
+                    variant="ghost"
+                    :to="`/admin/roles/${row.id}`"
+                    size="sm"
+                >
+                    <Icon name="pencil" />
+                </Button>
+                <AlertButton
+                    variant="ghost"
+                    size="sm"
+                    :loading="deletingItems.includes(row.id)"
+                    @confirm="destroy(row.id)"
+                >
+                    <Icon name="trash" />
+                </AlertButton>
+            </div>
+        </template>
+    </DataTable>
 </template>

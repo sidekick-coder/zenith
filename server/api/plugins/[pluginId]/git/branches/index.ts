@@ -11,7 +11,5 @@ export default defineHandler(async ({ acl, params }) => {
 
     const output = await shell.executeCommandWithOutput('git', ['-C', plugin.directory, 'branches'])
 
-    console.log(output)
-
     return []
 })

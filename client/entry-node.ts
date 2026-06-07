@@ -9,7 +9,7 @@ import type { App } from 'vue'
 import { createHead } from '@unhead/vue/server'
 import * as VueServerRenderer from 'vue/server-renderer'
 import { container, LifecycleService, FetchService, FetchNodeService } from '@sidekick-coder/zenith-kit/client'
-import { ConfigService, LoggerService } from '@sidekick-coder/zenith-kit/shared'
+import { ConfigService, EmmitterService, LoggerService } from '@sidekick-coder/zenith-kit/shared'
 import ModulesService from './services/modules.service.ts'
 import ModulesNodeService from './services/modulesNode.service.ts'
 import type { Router } from './router.ts'
@@ -32,6 +32,12 @@ export default async function(ctx: EntryNodeRenderContract): Promise<EntryNodeRe
     container.set(ConfigService, config)
     container.set(LoggerService, ctx.logger)
 
+    // emmitter
+    const emmiter = new EmmitterService({
+        debug: config.getOne(['emmitter.debug', 'app.debug', 'debug'], false),
+        logger: logger.child({ label: 'emmitter' }),
+    })
+
     const lifecycle = new LifecycleService({
         debug: config.getOne(['lifecycle.debug', 'app.debug', 'debug'], false),
         logger: logger.child({ label: 'lifecycle' }),
@@ -48,6 +54,7 @@ export default async function(ctx: EntryNodeRenderContract): Promise<EntryNodeRe
     container.set(ModulesService, modulesService)
     container.set(FetchService, new FetchNodeService())
     container.set('RouterService', ctx.serverRouter)
+    container.set(EmmitterService, emmiter)
 
     container.set('state', ctx.state || {})
     container.set('cookies', ctx.cookies)

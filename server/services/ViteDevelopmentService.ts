@@ -36,7 +36,9 @@ export default class ViteDevelopmentService extends ViteService {
 
         let mod: any | null = null
 
-        mod = await this.server.ssrLoadModule(basePath('client', 'entry-node.ts')) as any
+        const filePath = basePath('client', 'entry-node.ts') + '?t=' + Date.now()
+
+        mod = await this.server.ssrLoadModule(filePath) as any
 
         if (!mod) {
             throw new BaseException('Failed to load Vite entrypoint module')

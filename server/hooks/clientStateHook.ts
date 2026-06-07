@@ -1,6 +1,5 @@
-import { config, PageRequestContextEntity } from '@sidekick-coder/zenith-kit/server'
+import { config, emmitter, PageRequestContextEntity } from '@sidekick-coder/zenith-kit/server'
 import { LifecycleHook } from '@sidekick-coder/zenith-kit/shared'
-import emmitter from '#server/facades/emmitter.facade.ts'
 
 export default class extends LifecycleHook {
     public order = 3
@@ -38,6 +37,7 @@ export default class extends LifecycleHook {
         ctx.setBrowserState('branding', config.get('branding', {}))
         ctx.setBrowserState('auth', config.get('auth', {}))
         ctx.setConfigValue('setup', config.get('setup') || {})
+        ctx.setConfigValue('emmitter.debug', emmitter.debug)
     }
 
     public async register(): Promise<void> {

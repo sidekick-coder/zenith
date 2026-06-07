@@ -1,29 +1,5 @@
-<script setup lang="ts">
-import { BaseLayout, UserMenu } from '@sidekick-coder/zenith-kit/components'
-import { SidebarFooter } from '../components/ui/sidebar'
+<script>
+import { AdminLayout as KitAdminLayout } from '@sidekick-coder/zenith-kit/components'
 
-const userLinks = [
-    {
-        label: 'Preferences',
-        to: '/admin/menu/items',
-        icon: 'Settings',
-    }
-]
-
+export default KitAdminLayout
 </script>
-
-<template>
-    <BaseLayout
-        layout-id="admin"
-        home-path="/admin"
-        title="Admin Dashboard"
-    >
-        <slot />
-
-        <template #sidebar-footer>
-            <SidebarFooter>
-                <UserMenu :links="userLinks" />
-            </SidebarFooter>
-        </template>
-    </BaseLayout>
-</template>

@@ -6,19 +6,16 @@ import { layout, emmitter } from '@sidekick-coder/zenith-kit/client'
 
 const layoutId = ref(layout.currendId)
 const layoutComponent = shallowRef()
-const layoutOptions = ref({})
 const loading = ref(true)
 
 async function load() {
     loading.value = true
 
     let component = null
-    let options = {}
     let id = null
 
     if (layout.currendId) {
         component = layout.get(layout.currendId)
-        options = layout.getOptions(layout.currendId)
         id = layout.currendId
     }
 
@@ -30,7 +27,6 @@ async function load() {
 
 
     layoutComponent.value = component
-    layoutOptions.value = options
     layoutId.value = id
 
     await new Promise((resolve) => setTimeout(resolve, 100))
@@ -51,7 +47,6 @@ load()
     <router-view v-slot="{ Component }">
         <component
             :is="layoutComponent"
-            v-bind="layoutOptions"
             v-if="layoutComponent"
         >
             <suspense>

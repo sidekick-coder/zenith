@@ -7,7 +7,7 @@ import './assets/styles.css'
 import { createHead } from '@unhead/vue/client'
 import type { App } from 'vue'
 import { container, LifecycleService, FetchBrowserService } from '@sidekick-coder/zenith-kit/client'
-import { ConfigService, LoggerService } from '@sidekick-coder/zenith-kit/shared'
+import { ConfigService, EmmitterService, LoggerService } from '@sidekick-coder/zenith-kit/shared'
 import ModulesService from './services/modules.service.ts'
 import ModulesBrowserService from './services/modulesBrowser.service.ts'
 import ModulesDevService from './services/modulesDev.service.ts'
@@ -21,6 +21,12 @@ const logger = new ClientLoggerService()
 container.loadFromRecord(window.__CONTAINER__ || {})
 config.loadFromRecord(window.__CONFIG__ || [])
 
+// emmitter
+const emmiter = new EmmitterService({
+    debug: config.getOne(['emmitter.debug', 'app.debug', 'debug'], false),
+    logger: logger.child({ label: 'emmitter' }),
+})
+
 const lifecycle = new LifecycleService({
     debug: config.getOne(['lifecycle.debug', 'app.debug', 'debug'], false),
     logger: logger.child({ label: 'lifecycle' }),
@@ -31,6 +37,7 @@ container
     .set(LifecycleService, lifecycle)
     .set(LoggerService, logger)
     .set(FetchService, new FetchBrowserService())
+    .set(EmmitterService, emmiter)
     .set('state', window.__STATE__ || {})
 
 lifecycle.addImports(import.meta.glob('./hooks/*.ts', { eager: true }))

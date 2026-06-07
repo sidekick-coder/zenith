@@ -10,9 +10,13 @@ export default class extends LifecycleHook {
 
     public async onLoad(): Promise<void> {
         layout.setCurrent(route.meta?.layout as string)
+        layout.setOptions(route.meta?.layoutOptions || {})
 
-        router.beforeEach(async (to) => {
+        router.beforeEach(async (to, from) => {
+            if (to.path === from.path) return true 
+
             layout.setCurrent(to.meta?.layout as string || null)
+            layout.setOptions(to.meta?.layoutOptions || {})
 
             return true
         })
