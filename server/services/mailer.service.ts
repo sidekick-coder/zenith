@@ -39,6 +39,10 @@ export default class MailerService {
         this.gateways.set(type, gateway)
     }
 
+    public get(name: string) {
+        return this.instances.get(name) || null
+    }
+
     private instantiate(config: MailerConfig) {
         const gateway = this.gateways.get(config.type)
 
@@ -98,9 +102,12 @@ export default class MailerService {
     }
 
     public async send(payload: MailerSendPayload){
-        if (!this.current) {
+        const gateway = this.current
+
+        if (!gateway) {
             throw new BaseException('No mailer gateway selected')
         }
+
 
         const [error, result] = await tryCatch(() => this.current!.send(payload))
 

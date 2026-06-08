@@ -50,7 +50,7 @@ router.post('/api/auth/register', async ({ body, cookie }) => {
     const user = await auth.authenticate(token)
 
     if (user) {
-        throw new BaseException('Already logged in', 400)
+        throw new BaseException('Already logged in', 403)
     }
 
     const credentials = validator.validate(body, schemas.user.create)
@@ -82,9 +82,7 @@ router.post('/auth/logout', async ({ cookie }) => {
 })
 
 router.post('/api/auth/forget-password', async ({ body }) => {
-    const data = validator.validate(body, v => v.object({
-        email: v.pipe(v.string(), v.email()),
-    }))
+    const data = validator.validate(body, v => v.object({ email: v.pipe(v.string(), v.email()), }))
 
     await auth.forgetPassword(data.email)
 

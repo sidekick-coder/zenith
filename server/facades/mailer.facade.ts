@@ -1,6 +1,6 @@
-import di from './di.facade.ts'
+import { container } from '@sidekick-coder/zenith-kit/server'
 import MailerService from '#server/services/mailer.service.ts'
 
-const mailer = di.proxy<MailerService>(MailerService)
+const mailer = container.proxy<MailerService>(MailerService)
 
 export default mailer

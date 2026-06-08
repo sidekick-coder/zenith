@@ -1,9 +1,10 @@
 import { UserEntity } from '@sidekick-coder/zenith-kit/shared'
-import { userRepository } from '@sidekick-coder/zenith-kit/server'
+import { container, userRepository } from '@sidekick-coder/zenith-kit/server'
 import hasher from '#server/facades/hasher.facade.ts'
 import db from '#server/facades/db.facade.ts'
 import TokenService from '#server/services/token.service.ts'
 import EmailTemplate from '#server/entities/emailTemplate.entity.ts'
+import MailerService from '#server/services/mailer.service.ts'
 import mailer from '#server/facades/mailer.facade.ts'
 import env from '#server/facades/env.facade.ts'
 import { undeleted } from '#server/queries/softDelete.ts'
@@ -158,7 +159,7 @@ export default class AuthService {
             username,
             email,
             password: password,
-            verified_at: needVerifyEmail ? null : new Date()
+            verified_at: needVerifyEmail ? null : new Date().toISOString()
         })
 
         if (needVerifyEmail) {
@@ -200,7 +201,7 @@ export default class AuthService {
             expires_in_hours: 24
         })
 
-        const url = new URL('/api/auth/verify-email', env.get('APP_URL'))
+        const url = new URL('/api/auth/verify-email', env.get('ZENITH_APP_URL'))
 
         url.searchParams.append('token', tokenData.token)
 
@@ -209,7 +210,9 @@ export default class AuthService {
             verify_url: url.toString()
         })
 
-        await mailer.send({
+        const mailerOriginal = container.get<MailerService>(MailerService)
+
+        await mailerOriginal.send({
             to: user.email,
             subject: compiled.subject,
             body: compiled.html,
@@ -259,7 +262,7 @@ export default class AuthService {
             expires_in_hours: 1 / 6 // 10 minutes (1/6 of an hour)
         })
 
-        const url = new URL('/auth/reset-password', env.get('APP_URL'))
+        const url = new URL('/auth/reset-password', env.get('ZENITH_APP_URL'))
 
         url.searchParams.append('token', tokenData.token)
 
@@ -268,7 +271,9 @@ export default class AuthService {
             reset_url: url.toString()
         })
 
-        await mailer.send({
+        const mailerOriginal = container.get<MailerService>(MailerService)
+
+        await mailerOriginal.send({
             to: user.email,
             subject: compiled.subject,
             body: compiled.html,

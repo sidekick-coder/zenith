@@ -9,7 +9,7 @@ import LoggerService from '#shared/services/logger.service.ts'
 import db from '#server/facades/db.facade.ts'
 
 export default class QueueService {
-    public static __container_entry_key = 'MailerService'
+    public static __container_entry_key = 'QueueService'
 
     public jobs: Job[] = []
     public jobConstructors = new Map<string, typeof Job>()

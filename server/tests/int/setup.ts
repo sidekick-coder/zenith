@@ -1,6 +1,7 @@
 import path from 'path'
 import { ConfigService, LoggerService } from '@sidekick-coder/zenith-kit/shared'
 import { createApp } from '#server/app.ts'
+import seeder from '#server/facades/seeder.facade.ts'
 
 if (!process.env.ZENITH_BASE_PATH) {
     process.env.ZENITH_BASE_PATH = path.resolve(import.meta.dirname, '..', '..', '..')
@@ -45,4 +46,4 @@ app.lifecycle.setOnError(async (error) => {
 await app.lifecycle.emit(['register', 'load'], { exclude: ['vite'] })
 await app.lifecycle.emit(['boot'], { exclude: ['vite', 'http'] })
 
-
+await seeder.run({ source: 'root' })

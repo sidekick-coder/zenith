@@ -34,8 +34,6 @@ export default class MailerSMTP extends BaseMailer {
 
         const result = await this.transporter.sendMail(options)
 
-        return {
-            result: result,
-        }
+        return { result: result, }
     }
 }
