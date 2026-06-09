@@ -2,7 +2,7 @@
 layout: home
 hero:
   name: Zenith
-  text: Plugin based engine to build apps with Vue and Nodejs
+  text: Plugin based engine to build apps
   tagline: Build your app with powerful plugins and a modern developer experience.
   actions:
     - theme: brand
@@ -18,7 +18,7 @@ features:
   - title: Auth & Permissions
     details: Built-in user management and access control.
 
-  - title: Plugin System
+  - title: Plugins
     details: Easily extend functionality with reusable plugins.
 
   - title: Scheduler
