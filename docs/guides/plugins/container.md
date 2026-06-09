@@ -4,8 +4,12 @@ The container is a core feature of the framework, it is responsible for managing
 
 You can use the container to access the services and components of the application, and to register your own services and components.
 
+There is a instance of the container available in the server and also in the client side of the application.
+
 ```ts
-import { container } from '@sidekick-coder/zenith-kit'
+import { container } from '@sidekick-coder/zenith-kit/server'
+// or for client side
+import { container } from '@sidekick-coder/zenith-kit/client'
 
 container.set("message", "Hello World")
 

@@ -41,6 +41,10 @@ export const guidesSidebar: DefaultTheme.SidebarItem[] = [
             {
                 text: 'Container',
                 link: '/guides/plugins/container'
+            },
+            {
+                text: 'Config',
+                link: '/guides/plugins/config'
             }
         ]
     }
