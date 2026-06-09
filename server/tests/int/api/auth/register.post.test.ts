@@ -1,9 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { http, HttpTesterService, userRepository } from '@sidekick-coder/zenith-kit/server'
-import { faker } from '@faker-js/faker'
+import { http, HttpTesterService } from '@sidekick-coder/zenith-kit/server'
 import { config } from '@sidekick-coder/zenith-kit/server'
 import nodemailer from 'nodemailer'
 import mailer from '#server/facades/mailer.facade.ts'
+import { makeUser, createUser } from '#server/tests/fixtures/users.ts'
 
 describe('POST /api/auth/register', () => {
     let api: HttpTesterService
@@ -14,25 +14,11 @@ describe('POST /api/auth/register', () => {
     })
 
     function createPayload(data: any = {}) {
-        const payload: any = {
-            name: faker.person.fullName(),
-            username: faker.person.firstName(),
-            email: faker.internet.email(),
-            password: faker.internet.password(),
-            ...data,
-        }
+        const payload: any = makeUser(data)
 
         payload.password_confirmation = payload.password
 
         return payload
-    }
-
-    async function createUser(data: any = {}) {
-        const payload = createPayload(data)
-
-        delete payload.password_confirmation
-
-        return await userRepository.create(payload)
     }
 
     async function createFakeMailer() {

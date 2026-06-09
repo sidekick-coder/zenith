@@ -64,6 +64,15 @@ export default class AuthService {
             }
         }
 
+
+        if (!user.verified_at) {
+            return {
+                user: null,
+                success: false,
+                message: $t('Please verify your email before logging in')
+            }
+        }
+
         const passwordMatches = await hasher.compare(password, user.password)
 
         if (!passwordMatches) {
@@ -71,14 +80,6 @@ export default class AuthService {
                 user: null,
                 success: false,
                 message: $t('Invalid credentials')
-            }
-        }
-
-        if (!user.verified_at) {
-            return {
-                user: null,
-                success: false,
-                message: $t('Please verify your email before logging in')
             }
         }
 

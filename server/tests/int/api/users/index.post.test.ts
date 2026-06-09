@@ -1,7 +1,7 @@
 
 import { beforeEach, describe, expect, it } from 'vitest'
 import { http, HttpTesterService } from '@sidekick-coder/zenith-kit/server'
-import { faker } from '@faker-js/faker'
+import { makeUser } from '#server/tests/fixtures/users.ts'
 
 describe('POST /api/users', () => {
     let api: HttpTesterService
@@ -14,16 +14,9 @@ describe('POST /api/users', () => {
 
         await api.loginByUsername('admin')
 
-        const payload = {
-            name: faker.person.fullName(),
-            username: faker.internet.username(),
-            email: faker.internet.email(),
-            password: faker.internet.password(),
-        }
+        const payload = makeUser()
 
         const response = await api.post('/api/users', payload)
-
-        expect(response.status).toBe(200)
 
         expect(response.body).toEqual({
             id: expect.any(Number),

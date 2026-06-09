@@ -1,6 +1,6 @@
+import { BaseException } from '@sidekick-coder/zenith-kit/shared'
 import router from '#server/facades/router.facade.ts'
 import auth from '#server/facades/auth.facade.ts'
-import BaseException from '#server/exceptions/base.ts'
 import validator from '#shared/services/validator.service.ts'
 import config from '#server/facades/config.facade.ts'
 import schemas from '#shared/validators/index.ts'
@@ -11,7 +11,7 @@ router.post('/api/auth/login', async ({ body, cookie }) => {
     const user = await auth.authenticate(token)
 
     if (user) {
-        throw new BaseException('Already logged in', 400)
+        throw new BaseException('Already logged in', 403)
     }
 
     const credentials = validator.validate(body, v => v.object({
