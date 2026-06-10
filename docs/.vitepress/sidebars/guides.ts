@@ -28,6 +28,16 @@ export const guidesSidebar: DefaultTheme.SidebarItem[] = [
         ],
     },
     {
+        text: 'Core',
+        items: [
+            {
+                text: 'Config via S3',
+                link: '/guides/core/config-via-s3'
+            }
+        ]
+
+    },
+    {
         text: 'Plugins',
         items: [
             {
