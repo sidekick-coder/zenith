@@ -7,9 +7,9 @@ They used mainly to organize routes in separate files, for example by resource o
 To register route files, use the `RouterRegister` methods in the `onLoad` lifecycle phase of `server/hooks/router.hook.ts`:
 ```ts 
 // myplugin/src/server/index.ts
-import { router, RouterRegister, RouterService } from '@sidekick-coder/zenith/server';
+import { router, PluginEntity, RouterRegister, RouterService } from '@sidekick-coder/zenith/server';
 
-export default {
+export default class extends PluginEntity {
     public async load() {
         const router = container.get<RouterRegister>(RouterService)
 

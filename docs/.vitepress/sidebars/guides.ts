@@ -70,11 +70,11 @@ export const guidesSidebar: DefaultTheme.SidebarItem[] = [
             },
             {
                 text: 'Route files',
-                link: '/guides/plugins/route-files'
+                link: '/guides/plugins/routes-files'
             },
             {
-                text: 'Route file system based routing',
-                link: '/guides/plugins/route-file-system-based-routing'
+                text: 'Route FS routing',
+                link: '/guides/plugins/routes-fs-routing'
             }
         ]
     }
