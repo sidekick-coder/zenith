@@ -63,6 +63,18 @@ export const guidesSidebar: DefaultTheme.SidebarItem[] = [
             {
                 text: 'Events',
                 link: '/guides/plugins/events'
+            },
+            {
+                text: 'Routes',
+                link: '/guides/plugins/routes'
+            },
+            {
+                text: 'Route files',
+                link: '/guides/plugins/route-files'
+            },
+            {
+                text: 'Route file system based routing',
+                link: '/guides/plugins/route-file-system-based-routing'
             }
         ]
     }
