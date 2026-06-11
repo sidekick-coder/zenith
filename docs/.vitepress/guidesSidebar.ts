@@ -75,6 +75,10 @@ export const guidesSidebar: DefaultTheme.SidebarItem[] = [
             {
                 text: 'Route FS routing',
                 link: '/guides/plugins/routes-fs-routing'
+            },
+            {
+                text: 'Logger',
+                link: '/guides/plugins/logger'
             }
         ]
     }

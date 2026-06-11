@@ -1,7 +1,5 @@
 import { defineConfig } from 'vitepress'
-import { guidesSidebar } from './sidebars/guides.ts'
-import { coreSidebar } from './sidebars/core.ts'
-import { modulesSidebar } from './sidebars/modules.ts'
+import { guidesSidebar } from './guidesSidebar.ts'
 import { nav } from './nav.ts'
 
 // https://vitepress.dev/reference/site-config
