@@ -79,6 +79,10 @@ export const guidesSidebar: DefaultTheme.SidebarItem[] = [
             {
                 text: 'Logger',
                 link: '/guides/plugins/logger'
+            },
+            {
+                text: 'Database',
+                link: '/guides/plugins/database'
             }
         ]
     }
