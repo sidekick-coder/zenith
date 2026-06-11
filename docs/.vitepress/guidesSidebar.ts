@@ -28,15 +28,19 @@ export const guidesSidebar: DefaultTheme.SidebarItem[] = [
         ],
     },
     {
-        text: 'Core',
+        text: 'Config',
         items: [
             {
+                text: 'Config',
+                link: '/guides/config/config'
+            },
+            {
                 text: 'Config FS',
-                link: '/guides/core/config-fs'
+                link: '/guides/config/config-fs'
             },
             {
                 text: 'Config S3',
-                link: '/guides/core/config-s3'
+                link: '/guides/config/config-s3'
             }
         ]
     },
@@ -67,10 +71,6 @@ export const guidesSidebar: DefaultTheme.SidebarItem[] = [
             {
                 text: 'Container',
                 link: '/guides/plugins/container'
-            },
-            {
-                text: 'Config',
-                link: '/guides/plugins/config'
             },
             {
                 text: 'Events',
