@@ -39,7 +39,19 @@ export const guidesSidebar: DefaultTheme.SidebarItem[] = [
                 link: '/guides/core/config-s3'
             }
         ]
-
+    },
+    {
+        text: 'Database',
+        items: [
+            {
+                text: 'Introduction',
+                link: '/guides/database/introduction'
+            },
+            {
+                text: 'Migrations',
+                link: '/guides/database/migrations'
+            },
+        ]
     },
     {
         text: 'Plugins',
@@ -80,10 +92,6 @@ export const guidesSidebar: DefaultTheme.SidebarItem[] = [
                 text: 'Logger',
                 link: '/guides/plugins/logger'
             },
-            {
-                text: 'Database',
-                link: '/guides/plugins/database'
-            }
         ]
     }
 ]
