@@ -28,6 +28,23 @@ export const guidesSidebar: DefaultTheme.SidebarItem[] = [
         ],
     },
     {
+        text: 'Core',
+        items: [
+            {
+                text: 'Container',
+                link: '/guides/core/container'
+            },
+            {
+                text: 'Logger',
+                link: '/guides/core/logger'
+            },
+            {
+                text: 'Events',
+                link: '/guides/core/events'
+            },
+        ]
+    },
+    {
         text: 'Config',
         items: [
             {
@@ -48,12 +65,29 @@ export const guidesSidebar: DefaultTheme.SidebarItem[] = [
         text: 'Database',
         items: [
             {
-                text: 'Introduction',
-                link: '/guides/database/introduction'
+                text: 'Database',
+                link: '/guides/database/database'
             },
             {
                 text: 'Migrations',
                 link: '/guides/database/migrations'
+            },
+        ]
+    },
+    {
+        text: 'Router',
+        items: [
+            {
+                text: 'Router',
+                link: '/guides/router/router'
+            },
+            {
+                text: 'Route files',
+                link: '/guides/router/routes-files'
+            },
+            {
+                text: 'Route FS routing',
+                link: '/guides/router/routes-fs-routing'
             },
         ]
     },
@@ -67,30 +101,6 @@ export const guidesSidebar: DefaultTheme.SidebarItem[] = [
             {
                 text: 'Creating a Plugin',
                 link: '/guides/plugins/creating-a-plugin'
-            },
-            {
-                text: 'Container',
-                link: '/guides/plugins/container'
-            },
-            {
-                text: 'Events',
-                link: '/guides/plugins/events'
-            },
-            {
-                text: 'Routes',
-                link: '/guides/plugins/routes'
-            },
-            {
-                text: 'Route files',
-                link: '/guides/plugins/routes-files'
-            },
-            {
-                text: 'Route FS routing',
-                link: '/guides/plugins/routes-fs-routing'
-            },
-            {
-                text: 'Logger',
-                link: '/guides/plugins/logger'
             },
         ]
     }

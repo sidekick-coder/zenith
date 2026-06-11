@@ -7,11 +7,11 @@ Plugins can add migrations adding files to a `src/server/migrations` folder.
 Example:
 ```
 myplugin/
-    src/
-        server/
-            migrations/
-                001-create-items-table.ts
-                002-create-tags-table.ts
+├── src/
+│   ├── server/
+│   │   ├── migrations/
+│   │   │   ├── 001-create-items-table.ts
+│   │   │   ├── 002-create-tags-table.ts
 ```
 
 You can name the files with a prefix number to indicate the order of the migrations, or use any naming convention you prefer.
@@ -30,7 +30,7 @@ import { Kysely } from 'kysely'
 export async function up(db: Kysely<any>): Promise<void> {
     await db.schema.createTable('items')
         .addColumn('id', 'integer', col => col.primaryKey().autoIncrement())
-        .addColumn('name', 'varchar(255)', col => col.notNull().unique())
+        .addColumn('name', 'varchar(255)', col => col.notNull())
         .addColumn('description', 'text', col => col)
         .execute()
 }

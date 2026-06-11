@@ -10,12 +10,14 @@ git clone https://github.com/sidekick-coder/zenith /home/user/projects/zenith
 
 This is just to run the plugin you wont need change anything directly in the source code
 
-## Clone plugin starter repo
+## Clone plugin starter repository
 
-To start creating a plugin you can start by cloning the [pluging starter repo](https://github.com/sidekick-coder/zenith-plugin-starter)
+To start creating a plugin you can start by cloning the [plugin starter repository](https://github.com/sidekick-coder/zenith-plugin-starter)
 
 ```sh
-git clone https://github.com/sidekick-coder/zenith-plugin-starter /home/user/projects/my-plugin
+git clone \
+    https://github.com/sidekick-coder/zenith-plugin-starter \
+    /home/user/projects/my-plugin
 ``` 
 
 Install the dependencies
