@@ -72,6 +72,10 @@ export const guidesSidebar: DefaultTheme.SidebarItem[] = [
                 text: 'Migrations',
                 link: '/guides/database/migrations'
             },
+            {
+                text: 'User repository',
+                link: '/guides/database/user-repository'
+            },
         ]
     },
     {
