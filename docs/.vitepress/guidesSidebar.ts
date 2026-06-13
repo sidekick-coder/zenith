@@ -42,6 +42,10 @@ export const guidesSidebar: DefaultTheme.SidebarItem[] = [
                 text: 'Events',
                 link: '/guides/core/events'
             },
+            {
+                text: 'Drive',
+                link: '/guides/core/drive'
+            },
         ]
     },
     {
