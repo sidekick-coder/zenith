@@ -26,6 +26,10 @@ router.get('/', async ({ acl, query: routeQuery }) => {
         .where(undeleted)
         .orderBy('created_at', 'desc')
 
+    if (payload.id?.length) {
+        query = query.where('f.id', 'in', payload.id)
+    }
+
     if (payload.search) {
         query = query.where('f.client_name', 'like', `%${payload.search}%`)
     }
@@ -74,6 +78,7 @@ router.post('/', async ({ query }) => {
 
     const file = await File.create({
         ...payload,
+        public: payload.public ? 1 : 0,
         mimetype: mime.getType(payload.filename) || 'application/octet-stream',
     })
 
@@ -96,9 +101,7 @@ rootRouter
     .get('/api/files/:id/stream', async ({ params,acl, response }) => {
         const id = validator.validate(params.id, schemas.query.number)
 
-        const file = await File.findOneOrFail({
-            query: qb => qb.selectAll().where('id', '=', id),
-        })
+        const file = await File.findOneOrFail({ query: qb => qb.selectAll().where('id', '=', id), })
 
         if (!file) {
             throw new BaseException('File not found', 404)
@@ -143,7 +146,5 @@ router.delete('/:id', async ({ params, acl }) => {
 
     await file.softDelete()
 
-    return {
-        success: true
-    }
+    return { success: true }
 })

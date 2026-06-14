@@ -6,6 +6,7 @@ import validator from '#shared/services/validator.service.ts'
 export const filters = validator.create(v => v.pipe(
     url.object(),
     v.object({
+        id: v.optional(url.array()),
         search: v.optional(v.string()),
         purpose: v.optional(url.array()),
         client_name: v.optional(url.array()),

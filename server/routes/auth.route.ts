@@ -25,14 +25,10 @@ router.post('/api/auth/login', async ({ body, cookie }) => {
         throw new BaseException(result.message, 401)
     }
 
-    const cookieAuthOptions = config.get('auth.cookie.options', {})
-
     const options = {
         httpOnly: true,
         sameSite: true,
         maxAge: 60 * 60 * 24 * 7, // 1 week
-        secure: true,
-        ...cookieAuthOptions
     }
 
     cookie.set('Authorization', result.token!, options)
