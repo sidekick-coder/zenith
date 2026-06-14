@@ -189,13 +189,18 @@ export default class LoggerWinsonService extends LoggerService {
         this.logger.warn(message)
     }
 
-    public error(message: string, meta?: any): void {
-        if (meta) {
-            this.logger.error(message, meta)
+    public error(err: string | Error, meta?: any): void {
+        if (typeof err !== 'string') {
+            this.logger.error(err.message, err)
             return
         }
 
-        this.logger.error(message)
+        if (meta) {
+            this.logger.error(err, meta)
+            return
+        }
+
+        this.logger.error(err)
     }
 
     public child(options: any): LoggerService {
