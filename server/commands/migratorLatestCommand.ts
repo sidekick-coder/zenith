@@ -1,12 +1,13 @@
 import { confirm } from '@inquirer/prompts'
-import { migrator } from '@sidekick-coder/zenith-kit/server'
-import arte from '#server/facades/arte.facade.ts'
+import { CliCommand, migrator } from '@sidekick-coder/zenith-kit/server'
 
 interface Options {
     source?: string
 }
 
-arte.command('migrator:latest')
+const command = new CliCommand('migrator:latest')
+
+command
     .need('db', 'migrator', 'shell', 'drive')
     .helpGroup('migration')
     .description('Run all pending migrations')
@@ -23,14 +24,14 @@ arte.command('migrator:latest')
             return
         }
 
-        arte.table(pending, [
+        command.table(pending, [
             {
                 label: 'name',
                 value: 'name' 
             },
             {
                 label: 'source',
-                value: i => i.source || arte.colors.dim('root'),
+                value: i => i.source || command.colors.dim('root'),
                 width: 20 
             },
         ])
@@ -47,10 +48,12 @@ arte.command('migrator:latest')
 
         const results = await migrator.latest({ source: options.source })
 
-        arte.table(results.map(m => ({
+        command.table(results.map(m => ({
             name: m.name,
             source: m.source,
-            result: m.result === 'success' ? arte.colors.green(m.result) : arte.colors.red(m.result),
+            result: m.result === 'success' ? command.colors.green(m.result) : command.colors.red(m.result),
             error: m.error ? m.error.message : null,
         })))
     })
+
+export default command
