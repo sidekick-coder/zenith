@@ -37,25 +37,34 @@ async function load() {
 emmitter.on('layout:change', load)
 
 load()
-
 </script>
 <template>
     <Toaster
         position="top-right"
         :toast-options="{ class: 'whitespace-pre-line' }"
     />
-    <router-view v-slot="{ Component }">
+
+    <!-- animate with tailwind fade in -->
+    <router-view
+        v-slot="{ Component }"
+    >
         <component
             :is="layoutComponent"
             v-if="layoutComponent"
         >
             <suspense>
-                <component :is="Component" />
+                <component
+                    :is="Component"
+                    v-if="!loading"
+                />
             </suspense>
         </component>
 
         <Suspense v-else>
-            <component :is="Component" />
+            <component
+                :is="Component"
+                v-if="!loading"
+            />
         </Suspense>
     </router-view>
 </template>
