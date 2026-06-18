@@ -5,6 +5,7 @@ import { toTypedSchema } from '@vee-validate/valibot'
 import * as v from 'valibot'
 import { ref } from 'vue'
 import { toast } from 'vue-sonner'
+import { route } from '@sidekick-coder/zenith-kit/client'
 import $fetch from '#client/facades/fetch.facade.ts'
 import Button from '#client/components/Button.vue'
 import FormTextField from '#client/components/FormTextField.vue'
@@ -19,7 +20,11 @@ const loadingOAuth = ref(false)
 const enableRegistration = config.get('auth.enable_registration', false)
 const enableGoogleAuth = config.get('oauth.google_enabled', false)
 
-const redirectTo = config.get('auth.redirect_to_on_login', '/')
+let redirectTo = config.get('auth.redirect_to_on_login', '/')
+
+if (route.query.redirect) {
+    redirectTo = route.query.redirect as string
+}
 
 const { handleSubmit } = useForm({
     validationSchema: toTypedSchema(

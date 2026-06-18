@@ -6,7 +6,6 @@ import {
 import type { NavigationGuard, Router as VueRouter } from 'vue-router'
 import type { RouteRecordRaw } from 'vue-router'
 import type { DefineComponent } from 'vue'
-import setupGuard from './guards/setup.guard'
 
 export interface Router extends VueRouter {
     auto: typeof auto;
@@ -112,8 +111,6 @@ export function createRouter() {
             }
         },
     }) as any as Router
-
-    router.beforeEach(setupGuard)
 
     router.auto = (imports: Record<string, DefineComponent | (() => Promise<DefineComponent>)>, options: AutoOptions = {}) => {
         const autoRoutes = auto(imports, options)

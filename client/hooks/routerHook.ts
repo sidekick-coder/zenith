@@ -1,12 +1,8 @@
-import type { App, DefineComponent } from 'vue'
+import type { App } from 'vue'
 import { LifecycleHook } from '@sidekick-coder/zenith-kit/shared'
-import { container } from '@sidekick-coder/zenith-kit/client'
+import { container, config, authGuard, guestGuard, setupGuard  } from '@sidekick-coder/zenith-kit/client'
+import type { Router } from '@sidekick-coder/zenith-kit/client'
 import { createRouter } from '#client/router'
-import type { Router } from '#client/router'
-import guestGuard from '#client/guards/guest.guard.ts'
-import authGuard from '#client/guards/auth.guard.ts'
-import setupGuard from '#client/guards/setup.guard.ts'
-import config from '#client/facades/config.facade.ts'
 
 export default class extends LifecycleHook {
     public hook_aliases = ['router']
@@ -31,7 +27,7 @@ export default class extends LifecycleHook {
             return true
         })
 
-        router.auto(import.meta.glob<DefineComponent>('../pages/admin/**/*.vue',), {
+        router.auto(import.meta.glob<any>('../pages/admin/**/*.vue',), {
             strip: ['pages'],
             guards: [authGuard],
             refine: (records) => records.map(record => {
@@ -46,12 +42,12 @@ export default class extends LifecycleHook {
 
         })
 
-        router.auto(import.meta.glob<DefineComponent>('../pages/auth/**/*.vue',), {
+        router.auto(import.meta.glob<any>('../pages/auth/**/*.vue',), {
             strip: ['pages'],
             guards: [guestGuard],
         })
 
-        router.auto(import.meta.glob<DefineComponent>('../pages/**/*.vue',), {
+        router.auto(import.meta.glob<any>('../pages/**/*.vue',), {
             strip: ['pages'],
             exclude: ['/admin', '/auth'],
         })
@@ -91,6 +87,6 @@ export default class extends LifecycleHook {
             component: () => import('../pages/errors/404.vue'),
         })
 
-        app.use(router)
+        app.use(router as any)
     }
 }
