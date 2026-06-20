@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { toast } from 'vue-sonner'
 import { RefreshCw, EllipsisVertical, ArrowUp, ArrowDown } from 'lucide-vue-next'
 import { $fetch } from '#client/utils/fetcher.ts'
@@ -33,6 +33,9 @@ interface Migration {
 const migrations = ref<Migration[]>([])
 const loading = ref(false)
 
+const migratedCount = computed(() => migrations.value.filter(m => m.status === 'executed').length)
+const pendingCount = computed(() => migrations.value.filter(m => m.status === 'pending').length)
+
 const columns = defineColumns<Migration>([
     {
         field: 'name',
@@ -61,7 +64,7 @@ async function load() {
 
 onMounted(load)
 
-const operation = ref<'up' | 'down' | 'rollback' | 'fresh'>()
+const operation = ref<'up' | 'down' | 'rollback' | 'fresh' | 'latest'>()
 const loadingMigration = ref<string | null>(null)
 
 async function migrateOne(migration: Migration) {
@@ -191,7 +194,7 @@ async function fresh() {
 
     const [error] = await $fetch.try('/api/migrations/fresh', {
         method: 'POST',
-        data: { source: props.plugin.id } 
+        data: { source: props.plugin.id, } 
     })
 
     operation.value = undefined
@@ -199,6 +202,25 @@ async function fresh() {
     if (error) return
 
     toast.success($t('Fresh migrations applied successfully'))
+    load()
+}
+
+async function latest() {
+    operation.value = 'latest'
+
+    const [error] = await $fetch.try('/api/migrations/migrate', {
+        method: 'POST',
+        data: {
+            source: props.plugin.id,
+            steps: pendingCount.value,
+        } 
+    })
+
+    operation.value = undefined
+
+    if (error) return
+
+    toast.success($t('All migrations applied successfully'))
     load()
 }
 </script>
@@ -216,28 +238,29 @@ async function fresh() {
             </div>
 
             <AlertButton
-                :loading="operation === 'up'"
-                :disabled="!!operation"
-                :description="$t('This will run one migration step up')"
+                :loading="operation === 'latest'"
+                :disabled="!!operation || pendingCount === 0"
+                :description="$t('This will run all pending migrations')"
                 variant="outline"
                 size="sm"
                 class="bg-green-500 text-white hover:bg-green-600 border-0"
-                @confirm="up"
+                @confirm="latest"
             >
-                {{ $t('Up') }}
+                {{ $t('Latest') }}
             </AlertButton>
 
             <AlertButton
-                :loading="operation === 'down'"
-                :disabled="!!operation"
-                :description="$t('This will run one migration step down')"
+                :loading="operation === 'rollback'"
+                :disabled="!!operation || migratedCount === 0"
+                :description="$t('This will rollback all migrations. This can potentially lead to data loss')"
                 variant="outline"
                 size="sm"
                 class="bg-red-500 text-white hover:bg-red-600 border-0"
-                @confirm="down"
+                @confirm="rollback"
             >
-                {{ $t('Down') }}
+                {{ $t('Rollback') }}
             </AlertButton>
+
 
             <DropdownMenu>
                 <DropdownMenuTrigger as-child>
@@ -254,6 +277,30 @@ async function fresh() {
                     class="w-48"
                 >
                     <AlertButton
+                        :loading="operation === 'up'"
+                        :disabled="!!operation"
+                        :description="$t('This will run one migration step up')"
+                        variant="ghost"
+                        size="sm"
+                        class="w-full justify-start"
+                        @confirm="up"
+                    >
+                        {{ $t('Up') }}
+                    </AlertButton>
+
+                    <AlertButton
+                        :loading="operation === 'down'"
+                        :disabled="!!operation"
+                        :description="$t('This will run one migration step down')"
+                        variant="ghost"
+                        size="sm"
+                        class="w-full justify-start"
+                        @confirm="down"
+                    >
+                        {{ $t('Down') }}
+                    </AlertButton>
+
+                    <AlertButton
                         :loading="operation === 'fresh'"
                         :disabled="!!operation"
                         :description="$t('This will drop all tables and recreate them. This can potentially lead to data loss')"
@@ -263,18 +310,6 @@ async function fresh() {
                         @confirm="fresh"
                     >
                         {{ $t('Fresh') }}
-                    </AlertButton>
-
-                    <AlertButton
-                        :loading="operation === 'rollback'"
-                        :disabled="!!operation"
-                        :description="$t('This can potentially lead to data loss')"
-                        variant="ghost"
-                        size="sm"
-                        class="w-full justify-start"
-                        @confirm="rollback"
-                    >
-                        {{ $t('Rollback') }}
                     </AlertButton>
                 </DropdownMenuContent>
             </DropdownMenu>
