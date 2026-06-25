@@ -2,7 +2,7 @@
 
 There are multiple ways to use the framework with docker that will change depending of your setup and plugins you will use
 
-> This is only for production, for development follow the [development guide](development.md)
+> This is only for production
 
 ## Volumes (recommended)
 
