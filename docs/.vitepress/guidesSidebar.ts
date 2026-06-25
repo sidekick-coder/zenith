@@ -46,6 +46,10 @@ export const guidesSidebar: DefaultTheme.SidebarItem[] = [
                 text: 'Drive',
                 link: '/guides/core/drive'
             },
+            {
+                text: 'Scheduler',
+                link: '/guides/core/scheduler'
+            },
         ]
     },
     {

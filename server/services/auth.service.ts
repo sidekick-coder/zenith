@@ -117,12 +117,16 @@ export default class AuthService {
         }
         
         const token = await this.tokenService.findToken(tokenValue)
+
+        console.log('auth.token', token)
         
         if (!token || token.type !== 'auth') {
             return null
         }
 
         const isValid = await this.tokenService.isTokenValid(tokenValue)
+
+        console.log('auth.token.valid', isValid)
 
         if (!isValid) {
             return null
