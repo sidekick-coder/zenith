@@ -36,6 +36,12 @@ async function load() {
     dashboard.value = response
     resetForm({ values: response })
 
+    const [metasError, metas] = await tryCatch(() => $fetch<Record<string, any>>(`/api/dashboards/${id}/metas`))
+
+    if (!metasError && metas?.widgets) {
+        widgets.value = metas.widgets
+    }
+
     setTimeout(() => {
         loading.value = false
     }, 500)
@@ -44,10 +50,10 @@ async function load() {
 const onSubmit = handleSubmit(async (data) => {
     saving.value = true
 
-    const [error] = await tryCatch(() => $fetch(`/api/dashboards/${id}`, {
-        method: 'PATCH',
-        data,
-    }))
+    const [error] = await tryCatch(() => Promise.all([
+        $fetch(`/api/dashboards/${id}`, { method: 'PATCH', data }),
+        $fetch(`/api/dashboards/${id}/metas`, { method: 'PUT', data: { widgets: widgets.value } }),
+    ]))
 
     if (error) {
         saving.value = false

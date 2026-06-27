@@ -23,7 +23,7 @@ function removeWidget(index: number) {
     <div>
         <div
             v-if="widgets.length"
-            class="grid grid-cols-12 gap-4"
+            class="grid grid-cols-12 gap-4 items-baseline"
         >
             <DashboardWidget
                 v-for="(widget, index) in widgets"

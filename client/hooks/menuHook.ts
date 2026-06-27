@@ -1,20 +1,46 @@
-import { container, config, MenuService } from '@sidekick-coder/zenith-kit/client'
+import { container, config, MenuService, fetcher } from '@sidekick-coder/zenith-kit/client'
 import { LifecycleHook } from '@sidekick-coder/zenith-kit/shared'
 
 export default class extends LifecycleHook {
-    public async register(): Promise<void> {
-        const menu = new MenuService()
+    public menu: MenuService
 
-        container.set(MenuService, menu)
+    public async addDashboards(){
 
         // dashboard 
-        menu.add({
+        this.menu.add({
             layout: 'admin',
             label: $t('Dashboards'),
             to: '/admin/dashboards',
             icon: 'LayoutDashboard',
             group: $t('Dashboards')
         })
+
+        const [error, response] = await fetcher.try('/api/dashboards')
+
+        if (error) {
+            console.error('Failed to fetch dashboards', error)
+            return
+        }
+
+        for (const d of response.items) {
+            this.menu.add({
+                layout: 'admin',
+                label: d.name,
+                to: `/admin/dashboards/${d.id}`,
+                icon: d.metas?.icon || 'LayoutDashboard',
+                group: $t('Dashboards')
+            })
+        }
+    }
+
+    public async register(): Promise<void> {
+        const menu = new MenuService()
+
+        container.set(MenuService, menu)
+
+        this.menu = menu
+
+        await this.addDashboards()
 
         // auth
         menu.add({
