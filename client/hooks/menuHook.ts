@@ -7,6 +7,15 @@ export default class extends LifecycleHook {
 
         container.set(MenuService, menu)
 
+        // dashboard 
+        menu.add({
+            layout: 'admin',
+            label: $t('Dashboards'),
+            to: '/admin/dashboards',
+            icon: 'LayoutDashboard',
+            group: $t('Dashboards')
+        })
+
         // auth
         menu.add({
             layout: 'admin',
