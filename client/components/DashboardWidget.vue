@@ -19,6 +19,7 @@ import {
 export interface Widget {
     name?: string
     cols?: { base?: number, sm?: number, md?: number, lg?: number, xl?: number }
+    height?: { base?: string, sm?: string, md?: string, lg?: string, xl?: string }
 }
 
 const widget = defineModel<Widget>({ default: () => ({}) })
@@ -40,6 +41,11 @@ const colClasses = computed(() =>
         .map(([bp, v]) => colSpanMap[bp]?.[v as number] ?? '')
         .filter(Boolean)
 )
+
+const heightStyle = computed(() => {
+    const h = widget.value.height?.base
+    return h ? { height: h } : {}
+})
 
 // --- title editing ---
 const editing = ref(false)
@@ -91,11 +97,34 @@ function clearCol(bp: string) {
 }
 
 function commitSize() {
-    widget.value = {
-        ...widget.value,
-        cols: colsDraft.value 
-    }
+    widget.value = { ...widget.value, cols: colsDraft.value }
     sizeOpen.value = false
+}
+
+// --- height dialog ---
+const heightPresets = ['auto', '150px', '250px', '400px', '600px']
+
+const heightOpen = ref(false)
+const heightDraft = ref<Widget['height']>({})
+
+function openHeight() {
+    heightDraft.value = { ...widget.value.height }
+    heightOpen.value = true
+}
+
+function setHeight(bp: string, value: string) {
+    heightDraft.value = { ...heightDraft.value, [bp]: value }
+}
+
+function clearHeight(bp: string) {
+    const updated = { ...heightDraft.value }
+    delete updated[bp as keyof typeof updated]
+    heightDraft.value = updated
+}
+
+function commitHeight() {
+    widget.value = { ...widget.value, height: heightDraft.value }
+    heightOpen.value = false
 }
 </script>
 
@@ -103,6 +132,7 @@ function commitSize() {
     <div
         class="bg-card text-card-foreground flex flex-col rounded-xl border shadow-sm"
         :class="colClasses"
+        :style="heightStyle"
     >
         <div class="flex items-center gap-2 border-b px-4 py-3">
             <input
@@ -137,6 +167,10 @@ function commitSize() {
                     <DropdownMenuItem @click="openSize">
                         <Icon name="LayoutGrid" />
                         {{ $t('Columns') }}
+                    </DropdownMenuItem>
+                    <DropdownMenuItem @click="openHeight">
+                        <Icon name="ArrowUpDown" />
+                        {{ $t('Height') }}
                     </DropdownMenuItem>
                     <DropdownMenuItem
                         class="text-destructive focus:text-destructive"
@@ -213,6 +247,77 @@ function commitSize() {
                     {{ $t('Cancel') }}
                 </Button>
                 <Button @click="commitSize">
+                    {{ $t('Save') }}
+                </Button>
+            </DialogFooter>
+        </DialogContent>
+    </Dialog>
+
+    <Dialog v-model:open="heightOpen">
+        <DialogContent class="max-w-lg">
+            <DialogHeader>
+                <DialogTitle>{{ $t('Height') }}</DialogTitle>
+            </DialogHeader>
+
+            <div class="space-y-5 py-2">
+                <div
+                    v-for="bp in breakpoints"
+                    :key="bp"
+                >
+                    <p class="mb-2 text-xs font-medium uppercase text-muted-foreground">
+                        {{ bp }}
+                    </p>
+                    <div class="flex flex-wrap gap-1">
+                        <button
+                            v-if="bp !== 'base'"
+                            type="button"
+                            :title="$t('Clear')"
+                            :class="[
+                                'h-8 w-8 shrink-0 rounded-sm border text-xs transition-colors',
+                                !heightDraft?.[bp]
+                                    ? 'border-primary bg-primary text-primary-foreground'
+                                    : 'border-border bg-muted hover:bg-muted-foreground/20',
+                            ]"
+                            @click="clearHeight(bp)"
+                        >
+                            <Icon
+                                name="X"
+                                class="mx-auto size-3"
+                            />
+                        </button>
+                        <button
+                            v-for="preset in heightPresets"
+                            :key="preset"
+                            type="button"
+                            :class="[
+                                'h-8 rounded-sm border px-3 text-xs transition-colors',
+                                heightDraft?.[bp] === preset
+                                    ? 'border-primary bg-primary text-primary-foreground'
+                                    : 'border-border bg-muted hover:bg-muted-foreground/20',
+                            ]"
+                            @click="setHeight(bp, preset)"
+                        >
+                            {{ preset }}
+                        </button>
+                        <input
+                            :value="heightDraft?.[bp] && !heightPresets.includes(heightDraft[bp]!) ? heightDraft[bp] : ''"
+                            type="text"
+                            :placeholder="$t('Custom')"
+                            class="h-8 w-24 rounded-sm border border-border bg-muted px-2 text-xs outline-none focus:border-primary"
+                            @input="(e) => setHeight(bp, (e.target as HTMLInputElement).value)"
+                        >
+                    </div>
+                </div>
+            </div>
+
+            <DialogFooter>
+                <Button
+                    variant="outline"
+                    @click="heightOpen = false"
+                >
+                    {{ $t('Cancel') }}
+                </Button>
+                <Button @click="commitHeight">
                     {{ $t('Save') }}
                 </Button>
             </DialogFooter>
