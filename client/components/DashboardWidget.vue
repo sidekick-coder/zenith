@@ -18,13 +18,25 @@ import {
 
 export interface Widget {
     name?: string
+    order?: number
     cols?: { base?: number, sm?: number, md?: number, lg?: number, xl?: number }
     height?: { base?: string, sm?: string, md?: string, lg?: string, xl?: string }
 }
 
+import { useDashboard } from '#client/composables/useDashboard.ts'
+
 const widget = defineModel<Widget>({ default: () => ({}) })
 
+const props = defineProps({
+    index: {
+        type: Number,
+        required: true,
+    },
+})
+
 const emit = defineEmits(['remove', 'duplicate'])
+
+const dashboard = useDashboard()
 
 // --- col-span classes ---
 const colSpanMap: Record<string, string[]> = {
@@ -164,6 +176,20 @@ function commitHeight() {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                     <slot name="options" />
+                    <DropdownMenuItem
+                        :disabled="props.index === 0"
+                        @click="dashboard?.moveUp(props.index)"
+                    >
+                        <Icon name="ArrowUp" />
+                        {{ $t('Move up') }}
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                        :disabled="props.index === (dashboard?.widgets.length ?? 1) - 1"
+                        @click="dashboard?.moveDown(props.index)"
+                    >
+                        <Icon name="ArrowDown" />
+                        {{ $t('Move down') }}
+                    </DropdownMenuItem>
                     <DropdownMenuItem @click="emit('duplicate')">
                         <Icon name="Copy" />
                         {{ $t('Duplicate') }}

@@ -10,37 +10,37 @@ import { $fetch } from '#client/utils/fetcher.ts'
 import Button from '#client/components/Button.vue'
 import Icon from '#client/components/Icon.vue'
 import DashboardBody from '#client/components/DashboardBody.vue'
+import DashboardEntity from '#client/entities/dashboard.entity.ts'
+import { provideDashboard } from '#client/composables/useDashboard.ts'
 import type { DashboardSchema } from '#shared/schemas/index.ts'
 import { dashboardSchema } from '#shared/schemas/dashboardSchema.ts'
 
 const route = useRoute()
 const id = route.params.id as string
 
-const dashboard = ref<DashboardSchema>()
+const entity = ref<DashboardEntity>()
+
+provideDashboard(entity)
 const loading = ref(false)
 const saving = ref(false)
-const widgets = ref<any[]>([])
 
-const { handleSubmit, resetForm } = useForm({ validationSchema: toTypedSchema(dashboardSchema.update), })
+const { handleSubmit, resetForm } = useForm({ validationSchema: toTypedSchema(dashboardSchema.update) })
 
 async function load() {
     loading.value = true
 
-    const [error, response] = await tryCatch(() => $fetch<DashboardSchema>(`/api/dashboards/${id}`))
+    const [error, dashboard] = await tryCatch(() => $fetch<DashboardSchema>(`/api/dashboards/${id}`))
 
     if (error) {
         loading.value = false
         return
     }
 
-    dashboard.value = response
-    resetForm({ values: response })
+    resetForm({ values: dashboard })
 
-    const [metasError, metas] = await tryCatch(() => $fetch<Record<string, any>>(`/api/dashboards/${id}/metas`))
+    const [, metas] = await tryCatch(() => $fetch<Record<string, any>>(`/api/dashboards/${id}/metas`))
 
-    if (!metasError && metas?.widgets) {
-        widgets.value = metas.widgets
-    }
+    entity.value = new DashboardEntity(dashboard, metas?.widgets ?? [])
 
     setTimeout(() => {
         loading.value = false
@@ -48,11 +48,13 @@ async function load() {
 }
 
 const onSubmit = handleSubmit(async (data) => {
+    if (!entity.value) return
+
     saving.value = true
 
     const [error] = await tryCatch(() => Promise.all([
         $fetch(`/api/dashboards/${id}`, { method: 'PATCH', data }),
-        $fetch(`/api/dashboards/${id}/metas`, { method: 'PUT', data: { widgets: widgets.value } }),
+        $fetch(`/api/dashboards/${id}/metas`, { method: 'PUT', data: { widgets: entity.value!.widgets } }),
     ]))
 
     if (error) {
@@ -75,10 +77,10 @@ onMounted(load)
         <div class="mb-6 flex items-center">
             <div class="flex-1">
                 <PageTitle>
-                    {{ dashboard?.name || $t('Loading...') }}
+                    {{ entity?.dashboard.name || $t('Loading...') }}
                 </PageTitle>
-                <PageSubtitle v-if="dashboard?.description">
-                    {{ dashboard?.description }}
+                <PageSubtitle v-if="entity?.dashboard.description">
+                    {{ entity?.dashboard.description }}
                 </PageSubtitle>
             </div>
             <div class="flex items-center gap-2">
@@ -86,7 +88,7 @@ onMounted(load)
                     type="button"
                     variant="outline"
                     :disabled="loading"
-                    @click="widgets.push({ cols: { base: 4 } })"
+                    @click="entity?.addWidget()"
                 >
                     <Icon name="Plus" />
                     {{ $t('Add widget') }}
@@ -114,8 +116,10 @@ onMounted(load)
     </form>
 
     <DashboardBody
-        v-model:widgets="widgets"
+        v-if="entity"
+        :widgets="entity.widgets"
         class="mt-4"
-        @add-widget="widgets.push({ cols: { base: 4 } })"
+        @add-widget="entity.addWidget()"
+        @update:widgets="entity.setWidgets($event)"
     />
 </template>
