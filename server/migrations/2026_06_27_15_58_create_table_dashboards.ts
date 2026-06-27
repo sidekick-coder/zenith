@@ -1,10 +1,12 @@
 import { Kysely } from 'kysely'
 
-const table = 'table_name'
+const table = 'dashboards'
 
 export async function up(db: Kysely<any>): Promise<void> {
     await db.schema.createTable(table)
-        .addColumn('id', 'integer', col => col.primaryKey().autoIncrement())
+        .addIdColumn()
+        .addColumn('name', 'varchar', (col) => col.notNull())
+        .addColumn('description', 'text')
         .addColumn('created_at', 'timestamp', (col) => col.defaultTo('CURRENT_TIMESTAMP').notNull())
         .addColumn('updated_at', 'timestamp', (col) => col.defaultTo('CURRENT_TIMESTAMP').notNull())
         .addColumn('deleted_at', 'timestamp')
