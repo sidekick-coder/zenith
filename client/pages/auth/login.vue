@@ -84,6 +84,23 @@ async function oauthLogin(provider: string) {
         title="Log in to your account"
         description="Enter your email and password below to log in"
     >
+        <Button
+            v-if="enableGoogleAuth"
+            variant="outline"
+            class="w-full"
+            type="button"
+            :tabindex="5"
+            :loading="loadingOAuth"
+            @click="oauthLogin('google')"
+        >
+            <Icon
+                name="mdi:google"
+                class="mr-2 h-4 w-4"
+            />
+
+            {{ $t('Log in with Google') }}
+        </Button>
+
         <form 
             class="flex flex-col gap-6"
             @submit.prevent="onSubmit"
@@ -126,23 +143,6 @@ async function oauthLogin(provider: string) {
                         class="mr-2 h-4 w-4 animate-spin"
                     />
                     {{ $t('Log in') }}
-                </Button>
-
-                <Button
-                    v-if="enableGoogleAuth"
-                    variant="outline"
-                    class="w-full"
-                    type="button"
-                    :tabindex="5"
-                    :loading="loadingOAuth"
-                    @click="oauthLogin('google')"
-                >
-                    <Icon
-                        name="mdi:google"
-                        class="mr-2 h-4 w-4"
-                    />
-
-                    {{ $t('Log in with Google') }}
                 </Button>
             </div>
 

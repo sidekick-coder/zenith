@@ -42,22 +42,6 @@ export default class extends LifecycleHook {
         })
 
         menu.add({
-            label: $t('Design'),
-            group: $t('Auth'),
-            layout: 'admin',
-            icon: 'Palette',
-            to: '/admin/settings/auth/layout'
-        })
-
-        menu.add({
-            label: $t('OAuth'),
-            group: $t('Auth'),
-            layout: 'admin',
-            icon: 'Key',
-            to: '/admin/settings/auth/oauth'
-        })
-
-        menu.add({
             label: $t('Tokens'),
             group: $t('Auth'),
             layout: 'admin',
@@ -70,7 +54,7 @@ export default class extends LifecycleHook {
             group: $t('Auth'),
             layout: 'admin',
             icon: 'Settings',
-            to: '/admin/settings/auth/general'
+            to: '/admin/auth/settings'
         })
 
         // storage
