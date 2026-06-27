@@ -2,10 +2,11 @@
 import Button from '#client/components/Button.vue'
 import Icon from '#client/components/Icon.vue'
 import DashboardWidget from '#client/components/DashboardWidget.vue'
+import type { Widget } from '#client/components/DashboardWidget.vue'
 
 const props = defineProps({
     widgets: {
-        type: Array as () => any[],
+        type: Array as () => Widget[],
         required: false,
         default: () => []
     }
@@ -14,8 +15,7 @@ const props = defineProps({
 const emit = defineEmits(['add-widget', 'update:widgets'])
 
 function removeWidget(index: number) {
-    const updated = props.widgets.filter((_, i) => i !== index)
-    emit('update:widgets', updated)
+    emit('update:widgets', props.widgets.filter((_, i) => i !== index))
 }
 </script>
 
@@ -23,13 +23,12 @@ function removeWidget(index: number) {
     <div>
         <div
             v-if="widgets.length"
-            class="grid grid-cols-3 gap-4"
+            class="grid grid-cols-12 gap-4"
         >
             <DashboardWidget
                 v-for="(widget, index) in widgets"
                 :key="index"
                 :model-value="widget"
-                class="h-48"
                 @update:model-value="(v) => emit('update:widgets', widgets.map((w, i) => i === index ? v : w))"
                 @remove="removeWidget(index)"
             />

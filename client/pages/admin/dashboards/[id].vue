@@ -80,7 +80,7 @@ onMounted(load)
                     type="button"
                     variant="outline"
                     :disabled="loading"
-                    @click="widgets.push({})"
+                    @click="widgets.push({ cols: { base: 4 } })"
                 >
                     <Icon name="Plus" />
                     {{ $t('Add widget') }}
@@ -110,6 +110,6 @@ onMounted(load)
     <DashboardBody
         v-model:widgets="widgets"
         class="mt-4"
-        @add-widget="widgets.push({})"
+        @add-widget="widgets.push({ cols: { base: 4 } })"
     />
 </template>

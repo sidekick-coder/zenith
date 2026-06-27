@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { nextTick, ref } from 'vue'
+import { computed, nextTick, ref } from 'vue'
 import Button from '#client/components/Button.vue'
 import Icon from '#client/components/Icon.vue'
 import {
@@ -8,21 +8,48 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from '#client/components/ui/dropdown-menu'
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogFooter,
+} from '#client/components/ui/dialog'
 
-const widget = defineModel<{ name?: string }>({ default: () => ({}) })
+export interface Widget {
+    name?: string
+    cols?: { base?: number, sm?: number, md?: number, lg?: number, xl?: number }
+}
+
+const widget = defineModel<Widget>({ default: () => ({}) })
 
 const emit = defineEmits(['remove'])
 
+// --- col-span classes ---
+const colSpanMap: Record<string, string[]> = {
+    base: ['','col-span-1','col-span-2','col-span-3','col-span-4','col-span-5','col-span-6','col-span-7','col-span-8','col-span-9','col-span-10','col-span-11','col-span-12'],
+    sm:   ['','sm:col-span-1','sm:col-span-2','sm:col-span-3','sm:col-span-4','sm:col-span-5','sm:col-span-6','sm:col-span-7','sm:col-span-8','sm:col-span-9','sm:col-span-10','sm:col-span-11','sm:col-span-12'],
+    md:   ['','md:col-span-1','md:col-span-2','md:col-span-3','md:col-span-4','md:col-span-5','md:col-span-6','md:col-span-7','md:col-span-8','md:col-span-9','md:col-span-10','md:col-span-11','md:col-span-12'],
+    lg:   ['','lg:col-span-1','lg:col-span-2','lg:col-span-3','lg:col-span-4','lg:col-span-5','lg:col-span-6','lg:col-span-7','lg:col-span-8','lg:col-span-9','lg:col-span-10','lg:col-span-11','lg:col-span-12'],
+    xl:   ['','xl:col-span-1','xl:col-span-2','xl:col-span-3','xl:col-span-4','xl:col-span-5','xl:col-span-6','xl:col-span-7','xl:col-span-8','xl:col-span-9','xl:col-span-10','xl:col-span-11','xl:col-span-12'],
+}
+
+const colClasses = computed(() =>
+    Object.entries(widget.value.cols || {})
+        .filter(([, v]) => v && v >= 1 && v <= 12)
+        .map(([bp, v]) => colSpanMap[bp]?.[v as number] ?? '')
+        .filter(Boolean)
+)
+
+// --- title editing ---
 const editing = ref(false)
 const inputRef = ref<HTMLInputElement>()
 
 async function startEdit() {
     editing.value = true
     await nextTick()
-    if (!inputRef.value) return 
-
+    if (!inputRef.value) return
     inputRef.value.value = widget.value.name || 'Widget'
-    // inputRef.value.setSelectionRange(0, inputRef.value?.value.length || 0)
     inputRef.value.focus()
     inputRef.value.select()
 }
@@ -30,7 +57,7 @@ async function startEdit() {
 function commitEdit(e: Event) {
     widget.value = {
         ...widget.value,
-        name: (e.target as HTMLInputElement).value
+        name: (e.target as HTMLInputElement).value 
     }
     editing.value = false
 }
@@ -38,10 +65,45 @@ function commitEdit(e: Event) {
 function cancelEdit() {
     editing.value = false
 }
+
+// --- size dialog ---
+const sizeOpen = ref(false)
+const colsDraft = ref<Widget['cols']>({})
+
+const breakpoints = ['base', 'sm', 'md', 'lg', 'xl'] as const
+
+function openSize() {
+    colsDraft.value = { ...widget.value.cols }
+    sizeOpen.value = true
+}
+
+function setCol(bp: string, value: number) {
+    colsDraft.value = {
+        ...colsDraft.value,
+        [bp]: value 
+    }
+}
+
+function clearCol(bp: string) {
+    const updated = { ...colsDraft.value }
+    delete updated[bp as keyof typeof updated]
+    colsDraft.value = updated
+}
+
+function commitSize() {
+    widget.value = {
+        ...widget.value,
+        cols: colsDraft.value 
+    }
+    sizeOpen.value = false
+}
 </script>
 
 <template>
-    <div class="bg-card text-card-foreground flex flex-col rounded-xl border shadow-sm">
+    <div
+        class="bg-card text-card-foreground flex flex-col rounded-xl border shadow-sm"
+        :class="colClasses"
+    >
         <div class="flex items-center gap-2 border-b px-4 py-3">
             <input
                 v-if="editing"
@@ -72,6 +134,10 @@ function cancelEdit() {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                     <slot name="options" />
+                    <DropdownMenuItem @click="openSize">
+                        <Icon name="LayoutGrid" />
+                        {{ $t('Columns') }}
+                    </DropdownMenuItem>
                     <DropdownMenuItem
                         class="text-destructive focus:text-destructive"
                         @click="emit('remove')"
@@ -87,4 +153,69 @@ function cancelEdit() {
             <slot />
         </div>
     </div>
+
+    <Dialog v-model:open="sizeOpen">
+        <DialogContent class="max-w-lg">
+            <DialogHeader>
+                <DialogTitle>{{ $t('Columns') }}</DialogTitle>
+            </DialogHeader>
+
+            <div class="space-y-5 py-2">
+                <div
+                    v-for="bp in breakpoints"
+                    :key="bp"
+                >
+                    <p class="mb-2 text-xs font-medium uppercase text-muted-foreground">
+                        {{ bp }}
+                    </p>
+                    <div class="flex gap-1">
+                        <button
+                            v-if="bp !== 'base'"
+                            type="button"
+                            :title="$t('Clear')"
+                            :class="[
+                                'h-8 w-8 shrink-0 rounded-sm border text-xs transition-colors',
+                                !colsDraft?.[bp]
+                                    ? 'border-primary bg-primary text-primary-foreground'
+                                    : 'border-border bg-muted hover:bg-muted-foreground/20',
+                            ]"
+                            @click="clearCol(bp)"
+                        >
+                            <Icon
+                                name="X"
+                                class="mx-auto size-3"
+                            />
+                        </button>
+                        <button
+                            v-for="col in 12"
+                            :key="col"
+                            type="button"
+                            :title="`${col}`"
+                            :class="[
+                                'h-8 flex-1 rounded-sm border text-xs transition-colors',
+                                col <= (colsDraft?.[bp] ?? 0)
+                                    ? 'border-primary bg-primary text-primary-foreground'
+                                    : 'border-border bg-muted hover:bg-muted-foreground/20',
+                            ]"
+                            @click="setCol(bp, col)"
+                        >
+                            {{ col }}
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <DialogFooter>
+                <Button
+                    variant="outline"
+                    @click="sizeOpen = false"
+                >
+                    {{ $t('Cancel') }}
+                </Button>
+                <Button @click="commitSize">
+                    {{ $t('Save') }}
+                </Button>
+            </DialogFooter>
+        </DialogContent>
+    </Dialog>
 </template>
