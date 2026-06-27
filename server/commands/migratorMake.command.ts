@@ -1,28 +1,29 @@
 import fs from 'fs'
 import path from 'path'
 import { format, } from 'date-fns'
-import { basePath } from '@sidekick-coder/zenith-kit/server'
+import { basePath, CliCommand } from '@sidekick-coder/zenith-kit/server'
 import template from '#server/facades/template.facade.ts'
 import modules from '#server/facades/modules.facade.ts'
-import arte from '#server/facades/arte.facade.ts'
 
 interface MigrationMakeOptions {
     module?: string
-    ts?: boolean
+    ts?: boolean | string
 }
 
-arte.command('migration:make')
-    .need('db', 'migrator', 'shell', 'drive')
+const command = new CliCommand('migrator:make')
+
+command
     .argument('<name>', 'Migration name')
     .option('-m, --module <module>', 'Module name')
-    .option('--ts', 'Use TypeScript', 'true')
+    .option('-t, --ts <ts>', 'Use TypeScript', 'true')
     .action(async (name: string, options: MigrationMakeOptions) => {
         const timesmap = format(new Date(), 'yyyy_MM_dd_HH_mm')
+        const ts = options.ts === 'true' || options.ts === true
 
-        let target = `${timesmap}_${name}.js`
-        let source = basePath('server', 'templates', 'migration.js')
+        let target = `${timesmap}_${name}.ts`
+        let source = basePath('server', 'templates', 'migration.ts')
 
-        if (!options.ts) {
+        if (!ts) {
             target = `${timesmap}_${name}.js`
             source = basePath('server', 'templates', 'migration.js')
         }
@@ -43,6 +44,8 @@ arte.command('migration:make')
 
         fs.writeFileSync(filename, contents)
 
-        console.log(`Migration created: ${ path.relative(basePath(), filename) }`)
+        console.log(`Migration created: ${path.relative(basePath(), filename)}`)
 
     })
+
+export default command
