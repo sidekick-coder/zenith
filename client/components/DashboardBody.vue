@@ -17,6 +17,13 @@ const emit = defineEmits(['add-widget', 'update:widgets'])
 function removeWidget(index: number) {
     emit('update:widgets', props.widgets.filter((_, i) => i !== index))
 }
+
+function duplicateWidget(index: number) {
+    const copy = JSON.parse(JSON.stringify(props.widgets[index]))
+    const updated = [...props.widgets]
+    updated.splice(index + 1, 0, copy)
+    emit('update:widgets', updated)
+}
 </script>
 
 <template>
@@ -30,6 +37,7 @@ function removeWidget(index: number) {
                 :key="index"
                 :model-value="widget"
                 @update:model-value="(v) => emit('update:widgets', widgets.map((w, i) => i === index ? v : w))"
+                @duplicate="duplicateWidget(index)"
                 @remove="removeWidget(index)"
             />
         </div>

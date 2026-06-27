@@ -24,7 +24,7 @@ export interface Widget {
 
 const widget = defineModel<Widget>({ default: () => ({}) })
 
-const emit = defineEmits(['remove'])
+const emit = defineEmits(['remove', 'duplicate'])
 
 // --- col-span classes ---
 const colSpanMap: Record<string, string[]> = {
@@ -164,6 +164,10 @@ function commitHeight() {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                     <slot name="options" />
+                    <DropdownMenuItem @click="emit('duplicate')">
+                        <Icon name="Copy" />
+                        {{ $t('Duplicate') }}
+                    </DropdownMenuItem>
                     <DropdownMenuItem @click="openSize">
                         <Icon name="LayoutGrid" />
                         {{ $t('Columns') }}
