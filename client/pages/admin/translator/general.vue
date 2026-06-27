@@ -6,7 +6,6 @@ import { toast } from 'vue-sonner'
 import { $fetch } from '#client/utils/fetcher.ts'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '#client/components/ui/card'
 import Button from '#client/components/Button.vue'
-import AdminLayout from '#client/layouts/AdminLayout.vue'
 import PageTitle from '#client/components/PageTitle.vue'
 import PageSubtitle from '#client/components/PageSubtitle.vue'
 import schemas from '#shared/validators/index.ts'
@@ -62,62 +61,62 @@ onMounted(() => {
 </script>
 
 <template>
-    <AdminLayout>
-        <form @submit="onSubmit">
-            <div class="mb-6 flex">
-                <div class="flex-1">
-                    <PageTitle>{{ $t('Translator Settings') }}</PageTitle>
-                    <PageSubtitle>
-                        {{ $t('Configure your default locale and translation settings') }}
-                    </PageSubtitle>
-                </div>
-                <div class="flex justify-end gap-2">
-                    <Button
-                        variant="outline"
-                        size="icon"
-                        :disabled="loading"
-                        @click="load"
+
+    <form @submit="onSubmit">
+        <div class="mb-6 flex">
+            <div class="flex-1">
+                <PageTitle>{{ $t('Translator Settings') }}</PageTitle>
+                <PageSubtitle>
+                {{ $t('Configure your default locale and translation settings') }}
+                </PageSubtitle>
+            </div>
+            <div class="flex justify-end gap-2">
+                <Button
+                    variant="outline"
+                    size="icon"
+                    :disabled="loading"
+                    @click="load"
                     >
-                        <Icon
-                            name="RotateCcw"
-                            :class="{ 'animate-spin': loading }"
-                        />
-                    </Button>
+                    <Icon
+                    name="RotateCcw"
+                    :class="{ 'animate-spin': loading }"
+                    />
+                </Button>
                     <Button 
                         type="submit"
                         :loading="saving"
                         :disabled="loading"
-                    >
+                        >
                         {{ $t('Save') }}
                     </Button>
-                </div>
             </div>
+        </div>
 
-            <div class="space-y-6">
-                <Card>
-                    <CardHeader>
-                        <CardTitle>
-                            {{ $t('Locale Configuration') }}
-                        </CardTitle>
-                        <CardDescription>
-                            {{ $t('Set the default language for your application') }}
-                        </CardDescription>
-                    </CardHeader>
-                    <CardContent class="space-y-4">
-                        <FormSelect
-                            name="defaultLocale"
-                            label-key="label"
-                            value-key="value"
-                            :label="$t('Default Locale')"
-                            :disabled="loading || saving"
-                            :options="translator.locales.map(l => ({
-                                label: l,
-                                value: l
-                            }))"
-                        />
-                    </CardContent>
-                </Card>
-            </div>
-        </form>
-    </AdminLayout>
+        <div class="space-y-6">
+            <Card>
+            <CardHeader>
+            <CardTitle>
+            {{ $t('Locale Configuration') }}
+            </CardTitle>
+            <CardDescription>
+            {{ $t('Set the default language for your application') }}
+            </CardDescription>
+            </CardHeader>
+            <CardContent class="space-y-4">
+            <FormSelect
+            name="defaultLocale"
+            label-key="label"
+            value-key="value"
+            :label="$t('Default Locale')"
+            :disabled="loading || saving"
+            :options="translator.locales.map(l => ({
+            label: l,
+            value: l
+            }))"
+            />
+            </CardContent>
+            </Card>
+        </div>
+    </form>
+
 </template>

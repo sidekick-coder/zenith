@@ -3,7 +3,6 @@ import { ref } from 'vue'
 import { toast } from 'vue-sonner'
 import { defineColumns } from '#client/components/DataTable.vue'
 
-import AdminLayout from '#client/layouts/AdminLayout.vue'
 import { $fetch } from '#client/utils/fetcher.ts'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
 import Button from '#client/components/Button.vue'
@@ -81,95 +80,93 @@ async function destroy(id: number) {
 }
 </script>
 <template>
-    <AdminLayout>
-        <div class="flex">
-            <h1 class="text-2xl font-bold mb-4 text-foreground flex-1">
-                {{ $t('Permissions') }}
-            </h1>
-            <div class="flex items-center gap-2">
-                <Button
-                    variant="outline"
-                    size="icon"
-                    :disabled="loading"
-                    @click="load"
-                >
-                    <Icon
-                        name="RotateCcw"
-                        :class="{ 'animate-spin': loading }"
-                    />
-                </Button>
+    <div class="flex">
+        <h1 class="text-2xl font-bold mb-4 text-foreground flex-1">
+            {{ $t('Permissions') }}
+        </h1>
+        <div class="flex items-center gap-2">
+            <Button
+                variant="outline"
+                size="icon"
+                :disabled="loading"
+                @click="load"
+            >
+                <Icon
+                    name="RotateCcw"
+                    :class="{ 'animate-spin': loading }"
+                />
+            </Button>
 
-                <PermissionDialog @submit="load" />
-            </div>
+            <PermissionDialog @submit="load" />
         </div>
+    </div>
 
-        <TypedDataTable
-            v-model:rows="items"
-            v-model:total="total"
-            v-model:loading="loading"
-            v-model:selected="selected"
-            :columns="columns"
-            selection="multiple"
-            row-key="id"
-        >
-            <template #row-name="{ row }">
-                <div class="font-medium">
-                    {{ row.name }}
-                </div>
-                <small
-                    v-if="row.description"
-                    class="text-xs text-muted-foreground"
-                >
-                    {{ row.description || '-' }}
-                </small>
-            </template>
+    <TypedDataTable
+        v-model:rows="items"
+        v-model:total="total"
+        v-model:loading="loading"
+        v-model:selected="selected"
+        :columns="columns"
+        selection="multiple"
+        row-key="id"
+    >
+        <template #row-name="{ row }">
+            <div class="font-medium">
+                {{ row.name }}
+            </div>
+            <small
+                v-if="row.description"
+                class="text-xs text-muted-foreground"
+            >
+                {{ row.description || '-' }}
+            </small>
+        </template>
 
-            <template #row-conditions="{ row }">
-                <ObjectInspect
-                    v-if="row.conditions"
-                    :model-value="row.conditions"
-                >
-                    <template #trigger>
-                        <Button
-                            :key="`inspect-conditions-${createId()}`"
-                            size="sm"
-                            variant="outline"
-                        >
-                            {{ $t('View') }}
-                        </Button>
-                    </template>
-                </ObjectInspect>
-                <div v-else>
-                    -
-                </div>
-            </template>
-
-            <template #row-actions="{ row }">
-                <div
-                    v-if="row.editable"
-                    class="flex items-center gap-2 justify-end"
-                >
-                    <PermissionDialog
-                        :permission="row"
-                        @submit="load"
+        <template #row-conditions="{ row }">
+            <ObjectInspect
+                v-if="row.conditions"
+                :model-value="row.conditions"
+            >
+                <template #trigger>
+                    <Button
+                        :key="`inspect-conditions-${createId()}`"
+                        size="sm"
+                        variant="outline"
                     >
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                        >
-                            <Icon name="pencil" />
-                        </Button>
-                    </PermissionDialog>
-                    <AlertButton
+                        {{ $t('View') }}
+                    </Button>
+                </template>
+            </ObjectInspect>
+            <div v-else>
+                -
+            </div>
+        </template>
+
+        <template #row-actions="{ row }">
+            <div
+                v-if="row.editable"
+                class="flex items-center gap-2 justify-end"
+            >
+                <PermissionDialog
+                    :permission="row"
+                    @submit="load"
+                >
+                    <Button
                         variant="ghost"
                         size="sm"
-                        :loading="deletingItems.includes(row.id)"
-                        @confirm="destroy(row.id)"
                     >
-                        <Icon name="trash" />
-                    </AlertButton>
-                </div>
-            </template>
-        </TypedDataTable>
-    </AdminLayout>
+                        <Icon name="pencil" />
+                    </Button>
+                </PermissionDialog>
+                <AlertButton
+                    variant="ghost"
+                    size="sm"
+                    :loading="deletingItems.includes(row.id)"
+                    @confirm="destroy(row.id)"
+                >
+                    <Icon name="trash" />
+                </AlertButton>
+            </div>
+        </template>
+    </TypedDataTable>
 </template>

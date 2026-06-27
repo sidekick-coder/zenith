@@ -1,6 +1,6 @@
 import type { App } from 'vue'
 import { LifecycleHook } from '@sidekick-coder/zenith-kit/shared'
-import { container, config, authGuard, guestGuard, setupGuard  } from '@sidekick-coder/zenith-kit/client'
+import { container, config, authGuard, guestGuard, setupGuard } from '@sidekick-coder/zenith-kit/client'
 import type { Router } from '@sidekick-coder/zenith-kit/client'
 import { createRouter } from '#client/router'
 
@@ -31,11 +31,7 @@ export default class extends LifecycleHook {
             strip: ['pages'],
             guards: [authGuard],
             refine: (records) => records.map(record => {
-                const layoutedPages = ['/admin/users', '/admin/users/:id', '/admin/roles', '/admin/dashboards', '/admin/auth/settings']
-
-                if (layoutedPages.includes(record.path)) {
-                    record.meta = { layout: 'admin', }
-                }
+                record.meta = { layout: 'admin', }
 
                 return record
             })

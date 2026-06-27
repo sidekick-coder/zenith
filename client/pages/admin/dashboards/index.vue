@@ -3,6 +3,7 @@ import * as v from 'valibot'
 import { toast } from 'vue-sonner'
 import { onMounted, ref } from 'vue'
 import { useFetchPagination } from '@sidekick-coder/zenith-kit/client'
+import { ZButton } from '@sidekick-coder/zenith-kit/components'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
 import { $fetch } from '#client/utils/fetcher.ts'
 import DataTable, { defineColumns } from '#client/components/DataTable.vue'
@@ -117,6 +118,13 @@ onMounted(hydrate)
     >
         <template #row-actions="{ row }">
             <div class="flex items-center gap-2 justify-end">
+                <ZButton 
+                    variant="ghost"
+                    size="sm"
+                    :to="`/admin/dashboards/${row.id}`"
+                >
+                    <Icon name="eye" />
+                </ZButton>
                 <DialogForm
                     :schema="schema"
                     :fields="fields"

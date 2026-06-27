@@ -5,7 +5,6 @@ import {
 } from 'vue'
 import { useRouteQuery } from '@vueuse/router'
 import { toast } from 'vue-sonner'
-import AdminLayout from '#client/layouts/AdminLayout.vue'
 
 import Tabs from '#client/components/ui/tabs/Tabs.vue'
 import TabsList from '#client/components/ui/tabs/TabsList.vue'
@@ -63,40 +62,35 @@ async function load(){
 onMounted(load)
 </script>
 <template>
-    <AdminLayout
-        :breadcrumbs="[
-            { label: $t('Roles'), to: '/admin/roles' },
-            { label: role?.name || $t('Loading...') }
-        ]"
+
+    <Tabs
+    v-if="role"
+    v-model="tab"
+    default-value="details" 
     >
-        <Tabs
-            v-if="role"
-            v-model="tab"
-            default-value="details" 
-        >
-            <TabsList>
-                <TabsTrigger
-                    v-for="t in tabs"
-                    :key="t.id"
-                    :value="t.id"
-                    class="min-w-60"
-                >
-                    {{ t.label }}
-                </TabsTrigger>
-            </TabsList>
-                                
-            <TabsContent
-                v-for="t in tabs"
-                :key="t.id"
-                :value="t.id"
-            >
-                <component
-                    :is="t.component"
-                    v-if="t.component && role"
-                    v-model="role"
-                    v-bind="t.props"
-                />
-            </TabsContent>
-        </Tabs>
-    </AdminLayout>
+    <TabsList>
+    <TabsTrigger
+    v-for="t in tabs"
+    :key="t.id"
+    :value="t.id"
+    class="min-w-60"
+    >
+    {{ t.label }}
+    </TabsTrigger>
+    </TabsList>
+
+    <TabsContent
+    v-for="t in tabs"
+    :key="t.id"
+    :value="t.id"
+    >
+    <component
+    :is="t.component"
+    v-if="t.component && role"
+    v-model="role"
+    v-bind="t.props"
+    />
+    </TabsContent>
+    </Tabs>
+
 </template>

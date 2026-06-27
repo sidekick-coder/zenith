@@ -4,7 +4,6 @@ import { toast } from 'vue-sonner'
 import type { ComponentExposed } from 'vue-component-type-helpers'
 import { defineColumns } from '#client/components/DataTable.vue'
 
-import AdminLayout from '#client/layouts/AdminLayout.vue'
 import { $fetch } from '#client/utils/fetcher.ts'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
 import Button from '#client/components/Button.vue'
@@ -15,11 +14,8 @@ import DataTable from '#client/components/DataTable.vue'
 import { $file } from '#client/utils/file.ts'
 import Image from '#client/components/Image.vue'
 import acl from '#client/facades/acl.facade.ts'
-import { useFetchPagination } from '#client/composables/useFetchPagination.ts'
 
-const query = ref({
-    include: ['metas', 'url'],
-})
+const query = ref({ include: ['metas', 'url'], })
 
 const tableRef = ref<ComponentExposed<typeof DataTable>>()
 
@@ -73,9 +69,7 @@ function reset(){
 
 async function upload(){
     
-    const file = await $file.pick({
-        multiple: false
-    })
+    const file = await $file.pick({ multiple: false })
     
     if (!file) {
         return
@@ -124,80 +118,78 @@ async function destroy(id: number) {
 }
 </script>
 <template>
-    <AdminLayout>
-        <div class="flex">
-            <h1 class="text-2xl font-bold mb-4 text-foreground flex-1">
-                {{ $t('Files') }}
-            </h1>
-            <div class="flex items-center gap-2">
-                <Button
-                    variant="outline"
-                    :disabled="loading"
-                    @click="load"
-                >
-                    {{ $t('Reload') }}
-                </Button>
-                <Button
-                    :disabled="loading"
-                    @click="upload"
-                >
-                    {{ $t('Add new') }}
-                </Button>
-            </div>
+    <div class="flex">
+        <h1 class="text-2xl font-bold mb-4 text-foreground flex-1">
+            {{ $t('Files') }}
+        </h1>
+        <div class="flex items-center gap-2">
+            <Button
+                variant="outline"
+                :disabled="loading"
+                @click="load"
+            >
+                {{ $t('Reload') }}
+            </Button>
+            <Button
+                :disabled="loading"
+                @click="upload"
+            >
+                {{ $t('Add new') }}
+            </Button>
         </div>
+    </div>
 
-        <DataTable
-            v-model:loading="loading"
-            :columns="columns"
-            :serialize="row => File.from(row)"
-            :fetch-query="query"
-            fetch="/api/files"
-            row-key="id"
-        >
-            <template #row-filename="{ row }">
-                <div>{{ row.client_name }}</div>
-                <div class="text-xs text-muted-foreground">
-                    {{ row.filename }}
-                </div>
-            </template>
+    <DataTable
+        v-model:loading="loading"
+        :columns="columns"
+        :serialize="row => File.from(row)"
+        :fetch-query="query"
+        fetch="/api/files"
+        row-key="id"
+    >
+        <template #row-filename="{ row }">
+            <div>{{ row.client_name }}</div>
+            <div class="text-xs text-muted-foreground">
+                {{ row.filename }}
+            </div>
+        </template>
 
-            <template #row-preview="{ row }">
-                <Image
-                    v-if="row.isImage() && row.url"
-                    :src="row.url"
-                    class="size-16 object-cover rounded border border-muted-foreground/50"
+        <template #row-preview="{ row }">
+            <Image
+                v-if="row.isImage() && row.url"
+                :src="row.url"
+                class="size-16 object-cover rounded border border-muted-foreground/50"
+            />
+            <div
+                v-else
+                class="size-16 flex items-center justify-center bg-muted rounded border border-muted-foreground/50"
+            >
+                <Icon
+                    name="File"
+                    class="size-6 text-muted-foreground"
                 />
-                <div
-                    v-else
-                    class="size-16 flex items-center justify-center bg-muted rounded border border-muted-foreground/50"
-                >
-                    <Icon
-                        name="File"
-                        class="size-6 text-muted-foreground"
-                    />
-                </div>
-            </template>
+            </div>
+        </template>
 
-            <template #row-actions="{ row }">
-                <div class="flex items-center gap-2 justify-end">                    
-                    <Button
-                        variant="ghost"
-                        size="sm"
-                        :to="`/admin/files/${row.id}`"
-                    >
-                        <Icon name="Edit" />
-                    </Button>
-                    <AlertButton
-                        v-if="acl.can('delete', row)"
-                        variant="ghost"
-                        size="sm"
-                        :loading="deletingItems.includes(row.id)"
-                        @confirm="destroy(row.id)"
-                    >
-                        <Icon name="trash" />
-                    </AlertButton>
-                </div>
-            </template>
-        </DataTable>
-    </AdminLayout>
+        <template #row-actions="{ row }">
+            <div class="flex items-center gap-2 justify-end">                    
+                <Button
+                    variant="ghost"
+                    size="sm"
+                    :to="`/admin/files/${row.id}`"
+                >
+                    <Icon name="Edit" />
+                </Button>
+                <AlertButton
+                    v-if="acl.can('delete', row)"
+                    variant="ghost"
+                    size="sm"
+                    :loading="deletingItems.includes(row.id)"
+                    @confirm="destroy(row.id)"
+                >
+                    <Icon name="trash" />
+                </AlertButton>
+            </div>
+        </template>
+    </DataTable>
 </template>

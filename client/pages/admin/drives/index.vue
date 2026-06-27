@@ -3,7 +3,6 @@ import { ref  } from 'vue'
 import { toast } from 'vue-sonner'
 import DataTable, { defineColumns } from '#client/components/DataTable.vue'
 
-import AdminLayout from '#client/layouts/AdminLayout.vue'
 import Button from '#client/components/Button.vue'
 import Icon from '#client/components/Icon.vue'
 import type { Drive } from '#client/types.ts'
@@ -72,97 +71,95 @@ async function setDefault(drive: Drive) {
 }
 </script>
 <template>
-    <AdminLayout>
-        <div class="flex">
-            <h1 class="text-2xl font-bold mb-4 text-foreground flex-1">
-                {{ $t('Drives') }}
-            </h1>
-            <div class="flex items-center gap-2">
+    <div class="flex">
+        <h1 class="text-2xl font-bold mb-4 text-foreground flex-1">
+            {{ $t('Drives') }}
+        </h1>
+        <div class="flex items-center gap-2">
+            <AlertButton
+                variant="outline"
+                :loading="generating"
+                @confirm="generateDefaults"
+            >
+                {{ $t('Generate Default Drives') }}
+            </AlertButton>
+
+            <DialogForm
+                :title="$t('Add New')"
+                :description="$t('Create a new drive by filling out the form below')"
+                :fields="{
+                    id: {
+                        component: 'text-field',
+                        label: 'ID'
+                    },
+                    name: {
+                        component: 'text-field',
+                        label: $t('Name')
+                    },
+                    type: {
+                        component: 'select',
+                        label: $t('Type'),
+                        options: DriveConfig.TYPES,
+                        labelKey: 'label',
+                        valueKey: 'id',
+                    },
+                }"
+                fetch="/api/drives"
+                @submit="reset"
+            >
+                <Button>
+                    {{ $t('Add new') }}
+                </Button>
+            </DialogForm>
+
+            <Button
+                variant="outline"
+                size="icon"
+                @click="load"
+            >
+                <Icon
+                    name="RotateCcw"
+                    :class="{ 'animate-spin': loading }"
+                />
+            </Button>
+        </div>
+    </div>
+
+    <DataTable 
+        v-model:rows="items"
+        v-model:total="total"
+        v-model:loading="loading"
+        :columns="columns"
+    >
+        <template #row-default="{ row }">
+            <div class="flex items-center justify-start h-full">
+                <Switch
+                    :model-value="!!row.is_default"
+                    :disabled="settingDefault[row.id]"
+                    @update:model-value="setDefault(row)"
+                />
+            </div>
+        </template>
+
+        <template #row-actions="{ row }">
+            <div class="flex items-center gap-2 justify-end">
                 <AlertButton
-                    variant="outline"
-                    :loading="generating"
-                    @confirm="generateDefaults"
+                    variant="ghost"
+                    size="sm"
+                    :fetch="`/api/drives/${row.id}`"
+                    @fetched="load"
                 >
-                    {{ $t('Generate Default Drives') }}
+                    <Icon name="trash" />
                 </AlertButton>
 
-                <DialogForm
-                    :title="$t('Add New')"
-                    :description="$t('Create a new drive by filling out the form below')"
-                    :fields="{
-                        id: {
-                            component: 'text-field',
-                            label: 'ID'
-                        },
-                        name: {
-                            component: 'text-field',
-                            label: $t('Name')
-                        },
-                        type: {
-                            component: 'select',
-                            label: $t('Type'),
-                            options: DriveConfig.TYPES,
-                            labelKey: 'label',
-                            valueKey: 'id',
-                        },
-                    }"
-                    fetch="/api/drives"
-                    @submit="reset"
-                >
-                    <Button>
-                        {{ $t('Add new') }}
-                    </Button>
-                </DialogForm>
-
                 <Button
-                    variant="outline"
-                    size="icon"
-                    @click="load"
+                    variant="ghost"
+                    :to="`/admin/drives/${row.id}`"
+                    size="sm"
                 >
-                    <Icon
-                        name="RotateCcw"
-                        :class="{ 'animate-spin': loading }"
-                    />
+                    <Icon name="pen" />
                 </Button>
             </div>
-        </div>
-
-        <DataTable 
-            v-model:rows="items"
-            v-model:total="total"
-            v-model:loading="loading"
-            :columns="columns"
-        >
-            <template #row-default="{ row }">
-                <div class="flex items-center justify-start h-full">
-                    <Switch
-                        :model-value="!!row.is_default"
-                        :disabled="settingDefault[row.id]"
-                        @update:model-value="setDefault(row)"
-                    />
-                </div>
-            </template>
-
-            <template #row-actions="{ row }">
-                <div class="flex items-center gap-2 justify-end">
-                    <AlertButton
-                        variant="ghost"
-                        size="sm"
-                        :fetch="`/api/drives/${row.id}`"
-                        @fetched="load"
-                    >
-                        <Icon name="trash" />
-                    </AlertButton>
-
-                    <Button
-                        variant="ghost"
-                        :to="`/admin/drives/${row.id}`"
-                        size="sm"
-                    >
-                        <Icon name="pen" />
-                    </Button>
-                </div>
-            </template>
-        </DataTable>
-    </AdminLayout>
+        </template>
+    </DataTable>
 </template>

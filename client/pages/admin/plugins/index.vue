@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import Button from '#client/components/Button.vue'
-import AdminLayout from '#client/layouts/AdminLayout.vue'
 import Switch from '#client/components/ui/switch/Switch.vue'
 import { $fetch } from '#client/utils/fetcher'
 import {
@@ -96,99 +95,97 @@ async function confirmToggle() {
 }
 </script>
 <template>
-    <AdminLayout>
-        <AlertDialog
-            :open="showToggleConfirm"
-            @update:open="showToggleConfirm = $event"
-        >
-            <AlertDialogContent>
-                <AlertDialogHeader>
-                    <AlertDialogTitle>{{ $t('Toggle plugin') }}</AlertDialogTitle>
-                    <AlertDialogDescription>
-                        {{ $t('The server will be reloaded after toggling the plugin. Are you sure?') }}
-                    </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                    <AlertDialogCancel>{{ $t('Cancel') }}</AlertDialogCancel>
-                    <AlertDialogAction @click="confirmToggle">
-                        {{ $t('Confirm') }}
-                    </AlertDialogAction>
-                </AlertDialogFooter>
-            </AlertDialogContent>
-        </AlertDialog>
+    <AlertDialog
+        :open="showToggleConfirm"
+        @update:open="showToggleConfirm = $event"
+    >
+        <AlertDialogContent>
+            <AlertDialogHeader>
+                <AlertDialogTitle>{{ $t('Toggle plugin') }}</AlertDialogTitle>
+                <AlertDialogDescription>
+                    {{ $t('The server will be reloaded after toggling the plugin. Are you sure?') }}
+                </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+                <AlertDialogCancel>{{ $t('Cancel') }}</AlertDialogCancel>
+                <AlertDialogAction @click="confirmToggle">
+                    {{ $t('Confirm') }}
+                </AlertDialogAction>
+            </AlertDialogFooter>
+        </AlertDialogContent>
+    </AlertDialog>
 
-        <div class="mb-6 flex items-center justify-between">
-            <div>
-                <PageTitle>
-                    {{ $t('Plugins') }}
-                </PageTitle>
-                <PageSubtitle>
-                    {{ $t('View the plugins installed on your system.') }}
-                </PageSubtitle>
-            </div>
-            <div class="flex gap-x-2">
-                <Button
-                    variant="outline"
-                    size="icon"
-                    @click="load"
-                >
-                    <Icon
-                        name="RotateCcw"
-                        :class="{ 'animate-spin': loading }"
-                    />
-                </Button>
-            </div>
+    <div class="mb-6 flex items-center justify-between">
+        <div>
+            <PageTitle>
+                {{ $t('Plugins') }}
+            </PageTitle>
+            <PageSubtitle>
+                {{ $t('View the plugins installed on your system.') }}
+            </PageSubtitle>
         </div>
-
-        <DataTable
-            v-model:loading="loading"
-            :rows="items"
-            :columns="columns"
-        >
-            <template #row-enabled="{ row }">
-                <Switch
-                    :model-value="row.enabled"
-                    @click="requestToggle(row)"
+        <div class="flex gap-x-2">
+            <Button
+                variant="outline"
+                size="icon"
+                @click="load"
+            >
+                <Icon
+                    name="RotateCcw"
+                    :class="{ 'animate-spin': loading }"
                 />
-            </template>
+            </Button>
+        </div>
+    </div>
 
-            <template #row-name="{ row }">
-                <div class="flex items-center gap-4">
-                    <div class="bg-primary text-primary-foreground flex items-center justify-center size-10 rounded">
-                        <Icon
-                            :name="row.icon || 'Puzzle'"
-                            class="size-5 inline-block"
-                        />
+    <DataTable
+        v-model:loading="loading"
+        :rows="items"
+        :columns="columns"
+    >
+        <template #row-enabled="{ row }">
+            <Switch
+                :model-value="row.enabled"
+                @click="requestToggle(row)"
+            />
+        </template>
+
+        <template #row-name="{ row }">
+            <div class="flex items-center gap-4">
+                <div class="bg-primary text-primary-foreground flex items-center justify-center size-10 rounded">
+                    <Icon
+                        :name="row.icon || 'Puzzle'"
+                        class="size-5 inline-block"
+                    />
+                </div>
+                <div>
+                    <div class="font-medium">
+                        {{ row.name }}
                     </div>
                     <div>
-                        <div class="font-medium">
-                            {{ row.name }}
-                        </div>
-                        <div>
-                            {{ row.description }}
-                        </div>
+                        {{ row.description }}
                     </div>
                 </div>
-            </template>
-            <template #row-version="{ row }">
-                <router-link
-                    :to="`/admin/plugins/${row.id}?tab=versions`"
-                >
-                    {{ row.version }}
-                </router-link>
-            </template>
+            </div>
+        </template>
+        <template #row-version="{ row }">
+            <router-link
+                :to="`/admin/plugins/${row.id}?tab=versions`"
+            >
+                {{ row.version }}
+            </router-link>
+        </template>
 
-            <template #row-actions="{ row }">
-                <div class="flex justify-end gap-2">
-                    <Button
-                        :to="`/admin/plugins/${row.id}`"
-                        variant="ghost"
-                        size="icon"
-                    >
-                        <Icon name="Edit" />
-                    </Button>
-                </div>
-            </template>
-        </DataTable>
-    </AdminLayout>
+        <template #row-actions="{ row }">
+            <div class="flex justify-end gap-2">
+                <Button
+                    :to="`/admin/plugins/${row.id}`"
+                    variant="ghost"
+                    size="icon"
+                >
+                    <Icon name="Edit" />
+                </Button>
+            </div>
+        </template>
+    </DataTable>
 </template>

@@ -6,7 +6,6 @@ import { toTypedSchema } from '@vee-validate/valibot'
 import * as v from 'valibot'
 import { toast } from 'vue-sonner'
 import { watchDebounced } from '@vueuse/core'
-import AdminLayout from '#client/layouts/AdminLayout.vue'
 import Button from '#client/components/Button.vue'
 import Icon from '#client/components/Icon.vue'
 import FormTextField from '#client/components/FormTextField.vue'
@@ -29,9 +28,7 @@ const loading = ref(true)
 const saving = ref(false)
 const previewFormRef = ref<HTMLFormElement>()
 const context = ref('')
-const { setValues, handleSubmit, values } = useForm({
-    validationSchema: toTypedSchema(schemas.emailTemplate.update),
-})
+const { setValues, handleSubmit, values } = useForm({ validationSchema: toTypedSchema(schemas.emailTemplate.update), })
 
 const subject = computed(() => {
     if (!values.subject) {
@@ -131,185 +128,178 @@ watchDebounced(values, refreshPreview, {
 </script>
 
 <template>
-    <AdminLayout
-        :breadcrumbs="[
-            { label: $t('Email Templates'), to: '/admin/email-templates' },
-            { label: template?.name || '...' }
-        ]"
+    <div
+        v-if="loading"
+        class="flex flex-col space-y-3"
     >
-        <div
-            v-if="loading"
-            class="flex flex-col space-y-3"
-        >
-            <Skeleton class="h-[125px] w-full rounded-xl" />
-            <div class="space-y-2">
-                <Skeleton class="h-4 w-[80%]" />
-                <Skeleton class="h-4 w-[60%]" />
+        <Skeleton class="h-[125px] w-full rounded-xl" />
+        <div class="space-y-2">
+            <Skeleton class="h-4 w-[80%]" />
+            <Skeleton class="h-4 w-[60%]" />
+        </div>
+    </div>
+
+    <div
+        v-if="!loading"
+        class="flex flex-wrap [&>*]:px-4 gap-y-4 -mx-4"
+    >
+        <div class="w-full flex items-center justify-between">
+            <div>
+                <PageTitle>
+                    {{ $t('Edit Email Template') }}
+                </PageTitle>
+                <PageSubtitle>
+                    {{ $t('Update the email template information below') }}
+                </PageSubtitle>
             </div>
         </div>
 
-        <div
-            v-if="!loading"
-            class="flex flex-wrap [&>*]:px-4 gap-y-4 -mx-4"
-        >
-            <div class="w-full flex items-center justify-between">
-                <div>
-                    <PageTitle>
-                        {{ $t('Edit Email Template') }}
-                    </PageTitle>
-                    <PageSubtitle>
-                        {{ $t('Update the email template information below') }}
-                    </PageSubtitle>
-                </div>
-            </div>
+        <div class="w-full xl:w-6/12 flex flex-col space-y-6">
+            <Card v-if="template">
+                <CardHeader>
+                    <CardTitle>
+                        {{ $t('Details') }}
+                    </CardTitle>
+                    <CardDescription>
+                        {{ $t('Email template general information') }}
+                    </CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <form
+                        class="space-y-4 w-full"
+                        @submit.prevent="onSubmit"
+                    >
+                        <FormTextField
+                            name="id"
+                            :label="$t('ID')"
+                            :readonly="true"
+                        />
 
-            <div class="w-full xl:w-6/12 flex flex-col space-y-6">
-                <Card v-if="template">
-                    <CardHeader>
-                        <CardTitle>
-                            {{ $t('Details') }}
-                        </CardTitle>
-                        <CardDescription>
-                            {{ $t('Email template general information') }}
-                        </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <form
-                            class="space-y-4 w-full"
-                            @submit.prevent="onSubmit"
-                        >
-                            <FormTextField
-                                name="id"
-                                :label="$t('ID')"
-                                :readonly="true"
-                            />
-                            
-                            <FormTextField
-                                name="name"
-                                :label="$t('Name')"
-                            />
+                        <FormTextField
+                            name="name"
+                            :label="$t('Name')"
+                        />
 
-                            <FormTextField
-                                name="key"
-                                :label="$t('Key')"
-                            />
+                        <FormTextField
+                            name="key"
+                            :label="$t('Key')"
+                        />
 
-                            <FormTextField
-                                name="subject"
-                                :label="$t('Subject')"
-                            />
+                        <FormTextField
+                            name="subject"
+                            :label="$t('Subject')"
+                        />
 
-                            <FormSelect
-                                name="engine"
-                                :label="$t('Engine')"
-                                :options="[
-                                    { label: 'Raw', value: 'raw' },
-                                    { label: 'HTML', value: 'html' },
-                                    { label: 'MJML', value: 'mjml' },
-                                ]"
-                            />
+                        <FormSelect
+                            name="engine"
+                            :label="$t('Engine')"
+                            :options="[
+                                { label: 'Raw', value: 'raw' },
+                                { label: 'HTML', value: 'html' },
+                                { label: 'MJML', value: 'mjml' },
+                            ]"
+                        />
 
-                            <FormTextarea
-                                name="body"
-                                :label="$t('Body')"
-                                :rows="15"
-                            />
+                        <FormTextarea
+                            name="body"
+                            :label="$t('Body')"
+                            :rows="15"
+                        />
 
-                            <JsonInput
-                                v-model="context"
-                                mode="text"
-                                :label="$t('Context')"
-                                :rows="5"
-                                :hint="$t('The JSON context used to render the email preview')"
-                            />
+                        <JsonInput
+                            v-model="context"
+                            mode="text"
+                            :label="$t('Context')"
+                            :rows="5"
+                            :hint="$t('The JSON context used to render the email preview')"
+                        />
 
-                            <div class="flex gap-3 pt-4 justify-end">
-                                <Button
-                                    type="submit"
-                                    :loading="saving"
-                                >
-                                    {{ $t('Save') }}
-                                </Button>
-                            </div>
-                        </form>
-                    </CardContent>
-                </Card>
-            </div>
-
-            <div class="w-full xl:w-6/12 flex flex-col space-y-6 min-h-full">
-                <Card v-if="template">
-                    <CardHeader>
-                        <CardTitle>
-                            {{ $t('Preview') }}
-                        </CardTitle>
-                        <CardDescription>
-                            {{ $t('Email template preview') }}
-                        </CardDescription>
-                        <CardAction>
+                        <div class="flex gap-3 pt-4 justify-end">
                             <Button
-                                variant="outline"
-                                size="sm"
-                                @click="refreshPreview"
+                                type="submit"
+                                :loading="saving"
                             >
-                                <Icon
-                                    name="lucide:refresh-cw"
-                                    class="w-4 h-4"
-                                />
+                                {{ $t('Save') }}
                             </Button>
-                        </CardAction>
-                    </CardHeader>
-                    <CardContent>
-                        <div class="space-y-4">
-                            <div>
-                                <div class="text-sm font-medium mb-2">
-                                    {{ $t('Subject') }}
-                                </div>
-                                <div class="border rounded px-4 py-2 bg-white text-black">
-                                    {{ subject }}
-                                </div>
+                        </div>
+                    </form>
+                </CardContent>
+            </Card>
+        </div>
+
+        <div class="w-full xl:w-6/12 flex flex-col space-y-6 min-h-full">
+            <Card v-if="template">
+                <CardHeader>
+                    <CardTitle>
+                        {{ $t('Preview') }}
+                    </CardTitle>
+                    <CardDescription>
+                        {{ $t('Email template preview') }}
+                    </CardDescription>
+                    <CardAction>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            @click="refreshPreview"
+                        >
+                            <Icon
+                                name="lucide:refresh-cw"
+                                class="w-4 h-4"
+                            />
+                        </Button>
+                    </CardAction>
+                </CardHeader>
+                <CardContent>
+                    <div class="space-y-4">
+                        <div>
+                            <div class="text-sm font-medium mb-2">
+                                {{ $t('Subject') }}
                             </div>
-                            <div>
-                                <div class="text-sm font-medium mb-2">
-                                    {{ $t('Body') }}
-                                </div>
-                                <form
-                                    ref="previewFormRef"
-                                    action="/api/email-templates/preview"
-                                    method="POST"
-                                    target="preview-iframe"
-                                    class="hidden"
-                                >
-                                    <input
-                                        type="hidden"
-                                        name="engine"
-                                        :value="values.engine || ''"
-                                    >
-                                    <input
-                                        type="hidden"
-                                        name="subject"
-                                        :value="values.subject || ''"
-                                    >
-                                    <textarea
-                                        :value="values.body || ''"
-                                        name="body"
-                                        class="hidden"
-                                    />
-                                    <textarea
-                                        :value="context"
-                                        name="context"
-                                        class="hidden"
-                                    />
-                                </form>
-                                <iframe
-                                    ref="iframeRef"
-                                    name="preview-iframe"
-                                    class="w-full border rounded min-h-[500px] bg-white"
-                                />
+                            <div class="border rounded px-4 py-2 bg-white text-black">
+                                {{ subject }}
                             </div>
                         </div>
-                    </CardContent>
-                </Card>
-            </div>
+                        <div>
+                            <div class="text-sm font-medium mb-2">
+                                {{ $t('Body') }}
+                            </div>
+                            <form
+                                ref="previewFormRef"
+                                action="/api/email-templates/preview"
+                                method="POST"
+                                target="preview-iframe"
+                                class="hidden"
+                            >
+                                <input
+                                    type="hidden"
+                                    name="engine"
+                                    :value="values.engine || ''"
+                                >
+                                <input
+                                    type="hidden"
+                                    name="subject"
+                                    :value="values.subject || ''"
+                                >
+                                <textarea
+                                    :value="values.body || ''"
+                                    name="body"
+                                    class="hidden"
+                                />
+                                <textarea
+                                    :value="context"
+                                    name="context"
+                                    class="hidden"
+                                />
+                            </form>
+                            <iframe
+                                ref="iframeRef"
+                                name="preview-iframe"
+                                class="w-full border rounded min-h-[500px] bg-white"
+                            />
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
         </div>
-    </AdminLayout>
+    </div>
 </template>

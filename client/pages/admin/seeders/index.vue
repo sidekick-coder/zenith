@@ -3,7 +3,6 @@ import { ref, onMounted } from 'vue'
 import { toast } from 'vue-sonner'
 import { Play, RefreshCw } from 'lucide-vue-next'
 import { $fetch } from '#client/utils/fetcher.ts'
-import AdminLayout from '#client/layouts/AdminLayout.vue'
 import PageTitle from '#client/components/PageTitle.vue'
 import PageSubtitle from '#client/components/PageSubtitle.vue'
 import DataTable, { defineColumns } from '#client/components/DataTable.vue'
@@ -95,73 +94,69 @@ async function runOne(seeder: Seeder) {
 </script>
 
 <template>
-    <AdminLayout
-        :breadcrumbs="[{ label: $t('Seeders'), href: '/admin/seeders' }]"
-    >
-        <div class="mb-6 flex items-center justify-between gap-4">
-            <div>
-                <PageTitle>
-                    {{ $t('Seeders') }}
-                </PageTitle>
-                <PageSubtitle>
-                    {{ $t('View and run all database seeders') }}
-                </PageSubtitle>
-            </div>
-
-            <div class="flex items-center gap-2">
-                <Input
-                    v-model="source"
-                    :placeholder="$t('Filter by source')"
-                    class="w-48"
-                    @keyup.enter="load"
-                />
-
-                <Button
-                    variant="outline"
-                    size="icon"
-                    :disabled="runningAll || !!runningSeed"
-                    @click="load"
-                >
-                    <RefreshCw
-                        class="size-4"
-                        :class="{ 'animate-spin': loading }"
-                    />
-                </Button>
-
-                <AlertButton
-                    :loading="runningAll"
-                    :disabled="runningAll || !!runningSeed"
-                    :description="$t('This will run all seeders')"
-                    variant="outline"
-                    size="sm"
-                    class="bg-green-500 text-white hover:bg-green-600 border-0"
-                    @confirm="runAll"
-                >
-                    {{ $t('Run all') }}
-                </AlertButton>
-            </div>
+    <div class="mb-6 flex items-center justify-between gap-4">
+        <div>
+            <PageTitle>
+                {{ $t('Seeders') }}
+            </PageTitle>
+            <PageSubtitle>
+                {{ $t('View and run all database seeders') }}
+            </PageSubtitle>
         </div>
 
-        <DataTable
-            :rows="seeders"
-            :columns="columns"
-            :loading="loading"
-        >
-            <template #row-actions="{ row }">
-                <div class="flex justify-end">
-                    <AlertButton
-                        size="icon"
-                        variant="ghost"
-                        :tooltip="$t('Run')"
-                        :disabled="runningAll || !!runningSeed"
-                        :loading="runningSeed === row.name"
-                        :description="$t('This will run this seeder')"
-                        @confirm="runOne(row)"
-                    >
-                        <Play class="size-4" />
-                    </AlertButton>
-                </div>
-            </template>
-        </DataTable>
-    </AdminLayout>
+        <div class="flex items-center gap-2">
+            <Input
+                v-model="source"
+                :placeholder="$t('Filter by source')"
+                class="w-48"
+                @keyup.enter="load"
+            />
+
+            <Button
+                variant="outline"
+                size="icon"
+                :disabled="runningAll || !!runningSeed"
+                @click="load"
+            >
+                <RefreshCw
+                    class="size-4"
+                    :class="{ 'animate-spin': loading }"
+                />
+            </Button>
+
+            <AlertButton
+                :loading="runningAll"
+                :disabled="runningAll || !!runningSeed"
+                :description="$t('This will run all seeders')"
+                variant="outline"
+                size="sm"
+                class="bg-green-500 text-white hover:bg-green-600 border-0"
+                @confirm="runAll"
+            >
+                {{ $t('Run all') }}
+            </AlertButton>
+        </div>
+    </div>
+
+    <DataTable
+        :rows="seeders"
+        :columns="columns"
+        :loading="loading"
+    >
+        <template #row-actions="{ row }">
+            <div class="flex justify-end">
+                <AlertButton
+                    size="icon"
+                    variant="ghost"
+                    :tooltip="$t('Run')"
+                    :disabled="runningAll || !!runningSeed"
+                    :loading="runningSeed === row.name"
+                    :description="$t('This will run this seeder')"
+                    @confirm="runOne(row)"
+                >
+                    <Play class="size-4" />
+                </AlertButton>
+            </div>
+        </template>
+    </DataTable>
 </template>

@@ -1,10 +1,7 @@
 <script setup lang="ts">
 import { useRoute, useRouter } from 'vue-router'
-import {
-    defineAsyncComponent, onMounted, ref 
-} from 'vue'
+import { defineAsyncComponent, onMounted, ref } from 'vue'
 import { useRouteQuery } from '@vueuse/router'
-import AdminLayout from '#client/layouts/AdminLayout.vue'
 
 import Tabs from '#client/components/ui/tabs/Tabs.vue'
 import TabsList from '#client/components/ui/tabs/TabsList.vue'
@@ -68,61 +65,54 @@ function openFileUrl() {
 onMounted(load)
 </script>
 <template>
-    <AdminLayout
-        :breadcrumbs="[
-            { label: $t('Files'), to: '/admin/files' },
-            { label: file?.client_name || $t('Loading...') }
-        ]"
-    >
-        <div class="flex mb-6">
-            <div class="flex flex-col flex-1">
-                <PageTitle>
-                    {{ file?.client_name || $t('Loading...') }}
-                </PageTitle>
-                <PageSubtitle>
-                    {{ file?.mimetype || $t('File details and metadata') }}
-                </PageSubtitle>
-            </div>
-            <div 
-                v-if="file?.url"
-                class="flex gap-2"
-            >
-                <Button
-                    variant="outline"
-                    @click="openFileUrl"
-                >
-                    <Icon name="ExternalLink" />
-                    {{ $t('Open File') }}
-                </Button>
-            </div>
+    <div class="flex mb-6">
+        <div class="flex flex-col flex-1">
+            <PageTitle>
+                {{ file?.client_name || $t('Loading...') }}
+            </PageTitle>
+            <PageSubtitle>
+                {{ file?.mimetype || $t('File details and metadata') }}
+            </PageSubtitle>
         </div>
-
-        <Tabs
-            v-model="tab"
-            default-value="details" 
+        <div 
+            v-if="file?.url"
+            class="flex gap-2"
         >
-            <TabsList>
-                <TabsTrigger
-                    v-for="t in tabs"
-                    :key="t.id"
-                    :value="t.id"
-                >
-                    {{ t.label }}
-                </TabsTrigger>
-            </TabsList>
-                                
-            <TabsContent
+            <Button
+                variant="outline"
+                @click="openFileUrl"
+            >
+                <Icon name="ExternalLink" />
+                {{ $t('Open File') }}
+            </Button>
+        </div>
+    </div>
+
+    <Tabs
+        v-model="tab"
+        default-value="details" 
+    >
+        <TabsList>
+            <TabsTrigger
                 v-for="t in tabs"
                 :key="t.id"
                 :value="t.id"
             >
-                <component
-                    :is="t.component"
-                    v-if="t.component && file"
-                    v-model="file"
-                    v-bind="t.props"
-                />
-            </TabsContent>
-        </Tabs>
-    </AdminLayout>
+                {{ t.label }}
+            </TabsTrigger>
+        </TabsList>
+
+        <TabsContent
+            v-for="t in tabs"
+            :key="t.id"
+            :value="t.id"
+        >
+            <component
+                :is="t.component"
+                v-if="t.component && file"
+                v-model="file"
+                v-bind="t.props"
+            />
+        </TabsContent>
+    </Tabs>
 </template>

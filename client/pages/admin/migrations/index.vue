@@ -3,7 +3,6 @@ import { ref, onMounted } from 'vue'
 import { toast } from 'vue-sonner'
 import { RefreshCw, ArrowUp, ArrowDown, EllipsisVertical } from 'lucide-vue-next'
 import { $fetch } from '#client/utils/fetcher.ts'
-import AdminLayout from '#client/layouts/AdminLayout.vue'
 import PageTitle from '#client/components/PageTitle.vue'
 import PageSubtitle from '#client/components/PageSubtitle.vue'
 import DataTable, { defineColumns } from '#client/components/DataTable.vue'
@@ -72,7 +71,10 @@ async function up() {
     const body: any = { steps: 1 }
     if (source.value) body.source = source.value
 
-    const [error] = await $fetch.try('/api/migrations/up', { method: 'POST', body })
+    const [error] = await $fetch.try('/api/migrations/up', {
+        method: 'POST',
+        body 
+    })
 
     operation.value = null
 
@@ -88,7 +90,10 @@ async function down() {
     const body: any = { steps: 1 }
     if (source.value) body.source = source.value
 
-    const [error] = await $fetch.try('/api/migrations/down', { method: 'POST', body })
+    const [error] = await $fetch.try('/api/migrations/down', {
+        method: 'POST',
+        body 
+    })
 
     operation.value = null
 
@@ -104,7 +109,10 @@ async function rollback() {
     const body: any = {}
     if (source.value) body.source = source.value
 
-    const [error] = await $fetch.try('/api/migrations/rollback', { method: 'POST', body })
+    const [error] = await $fetch.try('/api/migrations/rollback', {
+        method: 'POST',
+        body 
+    })
 
     operation.value = null
 
@@ -120,7 +128,10 @@ async function fresh() {
     const body: any = {}
     if (source.value) body.source = source.value
 
-    const [error] = await $fetch.try('/api/migrations/fresh', { method: 'POST', body })
+    const [error] = await $fetch.try('/api/migrations/fresh', {
+        method: 'POST',
+        body 
+    })
 
     operation.value = null
 
@@ -180,158 +191,154 @@ async function freshOne(migration: Migration) {
 </script>
 
 <template>
-    <AdminLayout
-        :breadcrumbs="[{ label: $t('Migrations'), href: '/admin/migrations' }]"
-    >
-        <div class="mb-6 flex items-center justify-between gap-4">
-            <div>
-                <PageTitle>
-                    {{ $t('Migrations') }}
-                </PageTitle>
-                <PageSubtitle>
-                    {{ $t('View and manage all database migrations') }}
-                </PageSubtitle>
-            </div>
-
-            <div class="flex items-center gap-2">
-                <Input
-                    v-model="source"
-                    :placeholder="$t('Filter by source')"
-                    class="w-48"
-                    @keyup.enter="load"
-                />
-
-                <Button
-                    variant="outline"
-                    size="icon"
-                    :disabled="!!operation"
-                    @click="load"
-                >
-                    <RefreshCw
-                        class="size-4"
-                        :class="{ 'animate-spin': loading }"
-                    />
-                </Button>
-
-                <AlertButton
-                    :loading="operation === 'up'"
-                    :disabled="!!operation"
-                    :description="$t('This will run one migration step up')"
-                    variant="outline"
-                    size="sm"
-                    class="bg-green-500 text-white hover:bg-green-600 border-0"
-                    @confirm="up"
-                >
-                    {{ $t('Up') }}
-                </AlertButton>
-
-                <AlertButton
-                    :loading="operation === 'down'"
-                    :disabled="!!operation"
-                    :description="$t('This will run one migration step down')"
-                    variant="outline"
-                    size="sm"
-                    class="bg-red-500 text-white hover:bg-red-600 border-0"
-                    @confirm="down"
-                >
-                    {{ $t('Down') }}
-                </AlertButton>
-
-                <DropdownMenu>
-                    <DropdownMenuTrigger as-child>
-                        <Button
-                            variant="outline"
-                            size="icon"
-                            :disabled="!!operation"
-                        >
-                            <EllipsisVertical class="size-4" />
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent
-                        align="end"
-                        class="w-48"
-                    >
-                        <AlertButton
-                            :loading="operation === 'fresh'"
-                            :disabled="!!operation"
-                            :description="$t('This will drop all tables and recreate them. This can potentially lead to data loss')"
-                            variant="ghost"
-                            size="sm"
-                            class="w-full justify-start"
-                            @confirm="fresh"
-                        >
-                            {{ $t('Fresh') }}
-                        </AlertButton>
-
-                        <AlertButton
-                            :loading="operation === 'rollback'"
-                            :disabled="!!operation"
-                            :description="$t('This can potentially lead to data loss')"
-                            variant="ghost"
-                            size="sm"
-                            class="w-full justify-start"
-                            @confirm="rollback"
-                        >
-                            {{ $t('Rollback') }}
-                        </AlertButton>
-                    </DropdownMenuContent>
-                </DropdownMenu>
-            </div>
+    <div class="mb-6 flex items-center justify-between gap-4">
+        <div>
+            <PageTitle>
+                {{ $t('Migrations') }}
+            </PageTitle>
+            <PageSubtitle>
+                {{ $t('View and manage all database migrations') }}
+            </PageSubtitle>
         </div>
 
-        <DataTable
-            :rows="migrations"
-            :columns="columns"
-            :loading="loading"
-        >
-            <template #row-status="{ row }">
-                <Badge :variant="row.status === 'executed' ? 'default' : 'secondary'">
-                    {{ row.status === 'executed' ? $t('Executed') : $t('Pending') }}
-                </Badge>
-            </template>
+        <div class="flex items-center gap-2">
+            <Input
+                v-model="source"
+                :placeholder="$t('Filter by source')"
+                class="w-48"
+                @keyup.enter="load"
+            />
 
-            <template #row-actions="{ row }">
-                <div class="flex justify-end">
-                    <AlertButton
-                        v-if="row.status === 'pending'"
+            <Button
+                variant="outline"
+                size="icon"
+                :disabled="!!operation"
+                @click="load"
+            >
+                <RefreshCw
+                    class="size-4"
+                    :class="{ 'animate-spin': loading }"
+                />
+            </Button>
+
+            <AlertButton
+                :loading="operation === 'up'"
+                :disabled="!!operation"
+                :description="$t('This will run one migration step up')"
+                variant="outline"
+                size="sm"
+                class="bg-green-500 text-white hover:bg-green-600 border-0"
+                @confirm="up"
+            >
+                {{ $t('Up') }}
+            </AlertButton>
+
+            <AlertButton
+                :loading="operation === 'down'"
+                :disabled="!!operation"
+                :description="$t('This will run one migration step down')"
+                variant="outline"
+                size="sm"
+                class="bg-red-500 text-white hover:bg-red-600 border-0"
+                @confirm="down"
+            >
+                {{ $t('Down') }}
+            </AlertButton>
+
+            <DropdownMenu>
+                <DropdownMenuTrigger as-child>
+                    <Button
+                        variant="outline"
                         size="icon"
-                        variant="ghost"
-                        :tooltip="$t('Up')"
-                        :disabled="!!operation || !!loadingMigration"
-                        :loading="loadingMigration === row.name"
-                        :description="$t('This will apply this migration to the database')"
-                        @confirm="migrateOne(row)"
+                        :disabled="!!operation"
                     >
-                        <ArrowUp class="size-4" />
+                        <EllipsisVertical class="size-4" />
+                    </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent
+                    align="end"
+                    class="w-48"
+                >
+                    <AlertButton
+                        :loading="operation === 'fresh'"
+                        :disabled="!!operation"
+                        :description="$t('This will drop all tables and recreate them. This can potentially lead to data loss')"
+                        variant="ghost"
+                        size="sm"
+                        class="w-full justify-start"
+                        @confirm="fresh"
+                    >
+                        {{ $t('Fresh') }}
                     </AlertButton>
 
                     <AlertButton
-                        v-if="row.status === 'executed'"
-                        size="icon"
+                        :loading="operation === 'rollback'"
+                        :disabled="!!operation"
+                        :description="$t('This can potentially lead to data loss')"
                         variant="ghost"
-                        :tooltip="$t('Fresh')"
-                        :disabled="!!operation || !!loadingMigration"
-                        :loading="loadingMigration === row.name"
-                        :description="$t('This will rollback and re-apply this migration. This can potentially lead to data loss')"
-                        @confirm="freshOne(row)"
+                        size="sm"
+                        class="w-full justify-start"
+                        @confirm="rollback"
                     >
-                        <RefreshCw class="size-4" />
+                        {{ $t('Rollback') }}
                     </AlertButton>
+                </DropdownMenuContent>
+            </DropdownMenu>
+        </div>
+    </div>
 
-                    <AlertButton
-                        v-if="row.status === 'executed'"
-                        size="icon"
-                        variant="ghost"
-                        :tooltip="$t('Down')"
-                        :disabled="!!operation || !!loadingMigration"
-                        :loading="loadingMigration === row.name"
-                        :description="$t('This will rollback this migration. This can potentially lead to data loss')"
-                        @confirm="rollbackOne(row)"
-                    >
-                        <ArrowDown class="size-4" />
-                    </AlertButton>
-                </div>
-            </template>
-        </DataTable>
-    </AdminLayout>
+    <DataTable
+        :rows="migrations"
+        :columns="columns"
+        :loading="loading"
+    >
+        <template #row-status="{ row }">
+            <Badge :variant="row.status === 'executed' ? 'default' : 'secondary'">
+                {{ row.status === 'executed' ? $t('Executed') : $t('Pending') }}
+            </Badge>
+        </template>
+
+        <template #row-actions="{ row }">
+            <div class="flex justify-end">
+                <AlertButton
+                    v-if="row.status === 'pending'"
+                    size="icon"
+                    variant="ghost"
+                    :tooltip="$t('Up')"
+                    :disabled="!!operation || !!loadingMigration"
+                    :loading="loadingMigration === row.name"
+                    :description="$t('This will apply this migration to the database')"
+                    @confirm="migrateOne(row)"
+                >
+                    <ArrowUp class="size-4" />
+                </AlertButton>
+
+                <AlertButton
+                    v-if="row.status === 'executed'"
+                    size="icon"
+                    variant="ghost"
+                    :tooltip="$t('Fresh')"
+                    :disabled="!!operation || !!loadingMigration"
+                    :loading="loadingMigration === row.name"
+                    :description="$t('This will rollback and re-apply this migration. This can potentially lead to data loss')"
+                    @confirm="freshOne(row)"
+                >
+                    <RefreshCw class="size-4" />
+                </AlertButton>
+
+                <AlertButton
+                    v-if="row.status === 'executed'"
+                    size="icon"
+                    variant="ghost"
+                    :tooltip="$t('Down')"
+                    :disabled="!!operation || !!loadingMigration"
+                    :loading="loadingMigration === row.name"
+                    :description="$t('This will rollback this migration. This can potentially lead to data loss')"
+                    @confirm="rollbackOne(row)"
+                >
+                    <ArrowDown class="size-4" />
+                </AlertButton>
+            </div>
+        </template>
+    </DataTable>
 </template>

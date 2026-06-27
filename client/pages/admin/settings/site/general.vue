@@ -20,7 +20,6 @@ import Card from '#client/components/ui/card/Card.vue'
 import CardFooter from '#client/components/ui/card/CardFooter.vue'
 import CardContent from '#client/components/ui/card/CardContent.vue'
 import settingSiteValidator from '#shared/validators/settingSite.validator.ts'
-import AdminLayout from '#client/layouts/AdminLayout.vue'
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -91,81 +90,81 @@ async function load(){
 onMounted(load)
 </script>
 <template>
-    <AdminLayout>
-        <form
-            class="space-y-4 py-2"
-            @submit.prevent="onSubmit"
+
+    <form
+        class="space-y-4 py-2"
+        @submit.prevent="onSubmit"
         >
-            <div class="flex-1">
-                <PageTitle>{{ $t('General') }}</PageTitle>
-                <PageSubtitle>
-                    {{ $t('Configure your general settings') }}
-                </PageSubtitle>
-            </div>
-            <Card :loading="loading">
-                <CardContent class="space-y-6">
-                    <FormTextField
-                        name="name"
-                        :label="$t('Name')"
-                    />
+        <div class="flex-1">
+            <PageTitle>{{ $t('General') }}</PageTitle>
+            <PageSubtitle>
+            {{ $t('Configure your general settings') }}
+            </PageSubtitle>
+        </div>
+        <Card :loading="loading">
+        <CardContent class="space-y-6">
+        <FormTextField
+        name="name"
+        :label="$t('Name')"
+        />
 
-                    <FormTextField
-                        name="support_email"
-                        :label="$t('Support Email')"
-                    />
+        <FormTextField
+        name="support_email"
+        :label="$t('Support Email')"
+        />
 
-                    <FormImageUploader
-                        name="favicon_image_id"
-                        :label="$t('Favicon')"
-                        purpose="favicon"
-                        :public="true"
-                        :max-size="1024 * 1024"
-                        :file-url="setting.favicon_url || '/favicon' "
-                    />
+        <FormImageUploader
+        name="favicon_image_id"
+        :label="$t('Favicon')"
+        purpose="favicon"
+        :public="true"
+        :max-size="1024 * 1024"
+        :file-url="setting.favicon_url || '/favicon' "
+        />
 
-                    <FormTextField
-                        name="home_route_path"
-                        :label="$t('Home route path')"
-                    >
-                        <template #append>
-                            <DropdownMenu>
-                                <DropdownMenuTrigger as-child>
-                                    <UiButton
-                                        type="button"
-                                        variant="outline"
-                                        size="sm"
-                                        class="h-10 px-3"
-                                    >
-                                        <ChevronDown class="h-4 w-4" />
-                                    </UiButton>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent 
-                                    align="end" 
-                                    class="w-64"
-                                >
-                                    <DropdownMenuItem
-                                        v-for="route in availableRoutes"
-                                        :key="route.path"
-                                        class="cursor-pointer"
-                                        @click="selectRoute(route.path)"
-                                    >
-                                        {{ route.path }}
-                                    </DropdownMenuItem>
-                                </DropdownMenuContent>
-                            </DropdownMenu>
-                        </template>
-                    </FormTextField>
-                </CardContent>
-     
-                <CardFooter class="justify-end">
-                    <Button
-                        type="submit"
-                        :loading="saving"
-                    >
-                        {{ $t('Save') }}
-                    </Button>
-                </CardFooter>
-            </Card>
-        </form>
-    </AdminLayout>
+        <FormTextField
+        name="home_route_path"
+        :label="$t('Home route path')"
+        >
+        <template #append>
+            <DropdownMenu>
+            <DropdownMenuTrigger as-child>
+            <UiButton
+            type="button"
+            variant="outline"
+            size="sm"
+            class="h-10 px-3"
+            >
+            <ChevronDown class="h-4 w-4" />
+            </UiButton>
+            </DropdownMenuTrigger>
+        <DropdownMenuContent 
+        align="end" 
+        class="w-64"
+        >
+        <DropdownMenuItem
+        v-for="route in availableRoutes"
+        :key="route.path"
+        class="cursor-pointer"
+        @click="selectRoute(route.path)"
+        >
+        {{ route.path }}
+        </DropdownMenuItem>
+        </DropdownMenuContent>
+            </DropdownMenu>
+        </template>
+        </FormTextField>
+        </CardContent>
+
+        <CardFooter class="justify-end">
+        <Button
+            type="submit"
+            :loading="saving"
+            >
+            {{ $t('Save') }}
+        </Button>
+        </CardFooter>
+        </Card>
+    </form>
+
 </template>

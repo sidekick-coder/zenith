@@ -6,7 +6,6 @@ import type { Token } from '@sidekick-coder/zenith-kit/shared'
 import { useRouter } from 'vue-router'
 import DataTable, { defineColumns } from '#client/components/DataTable.vue'
 
-import AdminLayout from '#client/layouts/AdminLayout.vue'
 import { $fetch } from '#client/utils/fetcher.ts'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
 import Button from '#client/components/Button.vue'
@@ -129,132 +128,83 @@ const columns = defineColumns<TokenWithUser>([
 ])
 </script>
 <template>
-    <AdminLayout>
-        <div class="flex">
-            <h1 class="text-2xl font-bold mb-4 text-foreground flex-1">
-                {{ $t('Tokens') }}
-            </h1>
-            <div class="flex items-center gap-2">
-                <Button
-                    variant="outline"
-                    size="icon"
-                    :disabled="loading"
-                    @click="load"
-                >
-                    <Icon
-                        name="RotateCcw"
-                        :class="{ 'animate-spin': loading }"
-                    />
+
+    <div class="flex">
+        <h1 class="text-2xl font-bold mb-4 text-foreground flex-1">
+            {{ $t('Tokens') }}
+        </h1>
+        <div class="flex items-center gap-2">
+            <Button variant="outline" size="icon" :disabled="loading" @click="load">
+                <Icon name="RotateCcw" :class="{ 'animate-spin': loading }" />
+            </Button>
+
+            <DialogForm :schema="schema" :fields="fields" :title="$t('New Token')"
+                :description="$t('Create a new API token.')" :submit-text="$t('Create Token')" fetch="/api/tokens"
+                @submit="onCreated">
+                <Button>
+                    {{ $t('Add new') }}
                 </Button>
-
-                <DialogForm
-                    :schema="schema"
-                    :fields="fields"
-                    :title="$t('New Token')"
-                    :description="$t('Create a new API token.')"
-                    :submit-text="$t('Create Token')"
-                    fetch="/api/tokens"
-                    @submit="onCreated"
-                >
-                    <Button>
-                        {{ $t('Add new') }}
-                    </Button>
-                </DialogForm>
-            </div>
+            </DialogForm>
         </div>
-        <DataTable
-            ref="tableRef"
-            v-model:rows="items"
-            v-model:total="total"
-            v-model:loading="loading"
-            :columns="columns"
-        >
-            <template #row-name="{ row }">
-                <span
-                    v-if="row.name"
-                    class="font-medium"
-                >
-                    {{ row.name }}
-                </span>
-                <span
-                    v-else
-                    class="text-sm text-muted-foreground"
-                >
-                    {{ $t('No name') }}
-                </span>
-            </template>
+    </div>
+    <DataTable ref="tableRef" v-model:rows="items" v-model:total="total" v-model:loading="loading" :columns="columns">
+        <template #row-name="{ row }">
+            <span v-if="row.name" class="font-medium">
+                {{ row.name }}
+            </span>
+            <span v-else class="text-sm text-muted-foreground">
+                {{ $t('No name') }}
+            </span>
+        </template>
 
-            <template #row-user="{ row }">
-                <div
-                    v-if="row.user"
-                    class="flex flex-col gap-1"
-                >
-                    <div>{{ row.user.name }}</div>
-                    <div class="text-muted-foreground text-xs">
-                        {{ row.user.email }}
-                    </div>
+        <template #row-user="{ row }">
+            <div v-if="row.user" class="flex flex-col gap-1">
+                <div>{{ row.user.name }}</div>
+                <div class="text-muted-foreground text-xs">
+                    {{ row.user.email }}
                 </div>
-                <div v-else>
-                    {{ `#${row.user_id}` }}
-                </div>
-            </template>
+            </div>
+            <div v-else>
+                {{ `#${row.user_id}` }}
+            </div>
+        </template>
 
-            <template #row-actions="{ row }">
-                <div class="flex items-center gap-2 justify-end">
-                    <Button
-                        variant="ghost"
-                        size="sm"
-                        :to="`/admin/tokens/${row.id}`"
-                    >
-                        <Icon name="pencil" />
-                    </Button>
-                    <Button
-                        variant="ghost"
-                        size="sm"
-                        :loading="deletingItems.includes(row.id)"
-                        @click="openDeleteDialog(row.id)"
-                    >
-                        <Icon name="trash" />
-                    </Button>
-                </div>
-            </template>
-        </DataTable>
+        <template #row-actions="{ row }">
+            <div class="flex items-center gap-2 justify-end">
+                <Button variant="ghost" size="sm" :to="`/admin/tokens/${row.id}`">
+                    <Icon name="pencil" />
+                </Button>
+                <Button variant="ghost" size="sm" :loading="deletingItems.includes(row.id)"
+                    @click="openDeleteDialog(row.id)">
+                    <Icon name="trash" />
+                </Button>
+            </div>
+        </template>
+    </DataTable>
 
-        <Dialog v-model:open="deleteDialogOpen">
-            <DialogContent>
-                <DialogHeader>
-                    <DialogTitle>{{ $t('Delete Token') }}</DialogTitle>
-                    <DialogDescription>
-                        {{ $t('This action cannot be undone.') }}
-                    </DialogDescription>
-                </DialogHeader>
-                <div class="flex items-center gap-3 py-2">
-                    <Checkbox
-                        id="delete-permissions"
-                        v-model="deletePermissions"
-                    />
-                    <Label
-                        for="delete-permissions"
-                        class="cursor-pointer"
-                    >
-                        {{ $t('Also delete related permissions') }}
-                    </Label>
-                </div>
-                <DialogFooter>
-                    <Button
-                        variant="outline"
-                        @click="deleteDialogOpen = false"
-                    >
-                        {{ $t('Cancel') }}
-                    </Button>
-                    <Button
-                        variant="destructive"
-                        @click="confirmDelete"
-                    >
-                        {{ $t('Delete') }}
-                    </Button>
-                </DialogFooter>
-            </DialogContent>
-        </Dialog>
-    </AdminLayout>
+    <Dialog v-model:open="deleteDialogOpen">
+        <DialogContent>
+            <DialogHeader>
+                <DialogTitle>{{ $t('Delete Token') }}</DialogTitle>
+                <DialogDescription>
+                    {{ $t('This action cannot be undone.') }}
+                </DialogDescription>
+            </DialogHeader>
+            <div class="flex items-center gap-3 py-2">
+                <Checkbox id="delete-permissions" v-model="deletePermissions" />
+                <Label for="delete-permissions" class="cursor-pointer">
+                    {{ $t('Also delete related permissions') }}
+                </Label>
+            </div>
+            <DialogFooter>
+                <Button variant="outline" @click="deleteDialogOpen = false">
+                    {{ $t('Cancel') }}
+                </Button>
+                <Button variant="destructive" @click="confirmDelete">
+                    {{ $t('Delete') }}
+                </Button>
+            </DialogFooter>
+        </DialogContent>
+    </Dialog>
+
 </template>

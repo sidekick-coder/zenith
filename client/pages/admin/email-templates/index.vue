@@ -2,7 +2,6 @@
 import { defineColumns } from '#client/components/DataTable.vue'
 import { defineFormFields } from '#client/components/DialogForm.vue'
 import PageCrud from '#client/components/PageCrud.vue'
-import AdminLayout from '#client/layouts/AdminLayout.vue'
 import type EmailTemplate from '#shared/entities/emailTemplate.entity.ts'
 
 const columns = defineColumns<EmailTemplate>([
@@ -65,14 +64,14 @@ const fields = defineFormFields({
 </script>
 
 <template>
-    <AdminLayout>
-        <PageCrud
-            fetch="/api/email-templates"
-            :title="$t('Email Templates')"
-            :columns="columns"
-            :fields="fields"
-            :actions="['create', 'destroy']"
-            view-to="/admin/email-templates/:id"
-        />
-    </AdminLayout>
+
+    <PageCrud
+    fetch="/api/email-templates"
+    :title="$t('Email Templates')"
+    :columns="columns"
+    :fields="fields"
+    :actions="['create', 'destroy']"
+    view-to="/admin/email-templates/:id"
+    />
+
 </template>
