@@ -1,10 +1,10 @@
-import { container, config, MenuService, fetcher } from '@sidekick-coder/zenith-kit/client'
+import { container, config, MenuService, fetcher, auth } from '@sidekick-coder/zenith-kit/client'
 import { LifecycleHook } from '@sidekick-coder/zenith-kit/shared'
 
 export default class extends LifecycleHook {
     public menu: MenuService
 
-    public async addDashboards(){
+    public async addDashboards() {
 
         // dashboard 
         this.menu.add({
@@ -40,7 +40,9 @@ export default class extends LifecycleHook {
 
         this.menu = menu
 
-        await this.addDashboards()
+        if (auth.user) {
+            await this.addDashboards()
+        }
 
         // auth
         menu.add({

@@ -1,0 +1,124 @@
+import type { EmmitterService } from '@sidekick-coder/zenith-kit/shared'
+import type DashboardWidgetData from './DashboardWidgetData'
+import type DashboardWidgetDefinition from './DashboardWidgetDefinition'
+
+interface DashboardWidgetOptions {
+    data: DashboardWidgetData
+    definition: DashboardWidgetDefinition
+    emmitter: EmmitterService
+}
+
+interface StylesOptions {
+    contianerWidth: number
+    breakpoint?: 'base' | 'sm' | 'md' | 'xl'
+}
+
+export default class DashboardWidget {
+    public data: DashboardWidgetData
+    public definition: DashboardWidgetDefinition
+    public emmitter: EmmitterService
+
+    constructor({ data, definition, emmitter }: DashboardWidgetOptions) {
+        this.data = data
+        this.definition = definition
+        this.emmitter = emmitter
+    }
+
+    public get id(): string {
+        return this.data.id
+    }
+
+    public get name(): string {
+        return this.data.name
+    }
+
+    public get definition_id(): string {
+        return this.data.definition_id
+    }
+
+    public get component(): any {
+        return this.definition.component
+    }
+
+    public get columns(): DashboardWidgetData['columns'] {
+        return this.data.columns || {}
+    }
+
+    public get rows(): DashboardWidgetData['rows'] {
+        return this.data.rows || {}
+    }
+
+    public get x(): DashboardWidgetData['x'] {
+        return this.data.x || {}
+    }
+
+    public get y(): DashboardWidgetData['y'] {
+        return this.data.y || {}
+    }
+
+    public get classes(): string {
+        const classes = new Set<string>()
+
+        return Array.from(classes.values()).join(' ')
+    }
+
+    public computeStyles(options: StylesOptions): string {
+        const styles = new Map<string, string>()
+        const breakpoint = options.breakpoint ?? 'base'
+
+        const x = this.x[breakpoint] ?? 0
+        const y = this.y[breakpoint] ?? 0
+        const cols = this.columns[breakpoint] ?? 1
+        const rows = this.rows[breakpoint] ?? 1
+
+        const colSize = options.contianerWidth / 12
+        const rowSize = 80
+
+        styles.set('position', 'absolute')
+        styles.set('left', `${x}px`)
+        styles.set('top', `${y}px`)
+        styles.set('width', `${cols * colSize}px`)
+        styles.set('height', `${rows * rowSize}px`)
+
+        return Array.from(styles.entries())
+            .map(([key, value]) => `${key}: ${value};`)
+            .join(' ')
+    }
+
+    public update(payload: Partial<Pick<DashboardWidgetData, 'columns' | 'rows' | 'x' | 'y'> >) {
+        Object.assign(this.data, payload) 
+
+        this.emmitter.emit('widget:updated', {
+            id: this.id,
+            data: this.data
+        })
+    }
+
+    public setColumn(breakpoint: 'base' | 'sm' | 'md' | 'lg' | 'xl', value: number | undefined = undefined) {
+        const columns = JSON.parse(JSON.stringify(this.columns)) as DashboardWidgetData['columns']
+
+        if (value === undefined) {
+            delete columns[breakpoint]
+        }
+
+        if (value !== undefined) {
+            columns[breakpoint] = value
+        }
+
+        this.update({ columns })
+    }
+
+    public setRow(breakpoint: 'base' | 'sm' | 'md' | 'lg' | 'xl', value: number | undefined = undefined) {
+        const rows = JSON.parse(JSON.stringify(this.rows)) as DashboardWidgetData['rows']
+
+        if (value === undefined) {
+            delete rows[breakpoint]
+        }
+
+        if (value !== undefined) {
+            rows[breakpoint] = value
+        }
+
+        this.update({ rows })
+    }
+}

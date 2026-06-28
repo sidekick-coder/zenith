@@ -1,5 +1,5 @@
-import validator from '#shared/services/validator.service.ts'
 import type { ValidatorResult } from '@sidekick-coder/zenith-kit/shared'
+import validator from '#shared/services/validator.service.ts'
 
 export type DashboardSchema = ValidatorResult<ReturnType<typeof dashboardSchema>>
 
@@ -11,6 +11,8 @@ export function dashboardSchema() {
         created_at: v.string(),
         updated_at: v.string(),
         deleted_at: v.nullable(v.string()),
+
+        metas: v.optional(v.record(v.string(), v.any())),
     }))
 }
 

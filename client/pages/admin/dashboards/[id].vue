@@ -1,86 +1,116 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
-import { useForm } from 'vee-validate'
-import { toTypedSchema } from '@vee-validate/valibot'
 import { toast } from 'vue-sonner'
 import { PageTitle, PageSubtitle } from '@sidekick-coder/zenith-kit/components'
-import { tryCatch } from '#shared/utils/tryCatch.ts'
-import { $fetch } from '#client/utils/fetcher.ts'
+import { fetcher } from '@sidekick-coder/zenith-kit/client'
 import Button from '#client/components/Button.vue'
 import Icon from '#client/components/Icon.vue'
 import DashboardBody from '#client/components/DashboardBody.vue'
-import DashboardEntity from '#client/entities/dashboard.entity.ts'
+import DashboardEntity from '#client/entities/Dashboard.ts'
 import { provideDashboard } from '#client/composables/useDashboard.ts'
-import type { DashboardSchema } from '#shared/schemas/index.ts'
-import { dashboardSchema } from '#shared/schemas/dashboardSchema.ts'
+import { DashboardSchema, dashboardSchema } from '#shared/schemas/dashboardSchema.ts'
+import DashboardWidgetData from '#client/entities/DashboardWidgetData.ts'
 
 const route = useRoute()
 const id = route.params.id as string
 
-const entity = ref<DashboardEntity>()
+const entity = ref<DashboardEntity>(new DashboardEntity())
+const body = ref<InstanceType<typeof DashboardBody>>()
 
 provideDashboard(entity)
+
 const loading = ref(false)
 const saving = ref(false)
-
-const { handleSubmit, resetForm } = useForm({ validationSchema: toTypedSchema(dashboardSchema.update) })
+const dashboard = ref<DashboardSchema>()
+const metas = ref<any>({})
 
 async function load() {
     loading.value = true
 
-    const [error, dashboard] = await tryCatch(() => $fetch<DashboardSchema>(`/api/dashboards/${id}`))
+    const [error, response] = await fetcher.try(`/api/dashboards/${id}`, { query: { with: 'metas' } })
 
     if (error) {
         loading.value = false
         return
     }
 
-    resetForm({ values: dashboard })
+    dashboard.value = response
+    metas.value = response.metas
 
-    const [, metas] = await tryCatch(() => $fetch<Record<string, any>>(`/api/dashboards/${id}/metas`))
+    let widgets: any[] = response.metas?.widgets ?? []
 
-    entity.value = new DashboardEntity(dashboard, metas?.widgets ?? [])
+    widgets = widgets.map(w => new DashboardWidgetData(w))
 
-    setTimeout(() => {
-        loading.value = false
-    }, 500)
+    entity.value
+        .setName(response.name)
+        .setDescription(response.description)
+        .setWidgets(widgets)
+
+    await new Promise(resolve => setTimeout(resolve, 500))
+
+    loading.value = false
 }
 
-const onSubmit = handleSubmit(async (data) => {
-    if (!entity.value) return
-
+async function save() {
     saving.value = true
 
-    const [error] = await tryCatch(() => Promise.all([
-        $fetch(`/api/dashboards/${id}`, { method: 'PATCH', data }),
-        $fetch(`/api/dashboards/${id}/metas`, { method: 'PUT', data: { widgets: entity.value!.widgets } }),
-    ]))
+    const widgets = entity.value.widgets.map(w => ({
+        id: w.id,
+        definition_id: w.definition_id,
+        x: w.x,
+        y: w.y,
+        columns: w.columns,
+        rows: w.rows,
+    }))
+
+    const data = {
+        ...metas.value,
+        widgets
+    }
+
+    const [error] = await fetcher.try(`/api/dashboards/${id}/metas`, {
+        method: 'PUT',
+        data
+    })
 
     if (error) {
         saving.value = false
         return
     }
 
-    setTimeout(async () => {
-        saving.value = false
-        toast.success($t('Dashboard saved successfully'))
-        await load()
-    }, 500)
-})
+    await new Promise(resolve => setTimeout(resolve, 500))
+
+    saving.value = false
+
+    toast.success($t('Dashboard saved successfully'))
+
+    await load()
+}
+
+function loadBody() {
+    if (!body.value?.$el) return
+
+    const el = body.value.$el as HTMLElement
+
+    const width = el.offsetWidth
+
+    entity.value.setContainerWidth(width)
+}
 
 onMounted(load)
+onMounted(loadBody)
 </script>
 
 <template>
-    <form @submit="onSubmit">
+    <div>
         <div class="mb-6 flex items-center">
             <div class="flex-1">
                 <PageTitle>
-                    {{ entity?.dashboard.name || $t('Loading...') }}
+                    {{ entity.name || $t('Loading...') }}
                 </PageTitle>
-                <PageSubtitle v-if="entity?.dashboard.description">
-                    {{ entity?.dashboard.description }}
+                <PageSubtitle v-if="entity.description">
+                    {{ entity.description }}
                 </PageSubtitle>
             </div>
             <div class="flex items-center gap-2">
@@ -108,17 +138,17 @@ onMounted(load)
                     type="submit"
                     :loading="saving"
                     :disabled="loading"
+                    @click="save"
                 >
                     {{ $t('Save') }}
                 </Button>
             </div>
         </div>
-    </form>
+    </div>
 
     <DashboardBody
-        v-if="entity"
+        ref="body"
         :widgets="entity.widgets"
-        class="mt-4"
         @add-widget="entity.addWidget()"
         @update:widgets="entity.setWidgets($event)"
     />
