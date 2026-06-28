@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { nextTick, onMounted, ref } from 'vue'
 import DashboardDrawer from './DashboardDrawer.vue'
+import DashboardGridUnitInput from './DashboardGridUnitInput.vue'
 import Button from '#client/components/Button.vue'
 import Icon from '#client/components/Icon.vue'
 import {
@@ -9,31 +10,17 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from '#client/components/ui/dropdown-menu'
-import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-    DialogFooter,
-} from '#client/components/ui/dialog'
 
 import { useDashboard } from '#client/composables/useDashboard.ts'
 import type DashboardWidget from '#client/entities/DashboardWidget.ts'
 
-const widget = defineModel<DashboardWidget>({ default: () => ({}) })
-
-const props = defineProps({
-    index: {
-        type: Number,
-        required: true,
-    },
-})
-
 const emit = defineEmits(['remove', 'duplicate'])
 
-const dashboard = useDashboard()
+const widget = defineModel<DashboardWidget>({ default: () => ({}) })
 
+const dashboard = useDashboard()
 const styles = ref()
+const layout = ref(false)
 
 function loadStyles() {
     styles.value = widget.value.computeStyles({ contianerWidth: dashboard.value.containerWidth ?? 0, })
@@ -70,17 +57,10 @@ function cancelEdit() {
 
 // --- size dialog ---
 const sizeOpen = ref(false)
-const colsDraft = ref<Widget['cols']>({})
 
 const breakpoints = ['base', 'sm', 'md', 'lg', 'xl'] as const
 
-function openSize() {
-    colsDraft.value = { ...widget.value.cols }
-    sizeOpen.value = true
-}
-
 // --- height dialog ---
-const heightPresets = ['auto', '150px', '250px', '400px', '600px']
 
 const heightOpen = ref(false)
 const heightDraft = ref<Widget['height']>({})
@@ -90,213 +70,121 @@ function openHeight() {
     heightOpen.value = true
 }
 
-function setHeight(bp: string, value: string) {
-    heightDraft.value = {
-        ...heightDraft.value,
-        [bp]: value
-    }
-}
+function createOptions(from: number, to: number) {
+    const options = []
 
-function clearHeight(bp: string) {
-    const updated = { ...heightDraft.value }
-    delete updated[bp as keyof typeof updated]
-    heightDraft.value = updated
-}
-
-function commitHeight() {
-    widget.value = {
-        ...widget.value,
-        height: heightDraft.value
+    for (let i = from; i <= to; i++) {
+        options.push({
+            label: i.toString(),
+            value: i
+        })
     }
-    heightOpen.value = false
+
+    return options
 }
 </script>
 
 <template>
-    <div
-        class="bg-card text-card-foreground flex flex-col rounded-xl border shadow-sm"
+    <div 
         :style="styles"
+        class="p-2"
     >
-        <div class="flex items-center gap-2 border-b px-4 py-3">
-            <input
-                v-if="editing"
-                ref="inputRef"
-                placeholder="Widget"
-                class="flex-1 bg-transparent text-sm font-medium outline-none"
-                @keydown.enter="commitEdit"
-                @keydown.esc="cancelEdit"
-                @blur="commitEdit"
-            >
-            <span
-                v-else
-                class="flex-1 text-sm font-medium"
-                @click="startEdit"
-            >
-                {{ widget.name || $t('Widget') }}
-            </span>
+        <div
+            class="bg-card text-card-foreground flex flex-col rounded-xl border shadow-sm h-full overflow-hidden"
+        >
+            <div class="flex items-center gap-2 border-b px-4 py-3">
+                <input
+                    v-if="editing"
+                    ref="inputRef"
+                    placeholder="Widget"
+                    class="flex-1 bg-transparent text-sm font-medium outline-none"
+                    @keydown.enter="commitEdit"
+                    @keydown.esc="cancelEdit"
+                    @blur="commitEdit"
+                >
+                <span
+                    v-else
+                    class="flex-1 text-sm font-medium"
+                    @click="startEdit"
+                >
+                    {{ widget.name || $t('Widget') }}
+                </span>
 
-            <DropdownMenu>
-                <DropdownMenuTrigger as-child>
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        class="h-7 w-7"
-                    >
-                        <Icon name="EllipsisVertical" />
-                    </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                    <slot name="options" />
-                    <DropdownMenuItem
-                        :disabled="props.index === 0"
-                        @click="dashboard?.moveUp(props.index)"
-                    >
-                        <Icon name="ArrowUp" />
-                        {{ $t('Move up') }}
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                        :disabled="props.index === (dashboard?.widgets.length ?? 1) - 1"
-                        @click="dashboard?.moveDown(props.index)"
-                    >
-                        <Icon name="ArrowDown" />
-                        {{ $t('Move down') }}
-                    </DropdownMenuItem>
-                    <DropdownMenuItem @click="emit('duplicate')">
-                        <Icon name="Copy" />
-                        {{ $t('Duplicate') }}
-                    </DropdownMenuItem>
-                    <DropdownMenuItem @click="openSize">
-                        <Icon name="LayoutGrid" />
-                        {{ $t('Columns') }}
-                    </DropdownMenuItem>
-                    <DropdownMenuItem @click="openHeight">
-                        <Icon name="ArrowUpDown" />
-                        {{ $t('Height') }}
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                        class="text-destructive focus:text-destructive"
-                        @click="emit('remove')"
-                    >
-                        <Icon name="Trash" />
-                        {{ $t('Remove') }}
-                    </DropdownMenuItem>
-                </DropdownMenuContent>
-            </DropdownMenu>
-        </div>
+                <Button
+                    variant="ghost"
+                    size="icon"
+                    class="h-7 w-7"
+                    @click="layout = true"
+                >
+                    <Icon name="LayoutGrid" />
+                </Button>
 
-        <div class="flex-1 p-4">
-            <slot />
+
+                <DropdownMenu>
+                    <DropdownMenuTrigger as-child>
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            class="h-7 w-7"
+                        >
+                            <Icon name="EllipsisVertical" />
+                        </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                        <slot name="options" />
+                        <DropdownMenuItem @click="emit('duplicate')">
+                            <Icon name="Copy" />
+                            {{ $t('Duplicate') }}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                            class="text-destructive focus:text-destructive"
+                            @click="emit('remove')"
+                        >
+                            <Icon name="Trash" />
+                            {{ $t('Remove') }}
+                        </DropdownMenuItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
+            </div>
+
+            <div class="flex-1 p-4">
+                <slot />
+            </div>
         </div>
     </div>
 
     <DashboardDrawer
-        v-model:open="sizeOpen"
-        :title="$t('Size')"
+        v-model:open="layout"
+        :title="$t('Layout')"
     >
-        <div class="border-b px-4 py-3">
-            <h3 class="mb-2 text-sm font-medium">
-                {{ $t('Columns') }}
-            </h3>
-            <div class="space-y-5 py-2">
-                <div
-                    v-for="bp in breakpoints"
-                    :key="bp"
-                >
-                    <p class="mb-2 text-xs font-medium uppercase text-muted-foreground">
-                        {{ bp }}
-                    </p>
-                    <div class="flex gap-1">
-                        <button
-                            :disabled="bp === 'base'"
-                            type="button"
-                            :class="[
-                                'h-8 w-8 shrink-0 rounded-sm border text-xs transition-colors',
-                                'disabled:cursor-not-allowed disabled:opacity-50',
-                                !widget.columns[bp]
-                                    ? 'border-primary bg-primary text-primary-foreground'
-                                    : 'border-border bg-muted hover:bg-muted-foreground/20',
-                            ]"
-                            @click="widget.setColumn(bp)"
-                        >
-                            <Icon
-                                name="X"
-                                class="mx-auto size-3"
-                            />
-                        </button>
-                        <button
-                            v-for="col in 12"
-                            :key="col"
-                            type="button"
-                            :class="[
-                                'h-8 flex-1 rounded-sm border text-xs transition-colors',
-                                col <= (widget.columns[bp] ?? 0)
-                                    ? 'border-primary bg-primary text-primary-foreground'
-                                    : 'border-border bg-muted hover:bg-muted-foreground/20',
-                            ]"
-                            @click="widget.setColumn(bp, col)"
-                        >
-                            {{ col }}
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <div class="px-4 py-3">
+            <DashboardGridUnitInput
+                v-model="widget.x"
+                :label="$t('Position X')"
+                :options="createOptions(0, 11)"
+            />
 
-        <div class="border-b px-4 py-3">
-            <h3 class="mb-2 text-sm font-medium">
-                {{ $t('Rows') }}
-            </h3>
+            <DashboardGridUnitInput
+                v-model="widget.y"
+                :label="$t('Position Y')"
+                :options="createOptions(0, 10)"
+                custom
+            />
 
-            <div class="flex py-2 gap-x-4">
-                <div
-                    v-for="bp in breakpoints"
-                    :key="bp"
-                    class="flex-1"
-                >
-                    <p class="mb-2 text-xs font-medium uppercase text-muted-foreground">
-                        {{ bp }}
-                    </p>
-                    <div class="flex flex-col flex-wrap gap-2">
-                        <button
-                            :disabled="bp === 'base'"
-                            type="button"
-                            :class="[
-                                'size-8 shrink-0 rounded-sm border text-xs transition-colors',
-                                'disabled:cursor-not-allowed disabled:opacity-50',
-                                !widget.rows[bp]
-                                    ? 'border-primary bg-primary text-primary-foreground'
-                                    : 'border-border bg-muted hover:bg-muted-foreground/20',
-                            ]"
-                            @click="widget.setRow(bp)"
-                        >
-                            <Icon
-                                name="X"
-                                class="mx-auto size-3"
-                            />
-                        </button>
-                        <button
-                            v-for="r in 5"
-                            :key="r"
-                            type="button"
-                            :class="[
-                                'size-8 rounded-sm border px-3 text-xs transition-colors',
-                                (widget.rows[bp] || 0) >= r
-                                    ? 'border-primary bg-primary text-primary-foreground'
-                                    : 'border-border bg-muted hover:bg-muted-foreground/20',
-                            ]"
-                            @click="widget.setRow(bp, r)"
-                        >
-                            {{ r }}
-                        </button>
-                        <input
-                            :value="widget.rows[bp]"
-                            type="text"
-                            class="size-8 rounded-sm border border-border bg-muted px-2 text-xs outline-none focus:border-primary"
-                            @input="(e) => widget.setRow(bp, Number((e.target as HTMLInputElement).value))"
-                        >
-                    </div>
-                </div>
-            </div>
+            <DashboardGridUnitInput
+                v-model="widget.columns"
+                :label="$t('Columns')"
+                :options="createOptions(1, 12)"
+                filled
+            />
+
+            <DashboardGridUnitInput
+                v-model="widget.rows"
+                :label="$t('Rows')"
+                :options="createOptions(1, 10)"
+                filled
+                custom
+            />
         </div>
     </DashboardDrawer>
 </template>

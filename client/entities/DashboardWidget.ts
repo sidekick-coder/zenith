@@ -46,16 +46,48 @@ export default class DashboardWidget {
         return this.data.columns || {}
     }
 
+    public set columns(payload: DashboardWidgetData['columns']){
+        const columns = JSON.parse(JSON.stringify(this.data.columns || {})) as DashboardWidgetData['columns']
+
+        Object.assign(columns, payload)
+
+        this.update({ columns })
+    }
+
     public get rows(): DashboardWidgetData['rows'] {
         return this.data.rows || {}
+    }
+
+    public set rows(payload: DashboardWidgetData['rows']){
+        const rows = JSON.parse(JSON.stringify(this.data.rows || {})) as DashboardWidgetData['rows']
+
+        Object.assign(rows, payload)
+
+        this.update({ rows })
     }
 
     public get x(): DashboardWidgetData['x'] {
         return this.data.x || {}
     }
 
+    public set x(payload: DashboardWidgetData['x']){
+        const x = JSON.parse(JSON.stringify(this.data.x || {})) as DashboardWidgetData['x']
+
+        Object.assign(x, payload)
+
+        this.update({ x })
+    }
+
     public get y(): DashboardWidgetData['y'] {
         return this.data.y || {}
+    }
+
+    public set y(payload: DashboardWidgetData['y']){
+        const y = JSON.parse(JSON.stringify(this.data.y || {})) as DashboardWidgetData['y']
+
+        Object.assign(y, payload)
+
+        this.update({ y })
     }
 
     public get classes(): string {
@@ -77,8 +109,8 @@ export default class DashboardWidget {
         const rowSize = DASHBOARD_ROW_HEIGHT
 
         styles.set('position', 'absolute')
-        styles.set('left', `${x}px`)
-        styles.set('top', `${y}px`)
+        styles.set('left', `${x * colSize}px`)
+        styles.set('top', `${y * rowSize}px`)
         styles.set('width', `${cols * colSize}px`)
         styles.set('height', `${rows * rowSize}px`)
 
@@ -94,6 +126,34 @@ export default class DashboardWidget {
             id: this.id,
             data: this.data
         })
+    }
+
+    public setX(breakpoint: 'base' | 'sm' | 'md' | 'lg' | 'xl', value: number | undefined = undefined) {
+        const x = JSON.parse(JSON.stringify(this.x)) as DashboardWidgetData['x']
+
+        if (value === undefined) {
+            delete x[breakpoint]
+        }
+
+        if (value !== undefined) {
+            x[breakpoint] = value
+        }
+
+        this.update({ x })
+    }
+
+    public setY(breakpoint: 'base' | 'sm' | 'md' | 'lg' | 'xl', value: number | undefined = undefined) {
+        const y = JSON.parse(JSON.stringify(this.y)) as DashboardWidgetData['y']
+
+        if (value === undefined) {
+            delete y[breakpoint]
+        }
+
+        if (value !== undefined) {
+            y[breakpoint] = value
+        }
+        
+        this.update({ y })
     }
 
     public setColumn(breakpoint: 'base' | 'sm' | 'md' | 'lg' | 'xl', value: number | undefined = undefined) {

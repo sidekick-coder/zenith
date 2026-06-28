@@ -47,7 +47,7 @@ const styles = computed(() => {
 <template>
     <div
         v-if="widgets.length"
-        class="relative min-h-[calc(100dvh-9rem)] rounded-md"
+        class="relative h-[calc(100dvh-9rem)] rounded-md overflow-auto"
         :style="styles"
     >
         <DashboardWidget

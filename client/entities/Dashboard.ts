@@ -1,5 +1,5 @@
 import { EmmitterService } from '@sidekick-coder/zenith-kit/shared'
-import type DashboardWidgetData from './DashboardWidgetData'
+import DashboardWidgetData from './DashboardWidgetData'
 import DashboardWidget from './DashboardWidget'
 import DashboardWidgetDefinition from './DashboardWidgetDefinition'
 import type { DashboardSchema } from '#shared/schemas/index.ts'
@@ -19,10 +19,6 @@ export default class Dashboard {
 
     constructor() {
         this.emmitter = new EmmitterService()
-
-        // this.emmitter.on('widget:update', (payload) => {
-        //     this.updateWidgetById(payload.id, payload.data)
-        // })
     }
 
     public setName(name: string) {
@@ -61,12 +57,24 @@ export default class Dashboard {
         }))
     }
 
-    public addWidget(widget: Widget = { cols: { base: 4 } }) {
-        const order = this.widgets.length
-        this.widgets = [...this.widgets, {
-            ...widget,
-            order
-        }]
+    public addWidget(payload: Partial<DashboardWidgetData> = {}) {
+        if (!payload.columns) {
+            payload.columns = { base: 4, }
+        }
+
+        if (!payload.rows) {
+            payload.rows = { base: 4, }
+        }
+
+        const data = new DashboardWidgetData(payload)
+        const def = new DashboardWidgetDefinition()
+        const widget = new DashboardWidget({
+            data,
+            definition: def,
+            emmitter: this.emmitter
+        })
+
+        this.widgets.push(widget)
     }
 
     public removeWidget(index: number) {

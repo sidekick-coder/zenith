@@ -1,6 +1,6 @@
 import { createId } from '@sidekick-coder/zenith-kit/shared'
 
-interface GridUnit {
+export interface DashboardGridUnit {
     base?: number
     sm?: number
     md?: number
@@ -12,10 +12,10 @@ export default class DashboardWidgetData {
     public id: string
     public name: string
     public definition_id: string
-    public columns: GridUnit 
-    public rows: GridUnit
-    public x: GridUnit
-    public y: GridUnit
+    public columns: DashboardGridUnit 
+    public rows: DashboardGridUnit
+    public x: DashboardGridUnit
+    public y: DashboardGridUnit
     public order: number
 
     constructor(data: Partial<DashboardWidgetData>) {
