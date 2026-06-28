@@ -2,8 +2,10 @@ import { EmmitterService } from '@sidekick-coder/zenith-kit/shared'
 import DashboardWidgetData from './DashboardWidgetData'
 import DashboardWidget from './DashboardWidget'
 import DashboardWidgetDefinition from './DashboardWidgetDefinition'
+import DashboardWidgetDefinitionUnknown from './DashboardWidgetDefinitionUnknown'
 import type { DashboardSchema } from '#shared/schemas/index.ts'
 import type { Widget } from '#client/components/DashboardWidget.vue'
+import dashboardRegistry from '#client/facades/dashboardRegistry.ts'
 
 export interface DashboardOptions {
     dashboard: DashboardSchema
@@ -37,11 +39,28 @@ export default class Dashboard {
     }
 
     public setWidgets(widgets: DashboardWidgetData[]) {
-        this.widgets = widgets.map((w) => new DashboardWidget({
-            data: w,
-            definition: new DashboardWidgetDefinition(),
-            emmitter: this.emmitter
-        }))
+
+        this.widgets = []
+
+        for (const w of widgets) {
+            let def = dashboardRegistry.get(w.definition_id)
+
+            if (!def) {
+                def = new DashboardWidgetDefinitionUnknown()
+                def.name = `Unknown: ${w.definition_id}`
+                def.id = w.definition_id
+
+                console.warn(`DashboardWidgetDefinition not found for id: ${w.definition_id}. Using unknown definition.`)
+            }
+
+            const widget = new DashboardWidget({
+                data: w,
+                definition: def,
+                emmitter: this.emmitter
+            })
+
+            this.widgets.push(widget)
+        }
 
         return this
     }

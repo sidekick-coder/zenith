@@ -53,9 +53,7 @@ const styles = computed(() => {
         <DashboardWidget
             v-for="(widget, index) in widgets"
             :key="index"
-            :index="index"
             :model-value="widget"
-            @update:model-value="(v) => emit('update:widgets', widgets.map((w, i) => i === index ? v : w))"
             @duplicate="duplicateWidget(index)"
             @remove="removeWidget(index)"
         />

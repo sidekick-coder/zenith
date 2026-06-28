@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { nextTick, onMounted, ref } from 'vue'
+import { nextTick, onMounted, ref, shallowRef } from 'vue'
 import DashboardDrawer from './DashboardDrawer.vue'
 import DashboardGridUnitInput from './DashboardGridUnitInput.vue'
 import Button from '#client/components/Button.vue'
@@ -14,6 +14,8 @@ import {
 import { useDashboard } from '#client/composables/useDashboard.ts'
 import type DashboardWidget from '#client/entities/DashboardWidget.ts'
 
+defineOptions({ inheritAttrs: false })
+
 const emit = defineEmits(['remove', 'duplicate'])
 
 const widget = defineModel<DashboardWidget>({ default: () => ({}) })
@@ -21,12 +23,19 @@ const widget = defineModel<DashboardWidget>({ default: () => ({}) })
 const dashboard = useDashboard()
 const styles = ref()
 const layout = ref(false)
+const component = shallowRef()
 
 function loadStyles() {
     styles.value = widget.value.computeStyles({ contianerWidth: dashboard.value.containerWidth ?? 0, })
 }
 
+function loadComponent() {
+    console.log('loading component', widget.value)
+    component.value = widget.value.component
+}
+
 onMounted(loadStyles)
+onMounted(loadComponent)
 
 widget.value.emmitter.on('widget:updated', loadStyles)
 
@@ -148,7 +157,10 @@ function createOptions(from: number, to: number) {
             </div>
 
             <div class="flex-1 p-4">
-                <slot />
+                <component
+                    :is="component"
+                    v-if="component"
+                />
             </div>
         </div>
     </div>
