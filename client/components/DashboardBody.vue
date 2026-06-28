@@ -1,8 +1,11 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import Button from '#client/components/Button.vue'
 import Icon from '#client/components/Icon.vue'
 import DashboardWidget from '#client/components/DashboardWidget.vue'
 import type { Widget } from '#client/components/DashboardWidget.vue'
+import { useDashboard } from '#client/composables/useDashboard.ts'
+import { DASHBOARD_ROW_HEIGHT } from '#client/entities/DashboardWidget.ts'
 
 const props = defineProps({
     widgets: {
@@ -11,6 +14,8 @@ const props = defineProps({
         default: () => []
     }
 })
+
+const dashboard = useDashboard()
 
 const emit = defineEmits(['add-widget', 'update:widgets'])
 
@@ -24,12 +29,26 @@ function duplicateWidget(index: number) {
     updated.splice(index + 1, 0, copy)
     emit('update:widgets', updated)
 }
+
+const styles = computed(() => {
+    const tileHeight = DASHBOARD_ROW_HEIGHT
+    const tileWidth = dashboard.value.containerWidth / 12
+
+    return {
+        'background-size': `${tileWidth}px ${tileHeight}px`,
+        'background-image': 'linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px), linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px)',
+        'background-position': '0 0, 0 0',
+        'background-repeat': 'repeat, repeat',
+        'border': '1px solid rgba(255, 255, 255, 0.05)',
+    }
+})
 </script>
 
 <template>
     <div
         v-if="widgets.length"
-        class="relative min-h-[calc(100dvh-9rem)] bg-red-500/5"
+        class="relative min-h-[calc(100dvh-9rem)] rounded-md"
+        :style="styles"
     >
         <DashboardWidget
             v-for="(widget, index) in widgets"
@@ -41,8 +60,6 @@ function duplicateWidget(index: number) {
             @remove="removeWidget(index)"
         />
     </div>
-
-
 
     <div
         v-else

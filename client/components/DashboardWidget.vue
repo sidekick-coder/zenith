@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { nextTick, onMounted, ref } from 'vue'
+import DashboardDrawer from './DashboardDrawer.vue'
 import Button from '#client/components/Button.vue'
 import Icon from '#client/components/Icon.vue'
 import {
@@ -188,12 +189,14 @@ function commitHeight() {
         </div>
     </div>
 
-    <Dialog v-model:open="sizeOpen">
-        <DialogContent class="max-w-lg">
-            <DialogHeader>
-                <DialogTitle>{{ $t('Columns') }}</DialogTitle>
-            </DialogHeader>
-
+    <DashboardDrawer
+        v-model:open="sizeOpen"
+        :title="$t('Size')"
+    >
+        <div class="border-b px-4 py-3">
+            <h3 class="mb-2 text-sm font-medium">
+                {{ $t('Columns') }}
+            </h3>
             <div class="space-y-5 py-2">
                 <div
                     v-for="bp in breakpoints"
@@ -204,10 +207,11 @@ function commitHeight() {
                     </p>
                     <div class="flex gap-1">
                         <button
-                            v-if="bp !== 'base'"
+                            :disabled="bp === 'base'"
                             type="button"
                             :class="[
                                 'h-8 w-8 shrink-0 rounded-sm border text-xs transition-colors',
+                                'disabled:cursor-not-allowed disabled:opacity-50',
                                 !widget.columns[bp]
                                     ? 'border-primary bg-primary text-primary-foreground'
                                     : 'border-border bg-muted hover:bg-muted-foreground/20',
@@ -236,29 +240,29 @@ function commitHeight() {
                     </div>
                 </div>
             </div>
-        </DialogContent>
-    </Dialog>
+        </div>
 
-    <Dialog v-model:open="heightOpen">
-        <DialogContent class="max-w-lg">
-            <DialogHeader>
-                <DialogTitle>{{ $t('Height') }}</DialogTitle>
-            </DialogHeader>
+        <div class="border-b px-4 py-3">
+            <h3 class="mb-2 text-sm font-medium">
+                {{ $t('Rows') }}
+            </h3>
 
-            <div class="space-y-5 py-2">
+            <div class="flex py-2 gap-x-4">
                 <div
                     v-for="bp in breakpoints"
                     :key="bp"
+                    class="flex-1"
                 >
                     <p class="mb-2 text-xs font-medium uppercase text-muted-foreground">
                         {{ bp }}
                     </p>
-                    <div class="flex flex-wrap gap-1">
+                    <div class="flex flex-col flex-wrap gap-2">
                         <button
-                            v-if="bp !== 'base'"
+                            :disabled="bp === 'base'"
                             type="button"
                             :class="[
-                                'h-8 w-8 shrink-0 rounded-sm border text-xs transition-colors',
+                                'size-8 shrink-0 rounded-sm border text-xs transition-colors',
+                                'disabled:cursor-not-allowed disabled:opacity-50',
                                 !widget.rows[bp]
                                     ? 'border-primary bg-primary text-primary-foreground'
                                     : 'border-border bg-muted hover:bg-muted-foreground/20',
@@ -271,11 +275,11 @@ function commitHeight() {
                             />
                         </button>
                         <button
-                            v-for="r in 10"
+                            v-for="r in 5"
                             :key="r"
                             type="button"
                             :class="[
-                                'h-8 rounded-sm border px-3 text-xs transition-colors',
+                                'size-8 rounded-sm border px-3 text-xs transition-colors',
                                 (widget.rows[bp] || 0) >= r
                                     ? 'border-primary bg-primary text-primary-foreground'
                                     : 'border-border bg-muted hover:bg-muted-foreground/20',
@@ -286,25 +290,13 @@ function commitHeight() {
                         </button>
                         <input
                             :value="widget.rows[bp]"
-                            type="number"
-                            class="h-8 w-12 rounded-sm border border-border bg-muted px-2 text-xs outline-none focus:border-primary"
+                            type="text"
+                            class="size-8 rounded-sm border border-border bg-muted px-2 text-xs outline-none focus:border-primary"
                             @input="(e) => widget.setRow(bp, Number((e.target as HTMLInputElement).value))"
                         >
                     </div>
                 </div>
             </div>
-
-            <DialogFooter>
-                <Button
-                    variant="outline"
-                    @click="heightOpen = false"
-                >
-                    {{ $t('Cancel') }}
-                </Button>
-                <Button @click="commitHeight">
-                    {{ $t('Save') }}
-                </Button>
-            </DialogFooter>
-        </DialogContent>
-    </Dialog>
+        </div>
+    </DashboardDrawer>
 </template>

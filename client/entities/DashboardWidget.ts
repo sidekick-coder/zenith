@@ -2,6 +2,8 @@ import type { EmmitterService } from '@sidekick-coder/zenith-kit/shared'
 import type DashboardWidgetData from './DashboardWidgetData'
 import type DashboardWidgetDefinition from './DashboardWidgetDefinition'
 
+export const DASHBOARD_ROW_HEIGHT = 80
+
 interface DashboardWidgetOptions {
     data: DashboardWidgetData
     definition: DashboardWidgetDefinition
@@ -72,7 +74,7 @@ export default class DashboardWidget {
         const rows = this.rows[breakpoint] ?? 1
 
         const colSize = options.contianerWidth / 12
-        const rowSize = 80
+        const rowSize = DASHBOARD_ROW_HEIGHT
 
         styles.set('position', 'absolute')
         styles.set('left', `${x}px`)
