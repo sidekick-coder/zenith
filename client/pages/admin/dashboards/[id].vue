@@ -147,6 +147,7 @@ onMounted(loadBody)
     </div>
 
     <DashboardBody
+        v-if="!loading"
         ref="body"
         :widgets="entity.widgets"
         @add-widget="entity.addWidget()"

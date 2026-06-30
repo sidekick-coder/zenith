@@ -1,7 +1,8 @@
 import cp from 'child_process'
+import path from 'path'
 import chokidar from 'chokidar'
 import { debounce } from 'lodash-es'
-import { basePath } from '#server/utils/paths.ts'
+import { basePath, env } from '@sidekick-coder/zenith-kit/server'
 import logger from '#server/facades/logger.facade.ts'
 import arte from '#server/facades/arte.facade.ts'
 import config from '#server/facades/config.facade.ts'
@@ -10,6 +11,7 @@ let child: cp.ChildProcess | null = null
 
 async function start() {
     const modulePath = basePath('server/server.ts')
+
     const execArgv = [
         '--no-warnings',
         '--experimental-strip-types'
@@ -73,11 +75,7 @@ async function stop() {
     }
 }
 
-async function reload(info?: any) {
-    if (config.get('arte.debug', false)) {
-        logger.debug('reloading...', info)
-    }
-
+async function reload() {
     await stop()
 
     await start()
@@ -102,6 +100,7 @@ arte
     .command('serve')
     .option('-w, --watch', 'Watch for changes and restart server')
     .action(async (options) => {
+
         await start()
 
         if (!child) {
@@ -116,29 +115,19 @@ arte
             return
         }
 
-        const entries = [
-            'shared',
-            'server',
-            'modules',
-            'langs',
-            'index.ts',
-            '.env'
-        ]
+        const watchEntries = (env.get('ZENITH_SERVER_WATCH_ENTRIES', '') as string)
+            .split(',')
+            .filter(Boolean)
+            .map(e => path.resolve(process.cwd(), e))
+
+        if (!watchEntries.length) {
+            logger.warn('No watch entries specified. Watching default entries.')
+            return
+        }
 
         const ignore = [
             '.git',
-            'arte',
             'node_modules',
-            'commands',
-            'seeds',
-            'migrations',
-            'templates',
-            'tmp',
-            'root',
-            'client',
-            'storage',
-            '.volumes',
-            'dist',
             'package-lock.json',
             'yarn.lock'
         ]
@@ -147,7 +136,9 @@ arte
             logger.debug('watching changes')
         }
 
-        const watcher = chokidar.watch(entries.map(entry => basePath(entry)), {
+        logger.info('watching for changes', { entries: watchEntries, })
+
+        const watcher = chokidar.watch(watchEntries, {
             persistent: true,
             ignoreInitial: true,
             ignored: (path) => {
@@ -159,16 +150,18 @@ arte
             }
         })
 
-        watcher.on('change', reloadDebounced)
-        watcher.on('add', reloadDebounced)
-        watcher.on('unlink', reloadDebounced)
+        watcher.on('all', (_event, path) => {
+            logger.info(`file change: ${path}`)
+
+            reloadDebounced()
+        })
 
         watcher.on('error', (error) => {
-            if (config.get('arte.debug', false)) logger.error('watcher error:', error)
+            logger.error('watcher error:', error)
         })
 
         watcher.on('ready', () => {
-            if (config.get('arte.debug', false)) logger.debug('watcher ready, watching for changes...')
+            logger.debug('watcher ready, watching for changes...')
         })
 
     })

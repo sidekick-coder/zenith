@@ -13,4 +13,5 @@ EnvService
 CliWrapperService
     .create()
     .setBasePath(import.meta.dirname)
+    .addEnv('ZENITH_SERVER_WATCH_ENTRIES', 'server')
     .run()
