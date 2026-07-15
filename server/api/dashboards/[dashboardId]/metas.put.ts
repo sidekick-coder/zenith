@@ -27,7 +27,9 @@ export default defineHandler(async (ctx) => {
         value,
     }))
 
-    await dashboardMetaRepository.createMany(metas)
+    if (metas.length > 0) {
+        await dashboardMetaRepository.createMany(metas)
+    }
 
     return payload
 })
