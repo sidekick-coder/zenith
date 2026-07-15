@@ -1,13 +1,15 @@
-import type { EmmitterService } from '@sidekick-coder/zenith-kit/shared'
+import { EmmitterService } from '@sidekick-coder/zenith-kit/shared'
+import { set } from 'lodash-es'
 import type DashboardWidgetData from './DashboardWidgetData'
 import type DashboardWidgetDefinition from './DashboardWidgetDefinition'
+import DashboardWidgetDefinitionUnknown from './DashboardWidgetDefinitionUnknown'
+import dashboardRegistry from '#client/facades/dashboardRegistry.ts'
 
 export const DASHBOARD_ROW_HEIGHT = 80
 
 interface DashboardWidgetOptions {
     data: DashboardWidgetData
     definition: DashboardWidgetDefinition
-    emmitter: EmmitterService
 }
 
 interface StylesOptions {
@@ -20,9 +22,30 @@ export default class DashboardWidget {
     public definition: DashboardWidgetDefinition
     public emmitter: EmmitterService
 
-    constructor({ data, definition, emmitter }: DashboardWidgetOptions) {
+    constructor({ data, definition }: DashboardWidgetOptions) {
         this.data = data
         this.definition = definition
+        this.emmitter = new EmmitterService()
+    }
+
+    public static fromData(data: DashboardWidgetData) {
+        let def = dashboardRegistry.get(data.definition_id)
+
+        if (!def) {
+            def = new DashboardWidgetDefinitionUnknown()
+            def.name = `Unknown: ${data.definition_id}`
+            def.id = data.definition_id
+
+            console.warn(`DashboardWidgetDefinition not found for id: ${data.definition_id}. Using unknown definition.`)
+        }
+
+        return new DashboardWidget({
+            data: data,
+            definition: def,
+        })
+    }
+
+    public setEmmitter(emmitter: EmmitterService) {
         this.emmitter = emmitter
     }
 
@@ -34,19 +57,32 @@ export default class DashboardWidget {
         return this.data.name
     }
 
+    public set name(value: string) {
+        this.update({ name: value })
+    }
+
+    public get options(): DashboardWidgetData['options'] {
+        return this.data.options || {}
+    }
+
+
     public get definition_id(): string {
         return this.data.definition_id
     }
 
-    public get component(): any {
-        return this.definition.component
+    public component() {
+        return this.definition.component()
+    }
+
+    public actions() {
+        return this.definition.actions()
     }
 
     public get columns(): DashboardWidgetData['columns'] {
         return this.data.columns || {}
     }
 
-    public set columns(payload: DashboardWidgetData['columns']){
+    public set columns(payload: DashboardWidgetData['columns']) {
         const columns = JSON.parse(JSON.stringify(this.data.columns || {})) as DashboardWidgetData['columns']
 
         Object.assign(columns, payload)
@@ -58,7 +94,7 @@ export default class DashboardWidget {
         return this.data.rows || {}
     }
 
-    public set rows(payload: DashboardWidgetData['rows']){
+    public set rows(payload: DashboardWidgetData['rows']) {
         const rows = JSON.parse(JSON.stringify(this.data.rows || {})) as DashboardWidgetData['rows']
 
         Object.assign(rows, payload)
@@ -70,7 +106,7 @@ export default class DashboardWidget {
         return this.data.x || {}
     }
 
-    public set x(payload: DashboardWidgetData['x']){
+    public set x(payload: DashboardWidgetData['x']) {
         const x = JSON.parse(JSON.stringify(this.data.x || {})) as DashboardWidgetData['x']
 
         Object.assign(x, payload)
@@ -82,7 +118,7 @@ export default class DashboardWidget {
         return this.data.y || {}
     }
 
-    public set y(payload: DashboardWidgetData['y']){
+    public set y(payload: DashboardWidgetData['y']) {
         const y = JSON.parse(JSON.stringify(this.data.y || {})) as DashboardWidgetData['y']
 
         Object.assign(y, payload)
@@ -119,13 +155,21 @@ export default class DashboardWidget {
             .join(' ')
     }
 
-    public update(payload: Partial<Pick<DashboardWidgetData, 'columns' | 'rows' | 'x' | 'y'> >) {
-        Object.assign(this.data, payload) 
+    public update(payload: Partial<DashboardWidgetData>) {
+        Object.assign(this.data, payload)
 
         this.emmitter.emit('widget:updated', {
             id: this.id,
             data: this.data
         })
+    }
+
+    public setOption(key: string, value: any) {
+        const options = JSON.parse(JSON.stringify(this.data.options || {}))
+
+        set(options, key, value)
+
+        this.update({ options })
     }
 
     public setX(breakpoint: 'base' | 'sm' | 'md' | 'lg' | 'xl', value: number | undefined = undefined) {
@@ -152,7 +196,7 @@ export default class DashboardWidget {
         if (value !== undefined) {
             y[breakpoint] = value
         }
-        
+
         this.update({ y })
     }
 

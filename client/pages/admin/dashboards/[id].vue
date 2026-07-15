@@ -9,20 +9,21 @@ import Icon from '#client/components/Icon.vue'
 import DashboardBody from '#client/components/DashboardBody.vue'
 import DashboardEntity from '#client/entities/Dashboard.ts'
 import { provideDashboard } from '#client/composables/useDashboard.ts'
-import { DashboardSchema, dashboardSchema } from '#shared/schemas/dashboardSchema.ts'
+import type { DashboardSchema } from '#shared/schemas/dashboardSchema.ts'
 import DashboardWidgetData from '#client/entities/DashboardWidgetData.ts'
+import DashboardAddWidgetDrawer from '#client/components/DashboardAddWidgetDrawer.vue'
 
 const route = useRoute()
 const id = route.params.id as string
 
-const entity = ref<DashboardEntity>(new DashboardEntity())
+const dashboard = ref<DashboardEntity>(new DashboardEntity())
 const body = ref<InstanceType<typeof DashboardBody>>()
 
-provideDashboard(entity)
+provideDashboard(dashboard)
 
 const loading = ref(false)
 const saving = ref(false)
-const dashboard = ref<DashboardSchema>()
+const dashboardData = ref<DashboardSchema>()
 const metas = ref<any>({})
 
 async function load() {
@@ -35,14 +36,14 @@ async function load() {
         return
     }
 
-    dashboard.value = response
+    dashboardData.value = response
     metas.value = response.metas
 
     let widgets: any[] = response.metas?.widgets ?? []
 
     widgets = widgets.map(w => new DashboardWidgetData(w))
 
-    entity.value
+    dashboard.value
         .setName(response.name)
         .setDescription(response.description)
         .setWidgets(widgets)
@@ -55,13 +56,14 @@ async function load() {
 async function save() {
     saving.value = true
 
-    const widgets = entity.value.widgets.map(w => ({
+    const widgets = dashboard.value.widgets.map(w => ({
         id: w.id,
         definition_id: w.definition_id,
         x: w.x,
         y: w.y,
         columns: w.columns,
         rows: w.rows,
+        options: w.options
     }))
 
     const data = {
@@ -95,7 +97,7 @@ function loadBody() {
 
     const width = el.offsetWidth
 
-    entity.value.setContainerWidth(width)
+    dashboard.value.setContainerWidth(width)
 }
 
 onMounted(load)
@@ -107,22 +109,23 @@ onMounted(loadBody)
         <div class="mb-6 flex items-center">
             <div class="flex-1">
                 <PageTitle>
-                    {{ entity.name || $t('Loading...') }}
+                    {{ dashboard.name || $t('Loading...') }}
                 </PageTitle>
-                <PageSubtitle v-if="entity.description">
-                    {{ entity.description }}
+                <PageSubtitle v-if="dashboard.description">
+                    {{ dashboard.description }}
                 </PageSubtitle>
             </div>
             <div class="flex items-center gap-2">
-                <Button
-                    type="button"
-                    variant="outline"
-                    :disabled="loading"
-                    @click="entity?.addWidget()"
-                >
-                    <Icon name="Plus" />
-                    {{ $t('Add widget') }}
-                </Button>
+                <DashboardAddWidgetDrawer>
+                    <Button
+                        type="button"
+                        variant="outline"
+                        :disabled="loading"
+                    >
+                        <Icon name="Plus" />
+                        {{ $t('Add widget') }}
+                    </Button>
+                </DashboardAddWidgetDrawer>
                 <Button
                     variant="outline"
                     size="icon"
@@ -149,8 +152,8 @@ onMounted(loadBody)
     <DashboardBody
         v-if="!loading"
         ref="body"
-        :widgets="entity.widgets"
-        @add-widget="entity.addWidget()"
-        @update:widgets="entity.setWidgets($event)"
+        :widgets="dashboard.widgets"
+        @add-widget="dashboard.addWidget()"
+        @update:widgets="dashboard.setWidgets($event)"
     />
 </template>

@@ -6,6 +6,6 @@ export default class DashboardWidgetDefinitionUnknown extends DashboardWidgetDef
         super()
         this.id = 'unknown'
         this.name = 'Unknown'
-        this.component = DashboardWidgetUnknown
+        this.component = () => DashboardWidgetUnknown
     }
 }

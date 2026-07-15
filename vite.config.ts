@@ -23,13 +23,6 @@ export default defineConfig({
         tailwindcss()
     ],
     publicDir: path.resolve(import.meta.dirname, 'client/public'),
-    // resolve: {
-    // dedupe: ['vue'],
-    // alias: {
-    //     'vue/server-renderer': path.resolve(import.meta.dirname, 'node_modules/vue/server-renderer/index.mjs'),
-    //     vue: path.resolve(import.meta.dirname, 'node_modules/vue/dist/vue.esm-bundler.js'),
-    // }
-    // },
     server: {
         allowedHosts,
         watch: {
@@ -37,7 +30,7 @@ export default defineConfig({
                 '**/shared',
                 '**/server',
                 '**/storage',
-                '**/modules/**/server',
+                '**/plugins',
                 '**/.env', // Ignores .env files in the root and subdirectories
                 '**/.env.*', // Ignores all .env-related files (e.g., .env.local, .env.development)
                 '**/vite.config.*', // Ignores Vite config files

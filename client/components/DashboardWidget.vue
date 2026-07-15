@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { nextTick, onMounted, ref, shallowRef } from 'vue'
+import { markRaw, nextTick, onMounted, ref, shallowRef } from 'vue'
 import DashboardDrawer from './DashboardDrawer.vue'
 import DashboardGridUnitInput from './DashboardGridUnitInput.vue'
 import Button from '#client/components/Button.vue'
@@ -13,29 +13,45 @@ import {
 
 import { useDashboard } from '#client/composables/useDashboard.ts'
 import type DashboardWidget from '#client/entities/DashboardWidget.ts'
+import { DashboardWidgetAction } from '#client/entities/DashboardWidgetDefinition.ts'
+import { provideDashboardWidget } from '#client/composables/useDashboardWidget.ts'
 
 defineOptions({ inheritAttrs: false })
 
 const emit = defineEmits(['remove', 'duplicate'])
 
-const widget = defineModel<DashboardWidget>({ default: () => ({}) })
+const widget = defineModel<DashboardWidget>({
+    type: Object,
+    required: true,
+})
+
+provideDashboardWidget(widget)
 
 const dashboard = useDashboard()
 const styles = ref()
 const layout = ref(false)
-const component = shallowRef()
+const widgetComponent = shallowRef()
+const actions = shallowRef<DashboardWidgetAction[]>([])
 
 function loadStyles() {
     styles.value = widget.value.computeStyles({ contianerWidth: dashboard.value.containerWidth ?? 0, })
 }
 
 function loadComponent() {
-    console.log('loading component', widget.value)
-    component.value = widget.value.component
+    const c = widget.value.component()
+
+    if (!c) return
+
+    widgetComponent.value = c
+}
+
+function loadActions() {
+    actions.value = widget.value.actions()
 }
 
 onMounted(loadStyles)
 onMounted(loadComponent)
+onMounted(loadActions)
 
 widget.value.emmitter.on('widget:updated', loadStyles)
 
@@ -53,30 +69,13 @@ async function startEdit() {
 }
 
 function commitEdit(e: Event) {
-    widget.value = {
-        ...widget.value,
-        name: (e.target as HTMLInputElement).value
-    }
+    widget.value.name = (e.target as HTMLInputElement).value
+
     editing.value = false
 }
 
 function cancelEdit() {
     editing.value = false
-}
-
-// --- size dialog ---
-const sizeOpen = ref(false)
-
-const breakpoints = ['base', 'sm', 'md', 'lg', 'xl'] as const
-
-// --- height dialog ---
-
-const heightOpen = ref(false)
-const heightDraft = ref<Widget['height']>({})
-
-function openHeight() {
-    heightDraft.value = { ...widget.value.height }
-    heightOpen.value = true
 }
 
 function createOptions(from: number, to: number) {
@@ -94,13 +93,11 @@ function createOptions(from: number, to: number) {
 </script>
 
 <template>
-    <div 
+    <div
         :style="styles"
         class="p-2"
     >
-        <div
-            class="bg-card text-card-foreground flex flex-col rounded-xl border shadow-sm h-full overflow-hidden"
-        >
+        <div class="bg-card text-card-foreground flex flex-col rounded-xl border shadow-sm h-full overflow-hidden">
             <div class="flex items-center gap-2 border-b px-4 py-3">
                 <input
                     v-if="editing"
@@ -111,6 +108,7 @@ function createOptions(from: number, to: number) {
                     @keydown.esc="cancelEdit"
                     @blur="commitEdit"
                 >
+
                 <span
                     v-else
                     class="flex-1 text-sm font-medium"
@@ -119,47 +117,54 @@ function createOptions(from: number, to: number) {
                     {{ widget.name || $t('Widget') }}
                 </span>
 
-                <Button
-                    variant="ghost"
-                    size="icon"
-                    class="h-7 w-7"
-                    @click="layout = true"
-                >
-                    <Icon name="LayoutGrid" />
-                </Button>
+                <div class="flex items-center gap-2">
+                    <component
+                        :is="action.component"
+                        v-for="(action, index) in actions"
+                        :key="index"
+                        v-bind="action.props"
+                    />
 
-
-                <DropdownMenu>
-                    <DropdownMenuTrigger as-child>
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            class="h-7 w-7"
-                        >
-                            <Icon name="EllipsisVertical" />
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                        <slot name="options" />
-                        <DropdownMenuItem @click="emit('duplicate')">
-                            <Icon name="Copy" />
-                            {{ $t('Duplicate') }}
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                            class="text-destructive focus:text-destructive"
-                            @click="emit('remove')"
-                        >
-                            <Icon name="Trash" />
-                            {{ $t('Remove') }}
-                        </DropdownMenuItem>
-                    </DropdownMenuContent>
-                </DropdownMenu>
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        class="h-7 w-7"
+                        @click="layout = true"
+                    >
+                        <Icon name="LayoutGrid" />
+                    </Button>
+                    <DropdownMenu>
+                        <DropdownMenuTrigger as-child>
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                class="h-7 w-7"
+                            >
+                                <Icon name="EllipsisVertical" />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                            <slot name="options" />
+                            <DropdownMenuItem @click="emit('duplicate')">
+                                <Icon name="Copy" />
+                                {{ $t('Duplicate') }}
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                                class="text-destructive focus:text-destructive"
+                                @click="emit('remove')"
+                            >
+                                <Icon name="Trash" />
+                                {{ $t('Remove') }}
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                </div>
             </div>
 
             <div class="flex-1 p-4">
                 <component
-                    :is="component"
-                    v-if="component"
+                    :is="widgetComponent"
+                    v-if="widgetComponent"
                 />
             </div>
         </div>

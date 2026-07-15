@@ -43,21 +43,9 @@ export default class Dashboard {
         this.widgets = []
 
         for (const w of widgets) {
-            let def = dashboardRegistry.get(w.definition_id)
+            const widget = DashboardWidget.fromData(w)
 
-            if (!def) {
-                def = new DashboardWidgetDefinitionUnknown()
-                def.name = `Unknown: ${w.definition_id}`
-                def.id = w.definition_id
-
-                console.warn(`DashboardWidgetDefinition not found for id: ${w.definition_id}. Using unknown definition.`)
-            }
-
-            const widget = new DashboardWidget({
-                data: w,
-                definition: def,
-                emmitter: this.emmitter
-            })
+            widget.setEmmitter(this.emmitter)
 
             this.widgets.push(widget)
         }
@@ -65,15 +53,29 @@ export default class Dashboard {
         return this
     }
 
-    private sortWidgets(widgets: Widget[]) {
-        return [...widgets].sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
-    }
-
     private reindex(widgets: Widget[]): Widget[] {
         return widgets.map((w, i) => ({
             ...w,
             order: i
         }))
+    }
+
+    public findLastRow(): number {
+        let result = 0 
+
+        for (const widget of this.widgets) {
+            const rows = widget.rows?.base ?? 0
+            const y = widget.y?.base ?? 0
+
+            const bottom = y + rows
+
+            if (bottom > result) {
+                result = bottom
+            }
+        }
+        
+        return result
+
     }
 
     public addWidget(payload: Partial<DashboardWidgetData> = {}) {
@@ -85,13 +87,19 @@ export default class Dashboard {
             payload.rows = { base: 4, }
         }
 
+        if (!payload.x) {
+            payload.x = { base: 0, }
+        }
+
+        if (!payload.y) {
+            payload.y = { base: this.findLastRow(), }
+        }
+
         const data = new DashboardWidgetData(payload)
-        const def = new DashboardWidgetDefinition()
-        const widget = new DashboardWidget({
-            data,
-            definition: def,
-            emmitter: this.emmitter
-        })
+
+        const widget = DashboardWidget.fromData(data)
+
+        widget.setEmmitter(this.emmitter)
 
         this.widgets.push(widget)
     }

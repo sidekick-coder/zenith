@@ -6,6 +6,11 @@ const title = defineModel('title', {
     default: null
 })
 
+const description = defineModel('description', {
+    type: String,
+    default: null
+})
+
 const open = defineModel('open', {
     type: Boolean,
     default: false
@@ -30,12 +35,20 @@ const side = defineModel<'left' | 'right' | 'bottom'>('side', {
     >
         <div class="flex h-full w-full flex-col bg-background">
             <div class="flex items-center justify-between border-b px-4 py-2">
-                <h2
-                    v-if="title"
-                    class="font-semibold"
-                >
-                    {{ title }}
-                </h2>
+                <div class="flex flex-col gap-1">
+                    <div
+                        v-if="title"
+                        class="font-semibold"
+                    >
+                        {{ title }}
+                    </div>
+                    <p
+                        v-if="description"
+                        class="text-xs text-muted-foreground"
+                    >
+                        {{ description }}
+                    </p>
+                </div>
 
                 <div class="ml-auto flex gap-2">
                     <ZButton
@@ -73,6 +86,12 @@ const side = defineModel<'left' | 'right' | 'bottom'>('side', {
             </div>
             <div class="flex-1 overflow-y-auto">
                 <slot />
+            </div>
+            <div
+                v-if="$slots.footer"
+                class="border-t px-4 py-2"
+            >
+                <slot name="footer" />  
             </div>
         </div>
     </aside>

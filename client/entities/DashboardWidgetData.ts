@@ -17,12 +17,17 @@ export default class DashboardWidgetData {
     public x: DashboardGridUnit
     public y: DashboardGridUnit
     public order: number
+    public options: Record<string, any>
 
     constructor(data: Partial<DashboardWidgetData>) {
         Object.assign(this, data)
 
         if (!this.id) {
             this.id = createId()
+        }
+
+        if (!this.options) {
+            this.options = {}
         }
     }
 }

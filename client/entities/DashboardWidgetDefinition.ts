@@ -1,6 +1,28 @@
+export interface DashboardWidgetAction {
+    props?: Record<string, any>
+    component: any
+}
+
 export default class DashboardWidgetDefinition {
     public id: string
     public name: string
+    public description?: string
+    public options: Record<string, any>
     public icon?: string
-    public component: any
+
+    constructor() {
+        this.id = ''
+        this.name = ''
+        this.description = ''
+        this.options = {}
+        this.icon = ''
+    }
+
+    public component(): any {
+        return null
+    }
+
+    public actions(): DashboardWidgetAction[] {
+        return []
+    }
 }
