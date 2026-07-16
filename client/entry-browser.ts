@@ -1,56 +1,21 @@
-import './translator.ts'
-
-import './imports'
-import './assets/styles.css'
-
 import { createHead } from '@unhead/vue/client'
 import type { App } from 'vue'
-import { container, LifecycleService, FetchBrowserService } from '@sidekick-coder/zenith-kit/client'
-import { ConfigService, EmmitterService, LoggerService } from '@sidekick-coder/zenith-kit/shared'
-import ModulesService from './services/modules.service.ts'
-import ModulesBrowserService from './services/modulesBrowser.service.ts'
-import ModulesDevService from './services/modulesDev.service.ts'
+import { container, FetchService, FetchBrowserService } from '@sidekick-coder/zenith-kit/client'
 import type { Router } from './router.ts'
-import FetchService from './services/fetch.service.ts'
 import ClientLoggerService from './services/logger.service.ts'
-
-const config = new ConfigService()
-const logger = new ClientLoggerService()
-
-container.loadFromRecord(window.__CONTAINER__ || {})
-config.loadFromRecord(window.__CONFIG__ || [])
-
-// emmitter
-const emmiter = new EmmitterService({
-    debug: config.getOne(['emmitter.debug', 'app.debug', 'debug'], false),
-    logger: logger.child({ label: 'emmitter' }),
-})
-
-const lifecycle = new LifecycleService({
-    debug: config.getOne(['lifecycle.debug', 'app.debug', 'debug'], false),
-    logger: logger.child({ label: 'lifecycle' }),
-})
-
-container
-    .set(ConfigService, config)
-    .set(LifecycleService, lifecycle)
-    .set(LoggerService, logger)
-    .set(FetchService, new FetchBrowserService())
-    .set(EmmitterService, emmiter)
-    .set('state', window.__STATE__ || {})
-
-lifecycle.addImports(import.meta.glob('./hooks/*.ts', { eager: true }))
-
-const serviceOptions = { debug: config.get('modules.debug') || config.get('app.debug') }
-
-const useBrowserService = config.get('modules.browser.service') === 'browser' || import.meta.env.PROD
-
-container.set(ModulesService, useBrowserService
-    ? new ModulesBrowserService(serviceOptions) 
-    : new ModulesDevService(serviceOptions)
-)
+import { createApp } from './app.ts'
 
 async function main(){
+    const { lifecycle } = await createApp({
+        logger: new ClientLoggerService(),
+        configEntries: window.__CONFIG__ || [],
+        containerEntries: window.__CONTAINER__ || {},
+    })
+
+    container
+        .set(FetchService, new FetchBrowserService())
+        .set('state', window.__STATE__ || {})
+
     await lifecycle.emit(['register', 'load', 'boot'])
     
     const app = container.get<App>('app')
