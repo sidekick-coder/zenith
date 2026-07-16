@@ -20,7 +20,7 @@ const lightTheme = {
 
     textStyle: {
         // gray-800
-        color: '#1f2937',
+        color: '#',
     },
 
     title: {
@@ -132,7 +132,11 @@ function load() {
         throw new Error('Container not found')
     }
 
-    const c = echarts.init(container.value, 'dark')
+    const isDarkMode = document.documentElement.classList.contains('dark')
+
+    const theme = isDarkMode ? 'dark' : 'light'
+
+    const c = echarts.init(container.value, theme)
 
     c.setOption(props.options)
 

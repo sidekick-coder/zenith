@@ -14,22 +14,17 @@ if (!globalThis.imports) {
 globalThis.imports.set('vue/server-renderer', () => Promise.resolve(VueServerRenderer))
 
 export default async function(ctx: EntryNodeRenderContract): Promise<EntryNodeRenderResult> {
-    const { lifecycle } = await createApp({
+    container.set(FetchService, new FetchNodeService())
+    container.set('RouterService', ctx.serverRouter)
+    container.set('state', ctx.state || {})
+    container.set('cookies', ctx.cookies)
+
+    const { app, router } = await createApp({
         logger: ctx.logger,
         configEntries: ctx.config,
         containerEntries: ctx.container,
     })
 
-    container.set(FetchService, new FetchNodeService())
-    container.set('RouterService', ctx.serverRouter)
-
-    container.set('state', ctx.state || {})
-    container.set('cookies', ctx.cookies)
-
-    await lifecycle.emit(['register', 'load', 'boot'])
-
-    const router = container.get<Router>('router')
-    const app = container.get<App>('app')
     const head = createHead({ init: ctx.head })
 
     app.use(head)
