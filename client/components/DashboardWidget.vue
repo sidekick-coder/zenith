@@ -161,7 +161,7 @@ function createOptions(from: number, to: number) {
                 </div>
             </div>
 
-            <div class="flex-1 p-4">
+            <div class="flex-1">
                 <component
                     :is="widgetComponent"
                     v-if="widgetComponent"

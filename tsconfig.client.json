@@ -3,6 +3,9 @@
         "@vue/tsconfig/tsconfig.dom.json"
     ],
     "compilerOptions": {
+        "customConditions": [
+            "development"
+        ],
         "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
         "strict": true,
         "noUnusedLocals": false,
@@ -32,12 +35,6 @@
     "include": [
         "client/**/**/*.ts",
         "client/**/**/*.vue",
-        "shared/**/*.ts",
-        "modules/**/client/**/*.ts",
-        "modules/**/client/**/*.js",
-        "modules/**/client/**/*.vue"
-    ],
-    "exclude": [
-        "modules/**/root"
+        "shared/**/*.ts"
     ]
 }

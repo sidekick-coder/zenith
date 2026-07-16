@@ -7,14 +7,12 @@ export default class DashboardWidgetDefinition {
     public id: string
     public name: string
     public description?: string
-    public options: Record<string, any>
     public icon?: string
 
     constructor() {
         this.id = ''
         this.name = ''
         this.description = ''
-        this.options = {}
         this.icon = ''
     }
 
