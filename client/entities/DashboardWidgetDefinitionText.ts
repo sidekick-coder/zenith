@@ -1,5 +1,6 @@
 import { defineAsyncComponent } from 'vue'
-import DashboardWidgetDefinition from './DashboardWidgetDefinition'
+import { DashboardWidgetDefinition } from '@sidekick-coder/zenith-kit/client'
+import { DashboardWidgetActionSetting } from '@sidekick-coder/zenith-kit/components'
 import { defineFormFields } from '#client/components/FormAutoFieldList.vue'
 
 export default class DashboardWidgetDefinitionUnknown extends DashboardWidgetDefinition {
@@ -36,7 +37,7 @@ export default class DashboardWidgetDefinitionUnknown extends DashboardWidgetDef
         return [
             {
                 props: { fields },
-                component: defineAsyncComponent(() => import('#client/components/DashboardWidgetActionSetting.vue')),
+                component: DashboardWidgetActionSetting,
             }
         ]
     }

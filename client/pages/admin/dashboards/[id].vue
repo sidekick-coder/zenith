@@ -2,21 +2,17 @@
 import { onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { toast } from 'vue-sonner'
-import { PageTitle, PageSubtitle } from '@sidekick-coder/zenith-kit/components'
-import { fetcher } from '@sidekick-coder/zenith-kit/client'
+import { PageTitle, PageSubtitle, DashboardBody, DashboardAddWidgetDrawer } from '@sidekick-coder/zenith-kit/components'
+import { fetcher, Dashboard as DashboardEntity, DashboardWidgetData, provideDashboard, vue  } from '@sidekick-coder/zenith-kit/client'
+import type { DashboardSchema } from '@sidekick-coder/zenith-kit/shared'
 import Button from '#client/components/Button.vue'
 import Icon from '#client/components/Icon.vue'
-import DashboardBody from '#client/components/DashboardBody.vue'
-import DashboardEntity from '#client/entities/Dashboard.ts'
-import { provideDashboard } from '#client/composables/useDashboard.ts'
-import type { DashboardSchema } from '#shared/schemas/dashboardSchema.ts'
-import DashboardWidgetData from '#client/entities/DashboardWidgetData.ts'
-import DashboardAddWidgetDrawer from '#client/components/DashboardAddWidgetDrawer.vue'
+import ClientOnly from '#client/components/ClientOnly.vue'
 
 const route = useRoute()
 const id = route.params.id as string
 
-const dashboard = ref<DashboardEntity>(new DashboardEntity())
+const dashboard = vue.ref(new DashboardEntity())
 const body = ref<InstanceType<typeof DashboardBody>>()
 
 provideDashboard(dashboard)
@@ -153,7 +149,5 @@ onMounted(loadBody)
         v-if="!loading"
         ref="body"
         :widgets="dashboard.widgets"
-        @add-widget="dashboard.addWidget()"
-        @update:widgets="dashboard.setWidgets($event)"
     />
 </template>

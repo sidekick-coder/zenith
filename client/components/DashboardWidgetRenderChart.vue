@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { onMounted, ref, watch } from 'vue'
 import { watchDebounced } from '@vueuse/core'
+import { useDashboardWidget  } from '@sidekick-coder/zenith-kit/client'
+import type { DashboardWidgetDefinitionChart } from '@sidekick-coder/zenith-kit/client'
 import EChart from './EChart.vue'
-import { useDashboardWidget } from '#client/composables/useDashboardWidget.ts'
-import type DashboardWidgetDefinitionChart from '#client/entities/DashboardWidgetDefinitionChart.ts'
 
 const widget = useDashboardWidget()
 const options = ref()

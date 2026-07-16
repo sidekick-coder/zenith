@@ -1,7 +1,6 @@
 import './translator.ts'
 
 import './imports'
-import '@sidekick-coder/zenith-kit/styles'
 import './assets/styles.css'
 
 import { createHead } from '@unhead/vue/client'

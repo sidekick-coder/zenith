@@ -1,14 +1,22 @@
 import { LifecycleHook } from '@sidekick-coder/zenith-kit/shared'
-import DashboardWidgetDefinitionChart from '#client/entities/DashboardWidgetDefinitionChart.ts'
+import { container, DashboardWidgetRegistry, DashboardWidgetDefinitionChart } from '@sidekick-coder/zenith-kit/client'
+import { defineAsyncComponent } from 'vue'
 import DashboardWidgetDefinitionText from '#client/entities/DashboardWidgetDefinitionText.ts'
-import dashboardRegistry from '#client/facades/dashboardRegistry.ts'
 
 
 export default class extends LifecycleHook {
     public async register(): Promise<void> {
-        dashboardRegistry.register(
-            new DashboardWidgetDefinitionChart(),
-            new DashboardWidgetDefinitionText(),
+        const dashboardRegistry = new DashboardWidgetRegistry()
+
+        DashboardWidgetDefinitionChart.setRenderer(
+            defineAsyncComponent(() => import('#client/components/DashboardWidgetRenderChart.vue'))
         )
+
+        dashboardRegistry.register(
+            new DashboardWidgetDefinitionText(),
+            new DashboardWidgetDefinitionChart()
+        )
+
+        container.set(DashboardWidgetRegistry, dashboardRegistry)
     }
 }

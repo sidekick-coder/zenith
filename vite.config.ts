@@ -38,6 +38,13 @@ export default defineConfig({
             ]
         },
     },
-    build: { minify: process.env.NO_MINIFY === 'true' ? false : undefined, }
+    build: { minify: process.env.NO_MINIFY === 'true' ? false : undefined, },
+    resolve: {
+        alias: { 
+            vue: path.resolve(import.meta.dirname, 'node_modules/vue/dist/vue.esm-bundler.js'),
+            'reka-ui': path.resolve(import.meta.dirname, 'node_modules/reka-ui/dist/index.js'),
+        },
+        dedupe: ['vue'] 
+    }
 
 })

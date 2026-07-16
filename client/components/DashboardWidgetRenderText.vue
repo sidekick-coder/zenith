@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed  } from 'vue'
 import type { HTMLAttributes } from 'vue'
-import { useDashboardWidget } from '#client/composables/useDashboardWidget.ts'
+import { useDashboardWidget } from '@sidekick-coder/zenith-kit/client'
 
 const widget = useDashboardWidget()
 
