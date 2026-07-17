@@ -7,7 +7,6 @@ import { fetcher, Dashboard as DashboardEntity, DashboardWidgetData, provideDash
 import type { DashboardSchema } from '@sidekick-coder/zenith-kit/shared'
 import Button from '#client/components/Button.vue'
 import Icon from '#client/components/Icon.vue'
-import ClientOnly from '#client/components/ClientOnly.vue'
 
 const route = useRoute()
 const id = route.params.id as string
@@ -54,6 +53,7 @@ async function save() {
 
     const widgets = dashboard.value.widgets.map(w => ({
         id: w.id,
+        name: w.name,
         definition_id: w.definition_id,
         x: w.x,
         y: w.y,
