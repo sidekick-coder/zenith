@@ -26,9 +26,9 @@ router.post('/api/auth/login', async ({ body, cookie }) => {
     }
 
     const options = {
-        httpOnly: false,
-        sameSite: false,
-        maxAge: 60 * 60 * 24 * 7, // 1 week
+        httpOnly: true,
+        sameSite: true,
+        maxAge: 1000 * 60 * 60 * 24 * 7, // 1 week
     }
 
     cookie.set('Authorization', result.token!, options)
