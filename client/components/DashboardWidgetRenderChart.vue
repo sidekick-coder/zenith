@@ -20,7 +20,7 @@ async function load() {
 
     const [err, data] = await tryCatch(() => def.chartOptions(widget.value.options))
 
-    if (error) {
+    if (err) {
         loading.value = false
         error.value = err
         return
@@ -56,6 +56,7 @@ watchDebounced(() => widget.value.options, load, {
             class="animate-spin mr-2 @md:text-xl"
         />
     </div>
+
     <div
         v-else-if="error"
         class="flex flex-col items-center justify-center h-full"
@@ -67,6 +68,7 @@ watchDebounced(() => widget.value.options, load, {
             {{ error.message }}
         </div>
     </div>
+
     <EChart
         v-else-if="options"
         ref="chartRef"
