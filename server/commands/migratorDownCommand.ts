@@ -2,7 +2,7 @@ import { confirm } from '@inquirer/prompts'
 import { CliCommand, migrator } from '@sidekick-coder/zenith-kit/server'
 
 interface Options {
-    step?: number
+    stepNumber?: number
     source?: string
 }
 
@@ -17,7 +17,7 @@ command
     .option('-n, --step-number <number>', 'Number of migrations to rollback', Number)
     .option('-s, --source <string>', 'Filter by source name')
     .action(async (options: Options) => {
-        const step = options.step ?? 1
+        const step = options.stepNumber ?? 1
 
         let executed = await migrator.list({ source: options.source })
 
