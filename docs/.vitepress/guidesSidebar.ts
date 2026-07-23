@@ -11,6 +11,19 @@ export const guidesSidebar: DefaultTheme.SidebarItem[] = [
         ]
     },
     {
+        text: 'Plugins',
+        items: [
+            {
+                text: 'Introduction',
+                link: '/guides/plugins/introduction'
+            },
+            {
+                text: 'Creating a Plugin',
+                link: '/guides/plugins/creating-a-plugin'
+            },
+        ]
+    },
+    {
         text: 'Installation',
         items: [
             {
@@ -53,6 +66,14 @@ export const guidesSidebar: DefaultTheme.SidebarItem[] = [
             {
                 text: 'Shell',
                 link: '/guides/core/shell'
+            },
+            {
+                text: 'Encrypt',
+                link: '/guides/core/encrypt'
+            },
+            {
+                text: 'Hasher',
+                link: '/guides/core/hasher'
             },
         ]
     },
@@ -112,15 +133,11 @@ export const guidesSidebar: DefaultTheme.SidebarItem[] = [
         ]
     },
     {
-        text: 'Plugins',
+        text: 'Dashboards',
         items: [
             {
-                text: 'Introduction',
-                link: '/guides/plugins/introduction'
-            },
-            {
-                text: 'Creating a Plugin',
-                link: '/guides/plugins/creating-a-plugin'
+                text: 'Dashboards',
+                link: '/guides/dashboard/intro'
             },
         ]
     }
