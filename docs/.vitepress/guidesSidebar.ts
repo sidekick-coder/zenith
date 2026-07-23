@@ -50,6 +50,10 @@ export const guidesSidebar: DefaultTheme.SidebarItem[] = [
                 text: 'Scheduler',
                 link: '/guides/core/scheduler'
             },
+            {
+                text: 'Shell',
+                link: '/guides/core/shell'
+            },
         ]
     },
     {

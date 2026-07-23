@@ -95,3 +95,29 @@ iconify-icon {
     width: 1em;
     height: 1em;
 }
+
+/* scrollbars  */
+/* .zenith-scrollbar { */
+/*     scrollbar-width: thin; */
+/*     scrollbar-color: var(--foreground) var(--background); */
+/*     scrollbar-gutter: stable both-edges; */
+/* } */ 
+
+.zenith-scrollbar::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.zenith-scrollbar::-webkit-scrollbar-track {
+    background: var(--background);
+}
+
+.zenith-scrollbar::-webkit-scrollbar-thumb {
+    background-color: var(--foreground);
+    border-radius: 4px;
+    border: 2px solid var(--background);
+}
+
+.zenith-scrollbar::-webkit-scrollbar-corner {
+    background: var(--background);
+}
