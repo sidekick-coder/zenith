@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, } from 'vue'
 import { toast } from 'vue-sonner'
-import type { ComponentExposed } from 'vue-component-type-helpers'
-import { Files } from 'lucide-vue-next'
+import { DialogForm } from '@sidekick-coder/zenith-kit/components'
+import { defineFormFields } from '@sidekick-coder/zenith-kit/client'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from './ui/card'
 import DataTable, { defineColumns } from '#client/components/DataTable.vue'
 
@@ -10,7 +10,6 @@ import { $fetch } from '#client/utils/fetcher.ts'
 import Button from '#client/components/Button.vue'
 import Icon from '#client/components/Icon.vue'
 import AlertButton from '#client/components/AlertButton.vue'
-import DialogForm, { defineFormFields } from '#client/components/DialogForm.vue'
 import schemas from '#shared/validators/index.ts'
 import FileMeta from '#shared/entities/fileMeta.entity.ts'
 import { useFetchPagination } from '#client/composables/useFetchPagination.ts'
@@ -63,9 +62,7 @@ const fields = defineFormFields({
 async function destroy(id: FileMeta['id']) {
     deletingItems.value.push(id)
 
-    const [error] = await $fetch.try(`/api/files/${props.fileId}/metas/${id}`, { 
-        method: 'DELETE', 
-    })
+    const [error] = await $fetch.try(`/api/files/${props.fileId}/metas/${id}`, { method: 'DELETE', })
 
     if (error) {
         toast.error($t('Failed to delete.'))

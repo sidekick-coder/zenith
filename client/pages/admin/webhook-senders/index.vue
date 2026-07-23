@@ -2,12 +2,12 @@
 import {
     useFetchPagination,
     Switch,
-    ZDataTable, ZDialogForm, ZAlertButton, PageTitle, PageSubtitle, ZButton, defineColumns, defineFormFields, Badge
+    ZDataTable, ZDialogForm, ZAlertButton, PageTitle, PageSubtitle, ZButton, Badge
 } from '@sidekick-coder/zenith-kit/components'
 import { onMounted, onServerPrefetch, ref } from 'vue'
 import { RefreshCw } from 'lucide-vue-next'
 import { validator } from '@sidekick-coder/zenith-kit/shared'
-import { fetcher, toast } from '@sidekick-coder/zenith-kit/client'
+import { fetcher, toast, defineFormFields, defineColumns } from '@sidekick-coder/zenith-kit/client'
 import { webhookSenderCreateSchema } from '#shared/schemas/webhookSenderSchema.ts'
 import type { WebhookSender } from '#shared/schemas/webhookSenderSchema.ts'
 import Icon from '#client/components/Icon.vue'
@@ -214,7 +214,6 @@ async function toggle(row: WebhookSender) {
 
 </script>
 <template>
-
     <div class="mb-6 flex items-center justify-between gap-4">
         <div>
             <PageTitle>
@@ -226,12 +225,26 @@ async function toggle(row: WebhookSender) {
         </div>
 
         <div class="flex items-center gap-2">
-            <ZButton variant="outline" size="icon" :disabled="loading" @click="load">
-                <RefreshCw class="size-4" :class="{ 'animate-spin': loading }" />
+            <ZButton
+                variant="outline"
+                size="icon"
+                :disabled="loading"
+                @click="load"
+            >
+                <RefreshCw
+                    class="size-4"
+                    :class="{ 'animate-spin': loading }"
+                />
             </ZButton>
-            <ZDialogForm :fields="fields" :title="$t('New Webhook Sender')"
-                :description="$t('Create a new webhook sender.')" :submit-text="$t('Create')" :schema="schema"
-                :handle="create" @submit="load">
+            <ZDialogForm
+                :fields="fields"
+                :title="$t('New Webhook Sender')"
+                :description="$t('Create a new webhook sender.')"
+                :submit-text="$t('Create')"
+                :schema="schema"
+                :handle="create"
+                @submit="load"
+            >
                 <ZButton>
                     {{ $t('Add new') }}
                 </ZButton>
@@ -239,16 +252,31 @@ async function toggle(row: WebhookSender) {
         </div>
     </div>
 
-    <ZDataTable :loading="loading" :rows="items" :columns="columns">
+    <ZDataTable
+        :loading="loading"
+        :rows="items"
+        :columns="columns"
+    >
         <template #row-enabled="{ row }">
-            <Icon v-if="toggling.includes(row.id)" name="Loader2" class="animate-spin" />
+            <Icon
+                v-if="toggling.includes(row.id)"
+                name="Loader2"
+                class="animate-spin"
+            />
 
-            <Switch v-else :model-value="!!row.enabled" @click="toggle(row)" />
+            <Switch
+                v-else
+                :model-value="!!row.enabled"
+                @click="toggle(row)"
+            />
         </template>
 
         <template #row-event="{ row }">
             <div class="flex flex-col gap-1">
-                <Badge v-for="event in row.trigger_events" :key="event">
+                <Badge
+                    v-for="event in row.trigger_events"
+                    :key="event"
+                >
                     {{ event }}
                 </Badge>
             </div>
@@ -256,19 +284,32 @@ async function toggle(row: WebhookSender) {
 
         <template #row-actions="{ row }">
             <div class="flex justify-end items-center gap-2">
-                <ZDialogForm :fields="fields" :title="$t('Edit Webhook Sender')"
-                    :description="$t('Edit the webhook sender.')" :submit-text="$t('Update')" :schema="schema"
-                    :values="toForm(row)" :handle="(data: any) => update(row.id, data)" @submit="load">
-                    <ZButton variant="ghost" size="icon">
+                <ZDialogForm
+                    :fields="fields"
+                    :title="$t('Edit Webhook Sender')"
+                    :description="$t('Edit the webhook sender.')"
+                    :submit-text="$t('Update')"
+                    :schema="schema"
+                    :values="toForm(row)"
+                    :handle="(data: any) => update(row.id, data)"
+                    @submit="load"
+                >
+                    <ZButton
+                        variant="ghost"
+                        size="icon"
+                    >
                         <Icon name="Edit" />
                     </ZButton>
                 </ZDialogForm>
 
-                <ZAlertButton variant="ghost" :loading="deletingItems.includes(row.id)" @confirm="destroy(row.id)">
+                <ZAlertButton
+                    variant="ghost"
+                    :loading="deletingItems.includes(row.id)"
+                    @confirm="destroy(row.id)"
+                >
                     <Icon name="trash" />
                 </ZAlertButton>
             </div>
         </template>
     </ZDataTable>
-
 </template>

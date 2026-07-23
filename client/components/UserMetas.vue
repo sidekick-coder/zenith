@@ -2,6 +2,8 @@
 import { ref } from 'vue'
 import { toast } from 'vue-sonner'
 import type { ComponentExposed } from 'vue-component-type-helpers'
+import { DialogForm } from '@sidekick-coder/zenith-kit/components'
+import { defineFormFields } from '@sidekick-coder/zenith-kit/client'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from './ui/card'
 import DataTable, { defineColumns } from '#client/components/DataTable.vue'
 
@@ -9,7 +11,7 @@ import { $fetch } from '#client/utils/fetcher.ts'
 import Button from '#client/components/Button.vue'
 import Icon from '#client/components/Icon.vue'
 import AlertButton from '#client/components/AlertButton.vue'
-import DialogForm, { defineFormFields } from '#client/components/DialogForm.vue'
+
 import schemas from '#shared/validators/index.ts'
 import UserMeta from '#shared/entities/userMeta.entity.ts'
 
@@ -62,9 +64,7 @@ function load(){
 async function destroy(id: UserMeta['id']) {
     deletingItems.value.push(id)
 
-    const [error] = await $fetch.try(`/api/users/${props.userId}/metas/${id}`, { 
-        method: 'DELETE', 
-    })
+    const [error] = await $fetch.try(`/api/users/${props.userId}/metas/${id}`, { method: 'DELETE', })
 
     if (error) {
         toast.error($t('Failed to delete.'))

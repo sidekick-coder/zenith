@@ -1,13 +1,13 @@
 <script setup lang="ts" generic="T extends Record<string, any>">
 import { ref  } from 'vue'
 import type { PropType } from 'vue'
+import { DialogForm } from '@sidekick-coder/zenith-kit/components'
 import DataTable from '#client/components/DataTable.vue'
 
 import ClientOnly from '#client/components/ClientOnly.vue'
 import Button from '#client/components/Button.vue'
 import Icon from '#client/components/Icon.vue'
 import AlertButton from '#client/components/AlertButton.vue'
-import DialogForm from '#client/components/DialogForm.vue'
 import PageTitle from '#client/components/PageTitle.vue'
 import PageSubtitle from '#client/components/PageSubtitle.vue'
 
@@ -82,9 +82,7 @@ function load(){
     tableRef.value?.load()
 }
 
-defineExpose({
-    load,
-})
+defineExpose({ load, })
 
 </script>
 

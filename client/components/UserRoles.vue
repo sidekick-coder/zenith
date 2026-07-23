@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import type { ComponentExposed } from 'vue-component-type-helpers'
+import { DialogForm } from '@sidekick-coder/zenith-kit/components'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card'
-import DialogForm from './DialogForm.vue'
 import AlertButton from './AlertButton.vue'
 import DataTable, { defineColumns } from '#client/components/DataTable.vue'
 

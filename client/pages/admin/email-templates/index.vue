@@ -1,6 +1,6 @@
 <script setup lang="ts">
+import { defineFormFields } from '@sidekick-coder/zenith-kit/client'
 import { defineColumns } from '#client/components/DataTable.vue'
-import { defineFormFields } from '#client/components/DialogForm.vue'
 import PageCrud from '#client/components/PageCrud.vue'
 import type EmailTemplate from '#shared/entities/emailTemplate.entity.ts'
 
@@ -64,14 +64,12 @@ const fields = defineFormFields({
 </script>
 
 <template>
-
     <PageCrud
-    fetch="/api/email-templates"
-    :title="$t('Email Templates')"
-    :columns="columns"
-    :fields="fields"
-    :actions="['create', 'destroy']"
-    view-to="/admin/email-templates/:id"
+        fetch="/api/email-templates"
+        :title="$t('Email Templates')"
+        :columns="columns"
+        :fields="fields"
+        :actions="['create', 'destroy']"
+        view-to="/admin/email-templates/:id"
     />
-
 </template>

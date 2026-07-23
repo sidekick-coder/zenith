@@ -2,12 +2,12 @@
 import { ref } from 'vue'
 import { toast } from 'vue-sonner'
 
+import { DialogForm } from '@sidekick-coder/zenith-kit/components'
 import { $fetch } from '#client/utils/fetcher.ts'
 import { $server } from '#client/utils/server.ts'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '#client/components/ui/card'
 import AlertButton from '#client/components/AlertButton.vue'
 import Button from '#client/components/Button.vue'
-import DialogForm from '#client/components/DialogForm.vue'
 import Icon from '#client/components/Icon.vue'
 import schemas from '#shared/validators/index.ts'
 

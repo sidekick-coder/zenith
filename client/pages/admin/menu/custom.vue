@@ -2,11 +2,13 @@
 import { ref, onMounted } from 'vue'
 import { toast } from 'vue-sonner'
 import * as v from 'valibot'
+import { DialogForm } from '@sidekick-coder/zenith-kit/components' 
+import { defineFormFields } from '@sidekick-coder/zenith-kit/client'
 import PageTitle from '#client/components/PageTitle.vue'
 import PageSubtitle from '#client/components/PageSubtitle.vue'
 import AccountSettingLayout from '#client/layouts/AccountSettingLayout.vue'
 import DataTable, { defineColumns } from '#client/components/DataTable.vue'
-import DialogForm, { defineFormFields } from '#client/components/DialogForm.vue'
+
 import Button from '#client/components/Button.vue'
 import Icon from '#client/components/Icon.vue'
 import AlertButton from '#client/components/AlertButton.vue'
@@ -40,9 +42,7 @@ const columns = defineColumns<Record<string, any>>([
         label: $t('URL'),
         field: 'to' 
     },
-    { 
-        id: 'actions' 
-    },
+    { id: 'actions' },
 ])
 
 const fields = defineFormFields({

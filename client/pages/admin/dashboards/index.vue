@@ -4,14 +4,14 @@ import { toast } from 'vue-sonner'
 import { onMounted, ref } from 'vue'
 import { useFetchPagination } from '@sidekick-coder/zenith-kit/client'
 import { ZButton } from '@sidekick-coder/zenith-kit/components'
+import { DialogForm } from '@sidekick-coder/zenith-kit/components'
+import type { DashboardSchema } from '@sidekick-coder/zenith-kit/shared'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
 import { $fetch } from '#client/utils/fetcher.ts'
 import DataTable, { defineColumns } from '#client/components/DataTable.vue'
-import DialogForm from '#client/components/DialogForm.vue'
 import AlertButton from '#client/components/AlertButton.vue'
 import Button from '#client/components/Button.vue'
 import Icon from '#client/components/Icon.vue'
-import type { DashboardSchema } from '#shared/schemas/index.ts'
 
 const { items, total, loading, load, hydrate, reset } = useFetchPagination<DashboardSchema>('/api/dashboards')
 

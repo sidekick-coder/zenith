@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref  } from 'vue'
 import { toast } from 'vue-sonner'
+import { DialogForm } from '@sidekick-coder/zenith-kit/components'
 import DataTable, { defineColumns } from '#client/components/DataTable.vue'
 
 import Button from '#client/components/Button.vue'
@@ -10,7 +11,6 @@ import { $fetch } from '#client/utils/fetcher.ts'
 import AlertButton from '#client/components/AlertButton.vue'
 import Switch from '#client/components/ui/switch/Switch.vue'
 import { useFetchPagination } from '#client/composables/useFetchPagination.ts'
-import DialogForm from '#client/components/DialogForm.vue'
 import DriveConfig from '#shared/entities/driveConfig.entity.ts'
 
 const { items, total, loading, load, reset } = useFetchPagination<Drive>('/api/drives', { limit: 20, })
