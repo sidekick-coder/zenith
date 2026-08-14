@@ -1,4 +1,4 @@
-FROM node:23-alpine AS builder
+FROM node:22-alpine AS builder
 
 # base 
 WORKDIR /app
@@ -8,7 +8,10 @@ RUN apk add --no-cache \
   curl \
   docker-cli \
   git \
-  openssh-client
+  openssh-client \
+  python3 \
+  make \
+  g++
 
 RUN git config --global user.name "zenith-docker" && git config --global user.email "zenith-docker@sample.com"
 
