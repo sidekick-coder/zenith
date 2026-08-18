@@ -148,15 +148,10 @@ async function buildModule() {
             <CardContent>
                 <DialogForm
                     :title="$t('Uninstall')"
-                    :description="$t('Are you sure you want to uninstall the module :0?', [plugin.name])"
+                    :description="$t(`Are you sure you want to uninstall \&quot;:0\&quot;?`, [plugin.name])"
                     :submit-text="$t('Confirm')"
                     :handle="data => uninstall(data)"
-                    :fields="{
-                        rollback: {
-                            component: 'switch',
-                            label: $t('Rollback migrations'),
-                        }
-                    }"
+                    :fields="{}"
                 >
                     <Button variant="destructive">
                         {{ $t('Uninstall') }}

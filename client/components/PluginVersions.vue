@@ -2,10 +2,11 @@
 import { ref, computed, watch, onMounted } from 'vue'
 import { GitCommit, GitBranch, Download, Check, ChevronLeft, ChevronRight, GitPullRequest, RefreshCw } from 'lucide-vue-next'
 import type { GitCommitEntity } from '@sidekick-coder/zenith-kit/shared'
+import { toast } from '@sidekick-coder/zenith-kit/client'
 import { $fetch } from '#client/utils/fetcher.ts'
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '#client/components/ui/card'
-import { Badge } from '#client/components/ui/badge'
-import { Button } from '#client/components/ui/button'
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '#client/components/ui/card/index.ts'
+import { Badge } from '#client/components/ui/badge/index.ts'
+import { Button } from '#client/components/ui/button/index.ts'
 import AlertButton from '#client/components/AlertButton.vue'
 
 defineOptions({ inheritAttrs: false })
@@ -145,7 +146,15 @@ async function checkout(commit: GitCommitEntity) {
 
 async function fetchChanges() {
     fetching.value = true
-    await $fetch.try(`/api/plugins/${props.plugin.id}/git/fetch`, { method: 'POST' })
+    const [error] = await $fetch.try(`/api/plugins/${props.plugin.id}/git/fetch`, { method: 'POST' })
+
+    if (error) {
+        fetching.value = false
+        return
+    }
+
+    toast.success($t('Fetched changes successfully'))
+
     fetching.value = false
     cursor.value = null
     loadCommits()
