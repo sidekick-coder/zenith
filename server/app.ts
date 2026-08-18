@@ -4,6 +4,7 @@ import { LoggerService, ConfigService, tryCatch } from '@sidekick-coder/zenith-k
 import { EnvService } from '@sidekick-coder/zenith-kit/server'
 import PluginManagerService from './services/PluginManagerService.ts'
 import WebhookSenderManager from './managers/WebhookSenderManager.ts'
+import PluginDownloadService from './services/PluginDownloadService.ts'
 import LoggerWinsonService from '#server/services/loggerWinson.service.ts'
 
 globalThis.$try = tryCatch
@@ -76,7 +77,13 @@ export async function createApp(options: AppOptions = {}) {
         .setDebug(config.getOne(['plugins.debug', 'app.debug', 'debug'], false))
         .load()
 
+    const pluginDownloadService = PluginDownloadService.create({
+        logger: logger.child({ label: 'plugin-download' }),
+        debug: config.getOne(['plugins.debug', 'app.debug', 'debug'], false)
+    })
+
     container.set(PluginManagerService, pluginManager)
+    container.set(PluginDownloadService, pluginDownloadService)
 
     // webhook senders 
     const webhookSenderManager = await WebhookSenderManager
