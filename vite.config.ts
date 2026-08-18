@@ -30,7 +30,8 @@ export default defineConfig({
                 '**/shared',
                 '**/server',
                 '**/storage',
-                '**/plugins',
+                'plugins/**',
+                '**/logs',
                 '**/.env', // Ignores .env files in the root and subdirectories
                 '**/.env.*', // Ignores all .env-related files (e.g., .env.local, .env.development)
                 '**/vite.config.*', // Ignores Vite config files

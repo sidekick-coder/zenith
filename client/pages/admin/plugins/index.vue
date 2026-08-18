@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
+import { defineColumns, fetcher } from '@sidekick-coder/zenith-kit/client'
+import { ZButton, ZDataTable } from '@sidekick-coder/zenith-kit/components'
 import Button from '#client/components/Button.vue'
 import Switch from '#client/components/ui/switch/Switch.vue'
-import { $fetch } from '#client/utils/fetcher'
 import {
     AlertDialog,
     AlertDialogAction,
@@ -12,11 +13,10 @@ import {
     AlertDialogFooter,
     AlertDialogHeader,
     AlertDialogTitle,
-} from '#client/components/ui/alert-dialog'
+} from '#client/components/ui/alert-dialog/index.ts'
 import Icon from '#client/components/Icon.vue'
 import PageTitle from '#client/components/PageTitle.vue'
 import PageSubtitle from '#client/components/PageSubtitle.vue'
-import DataTable, { defineColumns } from '#client/components/DataTable.vue'
 
 const items = ref<any[]>([])
 const loading = ref(false)
@@ -48,7 +48,7 @@ const columns = defineColumns<any>([
 async function load() {
     loading.value = true
 
-    const [error, response] = await $fetch.try('/api/plugins')
+    const [error, response] = await fetcher.try('/api/plugins')
 
     if (error) {
         loading.value = false
@@ -82,7 +82,7 @@ async function confirmToggle() {
     showToggleConfirm.value = false
     pendingToggle.value = null
 
-    const [error] = await $fetch.try(`/api/plugins/${item.id}/toggle`, { method: 'POST' })
+    const [error] = await fetcher.try(`/api/plugins/${item.id}/toggle`, { method: 'POST' })
 
     if (error) return
 
@@ -125,7 +125,7 @@ async function confirmToggle() {
             </PageSubtitle>
         </div>
         <div class="flex gap-x-2">
-            <Button
+            <ZButton
                 variant="outline"
                 size="icon"
                 @click="load"
@@ -134,11 +134,16 @@ async function confirmToggle() {
                     name="RotateCcw"
                     :class="{ 'animate-spin': loading }"
                 />
-            </Button>
+            </ZButton>
+            <ZButton
+                to="/admin/plugins/install"
+            >
+                {{ $t('Install') }}
+            </ZButton>
         </div>
     </div>
 
-    <DataTable
+    <ZDataTable
         v-model:loading="loading"
         :rows="items"
         :columns="columns"
@@ -169,9 +174,7 @@ async function confirmToggle() {
             </div>
         </template>
         <template #row-version="{ row }">
-            <router-link
-                :to="`/admin/plugins/${row.id}?tab=versions`"
-            >
+            <router-link :to="`/admin/plugins/${row.id}?tab=versions`">
                 {{ row.version }}
             </router-link>
         </template>
@@ -187,5 +190,5 @@ async function confirmToggle() {
                 </Button>
             </div>
         </template>
-    </DataTable>
+    </ZDataTable>
 </template>

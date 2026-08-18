@@ -128,5 +128,17 @@
         "vitepress": "^1.6.4",
         "vitest": "^3.2.4",
         "vue-tsc": "^3.2.6"
+    },
+    "allowScripts": {
+        "vue-demi@0.14.10": true,
+        "@parcel/watcher@2.6.0": true,
+        "bcrypt@6.0.0": true,
+        "better-sqlite3@12.11.1": true,
+        "cpu-features@0.0.10": true,
+        "esbuild@0.28.1": true,
+        "esbuild@0.21.5": true,
+        "maplibre-gl@2.4.0": true,
+        "protobufjs@7.6.5": true,
+        "ssh2@1.17.0": true
     }
 }

@@ -1,6 +1,6 @@
 import fs from 'fs'
 import path from 'path'
-import { EnvService, GitGateway, PluginEntryEntity, ShellService } from '@sidekick-coder/zenith-kit/server'
+import { basePath, EnvService, GitGateway, PluginEntryEntity, ShellService } from '@sidekick-coder/zenith-kit/server'
 import { BaseException, ConfigService, LoggerService } from '@sidekick-coder/zenith-kit/shared'
 import cosmicconfig from 'cosmiconfig'
 import type PluginLoaderService from './PluginLoaderService.ts'
@@ -34,7 +34,7 @@ export default class PluginManagerService {
         this.config = options.config || new ConfigService()
         this.shell = new ShellService({
             logger: this.logger.child({ label: 'plugin.shell' }),
-            debug: this.debug 
+            debug: this.debug
         })
         this.dirs = new Set()
 
@@ -138,7 +138,7 @@ export default class PluginManagerService {
     }
 
     public async downloadPlugin(item: any) {
-        const repository = item.repository 
+        const repository = item.repository
         const destination = item.destination
         const sshKeyFile = item.ssh_key_file
         const sshKey = item.ssh_key
@@ -191,9 +191,36 @@ export default class PluginManagerService {
         }
     }
 
+    public async loadDirsFromRoot() {
+        const entries = await fs.promises.readdir(basePath('plugins'), { withFileTypes: true })
+
+        for await (const entry of entries) {
+            if (entry.isDirectory()) {
+                this.dirs.add(path.join(basePath('plugins'), entry.name))
+            }
+        }
+    }
+
+    public async loadDirsFromConfig() {
+        const entries = this.config.get<string[]>('plugins.dirs', [])
+
+        for (const dir of entries) {
+            this.dirs.add(dir)
+        }
+    }
+
+    public async loadDirsFromEnv() {
+        const entries = this.env.get('ZENITH_PLUGINS_DIRS', [])
+
+        for (const dir of entries) {
+            this.dirs.add(dir)
+        }
+    }
+
     public async load() {
-        this.config.get<string[]>('plugins.dirs', []).forEach(dir => this.dirs.add(dir))
-        this.env.get('ZENITH_PLUGINS_DIRS', []).forEach((dir: string) => this.dirs.add(dir))
+        await this.loadDirsFromRoot()
+        await this.loadDirsFromConfig()
+        await this.loadDirsFromEnv()
 
         await this.downloadPendingPlugins()
 

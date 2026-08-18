@@ -16,9 +16,7 @@ const emailSent = ref(false)
 
 const { handleSubmit } = useForm({
     validationSchema: toTypedSchema(
-        v.object({
-            email: v.pipe(v.string(), v.email()),
-        })),
+        v.object({ email: v.pipe(v.string(), v.email()), })),
 })
 
 const onSubmit = handleSubmit(async (data) => {

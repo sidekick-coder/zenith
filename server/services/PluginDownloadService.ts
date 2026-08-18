@@ -1,31 +1,31 @@
 import fs from 'fs'
 import path from 'path'
-import { basePath, EnvService, GitGateway, ShellService, tmpPath } from '@sidekick-coder/zenith-kit/server'
+import { basePath, GitGateway, ShellService, tmpPath } from '@sidekick-coder/zenith-kit/server'
 import { BaseException, ConfigService, LoggerService } from '@sidekick-coder/zenith-kit/shared'
 import { load as loadYaml } from 'js-yaml'
 
 export interface PluginDownloadServiceOptions {
     logger?: LoggerService
-    env?: EnvService
-    debug?: boolean
     config?: ConfigService
+    debug?: boolean
 }
 
 export interface DownloadOptions {
     repository: string
-    destination: string
-    ssh_key_file?: string
-    ssh_key?: string
+    sshKeyFile?: string
+    sshKey?: string
 }
 
 export default class PluginDownloadService {
     public static __container_entry_key = 'PluginDownloadService'
     public logger: LoggerService
+    public config: ConfigService
     public debug = false
     public shell: ShellService
 
-    constructor(options: { logger?: LoggerService, debug?: boolean } = {}) {
+    constructor(options: PluginDownloadServiceOptions = {}) {
         this.logger = options.logger || new LoggerService()
+        this.config = options.config || new ConfigService()
         this.debug = options.debug || false
         this.shell = new ShellService({
             logger: this.logger.child({ label: 'plugin.download.shell' }),
@@ -37,14 +37,12 @@ export default class PluginDownloadService {
         }
     }
 
-    public static create(options: { logger?: LoggerService, debug?: boolean } = {}) {
+    public static create(options: PluginDownloadServiceOptions = {}) {
         return new PluginDownloadService(options)
     }
 
     private async downloadTmp(item: DownloadOptions) {
-        const repository = item.repository
-        const sshKeyFile = item.ssh_key_file
-        const sshKey = item.ssh_key
+        const { repository, sshKeyFile, sshKey } = item
 
         if (!repository) {
             throw new BaseException('repository is required for plugin download')
@@ -76,10 +74,12 @@ export default class PluginDownloadService {
 
         await git.fetchAll()
 
-        this.logger.info('downloaded plugin to tmp', {
-            repository,
-            dir,
-        })
+        if (this.debug) {
+            this.logger.debug('downloaded plugin to tmp', {
+                repository,
+                dir,
+            })
+        }
 
         return dir
     }
@@ -105,8 +105,17 @@ export default class PluginDownloadService {
             throw new BaseException(`Plugin already exists at destination: ${destination}`)
         }
 
-        // copy the downloaded plugin to the destination
-        fs.cpSync(dir, destination, { recursive: true })
+        // move the downloaded plugin to the plugins directory
+        fs.renameSync(dir, destination)
+
+        // if keys were provided, save them to the plugin config entry
+        if (item.sshKeyFile) {
+            this.config.set(`plugins.registry.${config.id}.ssh_key_file`, item.sshKeyFile)
+        }
+
+        if (item.sshKey) {
+            this.config.set(`plugins.registry.${config.id}.ssh_key`, item.sshKey)
+        }
 
         this.logger.info('plugin downloaded', {
             repository: item.repository,

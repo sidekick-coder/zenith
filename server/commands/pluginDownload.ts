@@ -1,3 +1,4 @@
+import { logger } from '@sidekick-coder/zenith-kit/server'
 import arte from '#server/facades/arte.facade.ts'
 import pluginDownloadService from '#server/facades/pluginDownloadService.ts'
 
@@ -5,13 +6,12 @@ arte
     .command('plugin:download')
     .helpGroup('plugins')
     .requiredOption('-r, --repository <repository>', 'The git repository URL of the plugin to download')
+    .option('--ssh-key-file <sshKeyFile>', 'Path to the SSH key file for accessing the repository')
+    .option('--ssh-key <sshKey>', 'SSH private key content for accessing the repository')
     .action(async (options) => {
         const [error] = await $try(() => pluginDownloadService.download(options))
 
         if (error) {
-            console.error(`Failed to download plugin: ${error.message}`)
-            process.exit(1)
+            logger.error(error)
         }
-
-        console.log('Plugin downloaded successfully')
     })

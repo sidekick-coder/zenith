@@ -2,7 +2,7 @@
 import { toTypedSchema } from '@vee-validate/valibot'
 import { useForm } from 'vee-validate'
 import * as v from 'valibot'
-import { ref, watch } from 'vue'
+import { ref } from 'vue'
 import { toast } from 'vue-sonner'
 import Button from '#client/components/Button.vue'
 import Card from '#client/components/ui/card/Card.vue'

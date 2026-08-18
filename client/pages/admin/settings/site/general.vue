@@ -1,10 +1,10 @@
 <script lang="ts" setup>
 import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/valibot'
-import { 
-    computed, 
-    onMounted, 
-    ref 
+import {
+    computed,
+    onMounted,
+    ref
 } from 'vue'
 import { toast } from 'vue-sonner'
 import { useRouter } from 'vue-router'
@@ -38,7 +38,7 @@ const { handleSubmit, setValues, setFieldValue } = useForm({ validationSchema: t
 
 const availableRoutes = computed(() => {
     return router.getRoutes()
-        .filter(route => route.path && !route.path.includes('*') && route.path !== '/' )
+        .filter(route => route.path && !route.path.includes('*') && route.path !== '/')
         .map(route => ({
             path: route.path,
             name: route.name || route.path
@@ -64,14 +64,14 @@ const onSubmit = handleSubmit(async (form) => {
         saving.value = false
         return
     }
-    
+
     setTimeout(() => {
         saving.value = false
         toast.success($t('Updated successfully'))
     }, 1000)
 })
 
-async function load(){
+async function load() {
     loading.value = true
 
     const [error, response] = await tryCatch(() => $fetch<any>('/api/configs/site'))
@@ -79,7 +79,7 @@ async function load(){
     if (error) return
 
     setValues(response)
-    
+
     setting.value = response
 
     setTimeout(() => {
@@ -90,81 +90,79 @@ async function load(){
 onMounted(load)
 </script>
 <template>
-
     <form
         class="space-y-4 py-2"
         @submit.prevent="onSubmit"
-        >
+    >
         <div class="flex-1">
             <PageTitle>{{ $t('General') }}</PageTitle>
             <PageSubtitle>
-            {{ $t('Configure your general settings') }}
+                {{ $t('Configure your general settings') }}
             </PageSubtitle>
         </div>
         <Card :loading="loading">
-        <CardContent class="space-y-6">
-        <FormTextField
-        name="name"
-        :label="$t('Name')"
-        />
+            <CardContent class="space-y-6">
+                <FormTextField
+                    name="name"
+                    :label="$t('Name')"
+                />
 
-        <FormTextField
-        name="support_email"
-        :label="$t('Support Email')"
-        />
+                <FormTextField
+                    name="support_email"
+                    :label="$t('Support Email')"
+                />
 
-        <FormImageUploader
-        name="favicon_image_id"
-        :label="$t('Favicon')"
-        purpose="favicon"
-        :public="true"
-        :max-size="1024 * 1024"
-        :file-url="setting.favicon_url || '/favicon' "
-        />
+                <FormImageUploader
+                    name="favicon_image_id"
+                    :label="$t('Favicon')"
+                    purpose="favicon"
+                    :public="true"
+                    :max-size="1024 * 1024"
+                    :file-url="setting.favicon_url || '/favicon'"
+                />
 
-        <FormTextField
-        name="home_route_path"
-        :label="$t('Home route path')"
-        >
-        <template #append>
-            <DropdownMenu>
-            <DropdownMenuTrigger as-child>
-            <UiButton
-            type="button"
-            variant="outline"
-            size="sm"
-            class="h-10 px-3"
-            >
-            <ChevronDown class="h-4 w-4" />
-            </UiButton>
-            </DropdownMenuTrigger>
-        <DropdownMenuContent 
-        align="end" 
-        class="w-64"
-        >
-        <DropdownMenuItem
-        v-for="route in availableRoutes"
-        :key="route.path"
-        class="cursor-pointer"
-        @click="selectRoute(route.path)"
-        >
-        {{ route.path }}
-        </DropdownMenuItem>
-        </DropdownMenuContent>
-            </DropdownMenu>
-        </template>
-        </FormTextField>
-        </CardContent>
+                <FormTextField
+                    name="home_route_path"
+                    :label="$t('Home route path')"
+                >
+                    <template #append>
+                        <DropdownMenu>
+                            <DropdownMenuTrigger as-child>
+                                <UiButton
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    class="h-10 px-3"
+                                >
+                                    <ChevronDown class="h-4 w-4" />
+                                </UiButton>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent
+                                align="end"
+                                class="w-64"
+                            >
+                                <DropdownMenuItem
+                                    v-for="route in availableRoutes"
+                                    :key="route.path"
+                                    class="cursor-pointer"
+                                    @click="selectRoute(route.path)"
+                                >
+                                    {{ route.path }}
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    </template>
+                </FormTextField>
+            </CardContent>
 
-        <CardFooter class="justify-end">
-        <Button
-            type="submit"
-            :loading="saving"
-            >
-            {{ $t('Save') }}
-        </Button>
-        </CardFooter>
+            <CardFooter class="justify-end">
+                <Button
+                    type="submit"
+                    :loading="saving"
+                >
+                    {{ $t('Save') }}
+                </Button>
+            </CardFooter>
         </Card>
     </form>
-
 </template>

@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { Toaster } from '#client/components/ui/sonner'
 import 'vue-sonner/style.css'
 import { ref, shallowRef } from 'vue'
 import { layout, emmitter } from '@sidekick-coder/zenith-kit/client'
+import { Toaster } from '#client/components/ui/sonner'
 
 const layoutId = ref(layout.currendId)
 const layoutComponent = shallowRef()
@@ -45,9 +45,7 @@ load()
     />
 
     <!-- animate with tailwind fade in -->
-    <router-view
-        v-slot="{ Component }"
-    >
+    <router-view v-slot="{ Component }">
         <component
             :is="layoutComponent"
             v-if="layoutComponent"

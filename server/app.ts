@@ -79,6 +79,7 @@ export async function createApp(options: AppOptions = {}) {
 
     const pluginDownloadService = PluginDownloadService.create({
         logger: logger.child({ label: 'plugin-download' }),
+        config: config,
         debug: config.getOne(['plugins.debug', 'app.debug', 'debug'], false)
     })
 

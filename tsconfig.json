@@ -6,9 +6,6 @@
         { "path": "./tsconfig.shared.json" }
     ],
     "compilerOptions": {
-        "customConditions": [
-            "development"
-        ],
         "baseUrl": ".",
         "paths": {
             "#client/*": [
