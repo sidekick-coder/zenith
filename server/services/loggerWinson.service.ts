@@ -108,7 +108,7 @@ export default class LoggerWinsonService extends LoggerService {
 
         result += `[${timestamp}] `
 
-        result += levelColor(`[${level}]`) + ':'
+        result += levelColor(`[${level}]`)
 
         if (label) {
             result += ` ${chalk.gray(label)}`
@@ -191,7 +191,11 @@ export default class LoggerWinsonService extends LoggerService {
 
     public error(err: string | Error, meta?: any): void {
         if (typeof err !== 'string') {
-            this.logger.error(err.message, err)
+            this.logger.error(err.message, {
+                ...err,
+                ...meta,
+                stack: err.stack,
+            })
             return
         }
 
