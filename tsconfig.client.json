@@ -24,17 +24,14 @@
             "#client/*": [
                 "client/*"
             ],
-            "#modules/*": [
-                "modules/*"
-            ],
             "#shared/*": [
                 "shared/*"
             ]
         }
     },
     "include": [
-        "client/**/**/*.ts",
-        "client/**/**/*.vue",
+        "client/**/*.ts",
+        "client/**/*.vue",
         "shared/**/*.ts"
     ]
 }

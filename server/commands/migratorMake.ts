@@ -3,7 +3,6 @@ import path from 'path'
 import { format, } from 'date-fns'
 import { basePath, CliCommand } from '@sidekick-coder/zenith-kit/server'
 import template from '#server/facades/template.facade.ts'
-import modules from '#server/facades/modules.facade.ts'
 
 interface MigrationMakeOptions {
     module?: string
@@ -28,13 +27,7 @@ command
             source = basePath('server', 'templates', 'migration.js')
         }
 
-        let filename = basePath('server', 'migrations', target)
-
-        if (options.module) {
-            const mod = await modules.findOrFail(options.module)
-
-            filename = mod.makePath('server', 'migrations', target)
-        }
+        const filename = basePath('server', 'migrations', target)
 
         const contents = await template.fromFile(source)
 

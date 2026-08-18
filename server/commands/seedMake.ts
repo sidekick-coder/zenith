@@ -1,23 +1,16 @@
-import arte from '#server/facades/arte.facade.ts'
 import fs from 'fs'
 import path from 'path'
+import arte from '#server/facades/arte.facade.ts'
 import { basePath } from '#server/utils/paths.ts'
 import template from '#server/facades/template.facade.ts'
-import modules from '#server/facades/modules.facade.ts'
 
 arte.command('seed:make')
     .argument('<name>', 'Seed name')
-    .option('-m, --module <module>', 'Module name')
-    .action(async (name, options) => {
+    .action(async (name) => {
         const seedName = `${name}.seed.ts`
 
-        let filename = basePath('server', 'seeds', seedName)
+        const filename = basePath('server', 'seeds', seedName)
 
-        if (options.module) {
-            const mod = await modules.findOrFail(options.module)
-
-            filename = mod.makePath('server', 'seeds', seedName)
-        }
 
         const contents = await template.fromFile(basePath('server', 'templates', 'seed.ts'))
 

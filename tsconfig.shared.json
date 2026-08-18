@@ -30,10 +30,6 @@
         }
     },
     "include": [
-        "shared/**/*.ts",
-        "modules/**/shared/**/**/*.ts"
-    ],
-    "exclude": [
-        "modules/**/root"
+        "shared/**/*.ts"
     ]
 }

@@ -27,9 +27,6 @@
             "#client/*": [
                 "client/*"
             ],
-            "#modules/*": [
-                "modules/*"
-            ],
             "#server/*": [
                 "server/*"
             ],
@@ -43,10 +40,6 @@
         "index.ts",
         "artisan.js",
         "server/**/*.ts",
-        "shared/**/*.ts",
-        "modules/**/server/**/**/*.ts"
-    ],
-    "exclude": [
-        "modules/**/root"
+        "shared/**/*.ts"
     ]
 }
