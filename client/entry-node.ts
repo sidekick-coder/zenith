@@ -1,10 +1,7 @@
+import './imports'
 import { renderToString } from 'vue/server-renderer'
-import type { App } from 'vue'
 import { createHead } from '@unhead/vue/server'
 import * as VueServerRenderer from 'vue/server-renderer'
-import { container, FetchService, FetchNodeService } from '@sidekick-coder/zenith-kit/client'
-import type { Router } from './router.ts'
-import { createApp } from './app.ts'
 import type { EntryNodeRenderContract, EntryNodeRenderResult } from '#shared/contracts/EntryNodeRenderContract.ts'
 
 if (!globalThis.imports) {
@@ -14,6 +11,9 @@ if (!globalThis.imports) {
 globalThis.imports.set('vue/server-renderer', () => Promise.resolve(VueServerRenderer))
 
 export default async function(ctx: EntryNodeRenderContract): Promise<EntryNodeRenderResult> {
+    const { container, FetchService, FetchNodeService } = await import('@sidekick-coder/zenith-kit/client')
+    const { createApp } = await import('./app.ts')
+
     container.set(FetchService, new FetchNodeService())
     container.set('RouterService', ctx.serverRouter)
     container.set('state', ctx.state || {})

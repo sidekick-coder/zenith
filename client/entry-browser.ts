@@ -1,9 +1,11 @@
+import './imports'
 import { createHead } from '@unhead/vue/client'
-import { container, FetchService, FetchBrowserService } from '@sidekick-coder/zenith-kit/client'
 import ClientLoggerService from './services/logger.service.ts'
-import { createApp } from './app.ts'
 
 async function main() {
+    const { createApp } = await import('./app.ts')
+    const { container, FetchService, FetchBrowserService } = await import('@sidekick-coder/zenith-kit/client')
+
     container
         .set(FetchService, new FetchBrowserService())
         .set('state', window.__STATE__ || {})

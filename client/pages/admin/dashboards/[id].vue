@@ -3,7 +3,7 @@ import { onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { toast } from 'vue-sonner'
 import { PageTitle, PageSubtitle, DashboardBody, DashboardAddWidgetDrawer } from '@sidekick-coder/zenith-kit/components'
-import { fetcher, Dashboard as DashboardEntity, DashboardWidgetData, provideDashboard, vue  } from '@sidekick-coder/zenith-kit/client'
+import { fetcher, Dashboard as DashboardEntity, DashboardWidgetData, provideDashboard, } from '@sidekick-coder/zenith-kit/client'
 import type { DashboardSchema } from '@sidekick-coder/zenith-kit/shared'
 import Button from '#client/components/Button.vue'
 import Icon from '#client/components/Icon.vue'
@@ -11,7 +11,7 @@ import Icon from '#client/components/Icon.vue'
 const route = useRoute()
 const id = route.params.id as string
 
-const dashboard = vue.ref(new DashboardEntity())
+const dashboard = ref(new DashboardEntity())
 const body = ref<InstanceType<typeof DashboardBody>>()
 
 provideDashboard(dashboard)

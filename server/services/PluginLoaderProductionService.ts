@@ -93,8 +93,6 @@ export default class PluginLoaderProductionService extends PluginLoaderService {
 
         const instance: PluginEntity = contructor.fromPluginDiscoverEntity(plugin)
 
-        console.log('instance', instance)
-
         await instance.load()
 
         if (this.debug) {

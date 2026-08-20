@@ -1,6 +1,5 @@
 import './translator.ts'
 
-import './imports'
 import './assets/styles.css'
 
 import { container, LifecycleService } from '@sidekick-coder/zenith-kit/client'

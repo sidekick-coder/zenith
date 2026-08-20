@@ -11,7 +11,7 @@
         "#modules/*": "./modules/*"
     },
     "scripts": {
-        "start": "node zenith serve",
+        "start": "NODE_ENV=production node zenith serve",
         "dev": "node zenith serve -w",
         "build": "node zenith build",
         "lint": "eslint",
