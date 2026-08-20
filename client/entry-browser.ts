@@ -1,4 +1,5 @@
 import './imports'
+import './assets/styles.css'
 import { createHead } from '@unhead/vue/client'
 import ClientLoggerService from './services/logger.service.ts'
 

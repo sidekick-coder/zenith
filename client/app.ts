@@ -1,7 +1,5 @@
 import './translator.ts'
 
-import './assets/styles.css'
-
 import { container, LifecycleService } from '@sidekick-coder/zenith-kit/client'
 import { ConfigService, EmmitterService, LoggerService } from '@sidekick-coder/zenith-kit/shared'
 import type { App } from 'vue'
