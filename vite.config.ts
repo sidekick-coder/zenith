@@ -39,14 +39,16 @@ export default defineConfig({
             ]
         },
     },
-    build: { minify: process.env.NO_MINIFY === 'true' ? false : undefined, },
+    build: {
+        minify: process.env.NO_MINIFY === 'true' ? false : undefined,
+        rolldownOptions: { external: ['vue'] }
+    },
     resolve: {
-        alias: { 
+        alias: {
             'vue/server-renderer': path.resolve(import.meta.dirname, 'node_modules/vue/server-renderer/index.mjs'),
             vue: path.resolve(import.meta.dirname, 'node_modules/vue/dist/vue.esm-bundler.js'),
             'reka-ui': path.resolve(import.meta.dirname, 'node_modules/reka-ui/dist/index.js'),
         },
-        dedupe: ['vue'] 
     }
 
 })

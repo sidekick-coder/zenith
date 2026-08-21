@@ -6,12 +6,12 @@ import { basePath, PageRequestContextEntity } from '@sidekick-coder/zenith-kit/s
 import express from 'express'
 import type { ManifestChunk } from 'vite'
 import type { ResolvableLink, ResolvableScript } from '@unhead/vue'
+import { BaseException } from '@sidekick-coder/zenith-kit/shared'
 import ViteService from './ViteService.ts'
 import router from '#server/facades/router.facade.ts'
 import El from '#server/entities/el.entity.ts'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
 import emmitter from '#server/facades/emmitter.facade.ts'
-import BaseException from '#server/exceptions/base.ts'
 import type { EntryNodeRenderFunction } from '#shared/contracts/EntryNodeRenderContract.ts'
 
 
@@ -134,9 +134,15 @@ export default class ViteProductionService extends ViteService {
 
         const html = new El('html')
 
-        html.child('head')
+        const head = html.child('head')
 
         const body = html.child('body')
+
+        // add importmap 
+        head.child('script')
+            .attr('type', 'importmap')
+            .html(JSON.stringify({ imports: { 'vue': '/api/vendor/vue', } }))
+
 
         const { links, scripts } = this.chunksToHead(this.manifest, 'client/entry-browser.ts')
 

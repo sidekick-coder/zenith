@@ -1,5 +1,6 @@
 import './imports'
 import './assets/styles.css'
+import '@sidekick-coder/zenith-kit/styles.css'
 import { createHead } from '@unhead/vue/client'
 import ClientLoggerService from './services/logger.service.ts'
 

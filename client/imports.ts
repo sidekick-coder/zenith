@@ -1,7 +1,6 @@
 import 'iconify-icon'
 
 import * as Vue from 'vue'
-import * as RekaUI from 'reka-ui'
 import * as VueRouter from 'vue-router'
 import * as VeeValidate from 'vee-validate'
 import * as VeeValidateValibot from '@vee-validate/valibot'
@@ -10,6 +9,10 @@ import * as VueUse from '@vueuse/core'
 import * as VueUseRouter from '@vueuse/router'
 import * as UnheadVue from '@unhead/vue' 
 import * as UnheadVueComponents from '@unhead/vue/components'
+import * as RekaUI from 'reka-ui'
+import * as LucideVueNext from 'lucide-vue-next'
+import * as EmblaCarouselVue from 'embla-carousel-vue'
+import * as VaulVue from 'vaul-vue'
 
 globalThis.imports = globalThis.imports || new Map<string, any>()
 
@@ -23,6 +26,9 @@ globalThis.imports.set('@vueuse/core', () => Promise.resolve(VueUse))
 globalThis.imports.set('@vueuse/router', () => Promise.resolve(VueUseRouter))
 globalThis.imports.set('@unhead/vue', () => Promise.resolve(UnheadVue))
 globalThis.imports.set('@unhead/vue/components', () => Promise.resolve(UnheadVueComponents))
+globalThis.imports.set('lucide-vue-next', () => Promise.resolve(LucideVueNext))
+globalThis.imports.set('embla-carousel-vue', () => Promise.resolve(EmblaCarouselVue))
+globalThis.imports.set('vaul-vue', () => Promise.resolve(VaulVue))
 globalThis.importAsync = async (id: string): Promise<any> => {
     const importFn = globalThis.imports.get(id)
 
