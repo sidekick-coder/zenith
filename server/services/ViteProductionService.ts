@@ -140,8 +140,22 @@ export default class ViteProductionService extends ViteService {
 
         // add importmap 
         head.child('script')
+            .html(`
+                globalThis.process = {
+                    env: {
+                        NODE_ENV: 'production'
+                    }
+                }
+            `)
+
+        head.child('script')
             .attr('type', 'importmap')
-            .html(JSON.stringify({ imports: { 'vue': '/api/vendor/vue', } }))
+            .html(JSON.stringify({
+                imports: {
+                    'vue': '/api/vendor/vue.js',
+                    'vee-validate': '/api/vendor/vee-validate.js'
+                }
+            }))
 
 
         const { links, scripts } = this.chunksToHead(this.manifest, 'client/entry-browser.ts')

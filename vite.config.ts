@@ -22,6 +22,13 @@ export default defineConfig({
         vue({ template: { compilerOptions: { isCustomElement: (tag) => tag.startsWith('iconify-icon'), } } }),
         tailwindcss()
     ],
+    define: {
+        // This shims the process.env object so it doesn't throw a reference error
+        'process.env': {
+            //
+            NODE_ENV: JSON.stringify(process.env.NODE_ENV || 'development'),
+        }
+    },
     publicDir: path.resolve(import.meta.dirname, 'client/public'),
     server: {
         allowedHosts,
@@ -41,7 +48,7 @@ export default defineConfig({
     },
     build: {
         minify: process.env.NO_MINIFY === 'true' ? false : undefined,
-        rolldownOptions: { external: ['vue'] }
+        rolldownOptions: { external: ['vue', 'vee-validate'] }
     },
     resolve: {
         alias: {

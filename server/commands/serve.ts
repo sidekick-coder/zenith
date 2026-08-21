@@ -14,7 +14,7 @@ async function start() {
 
     const execArgv = [
         '--no-warnings',
-        '--experimental-strip-types'
+        '--experimental-strip-types',
     ]
 
     child = cp.fork(modulePath, [], {
