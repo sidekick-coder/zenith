@@ -14,48 +14,74 @@ if (process.env.VITEST_ALLOWED_HOSTS) {
 }
 
 
-export default defineConfig({
-    clearScreen: false,
-    root: import.meta.dirname,
-    optimizeDeps: { exclude: ['@sidekick-coder/zenith-kit/client', '@sidekick-coder/zenith-kit/server', '@sidekick-coder/zenith-kit/shared', '@sidekick-coder/zenith-kit/components'], },
-    plugins: [
-        vue({ template: { compilerOptions: { isCustomElement: (tag) => tag.startsWith('iconify-icon'), } } }),
-        tailwindcss()
-    ],
-    define: {
-        // This shims the process.env object so it doesn't throw a reference error
-        'process.env': {
-            //
-            NODE_ENV: JSON.stringify(process.env.NODE_ENV || 'development'),
-        }
-    },
-    publicDir: path.resolve(import.meta.dirname, 'client/public'),
-    server: {
-        allowedHosts,
-        watch: {
-            ignored: [
-                '**/shared',
-                '**/server',
-                '**/storage',
-                'plugins/**',
-                '**/logs',
-                '**/.env', // Ignores .env files in the root and subdirectories
-                '**/.env.*', // Ignores all .env-related files (e.g., .env.local, .env.development)
-                '**/vite.config.*', // Ignores Vite config files
-                '**/*.{test,spec}.{ts,js}', // Ignores test files
-            ]
-        },
-    },
-    build: {
-        minify: process.env.NO_MINIFY === 'true' ? false : undefined,
-        rolldownOptions: { external: ['vue', 'vee-validate'] }
-    },
-    resolve: {
-        alias: {
-            'vue/server-renderer': path.resolve(import.meta.dirname, 'node_modules/vue/server-renderer/index.mjs'),
-            vue: path.resolve(import.meta.dirname, 'node_modules/vue/dist/vue.esm-bundler.js'),
-            'reka-ui': path.resolve(import.meta.dirname, 'node_modules/reka-ui/dist/index.js'),
-        },
-    }
+export default defineConfig(({ mode }) => {
+    const ssr = mode === 'ssr'
 
+    const external: string[] = [
+        'vue',
+        // 'vue-router',
+        // 'vee-validate',
+        // 'reka-ui',
+        // 'lucide-vue-next',
+        // 'embla-carousel-vue',
+        // 'vaul-vue',
+        // '@vueuse/core',
+        // '@unhead/vue',
+        // '@vee-validate/valibot',
+        // '@vueuse/router',
+        //
+        // '@sidekick-coder/server',
+        // '@sidekick-coder/shared',
+        // '@sidekick-coder/client',
+    ]
+
+    return {
+        clearScreen: false,
+        root: import.meta.dirname,
+        optimizeDeps: { exclude: external, },
+        plugins: [
+            vue({ template: { compilerOptions: { isCustomElement: (tag) => tag.startsWith('iconify-icon'), } } }),
+            tailwindcss()
+        ],
+        define: {
+            // This shims the process.env object so it doesn't throw a reference error
+            'process.env': {
+                //
+                NODE_ENV: JSON.stringify(process.env.NODE_ENV || 'development'),
+            }
+        },
+        publicDir: path.resolve(import.meta.dirname, 'client/public'),
+        server: {
+            allowedHosts,
+            watch: {
+                ignored: [
+                    '**/shared',
+                    '**/server',
+                    '**/storage',
+                    'plugins/**',
+                    '**/logs',
+                    '**/.env', // Ignores .env files in the root and subdirectories
+                    '**/.env.*', // Ignores all .env-related files (e.g., .env.local, .env.development)
+                    '**/vite.config.*', // Ignores Vite config files
+                    '**/*.{test,spec}.{ts,js}', // Ignores test files
+                ]
+            },
+        },
+        build: {
+            minify: process.env.NO_MINIFY === 'true' ? false : undefined,
+            rolldownOptions: { external }
+        },
+        resolve: {
+            dedupe: external,
+            alias: {
+                'vue/server-renderer': path.resolve(import.meta.dirname, 'node_modules/vue/server-renderer/index.mjs'),
+                // 'vue': ssr 
+                //     ? path.resolve(import.meta.dirname, 'node_modules/vue/dist/vue.esm-bundler.js')
+                //     : 'http://localhost:3000/vendor/vue',
+                vue: path.resolve(import.meta.dirname, 'node_modules/vue/dist/vue.esm-bundler.js'),
+                // 'reka-ui': path.resolve(import.meta.dirname, 'node_modules/reka-ui/dist/index.js'),
+            },
+        }
+
+    }
 })
