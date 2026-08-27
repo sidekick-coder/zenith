@@ -28,7 +28,7 @@ export default defineHandler( async ({ body }) => {
     const [error] = await $try(async () => {
         await db.load('default')
 
-        await migrator.latest({ source: 'root' })
+        await migrator.latestOrFail({ source: 'root' })
     })
 
     if (error) {

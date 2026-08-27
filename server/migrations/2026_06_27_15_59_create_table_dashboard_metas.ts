@@ -4,7 +4,7 @@ const table = 'dashboard_metas'
 
 export async function up(db: Kysely<any>): Promise<void> {
     await db.schema.createTable(table)
-        .addColumn('id', 'integer', (col) => col.primaryKey().autoIncrement())
+        .addIdColumn()
         .addColumn('dashboard_id', 'integer', (col) => col.notNull()
             .references('dashboards.id')
             .onDelete('cascade')

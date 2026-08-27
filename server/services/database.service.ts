@@ -11,7 +11,7 @@ import validator from '#shared/services/validator.service.ts'
 import schemas from '#shared/validators/index.ts'
 import LoggerService from '#shared/services/logger.service.ts'
 
-export default class DatabaseService extends Kysely<Database> {
+export default class DatabaseService extends DatabaseGateway<Database> {
     public static __container_entry_key = 'DatabaseService'
 
     public defaultConnection = 'memory'
@@ -127,6 +127,7 @@ export default class DatabaseService extends Kysely<Database> {
         const db = await this.createDatabase(connection)
 
         db.currentConnection = name
+        db._dialect_identifier = connection.dialect
 
         if (container.has(DatabaseGateway)) {
             await container.get<DatabaseGateway<any>>(DatabaseGateway).destroy()

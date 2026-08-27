@@ -1,6 +1,5 @@
-import { basePath, container, emmitter, logger, config, MigratorService } from '@sidekick-coder/zenith-kit/server'
+import { basePath, container, emmitter, database, logger, config, MigratorService } from '@sidekick-coder/zenith-kit/server'
 import { BaseException, LifecycleHook } from '@sidekick-coder/zenith-kit/shared'
-import db from '#server/facades/db.facade.ts'
 
 export default class extends LifecycleHook {
     public order = 3
@@ -11,7 +10,7 @@ export default class extends LifecycleHook {
         const migrator = new MigratorService({
             logger: logger.child({ label: 'migrator' }),
             emmitter: emmitter,
-            db: db as any,
+            db: database as any,
             sources: [
                 {
                     id: 'root',
