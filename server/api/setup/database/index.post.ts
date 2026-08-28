@@ -32,8 +32,7 @@ export default defineHandler( async ({ body }) => {
     })
 
     if (error) {
-        console.error(error)
-        throw new BaseException($t('Failed to run migrations'), 500)
+        throw error
     }
 
     config.set('setup.need_database', false, 'runtime')

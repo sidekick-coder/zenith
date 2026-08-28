@@ -1,22 +1,37 @@
 import { test, expect } from '@playwright/test'
-import { GenericContainer, StartedTestContainer } from 'testcontainers'
+import { GenericContainer, Network, StartedNetwork, StartedTestContainer } from 'testcontainers'
+import { PostgreSqlContainer, StartedPostgreSqlContainer } from '@testcontainers/postgresql'
 
 let url: string
-let container: StartedTestContainer
+let network: StartedNetwork
+let appContainer: StartedTestContainer
+let pgContainer: StartedPostgreSqlContainer
+
+async function createNetwork() {
+    network = await new Network().start()
+}
 
 async function createZenithContainer() {
-    const builder = new GenericContainer('zenith-test')
+    appContainer = await new GenericContainer('zenith-test')
         .withExposedPorts(3000)
+        .withNetwork(network)
+        .withNetworkAliases('app')
         .withHealthCheck({
             test: ['CMD-SHELL', 'curl -f http://localhost:3000/api/health || exit 1'],
             interval: 1000,
             timeout: 1000,
             retries: 30,
         })
+        .start()
 
-    container = await builder.start()
+    url = `http://${appContainer.getHost()}:${appContainer.getMappedPort(3000)}`
+}
 
-    url = `http://${container.getHost()}:${container.getMappedPort(3000)}`
+async function createPgContainer() {
+    pgContainer = await new PostgreSqlContainer('postgres:17')
+        .withNetwork(network)
+        .withNetworkAliases('pg')
+        .start()
 }
 
 function baseURL(...args: string[]) {
@@ -30,13 +45,15 @@ function baseURL(...args: string[]) {
 test.beforeAll(async () => {
     test.setTimeout(120000) // Increase timeout for container startup
 
+    await createNetwork()
+    await createPgContainer()
     await createZenithContainer()
 })
 
 test.afterAll(async () => {
-    if (container) {
-        await container.stop()
-    }
+    await appContainer.stop()
+    await pgContainer.stop()
+    await network.stop()
 })
 
 
@@ -56,13 +73,13 @@ test('should complete database setup', async ({ page }) => {
     // database setup
     await page.locator('[data-slot="select-trigger"]').click()
 
-    await page.locator('[data-slot="select-item"]:has-text("SQLite")').click()
+    await page.locator('[data-slot="select-item"]:has-text("PostgreSQL")').click()
 
-    const dbPath = '/tmp/test.db'
-
-    await page.fill('[name="options.database"]', dbPath)
-
-    await expect(page.locator('[name="options.database"]')).toHaveValue(dbPath)
+    await page.fill('[name="options.host"]', 'pg')
+    await page.fill('[name="options.port"]', '5432')
+    await page.fill('[name="options.user"]', pgContainer.getUsername())
+    await page.fill('[name="options.password"]', pgContainer.getPassword())
+    await page.fill('[name="options.database"]', pgContainer.getDatabase())
 
     await page.click('button:has-text("Submit")')
 
