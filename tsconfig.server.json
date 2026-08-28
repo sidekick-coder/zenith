@@ -36,6 +36,7 @@
         "vite.config.ts",
         "index.ts",
         "artisan.js",
+        "tests/fixtures/**/*.ts",
         "server/**/*.ts",
         "shared/**/*.ts"
     ]

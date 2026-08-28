@@ -40,7 +40,10 @@ storage/*
 storage/uploads/*
 !storage/uploads/.gitkeep
 client-dist
-tmp
+
+tmp/*
+!tmp/.gitkeep
+
 docs/.vitepress/cache
 *.db
 
@@ -53,3 +56,9 @@ upload/*
 plugins/*
 !plugins/.gitkeep
 
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/playwright/.auth/
