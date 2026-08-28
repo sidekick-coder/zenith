@@ -106,7 +106,11 @@ export default class PluginDownloadService {
         }
 
         // move the downloaded plugin to the plugins directory
-        fs.renameSync(dir, destination)
+        fs.cpSync(dir, destination, { recursive: true })
+        fs.rmSync(dir, {
+            recursive: true,
+            force: true 
+        })
 
         // if keys were provided, save them to the plugin config entry
         if (item.sshKeyFile) {
