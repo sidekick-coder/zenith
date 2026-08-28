@@ -1,7 +1,7 @@
 {
   "name": "zenith",
   "private": true,
-  "version": "0.2.4",
+  "version": "0.2.5",
   "type": "module",
   "imports": {
     "#client/*": "./client/*",
@@ -15,14 +15,11 @@
     "dev": "node zenith serve -w",
     "build": "node zenith build",
     "lint": "eslint",
-
     "test": "npm-run-all test:unit test:int test:ec2",
     "test:unit": "vitest run --project unit",
     "test:int": "vitest run --project int",
     "test:e2e": "playwright test",
-
     "docker:build-test": "docker build -t zenith-test .",
-
     "docs:dev": "vitepress dev docs",
     "docs:build": "vitepress build docs",
     "docs:preview": "vitepress preview docs"
