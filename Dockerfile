@@ -1,6 +1,5 @@
-FROM node:22-alpine AS builder
+FROM node:22-alpine AS system
 
-# base 
 WORKDIR /app
 
 RUN apk add --no-cache \
@@ -15,10 +14,14 @@ RUN apk add --no-cache \
 
 RUN git config --global user.name "zenith-docker" && git config --global user.email "zenith-docker@sample.com"
 
-# build 
+FROM system AS deps
+
 COPY package.json package-lock.json* ./
 
 RUN npm install
+
+
+FROM deps AS build
 
 COPY . .
 
@@ -30,5 +33,3 @@ ENV RUNTIME_CONFIG_PATH=/tmp/runtime-config.txt
 EXPOSE 3000
 
 ENTRYPOINT ["node", "zenith", "serve"]
-
-CMD []
