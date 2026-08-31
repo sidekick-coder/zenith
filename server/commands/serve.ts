@@ -98,6 +98,7 @@ const reloadDebounced = debounce(reload, 500)
 
 arte
     .command('serve')
+    .helpGroup('core')
     .option('-w, --watch', 'Watch for changes and restart server')
     .action(async (options) => {
 

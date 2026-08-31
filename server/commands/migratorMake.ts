@@ -12,6 +12,7 @@ interface MigrationMakeOptions {
 const command = new CliCommand('migrator:make')
 
 command
+    .helpGroup('migrator')
     .argument('<name>', 'Migration name')
     .option('-m, --module <module>', 'Module name')
     .option('-t, --ts <ts>', 'Use TypeScript', 'true')

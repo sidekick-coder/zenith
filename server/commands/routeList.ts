@@ -6,6 +6,7 @@ import { table } from '#server/utils/cliUi.ts'
 
 arte
     .command('route:list')
+    .helpGroup('router')
     .need('router', 'modules', 'plugins')
     .option('--json', 'Output in JSON format')
     .option('--module,-m <module>', 'Filter by module name')

@@ -5,6 +5,7 @@ import { basePath } from '#server/utils/paths.ts'
 import template from '#server/facades/template.facade.ts'
 
 arte.command('seed:make')
+    .helpGroup('seeder')
     .argument('<name>', 'Seed name')
     .action(async (name) => {
         const seedName = `${name}.seed.ts`

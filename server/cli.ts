@@ -12,7 +12,9 @@ const cli = CliService
     .setDebug(config.getOne(['cli.debug', 'app.debug', 'debug'], false))
     .setEmmitter(emmitter)
 
-const dirs = [basePath('server/commands')]
+cli.addDir(basePath('server/commands'))
+
+const dirs = []
 
 dirs.push(...env.get('ZENITH_COMMAND_DIR'))
 
