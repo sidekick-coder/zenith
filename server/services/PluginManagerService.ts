@@ -210,7 +210,7 @@ export default class PluginManagerService {
     }
 
     public async loadDirsFromEnv() {
-        const entries = this.env.get('ZENITH_PLUGINS_DIRS', [])
+        const entries = this.env.get('ZENITH_PLUGINS_DIR', [])
 
         for (const dir of entries) {
             this.dirs.add(dir)

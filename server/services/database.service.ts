@@ -1,12 +1,10 @@
 import { MysqlDialect, PostgresDialect, SqliteDialect } from 'kysely'
 import type { Dialect } from 'kysely'
-import { Kysely } from 'kysely'
 import SQLite from 'better-sqlite3'
 import { createPool } from 'mysql2'
 import { Pool } from 'pg'
-import { DatabaseGateway, container } from '@sidekick-coder/zenith-kit/server'
+import { DatabaseGateway, container, basePath } from '@sidekick-coder/zenith-kit/server'
 import type { Database } from '../contracts/database.contract.ts'
-import { basePath } from '#server/utils/paths.ts'
 import validator from '#shared/services/validator.service.ts'
 import schemas from '#shared/validators/index.ts'
 import LoggerService from '#shared/services/logger.service.ts'
@@ -104,7 +102,28 @@ export default class DatabaseService extends DatabaseGateway<Database> {
     public async createDatabase(connection: Record<string, any>) {
         const dialect = await DatabaseService.createDialectFromConnection(connection)
 
-        const db = new DatabaseService({ dialect: dialect })
+        const debug = this.debug
+        const logger = this.logger
+
+        const db = new DatabaseService({
+            dialect: dialect,
+            log(event) {
+                const data = {
+                    sql: event.query.sql,
+                    parameters: event.query.parameters,
+                    duration: event.queryDurationMillis,
+                }
+
+                if (event.level === 'error') {
+                    logger.error('query', data)
+                    return
+                }
+
+                if (event.level === 'query' && debug) {
+                    logger.debug('query', data)
+                }
+            }
+        })
 
         db.currentConnectionDialectName = connection.dialect
 

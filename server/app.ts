@@ -108,6 +108,7 @@ export async function createApp(options: AppOptions = {}) {
     await lifecycle.addDirectory(basePath('server/hooks'))
 
     return {
+        env,
         logger,
         config,
         emmiter,

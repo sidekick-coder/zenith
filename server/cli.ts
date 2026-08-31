@@ -4,7 +4,7 @@ import type { CliCommand } from '@sidekick-coder/zenith-kit/server'
 import emmitter from './facades/emmitter.facade.ts'
 import { createApp } from './app.ts'
 
-const { logger, config, emmiter, lifecycle } = await createApp()
+const { logger, config, emmiter, lifecycle, env } = await createApp()
 
 const cli = CliService
     .create()
@@ -12,7 +12,13 @@ const cli = CliService
     .setDebug(config.getOne(['cli.debug', 'app.debug', 'debug'], false))
     .setEmmitter(emmitter)
 
-cli.addDir(basePath('server/commands'))
+const dirs = [basePath('server/commands')]
+
+dirs.push(...env.get('ZENITH_COMMAND_DIR'))
+
+for (const dir of dirs) {
+    cli.addDir(dir)
+}
 
 container.set(CliService, cli)
 
