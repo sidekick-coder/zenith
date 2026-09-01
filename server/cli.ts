@@ -1,10 +1,11 @@
-import {  basePath } from '@sidekick-coder/zenith-kit/server'
+import fs from 'fs'
+import { basePath } from '@sidekick-coder/zenith-kit/server'
 import { container, CliService } from '@sidekick-coder/zenith-kit/server'
 import type { CliCommand } from '@sidekick-coder/zenith-kit/server'
 import emmitter from './facades/emmitter.facade.ts'
 import { createApp } from './app.ts'
 
-const { logger, config, emmiter, lifecycle, env } = await createApp()
+const { logger, config, emmiter, lifecycle, env, pluginManager } = await createApp()
 
 const cli = CliService
     .create()
@@ -20,6 +21,19 @@ dirs.push(...env.get('ZENITH_COMMAND_DIR'))
 
 for (const dir of dirs) {
     cli.addDir(dir)
+}
+
+for (const plugin of pluginManager.list()) {
+    if (!plugin.enabled) continue
+
+    const plugindCommandDir = env.production
+        ? plugin.makePath('dist/server/commands')
+        : plugin.makePath('src/server/commands')
+
+
+    if (fs.existsSync(plugindCommandDir)) {
+        cli.addDir(plugindCommandDir)
+    }
 }
 
 container.set(CliService, cli)
