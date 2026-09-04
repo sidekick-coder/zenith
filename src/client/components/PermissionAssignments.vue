@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { toast } from 'vue-sonner'
+import { tryCatch } from '@sidekick-coder/zenith-kit/shared/utils/tryCatch'
 import Card from './ui/card/Card.vue'
 import { CardContent, CardDescription, CardHeader, CardTitle } from './ui/card'
 import PermissionAssignmentDialog from './PermissionAssignmentDialog.vue'
@@ -17,7 +18,6 @@ import {
 import { defineColumns } from '#client/components/DataTable.vue'
 
 import { $fetch } from '#client/utils/fetcher.ts'
-import { tryCatch } from '#shared/utils/tryCatch.ts'
 import Button from '#client/components/Button.vue'
 import Icon from '#client/components/Icon.vue'
 import PermissionAssignment from '#shared/entities/permissionAssignment.entity'

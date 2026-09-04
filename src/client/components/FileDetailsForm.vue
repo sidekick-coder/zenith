@@ -5,8 +5,8 @@ import { toTypedSchema } from '@vee-validate/valibot'
 import { toast } from 'vue-sonner'
 import * as v from 'valibot'
 
+import { tryCatch } from '@sidekick-coder/zenith-kit/shared/utils/tryCatch'
 import { $fetch } from '#client/utils/fetcher.ts'
-import { tryCatch } from '#shared/utils/tryCatch.ts'
 import FormTextField from '#client/components/FormTextField.vue'
 import Button from '#client/components/Button.vue'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '#client/components/ui/card'
@@ -30,9 +30,7 @@ const schema = toTypedSchema(v.object({
     mimetype: v.string(),
 }))
 
-const { handleSubmit, setValues } = useForm({
-    validationSchema: schema,
-})
+const { handleSubmit, setValues } = useForm({ validationSchema: schema, })
 
 const onSubmit = handleSubmit(async (payload) => {
     if (!file.value) return
@@ -42,9 +40,7 @@ const onSubmit = handleSubmit(async (payload) => {
     const [error] = await tryCatch(() => $fetch(`/api/files/${props.fileId}`, {
         method: 'PUT',
         body: JSON.stringify(payload),
-        headers: {
-            'Content-Type': 'application/json'
-        }
+        headers: { 'Content-Type': 'application/json' }
     }))
 
     saving.value = false

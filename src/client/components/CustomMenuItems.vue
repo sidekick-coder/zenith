@@ -4,6 +4,7 @@ import { toast } from 'vue-sonner'
 import * as v from 'valibot'
 import { DialogForm } from '@sidekick-coder/zenith-kit/components' 
 import { defineFormFields } from '@sidekick-coder/zenith-kit/client'
+import { tryCatch } from '@sidekick-coder/zenith-kit/shared/utils/tryCatch'
 import DataTable, { defineColumns } from '#client/components/DataTable.vue'
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '#client/components/ui/card'
@@ -13,7 +14,6 @@ import AlertButton from '#client/components/AlertButton.vue'
 
 import { $fetch } from '#client/utils/fetcher.ts'
 import di from '#client/utils/di.ts'
-import { tryCatch } from '#shared/utils/tryCatch.ts'
 import { createId } from '#client/utils/createId.ts'
 import auth from '#client/facades/auth.facade.ts'
 

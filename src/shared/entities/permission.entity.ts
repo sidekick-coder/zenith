@@ -1,6 +1,6 @@
+import { tryCatch } from '@sidekick-coder/zenith-kit/shared/utils/tryCatch'
+import { compose } from '@sidekick-coder/zenith-kit/shared/utils/compose'
 import { BaseEntity } from '#shared/mixins/index.ts'
-import { compose } from '#shared/utils/compose.ts'
-import { tryCatch } from '#shared/utils/tryCatch.ts'
 
 export default class Permission extends compose(BaseEntity) {
     public id: number

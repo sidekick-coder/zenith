@@ -1,7 +1,7 @@
 import fs from 'fs'
 import path from 'path'
+import { tryCatch } from '@sidekick-coder/zenith-kit/shared/utils/tryCatch'
 import Router from './router.service.ts'
-import { tryCatch } from '#shared/utils/tryCatch.ts'
 import type Route from '#server/entities/route.entity.ts'
 
 export interface RouterRegisterEntry {

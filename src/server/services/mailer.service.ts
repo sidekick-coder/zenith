@@ -1,10 +1,10 @@
+import { tryCatch } from '@sidekick-coder/zenith-kit/shared/utils/tryCatch'
 import BaseException from '#server/exceptions/base.ts'
 import LoggerService from '#shared/services/logger.service.ts'
 import config from '#server/facades/config.facade.ts'
 import type BaseMailer from '#server/gateways/mailerBase.gateway.ts'
 import MailerConfig from '#server/entities/mailerConfig.entity.ts'
 import type { MailerSendPayload } from '#server/gateways/mailerBase.gateway.ts'
-import { tryCatch } from '#shared/utils/tryCatch.ts'
 
 export default class MailerService {
     public static __container_entry_key = 'MailerService'

@@ -1,16 +1,14 @@
 <script setup lang="ts">
 import { useRoute, useRouter } from 'vue-router'
-import {
-    defineAsyncComponent, onMounted, ref 
-} from 'vue'
+import { defineAsyncComponent, onMounted, ref } from 'vue'
 import { useRouteQuery } from '@vueuse/router'
 import { toast } from 'vue-sonner'
 
+import { tryCatch } from '@sidekick-coder/zenith-kit/shared/utils/tryCatch'
 import Tabs from '#client/components/ui/tabs/Tabs.vue'
 import TabsList from '#client/components/ui/tabs/TabsList.vue'
 import TabsTrigger from '#client/components/ui/tabs/TabsTrigger.vue'
 import TabsContent from '#client/components/ui/tabs/TabsContent.vue'
-import { tryCatch } from '#shared/utils/tryCatch.ts'
 import { $fetch } from '#client/utils/fetcher.ts'
 import type Role from '#shared/entities/role.entity.ts'
 
@@ -62,35 +60,33 @@ async function load(){
 onMounted(load)
 </script>
 <template>
-
     <Tabs
-    v-if="role"
-    v-model="tab"
-    default-value="details" 
+        v-if="role"
+        v-model="tab"
+        default-value="details" 
     >
-    <TabsList>
-    <TabsTrigger
-    v-for="t in tabs"
-    :key="t.id"
-    :value="t.id"
-    class="min-w-60"
-    >
-    {{ t.label }}
-    </TabsTrigger>
-    </TabsList>
+        <TabsList>
+            <TabsTrigger
+                v-for="t in tabs"
+                :key="t.id"
+                :value="t.id"
+                class="min-w-60"
+            >
+                {{ t.label }}
+            </TabsTrigger>
+        </TabsList>
 
-    <TabsContent
-    v-for="t in tabs"
-    :key="t.id"
-    :value="t.id"
-    >
-    <component
-    :is="t.component"
-    v-if="t.component && role"
-    v-model="role"
-    v-bind="t.props"
-    />
-    </TabsContent>
+        <TabsContent
+            v-for="t in tabs"
+            :key="t.id"
+            :value="t.id"
+        >
+            <component
+                :is="t.component"
+                v-if="t.component && role"
+                v-model="role"
+                v-bind="t.props"
+            />
+        </TabsContent>
     </Tabs>
-
 </template>

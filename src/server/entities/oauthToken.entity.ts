@@ -1,8 +1,8 @@
 import { randomBytes } from 'crypto'
+import { composeWith } from '@sidekick-coder/zenith-kit/shared/utils/compose'
 import { Model } from '#server/mixins/model.mixin.ts'
 import normalizers from '#server/normalizers/index.ts'
 import BaseOauthToken from '#shared/entities/oauthToken.entity.ts'
-import { composeWith } from '#shared/utils/compose.ts'
 import { HooksStatic } from '#server/mixins/hooks.mixin.ts'
 
 interface GenerateTokenOptions {

@@ -1,8 +1,8 @@
 import fs from 'fs'
-import { serverPath } from '@sidekick-coder/zenith-kit/server'
-import { container, CliService } from '@sidekick-coder/zenith-kit/server'
-import type { CliCommand } from '@sidekick-coder/zenith-kit/server'
-import emmitter from './facades/emmitter.facade.ts'
+import  CliService, { CliCommand } from '@sidekick-coder/zenith-kit/server/services/CliService'
+import { serverPath } from '@sidekick-coder/zenith-kit/server/utils/basePath'
+import container from '@sidekick-coder/zenith-kit/server/facades/container'
+import emmitter from '@sidekick-coder/zenith-kit/server/facades/emmitter'
 import { createApp } from './app.ts'
 
 const { logger, config, emmiter, lifecycle, env, pluginManager } = await createApp()

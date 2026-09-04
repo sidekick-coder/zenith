@@ -1,4 +1,4 @@
-import type { Constructor } from '#shared/utils/compose.ts'
+import type { Constructor } from '@sidekick-coder/zenith-kit/shared/utils/compose'
 
 interface Relation {
     load(entities: any[]): Promise<void>

@@ -47,7 +47,7 @@ Create entity files for a module across the three contexts: shared, server, and 
 ```ts
 // modules/$module/shared/entities/<name>.entity.ts
 import { BaseEntity, Timestamp, SoftDelete } from '#shared/mixins/index.ts'
-import { compose } from '#shared/utils/compose.ts'
+import { compose } from '@sidekick-coder/zenith-kit/shared/utils/compose'
 
 export default class ExampleName extends compose(BaseEntity, Timestamp, SoftDelete) {
     public id: number
@@ -67,7 +67,7 @@ export default class ExampleName extends compose(BaseEntity, Timestamp, SoftDele
 // modules/$module/server/entities/<name>.entity.ts
 import { Model } from '#server/mixins/model.mixin.ts'
 import Base from '#$module/shared/entities/<name>.entity.ts'
-import { composeWith } from '#shared/utils/compose.ts'
+import { composeWith } from '@sidekick-coder/zenith-kit/shared/utils/compose'
 
 export default class ExampleName extends composeWith(Base, Model('$module__example_names')) {
     // server-specific methods or computed properties can be added here
@@ -82,7 +82,7 @@ export default class ExampleName extends composeWith(Base, Model('$module__examp
 ```ts
 // modules/$module/client/entities/<name>.entity.ts
 import Base from '#$module/shared/entities/<name>.entity.ts'
-import { composeWith } from '#shared/utils/compose.ts'
+import { composeWith } from '@sidekick-coder/zenith-kit/shared/utils/compose'
 
 export default class ExampleName extends composeWith(Base) {
     // add UI-specific computed properties here

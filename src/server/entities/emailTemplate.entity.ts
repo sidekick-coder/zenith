@@ -1,7 +1,7 @@
 import mjml from 'mjml'
+import { composeWith } from '@sidekick-coder/zenith-kit/shared/utils/compose'
 import { Model } from '#server/mixins/model.mixin.ts'
 import Base from '#shared/entities/emailTemplate.entity.ts'
-import { composeWith } from '#shared/utils/compose.ts'
 import { Metadata } from '#server/mixins/metadata.mixin.ts'
 import { HooksStatic } from '#server/mixins/hooks.mixin.ts'
 import HasMetas from '#server/relations/hasMetas.relation.ts'

@@ -1,7 +1,7 @@
-import { emmitter, } from '@sidekick-coder/zenith-kit/server'
-import { LoggerService  } from '@sidekick-coder/zenith-kit/shared'
-import type { EmmitterListenerOptions, EmmitterListener } from '@sidekick-coder/zenith-kit/shared'
-import { template } from 'lodash-es'
+import emmitter from '@sidekick-coder/zenith-kit/server/facades/emmitter'
+import LoggerService from '@sidekick-coder/zenith-kit/shared/services/LoggerService'
+import type { EmmitterListenerOptions, EmmitterListener } from '@sidekick-coder/zenith-kit/shared/services/EmmitterService'
+import template from 'lodash-es/template.js'
 import webhookSenderRepository from '#server/facades/webhookSenderRepository.ts'
 import type { WebhookSender } from '#shared/schemas/webhookSenderSchema.ts'
 
@@ -23,26 +23,26 @@ export default class WebhookSenderManager {
     public logger = new LoggerService()
     public loadedSenders: Map<string, WebhookSenderManagerLoadedEntry>
 
-    constructor(){
+    constructor() {
         this.loadedSenders = new Map()
     }
 
-    public static create(){
+    public static create() {
         return new WebhookSenderManager()
     }
 
-    public setDebug(debug: boolean){
+    public setDebug(debug: boolean) {
         this.debug = debug
         return this
     }
 
-    public setLogger(logger: LoggerService){
+    public setLogger(logger: LoggerService) {
         this.logger = logger
         return this
     }
 
-    public async execute(options: WebhookSenderManagerExecuteOptions){
-        const sender = options.webhookSender 
+    public async execute(options: WebhookSenderManagerExecuteOptions) {
+        const sender = options.webhookSender
         const eventData = options.eventData
         const eventOptions = options.eventOptions
 
@@ -92,12 +92,12 @@ export default class WebhookSenderManager {
         }
     }
 
-    public async unloadWebhookSender(sender: WebhookSender){
+    public async unloadWebhookSender(sender: WebhookSender) {
         const entry = this.loadedSenders.get(sender.id)
 
-        if(!entry) return
+        if (!entry) return
 
-        for (const e of entry.events){
+        for (const e of entry.events) {
             emmitter.off(e, entry.cb)
         }
 
@@ -112,14 +112,14 @@ export default class WebhookSenderManager {
         }
     }
 
-    public async loadWebhookSender(hook: WebhookSender){
+    public async loadWebhookSender(hook: WebhookSender) {
         const cb = (...args: any[]) => this.execute({
             webhookSender: hook,
             eventData: args[0] || {},
             eventOptions: args[1] || {},
         })
-        
-        for (const e of hook.trigger_events){
+
+        for (const e of hook.trigger_events) {
             emmitter.on(e, cb)
         }
 
@@ -138,12 +138,12 @@ export default class WebhookSenderManager {
         }
     }
 
-    public async load(){
+    public async load() {
         let senders = await webhookSenderRepository.findMany()
 
         senders = senders.filter(sender => sender.enabled)
 
-        for(const sender of senders){
+        for (const sender of senders) {
             await this.loadWebhookSender(sender)
         }
 

@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import path from 'path'
-import { CliWrapperService, EnvService } from '@sidekick-coder/zenith-kit/server'
+import EnvService from '@sidekick-coder/zenith-kit/server/services/EnvService'
+import CliWrapperService from '@sidekick-coder/zenith-kit/server/services/CliWrapperService'
 
 // eslint-disable-next-line no-undef
 process.env['ZENITH_BASE_PATH'] = import.meta.dirname

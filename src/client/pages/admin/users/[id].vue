@@ -5,11 +5,11 @@ import { useRouteQuery } from '@sidekick-coder/zenith-kit/components'
 import { toast } from 'vue-sonner'
 
 import { layout } from '@sidekick-coder/zenith-kit/client'
+import { tryCatch } from '@sidekick-coder/zenith-kit/shared/utils/tryCatch'
 import Tabs from '#client/components/ui/tabs/Tabs.vue'
 import TabsList from '#client/components/ui/tabs/TabsList.vue'
 import TabsTrigger from '#client/components/ui/tabs/TabsTrigger.vue'
 import TabsContent from '#client/components/ui/tabs/TabsContent.vue'
-import { tryCatch } from '#shared/utils/tryCatch.ts'
 import { $fetch } from '#client/utils/fetcher.ts'
 import type User from '#shared/entities/user.entity.ts'
 

@@ -1,8 +1,8 @@
 import ms from 'ms'
+import { composeWith } from '@sidekick-coder/zenith-kit/shared/utils/compose'
 import FileMeta from './fileMeta.entity.ts'
 import { Model } from '#server/mixins/model.mixin.ts'
 import Base from '#shared/entities/file.entity.ts'
-import { composeWith } from '#shared/utils/compose.ts'
 import { Metadata } from '#server/mixins/metadata.mixin.ts'
 import drive from '#server/facades/drive.facade.ts'
 import { HooksStatic } from '#server/mixins/hooks.mixin.ts'
@@ -39,17 +39,13 @@ export default class File extends composeWith(
     public static cache = new Map<string, URLCache>()
 
     public static async has(filename: string): Promise<boolean> {
-        const exists = await this.exists({
-            query: q => q.where('filename', '=', filename)
-        })
+        const exists = await this.exists({ query: q => q.where('filename', '=', filename) })
 
         return exists
     }
 
     public static async findByFilename(filename: string) {
-        return await this.findOne({
-            where: qb => qb('filename', '=', filename)
-        })
+        return await this.findOne({ where: qb => qb('filename', '=', filename) })
     }
 
     public readStream() {
@@ -108,9 +104,7 @@ export default class File extends composeWith(
     
         if (!ids.length) return
     
-        const rows = await FileMeta.list({
-            query: q => q.selectAll().where('file_id', 'in', ids)
-        })
+        const rows = await FileMeta.list({ query: q => q.selectAll().where('file_id', 'in', ids) })
     
         items.forEach(f => {
             f.metas = MetadataService.flatten(rows.filter(r => r.file_id === f.id))

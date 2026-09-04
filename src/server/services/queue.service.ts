@@ -1,9 +1,9 @@
 import { randomUUID } from 'crypto'
 import { serverPath } from '@sidekick-coder/zenith-kit/server'
+import { tryCatch } from '@sidekick-coder/zenith-kit/shared/utils/tryCatch'
+import type { Constructor } from '@sidekick-coder/zenith-kit/shared/utils/compose'
 import Job from '#server/entities/job.entity.ts'
-import { tryCatch } from '#shared/utils/tryCatch.ts'
 import { importAll } from '#server/utils/importAll.ts'
-import type { Constructor } from '#shared/utils/compose.ts'
 import LoggerService from '#shared/services/logger.service.ts'
 import db from '#server/facades/db.facade.ts'
 

@@ -7,6 +7,7 @@ import { toTypedSchema } from '@vee-validate/valibot'
 import { toast } from 'vue-sonner'
 import type { Token } from '@sidekick-coder/zenith-kit/shared'
 import { AlertCircleIcon } from 'lucide-vue-next'
+import { tryCatch } from '@sidekick-coder/zenith-kit/shared/utils/tryCatch'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '#client/components/ui/card'
 import { Alert, AlertTitle, AlertDescription } from '#client/components/ui/alert'
 import FormTextField from '#client/components/FormTextField.vue'
@@ -14,7 +15,6 @@ import Button from '#client/components/Button.vue'
 import Icon from '#client/components/Icon.vue'
 import PermissionAssignments from '#client/components/PermissionAssignments.vue'
 import { $fetch } from '#client/utils/fetcher.ts'
-import { tryCatch } from '#shared/utils/tryCatch.ts'
 
 const route = useRoute()
 const router = useRouter()
@@ -79,8 +79,10 @@ onMounted(() => {
 })
 </script>
 <template>
-
-    <div v-if="tokenFromState" class="mb-4 space-y-2">
+    <div
+        v-if="tokenFromState"
+        class="mb-4 space-y-2"
+    >
         <Alert variant="warning">
             <AlertCircleIcon />
             <AlertTitle>{{ $t('Save your token') }}</AlertTitle>
@@ -94,8 +96,12 @@ onMounted(() => {
                     <code class="flex-1 break-all text-sm text-muted-foreground">
                         {{ tokenFromState }}
                     </code>
-                    <Button variant="ghost" size="icon" :tooltip="copied ? $t('Copied!') : $t('Copy')"
-                        @click="copyToken">
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        :tooltip="copied ? $t('Copied!') : $t('Copy')"
+                        @click="copyToken"
+                    >
                         <Icon :name="copied ? 'check' : 'copy'" />
                     </Button>
                 </div>
@@ -112,21 +118,37 @@ onMounted(() => {
                 </CardDescription>
             </CardHeader>
             <CardContent>
-                <form class="space-y-4" @submit.prevent="onSubmit">
-                    <FormTextField name="name" :label="$t('Name')" :placeholder="$t('e.g. My CI token')" />
+                <form
+                    class="space-y-4"
+                    @submit.prevent="onSubmit"
+                >
+                    <FormTextField
+                        name="name"
+                        :label="$t('Name')"
+                        :placeholder="$t('e.g. My CI token')"
+                    />
                 </form>
             </CardContent>
             <CardFooter class="flex justify-end gap-2">
-                <Button variant="outline" to="/admin/tokens">
+                <Button
+                    variant="outline"
+                    to="/admin/tokens"
+                >
                     {{ $t('Back') }}
                 </Button>
-                <Button :loading="saving" @click="onSubmit">
+                <Button
+                    :loading="saving"
+                    @click="onSubmit"
+                >
                     {{ $t('Save') }}
                 </Button>
             </CardFooter>
         </Card>
 
-        <PermissionAssignments v-if="token" assign-type="token" :assign-id="tokenId" />
+        <PermissionAssignments
+            v-if="token"
+            assign-type="token"
+            :assign-id="tokenId"
+        />
     </div>
-
 </template>

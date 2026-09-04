@@ -1,4 +1,4 @@
-import { composeWith } from '#shared/utils/compose.ts'
+import { composeWith } from '@sidekick-coder/zenith-kit/shared/utils/compose'
 import Base from '#shared/entities/job.entity.ts'
 import { Model } from '#server/mixins/model.mixin.ts'
 import di from '#server/facades/di.facade.ts'

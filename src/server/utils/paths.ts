@@ -1,4 +1,4 @@
-import { basePath as kitBasePath } from '@sidekick-coder/zenith-kit/server'
+import { basePath as kitBasePath } from '@sidekick-coder/zenith-kit/server/utils/basePath'
 
 /** @deprecated use basePath from zenith-kit instead */
 export function basePath(...args: string[]): string {

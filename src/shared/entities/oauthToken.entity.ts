@@ -1,5 +1,5 @@
+import { compose } from '@sidekick-coder/zenith-kit/shared/utils/compose'
 import { BaseEntity } from '#shared/mixins/index.ts'
-import { compose } from '#shared/utils/compose.ts'
 
 export default class OauthToken extends compose(BaseEntity) {  
     public id: number

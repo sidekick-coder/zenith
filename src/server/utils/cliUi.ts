@@ -1,4 +1,6 @@
-import Table from 'cli-table3'
+import { createRequire } from 'node:module'
+
+const require = createRequire(import.meta.url)
 
 export interface TableColumn {
     label: string
@@ -12,6 +14,7 @@ export interface ObjectOptions {
 }
 
 export function object(output: any = {}, options: ObjectOptions = {}) {
+    const Table = require('cli-table3') as typeof import('cli-table3')
     const screenWidth = process.stdout.columns || 80
     const keyWidth = options.keyWidth || Math.floor(screenWidth * 0.2)
     const valueWidth = Math.floor(screenWidth * 0.7)
@@ -30,6 +33,7 @@ export function object(output: any = {}, options: ObjectOptions = {}) {
 }
 
 export function table(items: any[], columns?: TableColumn[]) {
+    const Table = require('cli-table3') as typeof import('cli-table3')
     const screenWidth = (process.stdout.columns || 80) - 6
     const rows = [] as string[][]
     const head: TableColumn[] = []

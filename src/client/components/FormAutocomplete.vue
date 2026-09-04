@@ -5,6 +5,7 @@ import { watchDebounced } from '@vueuse/core'
 import { computed } from 'vue'
 import type { PropType } from 'vue'
 import { get } from 'lodash-es'
+import { tryCatch } from '@sidekick-coder/zenith-kit/shared/utils/tryCatch'
 import Icon from './Icon.vue'
 import Separator from './ui/separator/Separator.vue'
 import { cn } from '#client/lib/utils'
@@ -23,7 +24,6 @@ import { Avatar } from '#client/components/ui/avatar'
 import AvatarImage from '#client/components/ui/avatar/AvatarImage.vue'
 import AvatarFallback from '#client/components/ui/avatar/AvatarFallback.vue'
 import $fetch from '#client/facades/fetch.facade.ts'
-import { tryCatch } from '#shared/utils/tryCatch.ts'
 
 defineOptions({ inheritAttrs: false, })
 

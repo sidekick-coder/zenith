@@ -1,9 +1,9 @@
 import { LifecycleHook } from '@sidekick-coder/zenith-kit/shared'
 import { database, userRepository } from '@sidekick-coder/zenith-kit/server'
+import { tryCatch } from '@sidekick-coder/zenith-kit/shared/utils/tryCatch'
 import config from '#server/facades/config.facade.ts'
 import logger from '#server/facades/logger.facade.ts'
 import { createUserPermission } from '#server/queries/createUserPermission.ts'
-import { tryCatch } from '#shared/utils/tryCatch.ts'
 
 const PERMISSION_SHORTCUTS: Record<string, { action: string; subject: string }> = {
     admin: {

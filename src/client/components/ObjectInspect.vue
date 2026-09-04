@@ -2,6 +2,7 @@
 import { ref  } from 'vue'
 import type { PropType } from 'vue'
 import { computed } from 'vue'
+import { tryCatch } from '@sidekick-coder/zenith-kit/shared/utils/tryCatch'
 import Button from '#client/components/Button.vue'
 import {
     Dialog,
@@ -12,7 +13,6 @@ import {
     DialogTrigger,
 } from '#client/components/ui/dialog'
 import Icon from '#client/components/Icon.vue'
-import { tryCatch } from '#shared/utils/tryCatch.ts'
 import { cn } from '#client/lib/utils.ts'
 
 defineProps({

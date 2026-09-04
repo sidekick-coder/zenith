@@ -1,9 +1,9 @@
 import { GenericContainer, Network, Wait } from 'testcontainers'
 import type { StartedTestContainer, StartedNetwork } from 'testcontainers'
+import { tryCatch } from '@sidekick-coder/zenith-kit/shared/utils/tryCatch'
 import DatabasePGIntegrationTestService from './databasePGIntegrationTest.service.ts'
 import UserIntegrationTestService from './userIntegrationTest.service.ts'
 import { basePath } from '#server/utils/paths.ts'
-import { tryCatch } from '#shared/utils/tryCatch.ts'
 
 export default class AppIntegrationTestService {
     public container: StartedTestContainer | null = null
@@ -55,9 +55,7 @@ export default class AppIntegrationTestService {
 
     
     private async start() {
-        const env = {
-            CONFIG: ''
-        }
+        const env = { CONFIG: '' }
 
         for (const [key, value] of Object.entries(this.config)) {
             env['CONFIG'] += `${key}=${value};`

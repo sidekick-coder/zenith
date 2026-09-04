@@ -1,10 +1,11 @@
 import fs from 'fs'
 import path from 'path'
-import { PluginEntity, PluginEntryEntity } from '@sidekick-coder/zenith-kit/server'
-import type { EventContract } from '@sidekick-coder/zenith-kit/server'
+import PluginEntity from '@sidekick-coder/zenith-kit/server/entities/PluginEntity'
+import PluginEntryEntity from '@sidekick-coder/zenith-kit/server/entities/PluginEntryEntity'
+import type { EventContract } from '@sidekick-coder/zenith-kit/server/contracts/EventContract'
 import express from 'express'
+import emmitter from '@sidekick-coder/zenith-kit/server/facades/emmitter'
 import PluginLoaderService from './PluginLoaderService.ts'
-import emmitter from '#server/facades/emmitter.facade.ts'
 import { resolveHeadAssetsFromManifest } from '#server/utils/resolveHeadAssetsFromManifest.ts'
 
 export default class PluginLoaderProductionService extends PluginLoaderService {

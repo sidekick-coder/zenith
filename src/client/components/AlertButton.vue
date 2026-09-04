@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { toast } from 'vue-sonner'
 import { ZButton as Button } from '@sidekick-coder/zenith-kit/components'
+import { tryCatch } from '@sidekick-coder/zenith-kit/shared/utils/tryCatch'
 import ClientOnly from './ClientOnly.vue'
 import {
     AlertDialog,
@@ -15,7 +16,6 @@ import {
 } from '#client/components/ui/alert-dialog'
 
 import { $fetch } from '#client/utils/fetcher.ts'
-import { tryCatch } from '#shared/utils/tryCatch.ts'
 
 defineOptions({ inheritAttrs: false })
 

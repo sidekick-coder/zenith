@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import { tryCatch } from '@sidekick-coder/zenith-kit/shared/utils/tryCatch'
 import Image from './Image.vue'
 import {
     FormControl,
@@ -13,7 +14,6 @@ import FileUploader from '#client/components/FileUploader.vue'
 import Button from '#client/components/Button.vue'
 import Icon from '#client/components/Icon.vue'
 
-import { tryCatch } from '#shared/utils/tryCatch.ts'
 
 defineProps({
     name: {

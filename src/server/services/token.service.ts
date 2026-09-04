@@ -1,7 +1,7 @@
 import { randomBytes } from 'crypto'
+import { tryCatch } from '@sidekick-coder/zenith-kit/shared/utils/tryCatch'
 import db from '#server/facades/db.facade.ts'
 import { create } from '#server/queries/index.ts'
-import { tryCatch } from '#shared/utils/tryCatch.ts'
 
 export interface Token {
     id: number

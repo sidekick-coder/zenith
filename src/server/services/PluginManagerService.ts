@@ -1,12 +1,17 @@
 import fs from 'fs'
 import path from 'path'
-import { basePath, EnvService, GitGateway, PluginEntryEntity, ShellService } from '@sidekick-coder/zenith-kit/server'
-import { BaseException, ConfigService, LoggerService } from '@sidekick-coder/zenith-kit/shared'
+import { basePath } from '@sidekick-coder/zenith-kit/server/utils/basePath'
+import EnvService from '@sidekick-coder/zenith-kit/server/services/EnvService'
+import { GitGateway } from '@sidekick-coder/zenith-kit/server/gateways/GitGateway'
+import PluginEntryEntity from '@sidekick-coder/zenith-kit/server/entities/PluginEntryEntity'
+import ShellService from '@sidekick-coder/zenith-kit/server/services/ShellService'
+import BaseException from '@sidekick-coder/zenith-kit/shared/exceptions/BaseException'
+import ConfigService from '@sidekick-coder/zenith-kit/shared/services/ConfigService'
+import LoggerService from '@sidekick-coder/zenith-kit/shared/services/LoggerService'
 import cosmicconfig from 'cosmiconfig'
 import type PluginLoaderService from './PluginLoaderService.ts'
-import PluginLoaderDevelopmentService from './PluginLoaderDevelopmentService.ts'
-import PluginLoaderProductionService from './PluginLoaderProductionService.ts'
-import { tryCatch } from '#shared/utils/tryCatch.ts'
+// import PluginLoaderDevelopmentService from './PluginLoaderDevelopmentService.ts'
+// import PluginLoaderProductionService from './PluginLoaderProductionService.ts'
 
 export interface PluginManagerServiceOptions {
     logger?: LoggerService
@@ -101,7 +106,7 @@ export default class PluginManagerService {
             cwd: directory,
         })
 
-        const [error, gitInfo] = await tryCatch(() => gitGateay.getInfo())
+        const [error, gitInfo] = await $try(() => gitGateay.getInfo())
 
         if (error) {
             this.logger.warn('failed to get git info for plugin', {
@@ -229,10 +234,14 @@ export default class PluginManagerService {
         let loader: PluginLoaderService | null = null
 
         if (this.env.development || this.env.test) {
+            const { default: PluginLoaderDevelopmentService } = await import('./PluginLoaderDevelopmentService.ts')
+
             loader = new PluginLoaderDevelopmentService()
         }
 
         if (this.env.production) {
+            const { default: PluginLoaderProductionService } = await import('./PluginLoaderProductionService.ts')
+
             loader = new PluginLoaderProductionService()
         }
 

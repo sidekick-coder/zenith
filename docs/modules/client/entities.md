@@ -19,7 +19,7 @@ Place the file in `mymodule/client/entities/` using the naming convention `<name
 ```ts
 // mymodule/client/entities/item.entity.ts
 import Base from '#mymodule/shared/entities/item.entity.ts'
-import { composeWith } from '#shared/utils/compose.ts'
+import { composeWith } from '@sidekick-coder/zenith-kit/shared/utils/compose'
 
 export default class Item extends composeWith(Base) {
     public get displayName(): string {
@@ -76,7 +76,7 @@ Keep formatting logic in the entity instead of scattering it across components:
 ```ts
 // mymodule/client/entities/item.entity.ts
 import Base from '#mymodule/shared/entities/item.entity.ts'
-import { composeWith } from '#shared/utils/compose.ts'
+import { composeWith } from '@sidekick-coder/zenith-kit/shared/utils/compose'
 
 export default class Item extends composeWith(Base) {
     public get statusColor(): string {

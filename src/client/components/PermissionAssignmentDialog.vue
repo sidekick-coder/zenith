@@ -2,6 +2,7 @@
 import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/valibot'
 import { ref } from 'vue'
+import { tryCatch } from '@sidekick-coder/zenith-kit/shared/utils/tryCatch'
 import ClientOnly from './ClientOnly.vue'
 import FormAutocomplete from './FormAutocomplete.vue'
 
@@ -16,7 +17,6 @@ import {
     DialogTitle,
     DialogTrigger,
 } from '#client/components/ui/dialog'
-import { tryCatch } from '#shared/utils/tryCatch.ts'
 import schemas from '#shared/validators/index.ts'
 import Permission from '#shared/entities/permission.entity.ts'
 

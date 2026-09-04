@@ -1,4 +1,5 @@
 import { omit } from 'lodash-es'
+import type { Constructor } from '@sidekick-coder/zenith-kit/shared/utils/compose'
 import { emitHook } from './hooks.mixin.ts'
 import type { UpdateOrCreateOptions } from '#server/queries/updateOrCreate.ts'
 import type { Database } from '#server/contracts/database.contract.ts'
@@ -15,7 +16,6 @@ import type {
     FindOneOptions
 } from '#server/queries/index.ts'
 import type Pagination from '#shared/entities/pagination.entity.ts'
-import type { Constructor } from '#shared/utils/compose.ts'
 import db from '#server/facades/db.facade.ts'
 
 export type ModelListOptions<T extends keyof Database> = Omit<ListOptions<T>, 'serialize'>
@@ -298,9 +298,7 @@ export function Model<Table extends keyof Database>(table: Table, primaryKey: ke
 
             public static async destroyById<T>(this: new () => T, id: any): Promise<void> {
                 const constructor = this as any
-                const options = {
-                    query: (qb: any) => qb.where(primaryKey as string, '=', id)
-                }
+                const options = { query: (qb: any) => qb.where(primaryKey as string, '=', id) }
 
                 await emitHook(constructor, 'beforeDestroy', options)
 
@@ -328,9 +326,7 @@ export function Model<Table extends keyof Database>(table: Table, primaryKey: ke
 
                 await emitHook(constructor, 'beforeDestroy', this)
 
-                await queries.destroy(table, {
-                    query: qb => (qb as any).where(primaryKey, '=', (this as any).id)
-                })
+                await queries.destroy(table, { query: qb => (qb as any).where(primaryKey, '=', (this as any).id) })
 
                 await emitHook(constructor, 'afterDestroy', this)
             }
@@ -340,9 +336,7 @@ export function Model<Table extends keyof Database>(table: Table, primaryKey: ke
 
                 await emitHook(constructor, 'beforeSoftDelete', this)
 
-                const rows = await queries.softDelete(table, {
-                    query: qb => (qb as any).where(primaryKey, '=', (this as any).id)
-                })
+                const rows = await queries.softDelete(table, { query: qb => (qb as any).where(primaryKey, '=', (this as any).id) })
 
                 const row = rows[0]
 

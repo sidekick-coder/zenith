@@ -1,5 +1,5 @@
+import { composeWith } from '@sidekick-coder/zenith-kit/shared/utils/compose'
 import ModelConfig from '#server/mixins/modelConfig.mixin.ts'
-import { composeWith } from '#shared/utils/compose.ts'
 import Base from '#shared/entities/mailerConfig.entity.ts'
 import config from '#server/facades/config.facade.ts'
 

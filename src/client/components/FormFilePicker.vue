@@ -3,9 +3,9 @@ import { ref } from 'vue'
 import { useField } from 'vee-validate'
 import { toast } from 'vue-sonner'
 
+import { tryCatch } from '@sidekick-coder/zenith-kit/shared/utils/tryCatch'
 import { $fetch } from '#client/utils/fetcher.ts'
 import { $file } from '#client/utils/file.ts'
-import { tryCatch } from '#shared/utils/tryCatch.ts'
 import {
     FormControl,
     FormDescription,

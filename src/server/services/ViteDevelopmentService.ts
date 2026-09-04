@@ -3,13 +3,12 @@ import type { Application } from 'express'
 import type { ViteDevServer } from 'vite'
 import { createLogger, createServer as createViteServer } from 'vite'
 import type { Request, Response } from 'express'
-import { transformHtmlTemplate } from '@unhead/vue/server'
 import { basePath, PageRequestContextEntity } from '@sidekick-coder/zenith-kit/server'
 import { LoggerService, BaseException } from '@sidekick-coder/zenith-kit/shared'
+import { tryCatch } from '@sidekick-coder/zenith-kit/shared/utils/tryCatch'
 import ViteService from './ViteService.ts'
 import router from '#server/facades/router.facade.ts'
 import El from '#server/entities/el.entity.ts'
-import { tryCatch } from '#shared/utils/tryCatch.ts'
 import emmitter from '#server/facades/emmitter.facade.ts'
 import type { EntryNodeRenderFunction } from '#shared/contracts/EntryNodeRenderContract.ts'
 
@@ -158,6 +157,8 @@ export default class ViteDevelopmentService extends ViteService {
             .html(rendered.html || '')
 
         let result = html.toString()
+
+        const { transformHtmlTemplate } = await import('@unhead/vue/server')
 
         result = await transformHtmlTemplate(rendered.head, result)
 

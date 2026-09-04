@@ -4,6 +4,7 @@ import * as v from 'valibot'
 import { toTypedSchema } from '@vee-validate/valibot'
 import { ref } from 'vue'
 
+import { tryCatch } from '@sidekick-coder/zenith-kit/shared/utils/tryCatch'
 import FormTextField from '#client/components/FormTextField.vue'
 import { $fetch } from '#client/utils/fetcher.ts'
 import Button from '#client/components/Button.vue'
@@ -16,7 +17,6 @@ import {
     DialogTitle,
     DialogTrigger,
 } from '#client/components/ui/dialog'
-import { tryCatch } from '#shared/utils/tryCatch.ts'
 
 const emit = defineEmits(['submit'])
 

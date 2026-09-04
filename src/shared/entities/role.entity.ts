@@ -1,5 +1,5 @@
+import { compose } from '@sidekick-coder/zenith-kit/shared/utils/compose'
 import { BaseEntity, SoftDelete, Timestamp } from '../mixins/index.ts'
-import { compose } from '#shared/utils/compose.ts'
 
 export default class Role extends compose(BaseEntity, Timestamp, SoftDelete) {
     public id: number

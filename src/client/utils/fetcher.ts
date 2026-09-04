@@ -1,8 +1,8 @@
 import { toast } from 'vue-sonner'
+import { tryCatch } from '@sidekick-coder/zenith-kit/shared/utils/tryCatch'
 import di from './di'
 import type Router from '#server/services/router.service.ts'
 import CookieService from '#shared/services/cookie.service'
-import { tryCatch } from '#shared/utils/tryCatch.ts'
 import Route from '#server/entities/route.entity.ts'
 
 interface Options extends RequestInit {

@@ -1,9 +1,9 @@
 import path from 'path'
 import fs from 'fs'
 import { sql } from 'kysely'
+import { tryCatch } from '@sidekick-coder/zenith-kit/shared/utils/tryCatch'
 import arte from '#server/facades/arte.facade.ts'
 import db from '#server/facades/db.facade.ts'
-import { tryCatch } from '#shared/utils/tryCatch.ts'
 import logger from '#server/facades/logger.facade.ts'
 
 arte.command('sql:raw')

@@ -17,7 +17,7 @@ Extend `BaseEntity` and optionally compose additional mixins:
 import type Permission from './permission.entity.ts'
 import type Role from './role.entity.ts'
 import { BaseEntity, Timestamp, SoftDelete } from '#shared/mixins/index.ts'
-import { compose } from '#shared/utils/compose.ts'
+import { compose } from '@sidekick-coder/zenith-kit/shared/utils/compose'
 
 export default class User extends compose(BaseEntity, Timestamp, SoftDelete) {
     public id: number
@@ -59,7 +59,7 @@ export default class User extends compose(BaseEntity, Timestamp, SoftDelete) {
 | `Timestamp` | `created_at`, `updated_at` |
 | `SoftDelete` | `deleted_at` |
 
-All mixins are imported from `#shared/mixins/index.ts` and composed with the `compose` utility from `#shared/utils/compose.ts`. Order matters — mixins are applied left to right.
+All mixins are imported from `#shared/mixins/index.ts` and composed with the `compose` utility from `@sidekick-coder/zenith-kit/shared/utils/compose`. Order matters — mixins are applied left to right.
 
 ## Referencing Other Shared Entities
 

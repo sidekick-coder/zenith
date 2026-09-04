@@ -1,6 +1,6 @@
+import { tryCatch } from '@sidekick-coder/zenith-kit/shared/utils/tryCatch'
 import arte from '#server/facades/arte.facade.ts'
 import db from '#server/facades/db.facade.ts'
-import { tryCatch } from '#shared/utils/tryCatch.ts'
 import cli from '#server/services/cli.service.ts'
 
 arte

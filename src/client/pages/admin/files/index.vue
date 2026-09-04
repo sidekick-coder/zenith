@@ -2,10 +2,10 @@
 import { ref } from 'vue'
 import { toast } from 'vue-sonner'
 import type { ComponentExposed } from 'vue-component-type-helpers'
+import { tryCatch } from '@sidekick-coder/zenith-kit/shared/utils/tryCatch'
 import { defineColumns } from '#client/components/DataTable.vue'
 
 import { $fetch } from '#client/utils/fetcher.ts'
-import { tryCatch } from '#shared/utils/tryCatch.ts'
 import Button from '#client/components/Button.vue'
 import Icon from '#client/components/Icon.vue'
 import AlertButton from '#client/components/AlertButton.vue'

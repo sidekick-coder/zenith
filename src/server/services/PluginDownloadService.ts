@@ -1,8 +1,12 @@
 import fs from 'fs'
 import path from 'path'
-import { basePath, GitGateway, ShellService, tmpPath } from '@sidekick-coder/zenith-kit/server'
-import { BaseException, ConfigService, LoggerService } from '@sidekick-coder/zenith-kit/shared'
-import { load as loadYaml } from 'js-yaml'
+import { basePath, tmpPath } from '@sidekick-coder/zenith-kit/server/utils/basePath'
+import { GitGateway } from '@sidekick-coder/zenith-kit/server/gateways/GitGateway'
+import ShellService from '@sidekick-coder/zenith-kit/server/services/ShellService'
+import BaseException from '@sidekick-coder/zenith-kit/shared/exceptions/BaseException'
+import ConfigService from '@sidekick-coder/zenith-kit/shared/services/ConfigService'
+import LoggerService from '@sidekick-coder/zenith-kit/shared/services/LoggerService'
+// import { load as loadYaml } from 'js-yaml'
 
 export interface PluginDownloadServiceOptions {
     logger?: LoggerService
@@ -93,6 +97,8 @@ export default class PluginDownloadService {
             throw new BaseException(`Plugin config file not found in repository: ${configFilename}`)
         }
 
+        const loadYaml = (await import('js-yaml')).load
+
         const config = await loadYaml(fs.readFileSync(configFilename, 'utf-8')) as any
 
         if (!config || !config.id) {
@@ -109,7 +115,7 @@ export default class PluginDownloadService {
         fs.cpSync(dir, destination, { recursive: true })
         fs.rmSync(dir, {
             recursive: true,
-            force: true 
+            force: true
         })
 
         // if keys were provided, save them to the plugin config entry

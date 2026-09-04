@@ -1,9 +1,9 @@
 import type { Insertable, Selectable, WhereInterface } from 'kysely'
+import type { Constructor } from '@sidekick-coder/zenith-kit/shared/utils/compose'
 import type { Database } from '#server/contracts/database.contract.ts'
 import BaseException from '#server/exceptions/base.ts'
 import db from '#server/facades/db.facade.ts'
 import Pagination from '#shared/entities/pagination.entity.ts'
-import type { Constructor } from '#shared/utils/compose.ts'
 
 export interface FindManyOptions {
     limit?: number

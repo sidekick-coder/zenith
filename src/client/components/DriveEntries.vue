@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, watch, onMounted } from 'vue'
 import { toast } from 'vue-sonner'
+import { tryCatch } from '@sidekick-coder/zenith-kit/shared/utils/tryCatch'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '#client/components/ui/card'
 import DataTable, { defineColumns } from '#client/components/DataTable.vue'
 import Icon from '#client/components/Icon.vue'
@@ -8,7 +9,6 @@ import Button from '#client/components/Button.vue'
 import AlertButton from '#client/components/AlertButton.vue'
 import { $fetch } from '#client/utils/fetcher.ts'
 import { $file } from '#client/utils/file.ts'
-import { tryCatch } from '#shared/utils/tryCatch.ts'
 import type DriveConfig from '#shared/entities/driveConfig.entity.ts'
 import type UploadSession from '#shared/entities/fileUploadSession.entity.ts'
 
@@ -65,11 +65,7 @@ async function load() {
 
     loading.value = true
 
-    const [error, response] = await $fetch.try<DriveEntry[]>(`/api/drives/${props.drive.id}/entries`, {
-        query: {
-            folder: folder.value
-        }
-    })
+    const [error, response] = await $fetch.try<DriveEntry[]>(`/api/drives/${props.drive.id}/entries`, { query: { folder: folder.value } })
 
     if (error) {
         loading.value = false
@@ -172,9 +168,7 @@ async function deleteEntry(entry: DriveEntry) {
 
     const path = entry.path.replace(/^\//, '')
 
-    const [error] = await $fetch.try(`/api/drives/${props.drive.id}/entries/${path}`, {
-        method: 'DELETE',
-    })
+    const [error] = await $fetch.try(`/api/drives/${props.drive.id}/entries/${path}`, { method: 'DELETE', })
 
     deleting.value = null
 

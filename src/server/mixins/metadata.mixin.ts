@@ -1,7 +1,7 @@
+import type { Constructor } from '@sidekick-coder/zenith-kit/shared/utils/compose'
 import { updateOrCreate } from '#server/queries/index.ts'
 import type { Database } from '#server/contracts/database.contract.ts'
 import db from '#server/facades/db.facade.ts'
-import type { Constructor } from '#shared/utils/compose.ts'
 
 export function valueToString(value: any): string {
     if (typeof value === 'object') {

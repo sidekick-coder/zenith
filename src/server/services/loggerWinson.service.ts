@@ -1,13 +1,17 @@
-import winston from 'winston'
-import chalk from 'chalk'
-import { LoggerService } from '@sidekick-coder/zenith-kit/shared'
+// import winston from 'winston'
+// import chalk from 'chalk'
+import { createRequire } from 'module'
+import LoggerService from '@sidekick-coder/zenith-kit/shared/services/LoggerService'
+import type { Logger, LoggerOptions } from 'winston'
 
-const { format } = winston
+const require = createRequire(import.meta.url)
+
+// const { format } = winston
 
 export default class LoggerWinsonService extends LoggerService {
-    private logger: winston.Logger
+    private logger: Logger
 
-    constructor(logger: winston.Logger) {
+    constructor(logger: Logger) {
         super()
 
         this.logger = logger
@@ -79,8 +83,10 @@ export default class LoggerWinsonService extends LoggerService {
 
         return result
     }
-    
+
     public static format(data: any) {
+        const chalk = require('chalk').default
+
         const { raw, level, message, timestamp, label, stack, ...rest } = data
 
         if (raw) {
@@ -132,7 +138,10 @@ export default class LoggerWinsonService extends LoggerService {
         return result.trim()
     }
 
-    public static console(){
+    public static console() {
+        const winston = require('winston')
+        const { format } = winston
+
         return new winston.transports.Console({
             format: format.combine(
                 format.timestamp({ format: 'HH:mm:ss' }),
@@ -141,7 +150,9 @@ export default class LoggerWinsonService extends LoggerService {
         })
     }
 
-    public static consoleJson(){
+    public static consoleJson() {
+        const winston = require('winston')
+        const { format } = winston
         return new winston.transports.Console({
             format: format.combine(
                 format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
@@ -150,7 +161,9 @@ export default class LoggerWinsonService extends LoggerService {
         })
     }
 
-    public static file(filename: string, level: string = 'info'){
+    public static file(filename: string, level: string = 'info') {
+        const winston = require('winston')
+
         return new winston.transports.File({
             filename,
             level,
@@ -158,7 +171,9 @@ export default class LoggerWinsonService extends LoggerService {
         })
     }
 
-    public static create(options?: winston.LoggerOptions) {
+    public static create(options?: LoggerOptions) {
+        const winston = require('winston')
+
         return new LoggerWinsonService(winston.createLogger(options))
     }
 
@@ -209,7 +224,7 @@ export default class LoggerWinsonService extends LoggerService {
 
     public child(options: any): LoggerService {
         const childLogger = this.logger.child(options)
-        
+
         return new LoggerWinsonService(childLogger)
     }
 }

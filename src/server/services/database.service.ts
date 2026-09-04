@@ -1,13 +1,16 @@
-import { MysqlDialect, PostgresDialect, SqliteDialect } from 'kysely'
+// import { MysqlDialect, PostgresDialect, SqliteDialect } from 'kysely'
+import { createRequire } from 'module'
 import type { Dialect } from 'kysely'
-import SQLite from 'better-sqlite3'
-import { createPool } from 'mysql2'
-import { Pool } from 'pg'
+// import SQLite from 'better-sqlite3'
+// import { createPool } from 'mysql2'
+// import { Pool } from 'pg'
 import { DatabaseGateway, container, basePath } from '@sidekick-coder/zenith-kit/server'
 import type { Database } from '../contracts/database.contract.ts'
 import validator from '#shared/services/validator.service.ts'
 import schemas from '#shared/validators/index.ts'
 import LoggerService from '#shared/services/logger.service.ts'
+
+const require = createRequire(import.meta.url)
 
 export default class DatabaseService extends DatabaseGateway<Database> {
     public static __container_entry_key = 'DatabaseService'
@@ -21,6 +24,9 @@ export default class DatabaseService extends DatabaseGateway<Database> {
     public logger = new LoggerService()
 
     public static createTemporatyDatabase() {
+        const { SqliteDialect } = require('kysely')
+        const SQLite = require('better-sqlite3')
+
         const dialect = new SqliteDialect({ database: new SQLite(':memory:') })
 
         return new DatabaseService({ dialect })
@@ -55,13 +61,17 @@ export default class DatabaseService extends DatabaseGateway<Database> {
     }
 
     public static async createDialectFromConnection(connection: Record<string, any>): Promise<Dialect> {
+        const { SqliteDialect, MysqlDialect, PostgresDialect } = require('kysely')
+
         let dialect: Dialect | undefined = undefined
 
         if (connection.dialect === 'sqlite') {
+            const SQLite = require('better-sqlite3')
             dialect = new SqliteDialect({ database: new SQLite(connection.database) })
         }
 
         if (connection.dialect === 'mysql') {
+            const { createPool } = require('mysql2')
             const pool = createPool(validator.validate(connection, schemas.connection.mysql))
 
             try {
@@ -76,6 +86,7 @@ export default class DatabaseService extends DatabaseGateway<Database> {
         }
 
         if (connection.dialect === 'postgresql') {
+            const { Pool } = require('pg')
             const pool = new Pool(validator.validate(connection, schemas.connection.postgresql))
 
             try {

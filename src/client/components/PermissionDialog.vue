@@ -2,6 +2,7 @@
 import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/valibot'
 import { ref, watch } from 'vue'
+import { tryCatch } from '@sidekick-coder/zenith-kit/shared/utils/tryCatch'
 import FormTextarea from './FormTextarea.vue'
 import ClientOnly from './ClientOnly.vue'
 import FormSelect from './FormSelect.vue'
@@ -18,7 +19,6 @@ import {
     DialogTitle,
     DialogTrigger,
 } from '#client/components/ui/dialog'
-import { tryCatch } from '#shared/utils/tryCatch.ts'
 import schemas from '#shared/validators/index.ts'
 import type Permission from '#shared/entities/permission.entity.ts'
 import validator from '#shared/services/validator.service.ts'

@@ -1,6 +1,6 @@
 import type { StartedTestContainer } from 'testcontainers'
 import { UserEntity } from '@sidekick-coder/zenith-kit/shared'
-import { tryCatch } from '#shared/utils/tryCatch.ts'
+import { tryCatch } from '@sidekick-coder/zenith-kit/shared/utils/tryCatch'
 import type Permission from '#shared/entities/permission.entity.ts'
 
 export class TestUser extends UserEntity {

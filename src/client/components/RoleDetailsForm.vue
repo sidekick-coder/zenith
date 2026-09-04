@@ -5,11 +5,9 @@ import * as v from 'valibot'
 import { toTypedSchema } from '@vee-validate/valibot'
 import { toast } from 'vue-sonner'
 
+import { tryCatch } from '@sidekick-coder/zenith-kit/shared/utils/tryCatch'
 import { $fetch } from '#client/utils/fetcher.ts'
-import { tryCatch } from '#shared/utils/tryCatch.ts'
-import {
-    Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter 
-} from '#client/components/ui/card'
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '#client/components/ui/card'
 import FormTextField from '#client/components/FormTextField.vue'
 import Button from '#client/components/Button.vue'
 import type Role from '#shared/entities/role.entity.ts'

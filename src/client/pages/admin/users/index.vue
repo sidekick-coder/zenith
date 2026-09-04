@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { toast } from 'vue-sonner'
+import { tryCatch } from '@sidekick-coder/zenith-kit/shared/utils/tryCatch'
 import DataTable, { defineColumns } from '#client/components/DataTable.vue'
 import { $fetch } from '#client/utils/fetcher.ts'
-import { tryCatch } from '#shared/utils/tryCatch.ts'
 import UserDialog from '#client/components/UserDialog.vue'
 import Button from '#client/components/Button.vue'
 import Icon from '#client/components/Icon.vue'

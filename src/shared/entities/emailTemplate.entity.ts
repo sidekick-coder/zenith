@@ -1,7 +1,7 @@
 import Handlebars from 'handlebars'
 import { format } from 'date-fns'
+import { compose } from '@sidekick-coder/zenith-kit/shared/utils/compose'
 import { BaseEntity, SoftDelete, Timestamp } from '#shared/mixins/index.ts'
-import { compose } from '#shared/utils/compose.ts'
 
 Handlebars.registerHelper('t', function(key: string, options: any) {
     const args: Record<string, any> = {}

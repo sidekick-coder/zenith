@@ -8,7 +8,7 @@ Use `composeWith` instead of `compose` — it accepts an existing class as its f
 // mymodule/server/entities/role.entity.ts
 import { Model } from '#server/mixins/model.mixin.ts'
 import Base from '#mymodule/shared/entities/role.entity.ts'
-import { composeWith } from '#shared/utils/compose.ts'
+import { composeWith } from '@sidekick-coder/zenith-kit/shared/utils/compose'
 
 export default class Role extends composeWith(Base, Model('roles')) {}
 ```

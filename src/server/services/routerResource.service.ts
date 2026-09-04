@@ -1,6 +1,6 @@
+import { compose } from '@sidekick-coder/zenith-kit/shared/utils/compose'
 import type Router from './router.service.ts'
 import type { HttpContext, Middleware } from '#server/contracts/router.contract.ts'
-import { compose } from '#shared/utils/compose.ts'
 import { Hooks } from '#server/mixins/hooks.mixin.ts'
 import type Route from '#server/entities/route.entity.ts'
 

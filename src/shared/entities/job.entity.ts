@@ -1,5 +1,5 @@
+import { compose } from '@sidekick-coder/zenith-kit/shared/utils/compose'
 import { BaseEntity, Timestamp } from '#shared/mixins/index.ts'
-import { compose } from '#shared/utils/compose.ts'
 
 export default class Job extends compose(BaseEntity, Timestamp) {
     public id: string

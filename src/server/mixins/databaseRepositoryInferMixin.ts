@@ -1,5 +1,5 @@
+import type { Constructor } from '@sidekick-coder/zenith-kit/shared/utils/compose'
 import type { FindManyOptions, PaginateOptions } from './databaseRepositoryMixin.ts'
-import type { Constructor } from '#shared/utils/compose.ts'
 
 interface IRepositoryTypes<TEntity = Record<string, any>, TPrimaryKeyType = any, TOptions = Record<string, any>> {
     query(options?: TOptions): any

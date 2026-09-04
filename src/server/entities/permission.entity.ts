@@ -1,9 +1,7 @@
-import { template } from 'lodash-es'
+import { flatten } from '@sidekick-coder/zenith-kit/shared/utils/flatten'
+import { composeWith } from '@sidekick-coder/zenith-kit/shared/utils/compose'
 import { Model } from '#server/mixins/model.mixin.ts'
 import Base from '#shared/entities/permission.entity.ts'
-import { composeWith } from '#shared/utils/compose.ts'
-import { tryCatch } from '#shared/utils/tryCatch.ts'
-import { flatten } from '#shared/utils/flatten.ts'
 
 export default class Permission extends composeWith(Base, Model('permissions')) {
     public static async listByAssignable(assignable_type: string, assignable_id: string) {

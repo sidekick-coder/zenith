@@ -1,5 +1,5 @@
+import type { Constructor } from '@sidekick-coder/zenith-kit/shared/utils/compose'
 import { HooksStatic } from './hooks.mixin.ts'
-import type { Constructor } from '#shared/utils/compose.ts'
 import config from '#server/facades/config.facade.ts'
 import BaseException from '#server/exceptions/base.ts'
 

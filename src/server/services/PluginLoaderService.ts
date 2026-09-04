@@ -1,5 +1,5 @@
-import { PluginEntryEntity } from '@sidekick-coder/zenith-kit/server'
-import { LoggerService } from '@sidekick-coder/zenith-kit/shared'
+import PluginEntryEntity from '@sidekick-coder/zenith-kit/server/entities/PluginEntryEntity'
+import LoggerService from '@sidekick-coder/zenith-kit/shared/services/LoggerService'
 
 export default class PluginLoaderService {
     public static __container_entry_key = 'PluginLoaderService'

@@ -1,6 +1,6 @@
+import { tryCatch } from '@sidekick-coder/zenith-kit/shared/utils/tryCatch'
 import $fetch from '#client/facades/fetch.facade.ts'
 import logger from '#client/facades/logger.facade.ts'
-import { tryCatch } from '#shared/utils/tryCatch.ts'
 
 interface OnlineOptions {
     timeout?: number

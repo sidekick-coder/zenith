@@ -1,9 +1,9 @@
 import * as v from 'valibot'
 import { BaseException } from '@sidekick-coder/zenith-kit/shared'
+import { tryCatch } from '@sidekick-coder/zenith-kit/shared/utils/tryCatch'
 import type { HttpContext } from '#server/contracts/httpContext.contract.ts'
 import validator from '#shared/services/validator.service.ts'
 import server from '#server/facades/server.facade.ts'
-import { tryCatch } from '#shared/utils/tryCatch.ts'
 import ShellException from '#server/exceptions/ShellException.ts'
 import pluginDownloadService from '#server/facades/pluginDownloadService.ts'
 
