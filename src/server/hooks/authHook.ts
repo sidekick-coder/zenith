@@ -1,4 +1,4 @@
-import { container, PageRequestContextEntity } from '@sidekick-coder/zenith-kit/server'
+import { config, container, PageRequestContextEntity } from '@sidekick-coder/zenith-kit/server'
 import { LifecycleHook } from '@sidekick-coder/zenith-kit/shared'
 
 import emmitter from '#server/facades/emmitter.facade.ts'
@@ -12,6 +12,12 @@ export default class extends LifecycleHook {
 
     public async onPageRequest(ctx: PageRequestContextEntity): Promise<void> {
         const { request, cookies } = ctx
+
+        const needSetup = config.getOne(['setup.need_database', 'setup.need_users'], false)
+
+        if (needSetup) {
+            return
+        }
 
         const auth = container.get<AuthService>(AuthService)
 

@@ -1,9 +1,9 @@
 import fs from 'fs'
+import { clientPath } from '@sidekick-coder/zenith-kit/server'
 import config from '#server/facades/config.facade.ts'
 import router from '#server/facades/router.facade.ts'
 import authMiddleware from '#server/middlewares/auth.middleware.ts'
 import File from '#server/entities/file.entity.ts'
-import { clientPath } from '#server/utils/paths.ts'
 
 const group = router.use(authMiddleware)
     .prefix('/api/configs/site')

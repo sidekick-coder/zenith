@@ -2,7 +2,7 @@ import cp from 'child_process'
 import path from 'path'
 import chokidar from 'chokidar'
 import { debounce } from 'lodash-es'
-import { basePath, env } from '@sidekick-coder/zenith-kit/server'
+import { serverPath, env } from '@sidekick-coder/zenith-kit/server'
 import logger from '#server/facades/logger.facade.ts'
 import arte from '#server/facades/arte.facade.ts'
 import config from '#server/facades/config.facade.ts'
@@ -10,7 +10,7 @@ import config from '#server/facades/config.facade.ts'
 let child: cp.ChildProcess | null = null
 
 async function start() {
-    const modulePath = basePath('server/server.ts')
+    const modulePath = serverPath('server.ts')
 
     const execArgv = [
         '--no-warnings',

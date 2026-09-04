@@ -5,6 +5,9 @@
         "lib": [
             "ES2023"
         ],
+        "customConditions": [
+            "development"
+        ],
         "module": "ESNext",
         "skipLibCheck": true,
         "moduleResolution": "bundler",
@@ -34,10 +37,8 @@
     },
     "include": [
         "vite.config.ts",
-        "index.ts",
-        "artisan.js",
         "tests/fixtures/**/*.ts",
-        "server/**/*.ts",
-        "shared/**/*.ts"
+        "src/server/**/*.ts",
+        "src/shared/**/*.ts"
     ]
 }

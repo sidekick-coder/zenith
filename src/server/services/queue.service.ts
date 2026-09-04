@@ -1,8 +1,7 @@
 import { randomUUID } from 'crypto'
-import logger from '../facades/logger.facade.ts'
+import { serverPath } from '@sidekick-coder/zenith-kit/server'
 import Job from '#server/entities/job.entity.ts'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
-import { basePath } from '#server/utils/paths.ts'
 import { importAll } from '#server/utils/importAll.ts'
 import type { Constructor } from '#shared/utils/compose.ts'
 import LoggerService from '#shared/services/logger.service.ts'
@@ -14,7 +13,7 @@ export default class QueueService {
     public jobs: Job[] = []
     public jobConstructors = new Map<string, typeof Job>()
     public intervalId: NodeJS.Timeout | null = null
-    public dirs = [basePath('server', 'jobs')]
+    public dirs = [serverPath('jobs')]
     public logger: LoggerService
     public debug = false
 

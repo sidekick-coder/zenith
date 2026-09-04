@@ -1,5 +1,5 @@
 import { LifecycleHook } from '@sidekick-coder/zenith-kit/shared'
-import { userRepository } from '@sidekick-coder/zenith-kit/server'
+import { database, userRepository } from '@sidekick-coder/zenith-kit/server'
 import config from '#server/facades/config.facade.ts'
 import logger from '#server/facades/logger.facade.ts'
 import { createUserPermission } from '#server/queries/createUserPermission.ts'
@@ -18,6 +18,14 @@ export default class UsersLifecycleHook extends LifecycleHook {
     public logger = logger.child({ label: 'users' })
 
     public async checkUserCount(): Promise<void> {
+        const tables = await database.introspection.getTables()
+        const hasUserTable = tables.some(table => table.name === 'users')
+
+        if (!hasUserTable) {
+            config.set('setup.need_users', true, 'runtime')
+            return
+        }
+
         const [error, count] = await tryCatch(() => userRepository.count())
 
         if (error) {

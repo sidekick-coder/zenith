@@ -4,11 +4,9 @@
   "version": "0.2.6",
   "type": "module",
   "imports": {
-    "#client/*": "./client/*",
-    "#server/*": "./server/*",
-    "#shared/*": "./shared/*",
-    "#config/*": "./config/*",
-    "#modules/*": "./modules/*"
+    "#client/*": "./src/client/*",
+    "#server/*": "./src/server/*",
+    "#shared/*": "./src/shared/*"
   },
   "scripts": {
     "start": "NODE_ENV=production node zenith serve",

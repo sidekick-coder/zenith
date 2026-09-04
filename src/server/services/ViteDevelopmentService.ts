@@ -5,13 +5,12 @@ import { createLogger, createServer as createViteServer } from 'vite'
 import type { Request, Response } from 'express'
 import { transformHtmlTemplate } from '@unhead/vue/server'
 import { basePath, PageRequestContextEntity } from '@sidekick-coder/zenith-kit/server'
-import { LoggerService } from '@sidekick-coder/zenith-kit/shared'
+import { LoggerService, BaseException } from '@sidekick-coder/zenith-kit/shared'
 import ViteService from './ViteService.ts'
 import router from '#server/facades/router.facade.ts'
 import El from '#server/entities/el.entity.ts'
 import { tryCatch } from '#shared/utils/tryCatch.ts'
 import emmitter from '#server/facades/emmitter.facade.ts'
-import BaseException from '#server/exceptions/base.ts'
 import type { EntryNodeRenderFunction } from '#shared/contracts/EntryNodeRenderContract.ts'
 
 export interface ViteServiceOptions {
@@ -36,7 +35,7 @@ export default class ViteDevelopmentService extends ViteService {
 
         let mod: any | null = null
 
-        const filePath = basePath('client', 'entry-node.ts') + '?t=' + Date.now()
+        const filePath = basePath('src', 'client', 'entry-node.ts') + '?t=' + Date.now()
 
         mod = await this.server.ssrLoadModule(filePath) as any
 
@@ -104,13 +103,13 @@ export default class ViteDevelopmentService extends ViteService {
             link: [
                 {
                     rel: 'stylesheet',
-                    href: '/client/assets/styles.css'
+                    href: '/src/client/assets/styles.css'
                 },
             ],
             script: [
                 {
                     type: 'module',
-                    src: '/client/entry-browser.ts'
+                    src: '/src/client/entry-browser.ts'
                 },
             ],
         })

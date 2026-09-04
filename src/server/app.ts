@@ -1,4 +1,4 @@
-import { ConfigManagerService, EmmitterService, basePath, LifecycleService } from '@sidekick-coder/zenith-kit/server'
+import { ConfigManagerService, EmmitterService, basePath, serverPath, LifecycleService } from '@sidekick-coder/zenith-kit/server'
 import { container } from '@sidekick-coder/zenith-kit/server'
 import { LoggerService, ConfigService, tryCatch } from '@sidekick-coder/zenith-kit/shared'
 import { EnvService } from '@sidekick-coder/zenith-kit/server'
@@ -105,7 +105,7 @@ export async function createApp(options: AppOptions = {}) {
         }
     })
 
-    await lifecycle.addDirectory(basePath('server/hooks'))
+    await lifecycle.addDirectory(serverPath('hooks'))
 
     return {
         env,

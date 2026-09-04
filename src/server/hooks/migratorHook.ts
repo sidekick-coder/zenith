@@ -1,4 +1,4 @@
-import { basePath, container, emmitter, database, logger, config, MigratorService } from '@sidekick-coder/zenith-kit/server'
+import { serverPath, container, emmitter, database, logger, config, MigratorService } from '@sidekick-coder/zenith-kit/server'
 import { BaseException, LifecycleHook } from '@sidekick-coder/zenith-kit/shared'
 
 export default class extends LifecycleHook {
@@ -14,7 +14,7 @@ export default class extends LifecycleHook {
             sources: [
                 {
                     id: 'root',
-                    directory: basePath('server/migrations'),
+                    directory: serverPath('migrations'),
                 }
             ]
         })

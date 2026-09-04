@@ -1,4 +1,4 @@
-import { basePath, config, container, SchedulerService } from '@sidekick-coder/zenith-kit/server'
+import { config, container, SchedulerService, serverPath } from '@sidekick-coder/zenith-kit/server'
 import { LifecycleHook } from '@sidekick-coder/zenith-kit/shared'
 import emmitter from '#server/facades/emmitter.facade.ts'
 import logger from '#server/facades/logger.facade.ts'
@@ -13,7 +13,7 @@ export default class extends LifecycleHook {
             debug: config.getOne(['seeder.debug', 'app.debug', 'debug'], false),
         })
 
-        scheduler.addDir(basePath('server/routines'))
+        scheduler.addDir(serverPath('routines'))
 
         container.set(SchedulerService, scheduler)
 

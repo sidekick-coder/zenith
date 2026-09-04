@@ -50,13 +50,13 @@ export default defineConfig(({ mode }) => {
                 NODE_ENV: JSON.stringify(process.env.NODE_ENV || 'development'),
             }
         },
-        publicDir: path.resolve(import.meta.dirname, 'client/public'),
+        publicDir: path.resolve(import.meta.dirname, 'src/client/public'),
         server: {
             allowedHosts,
             watch: {
                 ignored: [
-                    '**/shared',
-                    '**/server',
+                    '**/src/shared',
+                    '**/src/server',
                     '**/storage',
                     'plugins/**',
                     '**/logs',

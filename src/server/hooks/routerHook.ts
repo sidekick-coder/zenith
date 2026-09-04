@@ -1,7 +1,6 @@
 import { LifecycleHook } from '@sidekick-coder/zenith-kit/shared'
-import { emmitter, config, container, RouterService, logger } from '@sidekick-coder/zenith-kit/server'
+import { emmitter, config, container, RouterService, serverPath, logger } from '@sidekick-coder/zenith-kit/server'
 import RouterRegister from '#server/services/routerRegister.service.ts'
-import { serverPath } from '#server/utils/paths.ts'
 import setupMiddleware from '#server/middlewares/setup.middleware.ts'
 import authSilenceMiddleware from '#server/middlewares/authSilence.middleware.ts'
 import authorizationMiddleware from '#server/middlewares/authorization.middleware.ts'
@@ -14,12 +13,19 @@ export default class extends LifecycleHook {
     public async onRegister(): Promise<void> {
         const router = new RouterRegister({
             debug: config.getOne(['router.debug', 'app.debug', 'debug'], false),
-            logger: logger.child({ label: 'router' }) 
+            logger: logger.child({ label: 'router' })
         })
 
-        router.use(setupMiddleware, 'global')
+        const needSetup = config.getOne(['setup.need_database', 'setup.need_users'], false)
 
-        if (config.has('database')) {
+        if (needSetup) {
+            router.logger.warn('setup is required, setup middleware is enabled')
+            router.use(setupMiddleware, 'global')
+        }
+
+        if (!needSetup) {
+            router.logger.info('setup is not required, auth and authorization middleware is enabled')
+
             router.use(authSilenceMiddleware, 'global')
             router.use(authorizationMiddleware, 'global')
         }

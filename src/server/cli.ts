@@ -1,5 +1,5 @@
 import fs from 'fs'
-import { basePath } from '@sidekick-coder/zenith-kit/server'
+import { serverPath } from '@sidekick-coder/zenith-kit/server'
 import { container, CliService } from '@sidekick-coder/zenith-kit/server'
 import type { CliCommand } from '@sidekick-coder/zenith-kit/server'
 import emmitter from './facades/emmitter.facade.ts'
@@ -13,7 +13,7 @@ const cli = CliService
     .setDebug(config.getOne(['cli.debug', 'app.debug', 'debug'], false))
     .setEmmitter(emmitter)
 
-cli.addDir(basePath('server/commands'))
+cli.addDir(serverPath('commands'))
 
 const dirs = []
 
