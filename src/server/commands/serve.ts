@@ -10,14 +10,16 @@ import config from '#server/facades/config.facade.ts'
 let child: cp.ChildProcess | null = null
 
 async function start() {
-    const modulePath = serverPath('server.ts')
+    let filename = serverPath('server.mjs')
 
-    const execArgv = [
-        '--no-warnings',
-        '--experimental-strip-types',
-    ]
+    const execArgv: string[] = []
 
-    child = cp.fork(modulePath, [], {
+    if (process.env.NODE_ENV !== 'production') {
+        filename = serverPath('server.ts')
+        execArgv.push('--no-warnings', '--experimental-strip-types')
+    }
+
+    child = cp.fork(filename, [], {
         execArgv,
         silent: false,
         env: {

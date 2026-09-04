@@ -1,10 +1,9 @@
 import { LifecycleHook } from '@sidekick-coder/zenith-kit/shared'
-import { emmitter, config, container, RouterService, serverPath, logger } from '@sidekick-coder/zenith-kit/server'
+import { emmitter, config, container, RouterService, serverPath, logger, RouterFileBaseRoutingService } from '@sidekick-coder/zenith-kit/server'
 import RouterRegister from '#server/services/routerRegister.service.ts'
 import setupMiddleware from '#server/middlewares/setup.middleware.ts'
 import authSilenceMiddleware from '#server/middlewares/authSilence.middleware.ts'
 import authorizationMiddleware from '#server/middlewares/authorization.middleware.ts'
-import RouterFileBaseRoutingService from '#server/services/routerFileBaseRouting.service.ts'
 
 export default class extends LifecycleHook {
     public order = 97
@@ -43,6 +42,7 @@ export default class extends LifecycleHook {
         await RouterFileBaseRoutingService
             .create(serverPath('api'))
             .setPrefix('/api')
+            .setDebug(true)
             .setRouter(router)
             .setModule('root')
             .load()
