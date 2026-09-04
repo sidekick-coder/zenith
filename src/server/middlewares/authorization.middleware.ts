@@ -1,3 +1,4 @@
+import config from '@sidekick-coder/zenith-kit/server/facades/config'
 import type { AuthSilenceMiddlewareContext } from './authSilence.middleware.ts'
 import type {
     Middleware, 
@@ -6,7 +7,6 @@ import type {
 
 import Acl from '#server/entities/acl.entity.ts'
 import Permission from '#server/entities/permission.entity.ts'
-import config from '#server/facades/config.facade.ts'
 import logger from '#server/facades/logger.facade.ts'
 import permissionRepository from '#server/facades/permissionRepository.ts'
 import permissionAssignmentRepository from '#server/facades/permissionAssignmentRepository.ts'

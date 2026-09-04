@@ -1,6 +1,6 @@
 import type { Constructor } from '@sidekick-coder/zenith-kit/shared/utils/compose'
+import config from '@sidekick-coder/zenith-kit/server/facades/config'
 import { HooksStatic } from './hooks.mixin.ts'
-import config from '#server/facades/config.facade.ts'
 import BaseException from '#server/exceptions/base.ts'
 
 export type ConfigModel = ReturnType<ReturnType<typeof ModelConfig>>

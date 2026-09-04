@@ -1,7 +1,7 @@
+import config from '@sidekick-coder/zenith-kit/server/facades/config'
 import rootRouter from '#server/facades/router.facade.ts'
 import validator from '#shared/services/validator.service.ts'
 import authMiddleware from '#server/middlewares/auth.middleware.ts'
-import config from '#server/facades/config.facade.ts'
 import schemas from '#shared/validators/index.ts'
 import translator from '#server/facades/translator.facade.ts'
 

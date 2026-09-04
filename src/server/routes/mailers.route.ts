@@ -1,8 +1,8 @@
+import config from '@sidekick-coder/zenith-kit/server/facades/config'
 import rootRouter from '#server/facades/router.facade.ts'
 import authMiddleware from '#server/middlewares/auth.middleware.ts'
 import { AuthorizationMiddleware } from '#server/middlewares/authorization.middleware.ts'
 import RouterResourceConfigService from '#server/services/routerResourceConfig.service.ts'
-import config from '#server/facades/config.facade.ts'
 import MailerConfig from '#server/entities/mailerConfig.entity.ts'
 import mailer from '#server/facades/mailer.facade.ts'
 

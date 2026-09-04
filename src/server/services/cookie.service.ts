@@ -3,8 +3,8 @@ import type {
     Response,
     CookieOptions
 } from 'express'
+import config from '@sidekick-coder/zenith-kit/server/facades/config'
 import Base from '#shared/services/cookie.service.ts'
-import config from '#server/facades/config.facade.ts'
 
 export default class CookieService extends Base {
     private request: Request

@@ -1,7 +1,7 @@
 import { LifecycleHook } from '@sidekick-coder/zenith-kit/shared'
 import { database, userRepository } from '@sidekick-coder/zenith-kit/server'
 import { tryCatch } from '@sidekick-coder/zenith-kit/shared/utils/tryCatch'
-import config from '#server/facades/config.facade.ts'
+import config from '@sidekick-coder/zenith-kit/server/facades/config'
 import logger from '#server/facades/logger.facade.ts'
 import { createUserPermission } from '#server/queries/createUserPermission.ts'
 

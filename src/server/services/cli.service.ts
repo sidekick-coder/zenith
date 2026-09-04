@@ -156,7 +156,7 @@ export class CLIService {
         return async (...args: any[]) => {
             try {
                 if (caps.includes('config')) {
-                    await import('#server/facades/config.facade.ts')
+                    await import('@sidekick-coder/zenith-kit/server/facades/config')
                 }
 
                 if (caps.includes('db')) {

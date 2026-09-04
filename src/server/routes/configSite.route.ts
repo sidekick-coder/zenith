@@ -1,6 +1,6 @@
 import fs from 'fs'
 import { clientPath, env } from '@sidekick-coder/zenith-kit/server'
-import config from '#server/facades/config.facade.ts'
+import config from '@sidekick-coder/zenith-kit/server/facades/config'
 import router from '#server/facades/router.facade.ts'
 import authMiddleware from '#server/middlewares/auth.middleware.ts'
 import File from '#server/entities/file.entity.ts'

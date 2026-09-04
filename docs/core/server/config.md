@@ -84,7 +84,7 @@ di.set(ConfigService, service)
 Use the `config` facade to access the service anywhere on the server. It resolves the instance from the DI container via a proxy, so it always returns the driver-specific implementation registered by the hook.
 
 ```ts
-import config from '#server/facades/config.facade.ts'
+import config from '@sidekick-coder/zenith-kit/server/facades/config'
 
 config.get('database.host')
 config.set('app.maintenance', true)

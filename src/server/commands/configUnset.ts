@@ -1,4 +1,4 @@
-import config from '#server/facades/config.facade.ts'
+import config from '@sidekick-coder/zenith-kit/server/facades/config'
 import arte from '#server/facades/arte.facade.ts'
 
 arte.command('config:unset')

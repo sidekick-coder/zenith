@@ -1,12 +1,12 @@
 import mjml from 'mjml'
 import { composeWith } from '@sidekick-coder/zenith-kit/shared/utils/compose'
+import config from '@sidekick-coder/zenith-kit/server/facades/config'
 import { Model } from '#server/mixins/model.mixin.ts'
 import Base from '#shared/entities/emailTemplate.entity.ts'
 import { Metadata } from '#server/mixins/metadata.mixin.ts'
 import { HooksStatic } from '#server/mixins/hooks.mixin.ts'
 import HasMetas from '#server/relations/hasMetas.relation.ts'
 import { Relation } from '#server/mixins/relations.mixin.ts'
-import config from '#server/facades/config.facade.ts'
 import env from '#server/facades/env.facade.ts'
 
 const EmailTemplateRelations = {

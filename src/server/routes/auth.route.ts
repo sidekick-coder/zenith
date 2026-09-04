@@ -1,8 +1,8 @@
 import { BaseException } from '@sidekick-coder/zenith-kit/shared'
+import config from '@sidekick-coder/zenith-kit/server/facades/config'
 import router from '#server/facades/router.facade.ts'
 import auth from '#server/facades/auth.facade.ts'
 import validator from '#shared/services/validator.service.ts'
-import config from '#server/facades/config.facade.ts'
 import schemas from '#shared/validators/index.ts'
 import env from '#server/facades/env.facade.ts'
 

@@ -1,5 +1,5 @@
+import config from '@sidekick-coder/zenith-kit/server/facades/config'
 import assets from '#server/facades/assets.facade.ts'
-import config from '#server/facades/config.facade.ts'
 
 export default class BrandingService {
     public async load(){
@@ -15,8 +15,6 @@ export default class BrandingService {
             darkVars += `--${key}: ${value};\n`
         }
 
-        assets.set('branding', {
-            content: `body { ${lightVars} } .dark body { ${darkVars} }`
-        })
+        assets.set('branding', { content: `body { ${lightVars} } .dark body { ${darkVars} }` })
     }
 }

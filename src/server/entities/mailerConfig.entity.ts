@@ -1,7 +1,7 @@
 import { composeWith } from '@sidekick-coder/zenith-kit/shared/utils/compose'
+import config from '@sidekick-coder/zenith-kit/server/facades/config'
 import ModelConfig from '#server/mixins/modelConfig.mixin.ts'
 import Base from '#shared/entities/mailerConfig.entity.ts'
-import config from '#server/facades/config.facade.ts'
 
 export default class MailerConfig extends composeWith(
     Base,

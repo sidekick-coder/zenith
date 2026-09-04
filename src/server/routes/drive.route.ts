@@ -1,5 +1,6 @@
 import mime from 'mime'
 import { tryCatch } from '@sidekick-coder/zenith-kit/shared/utils/tryCatch'
+import config from '@sidekick-coder/zenith-kit/server/facades/config'
 import BaseException from '#server/exceptions/base.ts'
 import drive from '#server/facades/drive.facade.ts'
 import rootRouter from '#server/facades/router.facade.ts'
@@ -9,7 +10,6 @@ import validator from '#shared/services/validator.service.ts'
 import { AuthorizationMiddleware } from '#server/middlewares/authorization.middleware.ts'
 import DriveConfig from '#server/entities/driveConfig.entity.ts'
 import RouterResourceConfigService from '#server/services/routerResourceConfig.service.ts'
-import config from '#server/facades/config.facade.ts'
 
 const router = rootRouter.use(authMiddleware)
     .prefix('/api/drives')

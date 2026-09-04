@@ -1,4 +1,4 @@
-import config from '#server/facades/config.facade.ts'
+import config from '@sidekick-coder/zenith-kit/server/facades/config'
 import di from '#server/facades/di.facade.ts'
 import emmitter from '#server/facades/emmitter.facade.ts'
 import logger from '#server/facades/logger.facade.ts'

@@ -97,6 +97,6 @@ The typical pattern in this codebase is:
 di.set(ConfigService, new ConfigFSService(options))
 
 // facade is a proxy — always resolves the current instance
-import config from '#server/facades/config.facade.ts'
+import config from '@sidekick-coder/zenith-kit/server/facades/config'
 config.get('app.name') // works immediately
 ```

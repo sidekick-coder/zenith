@@ -1,9 +1,9 @@
+import config from '@sidekick-coder/zenith-kit/server/facades/config'
 import type {
     HttpContext,
     Middleware, 
     MiddlewareHandleResult 
 } from '#server/contracts/router.contract.ts'
-import config from '#server/facades/config.facade.ts'
 
 export type SetupMiddlewareContext = MiddlewareHandleResult<[SetupMiddleware]>
 
