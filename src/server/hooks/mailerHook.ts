@@ -1,6 +1,7 @@
-import { container } from '@sidekick-coder/zenith-kit/server'
-import { config, logger } from '@sidekick-coder/zenith-kit/server'
-import { LifecycleHook } from '@sidekick-coder/zenith-kit/shared'
+import container from '@sidekick-coder/zenith-kit/server/facades/container'
+import config from '@sidekick-coder/zenith-kit/server/facades/config'
+import logger from '@sidekick-coder/zenith-kit/server/facades/logger'
+import LifecycleHook from '@sidekick-coder/zenith-kit/shared/entities/LifecycleHook'
 import MailerService from '#server/services/mailer.service.ts'
 
 export default class extends LifecycleHook {

@@ -1,5 +1,6 @@
-import { container, DatabaseGateway } from '@sidekick-coder/zenith-kit/server'
-import { LifecycleHook } from '@sidekick-coder/zenith-kit/shared'
+import container from '@sidekick-coder/zenith-kit/server/facades/container'
+import DatabaseGateway from '@sidekick-coder/zenith-kit/server/gateways/DatabaseGateway'
+import LifecycleHook from '@sidekick-coder/zenith-kit/shared/entities/LifecycleHook'
 import config from '@sidekick-coder/zenith-kit/server/facades/config'
 import emmitter from '#server/facades/emmitter.facade.ts'
 import logger from '#server/facades/logger.facade.ts'

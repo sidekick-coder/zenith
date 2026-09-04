@@ -1,6 +1,6 @@
 import { GenericContainer, Network, Wait } from 'testcontainers'
 import type { StartedNetwork, StartedTestContainer } from 'testcontainers'
-import { basePath } from '#server/utils/paths.ts'
+import { basePath } from '@sidekick-coder/zenith-kit/server/utils/basePath'
 
 interface PostgresqlContainerConfig {
     database?: string

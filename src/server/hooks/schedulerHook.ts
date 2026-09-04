@@ -1,5 +1,8 @@
-import { config, container, SchedulerService, serverPath } from '@sidekick-coder/zenith-kit/server'
-import { LifecycleHook } from '@sidekick-coder/zenith-kit/shared'
+import config from '@sidekick-coder/zenith-kit/server/facades/config'
+import container from '@sidekick-coder/zenith-kit/server/facades/container'
+import SchedulerService from '@sidekick-coder/zenith-kit/server/services/SchedulerService'
+import { serverPath } from '@sidekick-coder/zenith-kit/server/utils/basePath'
+import LifecycleHook from '@sidekick-coder/zenith-kit/shared/entities/LifecycleHook'
 import emmitter from '#server/facades/emmitter.facade.ts'
 import logger from '#server/facades/logger.facade.ts'
 
@@ -44,4 +47,3 @@ export default class extends LifecycleHook {
         await emmitter.emitAndWait('scheduler:shutdowned', { scheduler })
     }
 }
-

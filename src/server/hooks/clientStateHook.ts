@@ -1,5 +1,7 @@
-import { config, emmitter, PageRequestContextEntity } from '@sidekick-coder/zenith-kit/server'
-import { LifecycleHook } from '@sidekick-coder/zenith-kit/shared'
+import config from '@sidekick-coder/zenith-kit/server/facades/config'
+import emmitter from '@sidekick-coder/zenith-kit/server/facades/emmitter'
+import PageRequestContextEntity from '@sidekick-coder/zenith-kit/server/entities/PageRequestContextEntity'
+import LifecycleHook from '@sidekick-coder/zenith-kit/shared/entities/LifecycleHook'
 
 export default class extends LifecycleHook {
     public order = 3
@@ -41,5 +43,4 @@ export default class extends LifecycleHook {
         emmitter.on('page:request:start', ctx => this.onPageRequest(ctx))
     }
 }
-
 

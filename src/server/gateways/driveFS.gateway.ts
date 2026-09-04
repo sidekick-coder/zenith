@@ -6,7 +6,7 @@ import BaseDrive from '#server/gateways/driveBase.gateway.ts'
 import validator from '#shared/services/validator.service.ts'
 import encrypt from '#server/facades/encrypt.facade.ts'
 import BaseException from '#server/exceptions/base.ts'
-import { basePath } from '#server/utils/paths.ts'
+import { basePath } from '@sidekick-coder/zenith-kit/server/utils/basePath'
 
 export interface DriveFSConfig {
     directory: string

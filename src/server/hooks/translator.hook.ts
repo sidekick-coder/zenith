@@ -1,6 +1,8 @@
-import type { PageRequestContextEntity } from '@sidekick-coder/zenith-kit/server'
-import { config, container } from '@sidekick-coder/zenith-kit/server'
-import { LifecycleHook, LoggerService } from '@sidekick-coder/zenith-kit/shared'
+import type PageRequestContextEntity from '@sidekick-coder/zenith-kit/server/entities/PageRequestContextEntity'
+import config from '@sidekick-coder/zenith-kit/server/facades/config'
+import container from '@sidekick-coder/zenith-kit/server/facades/container'
+import LifecycleHook from '@sidekick-coder/zenith-kit/shared/entities/LifecycleHook'
+import LoggerService from '@sidekick-coder/zenith-kit/shared/services/LoggerService'
 import emmitter from '#server/facades/emmitter.facade.ts'
 import TranslatorService from '#server/services/translator.service.ts'
 

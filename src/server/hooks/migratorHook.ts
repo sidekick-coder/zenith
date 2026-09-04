@@ -1,5 +1,12 @@
-import { serverPath, container, emmitter, database, logger, config, MigratorService } from '@sidekick-coder/zenith-kit/server'
-import { BaseException, LifecycleHook } from '@sidekick-coder/zenith-kit/shared'
+import { serverPath } from '@sidekick-coder/zenith-kit/server/utils/basePath'
+import container from '@sidekick-coder/zenith-kit/server/facades/container'
+import emmitter from '@sidekick-coder/zenith-kit/server/facades/emmitter'
+import database from '@sidekick-coder/zenith-kit/server/facades/database'
+import logger from '@sidekick-coder/zenith-kit/server/facades/logger'
+import config from '@sidekick-coder/zenith-kit/server/facades/config'
+import MigratorService from '@sidekick-coder/zenith-kit/server/services/MigratorService'
+import BaseException from '@sidekick-coder/zenith-kit/shared/exceptions/BaseException'
+import LifecycleHook from '@sidekick-coder/zenith-kit/shared/entities/LifecycleHook'
 
 export default class extends LifecycleHook {
     public order = 3

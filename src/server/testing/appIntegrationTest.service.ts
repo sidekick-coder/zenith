@@ -3,7 +3,7 @@ import type { StartedTestContainer, StartedNetwork } from 'testcontainers'
 import { tryCatch } from '@sidekick-coder/zenith-kit/shared/utils/tryCatch'
 import DatabasePGIntegrationTestService from './databasePGIntegrationTest.service.ts'
 import UserIntegrationTestService from './userIntegrationTest.service.ts'
-import { basePath } from '#server/utils/paths.ts'
+import { basePath } from '@sidekick-coder/zenith-kit/server/utils/basePath'
 
 export default class AppIntegrationTestService {
     public container: StartedTestContainer | null = null

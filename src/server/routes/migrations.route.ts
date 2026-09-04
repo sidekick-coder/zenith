@@ -4,7 +4,7 @@ import root from '#server/facades/router.facade.ts'
 import authMiddleware from '#server/middlewares/auth.middleware.ts'
 import BaseException from '#server/exceptions/base.ts'
 import validator from '#shared/services/validator.service.ts'
-import { basePath } from '#server/utils/paths.ts'
+import { basePath } from '@sidekick-coder/zenith-kit/server/utils/basePath'
 
 
 const router = root.use(authMiddleware)

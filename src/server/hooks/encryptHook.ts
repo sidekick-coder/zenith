@@ -1,5 +1,7 @@
-import { container, EncryptService } from '@sidekick-coder/zenith-kit/server'
-import { ConfigService, LifecycleHook } from '@sidekick-coder/zenith-kit/shared'
+import container from '@sidekick-coder/zenith-kit/server/facades/container'
+import EncryptService from '@sidekick-coder/zenith-kit/server/services/EncryptService'
+import ConfigService from '@sidekick-coder/zenith-kit/shared/services/ConfigService'
+import LifecycleHook from '@sidekick-coder/zenith-kit/shared/entities/LifecycleHook'
 import logger from '#server/facades/logger.facade.ts'
 import env from '#server/facades/env.facade.ts'
 

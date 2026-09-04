@@ -1,5 +1,8 @@
-import { basePath, config, container, SeederService } from '@sidekick-coder/zenith-kit/server'
-import { LifecycleHook } from '@sidekick-coder/zenith-kit/shared'
+import { basePath } from '@sidekick-coder/zenith-kit/server/utils/basePath'
+import config from '@sidekick-coder/zenith-kit/server/facades/config'
+import container from '@sidekick-coder/zenith-kit/server/facades/container'
+import SeederService from '@sidekick-coder/zenith-kit/server/services/SeederService'
+import LifecycleHook from '@sidekick-coder/zenith-kit/shared/entities/LifecycleHook'
 import emmitter from '#server/facades/emmitter.facade.ts'
 import logger from '#server/facades/logger.facade.ts'
 import db from '#server/facades/db.facade.ts'
@@ -26,4 +29,3 @@ export default class extends LifecycleHook {
         await emmitter.emitAndWait('seeder:registered', { seeder })
     }
 }
-

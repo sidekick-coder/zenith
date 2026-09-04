@@ -1,5 +1,11 @@
-import { container, emmitter, config, logger, env, HttpService, RouterService } from '@sidekick-coder/zenith-kit/server'
-import { LifecycleHook } from '@sidekick-coder/zenith-kit/shared'
+import container from '@sidekick-coder/zenith-kit/server/facades/container'
+import emmitter from '@sidekick-coder/zenith-kit/server/facades/emmitter'
+import config from '@sidekick-coder/zenith-kit/server/facades/config'
+import logger from '@sidekick-coder/zenith-kit/server/facades/logger'
+import env from '@sidekick-coder/zenith-kit/server/facades/env'
+import HttpService from '@sidekick-coder/zenith-kit/server/services/HttpService'
+import RouterService from '@sidekick-coder/zenith-kit/server/services/RouterService'
+import LifecycleHook from '@sidekick-coder/zenith-kit/shared/entities/LifecycleHook'
 import RouterRegister from '#server/services/routerRegister.service.ts'
 
 export default class extends LifecycleHook {

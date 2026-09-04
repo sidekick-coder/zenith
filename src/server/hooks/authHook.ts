@@ -1,5 +1,7 @@
-import { config, container, PageRequestContextEntity } from '@sidekick-coder/zenith-kit/server'
-import { LifecycleHook } from '@sidekick-coder/zenith-kit/shared'
+import config from '@sidekick-coder/zenith-kit/server/facades/config'
+import container from '@sidekick-coder/zenith-kit/server/facades/container'
+import PageRequestContextEntity from '@sidekick-coder/zenith-kit/server/entities/PageRequestContextEntity'
+import LifecycleHook from '@sidekick-coder/zenith-kit/shared/entities/LifecycleHook'
 
 import emmitter from '#server/facades/emmitter.facade.ts'
 import AuthService from '#server/services/auth.service.ts'
@@ -61,5 +63,4 @@ export default class extends LifecycleHook {
         emmitter.on('page:request:start', ctx => this.onPageRequest(ctx))
     }
 }
-
 

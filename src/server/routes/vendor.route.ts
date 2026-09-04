@@ -3,7 +3,7 @@ import fs from 'fs'
 import mime from 'mime'
 import router from '#server/facades/router.facade.ts'
 import BaseException from '#server/exceptions/base.ts'
-import { basePath } from '#server/utils/paths.ts'
+import { basePath } from '@sidekick-coder/zenith-kit/server/utils/basePath'
 
 // Route to stream Vue bundle and other vendor assets
 // router.get('/static/vendor/*', async ({ params, response }) => {

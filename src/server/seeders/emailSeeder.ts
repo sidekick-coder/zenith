@@ -1,5 +1,5 @@
 import fs from 'fs/promises'
-import { serverPath } from '#server/utils/paths.ts'
+import { serverPath } from '@sidekick-coder/zenith-kit/server/utils/basePath'
 import EmailTemplate from '#server/entities/emailTemplate.entity.ts'
 import { undeleted } from '#server/queries/softDelete.ts'
 

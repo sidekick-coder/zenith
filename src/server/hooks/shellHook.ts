@@ -1,6 +1,8 @@
-import { container, ShellService } from '@sidekick-coder/zenith-kit/server'
-import { ConfigService, LifecycleHook } from '@sidekick-coder/zenith-kit/shared'
-import logger from '#server/facades/logger.facade.ts'
+import ConfigService from '@sidekick-coder/zenith-kit/shared/services/ConfigService'
+import ShellService from '@sidekick-coder/zenith-kit/server/services/ShellService'
+import LifecycleHook from '@sidekick-coder/zenith-kit/shared/entities/LifecycleHook'
+import container from '@sidekick-coder/zenith-kit/server/facades/container'
+import logger from '@sidekick-coder/zenith-kit/server/facades/logger'
 
 export default class extends LifecycleHook {
     public hook_aliases = ['shell'] 

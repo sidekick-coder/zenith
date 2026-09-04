@@ -4,7 +4,7 @@ import { readFile } from 'fs/promises'
 import { resolve } from 'path'
 import { glob } from 'glob'
 import fg from 'fast-glob'
-import { basePath } from '#server/utils/paths.ts'
+import { basePath } from '@sidekick-coder/zenith-kit/server/utils/basePath'
 import Base from '#shared/services/translator.service.ts'
 
 interface ScanOptions {

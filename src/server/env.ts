@@ -1,6 +1,6 @@
 import fs from 'fs'
 import * as v from 'valibot'
-import { basePath } from '#server/utils/paths.ts'
+import { basePath } from '@sidekick-coder/zenith-kit/server/utils/basePath'
 
 if (fs.existsSync(basePath('.env'))) {
     process.loadEnvFile(basePath('.env'))

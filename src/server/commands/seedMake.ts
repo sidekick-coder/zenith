@@ -1,7 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 import arte from '#server/facades/arte.facade.ts'
-import { basePath } from '#server/utils/paths.ts'
+import { basePath } from '@sidekick-coder/zenith-kit/server/utils/basePath'
 import template from '#server/facades/template.facade.ts'
 
 arte.command('seed:make')
