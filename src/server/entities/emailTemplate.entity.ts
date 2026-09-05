@@ -1,4 +1,5 @@
-import mjml from 'mjml'
+// import mjml from 'mjml'
+import { createRequire } from 'module'
 import { composeWith } from '@sidekick-coder/zenith-kit/shared/utils/compose'
 import config from '@sidekick-coder/zenith-kit/server/facades/config'
 import { Model } from '#server/mixins/model.mixin.ts'
@@ -8,6 +9,8 @@ import { HooksStatic } from '#server/mixins/hooks.mixin.ts'
 import HasMetas from '#server/relations/hasMetas.relation.ts'
 import { Relation } from '#server/mixins/relations.mixin.ts'
 import env from '#server/facades/env.facade.ts'
+
+const require = createRequire(import.meta.url)
 
 const EmailTemplateRelations = {
     metas: new HasMetas({
@@ -47,6 +50,8 @@ export default class EmailTemplate extends composeWith(
         let html = EmailTemplate.compile(this.body || '', context)
 
         if (this.engine === 'mjml') {
+            const mjml = require('mjml')
+
             html = mjml(html, {}).html
         }
 

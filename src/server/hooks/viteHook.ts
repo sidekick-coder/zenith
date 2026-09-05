@@ -6,9 +6,9 @@ import HttpService from '@sidekick-coder/zenith-kit/server/services/HttpService'
 import config from '@sidekick-coder/zenith-kit/server/facades/config'
 import ViteService from '#server/services/ViteService.ts'
 import type { ViteServiceOptions } from '#server/services/ViteService.ts'
-import ViteDevelopmentService from '#server/services/ViteDevelopmentService.ts'
+// import ViteDevelopmentService from '#server/services/ViteDevelopmentService.ts'
 import env from '#server/facades/env.facade.ts'
-import ViteProductionService from '#server/services/ViteProductionService.ts'
+// import ViteProductionService from '#server/services/ViteProductionService.ts'
 
 export default class ViteLifecycleHook extends LifecycleHook {
     public order = 98
@@ -25,10 +25,12 @@ export default class ViteLifecycleHook extends LifecycleHook {
         }
 
         if (env.development || env.test) {
+            const { default: ViteDevelopmentService } = await import('#server/services/ViteDevelopmentService.ts')
             service = new ViteDevelopmentService(options)
         }
 
         if (env.production) {
+            const { default: ViteProductionService } = await import('#server/services/ViteProductionService.ts')
             service = new ViteProductionService(options)
         }
 
