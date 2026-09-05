@@ -1,9 +1,9 @@
 import { password as passwordPrompt } from '@inquirer/prompts'
 import type { UserEntity } from '@sidekick-coder/zenith-kit/shared'
 import { userRepository } from '@sidekick-coder/zenith-kit/server'
-import arte from '#server/facades/arte.facade.ts'
+import { CliCommand } from '@sidekick-coder/zenith-kit/server/services/CliService'
 
-arte.command('user:password')
+const command = new CliCommand('user:password')
     .need('db')
     .helpGroup('user')
     .description('Update user password')
@@ -44,3 +44,5 @@ arte.command('user:password')
 
         console.log(`✓ Password updated successfully for user '${user.username}'`)
     })
+
+export default command

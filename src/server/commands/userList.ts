@@ -1,10 +1,10 @@
 
-import { program } from 'commander'
 import { validator } from '@sidekick-coder/zenith-kit/shared'
 import { userRepository } from '@sidekick-coder/zenith-kit/server'
+import { CliCommand } from '@sidekick-coder/zenith-kit/server/services/CliService'
 import { table } from '#server/utils/cliUi.ts'
 
-program.command('user:list')
+const command = new CliCommand('user:list')
     .helpGroup('user')
     .option('-l, --limit <limit>', 'Number of users to list', '10')
     .option('-o, --offset <offset>', 'Offset for listing users', '0')
@@ -41,3 +41,5 @@ program.command('user:list')
             }
         ])
     })
+
+export default command

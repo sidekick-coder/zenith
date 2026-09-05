@@ -2,11 +2,11 @@ import path from 'path'
 import fs from 'fs'
 import { sql } from 'kysely'
 import { tryCatch } from '@sidekick-coder/zenith-kit/shared/utils/tryCatch'
-import arte from '#server/facades/arte.facade.ts'
+import { CliCommand } from '@sidekick-coder/zenith-kit/server/services/CliService'
 import db from '#server/facades/db.facade.ts'
 import logger from '#server/facades/logger.facade.ts'
 
-arte.command('sql:raw')
+const command = new CliCommand('sql:raw')
     .need('db')
     .description('Execute a raw SQL query')
     .helpGroup('sql')
@@ -40,3 +40,5 @@ arte.command('sql:raw')
         }
 
     })
+
+export default command

@@ -1,8 +1,8 @@
-import arte from '#server/facades/arte.facade.ts'
+import { CliCommand } from '@sidekick-coder/zenith-kit/server/services/CliService'
 import cli from '#server/services/cli.service.ts'
 import auth from '#server/facades/auth.facade.ts'
 
-arte.command('user:login')
+const command = new CliCommand('user:login')
     .need('db')
     .helpGroup('user')
     .description('Login a user and return a token')
@@ -23,3 +23,5 @@ arte.command('user:login')
         
         cli.ui.object(result)
     })
+
+export default command

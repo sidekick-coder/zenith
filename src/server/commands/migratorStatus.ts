@@ -1,6 +1,6 @@
-import { CliCommand, migrator } from '@sidekick-coder/zenith-kit/server'
+import { migrator } from '@sidekick-coder/zenith-kit/server'
 import { orderBy } from 'lodash-es'
-import arte from '#server/facades/arte.facade.ts'
+import { CliCommand } from '@sidekick-coder/zenith-kit/server/services/CliService'
 
 const command = new CliCommand('migrator:status')
 
@@ -22,7 +22,7 @@ command
 
         items = orderBy(items, ['status', 'source', 'name'], ['asc', 'desc', 'asc'])
 
-        arte.table(items, [
+        command.table(items, [
             {
                 label: 'name',
                 value: 'name',
@@ -40,4 +40,5 @@ command
         ])
     })
 
-arte.addCommand(command)
+
+export default command

@@ -1,9 +1,9 @@
 import { sql } from 'kysely'
 import { tryCatch } from '@sidekick-coder/zenith-kit/shared/utils/tryCatch'
-import arte from '#server/facades/arte.facade.ts'
+import { CliCommand } from '@sidekick-coder/zenith-kit/server/services/CliService'
 import db from '#server/facades/db.facade.ts'
 
-arte.command('sql:insert')
+const command = new CliCommand('sql:insert')
     .need('db')
     .arguments('<table>')
     .description('Insert rows into a database table')
@@ -57,3 +57,5 @@ arte.command('sql:insert')
 
         console.log('Insert successful:', response)
     })
+
+export default command

@@ -1,7 +1,8 @@
 import fs from 'fs'
 import path from 'path'
 import { format, } from 'date-fns'
-import { basePath, CliCommand } from '@sidekick-coder/zenith-kit/server'
+import { basePath } from '@sidekick-coder/zenith-kit/server'
+import { CliCommand } from '@sidekick-coder/zenith-kit/server/services/CliService'
 import template from '#server/facades/template.facade.ts'
 
 interface MigrationMakeOptions {

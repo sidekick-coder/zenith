@@ -1,5 +1,5 @@
 import { confirm } from '@inquirer/prompts'
-import arte from '#server/facades/arte.facade.ts'
+import { CliCommand } from '@sidekick-coder/zenith-kit/server/services/CliService'
 import seeder from '#server/facades/seeder.facade.ts'
 import logger from '#server/facades/logger.facade.ts'
 
@@ -9,7 +9,7 @@ interface SeederRunOptions {
     yes?: boolean
 }
 
-arte.command('seeder:run')
+const command = new CliCommand('seeder:run')
     .need('seeder', 'database', 'plugins')
     .helpGroup('database')
     .description('Run database seed files')
@@ -27,7 +27,7 @@ arte.command('seeder:run')
             return
         }
 
-        arte.table(seeds)
+        command.table(seeds)
 
         if (!options.yes) {
             const confirmation = await confirm({
@@ -66,3 +66,5 @@ arte.command('seeder:run')
 
         logger.info(`Completed: ${successCount} succeeded, ${failedCount} failed`)
     })
+
+export default command

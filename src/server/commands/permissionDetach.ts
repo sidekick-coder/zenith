@@ -1,8 +1,8 @@
-import arte from '#server/facades/arte.facade.ts'
+import { CliCommand } from '@sidekick-coder/zenith-kit/server/services/CliService'
 import { findOneOrFail } from '#server/queries/index.ts'
 import { destroy } from '#server/queries/destroy.ts'
 
-arte.command('permission:detach')
+const command = new CliCommand('permission:detach')
     .need('db')
     .helpGroup('permission')
     .description('Remove a permission from a entity')
@@ -24,3 +24,5 @@ arte.command('permission:detach')
 
         console.log('✓ Permission detached successfully')
     })
+
+export default command

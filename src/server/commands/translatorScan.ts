@@ -3,11 +3,10 @@ import { resolve } from 'path'
 import { existsSync } from 'fs'
 import { input } from '@inquirer/prompts'
 import chalk from 'chalk'
+import { CliCommand } from '@sidekick-coder/zenith-kit/server/services/CliService'
 import translator from '#server/facades/translator.facade.ts'
-import arte from '#server/facades/arte.facade.ts'
 
-arte
-    .command('translator:scan')
+const command = new CliCommand('translator:scan')
     .need('translator')
     .helpGroup('translator')
     .description('Scan files for translation keys and generate a JSON file')
@@ -94,3 +93,5 @@ arte
             'utf-8'
         )
     })
+
+export default command

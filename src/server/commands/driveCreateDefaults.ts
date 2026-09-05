@@ -1,7 +1,7 @@
+import { CliCommand } from '@sidekick-coder/zenith-kit/server/services/CliService'
 import drive from '#server/facades/drive.facade.ts'
-import arte from '#server/facades/arte.facade.ts'
 
-arte.command('drive:create-defaults')
+const command = new CliCommand('drive:create-defaults')
     .need('drive')
     .helpGroup('drive')
     .description('Create default drives if they do not exist')
@@ -10,3 +10,5 @@ arte.command('drive:create-defaults')
 
         console.log('Default drives created')
     })
+
+export default command

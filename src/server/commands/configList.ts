@@ -1,10 +1,12 @@
 import config from '@sidekick-coder/zenith-kit/server/facades/config'
-import arte from '#server/facades/arte.facade.ts'
+import { CliCommand } from '@sidekick-coder/zenith-kit/server/services/CliService'
 
-arte.command('config:list')
+const command = new CliCommand('config:list')
     .helpGroup('config')
     .action(async () => {
         const items = config.list()
 
-        arte.table(items)
+        command.table(items)
     })
+
+export default command

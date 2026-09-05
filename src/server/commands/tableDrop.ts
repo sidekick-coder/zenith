@@ -1,9 +1,9 @@
 import { confirm, select } from '@inquirer/prompts'
 import { tryCatch } from '@sidekick-coder/zenith-kit/shared/utils/tryCatch'
-import arte from '#server/facades/arte.facade.ts'
+import { CliCommand } from '@sidekick-coder/zenith-kit/server/services/CliService'
 import db from '#server/facades/db.facade.ts'
 
-arte.command('table:drop')
+const command = new CliCommand('table:drop')
     .need('db')
     .description('Drop a table from the database')
     .helpGroup('table')
@@ -49,3 +49,5 @@ arte.command('table:drop')
         console.log(`Table ${table} dropped successfully`)
 
     })
+
+export default command

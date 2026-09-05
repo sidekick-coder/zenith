@@ -1,10 +1,10 @@
 import { sql } from 'kysely'
 import { confirm } from '@inquirer/prompts'
 import { tryCatch } from '@sidekick-coder/zenith-kit/shared/utils/tryCatch'
-import arte from '#server/facades/arte.facade.ts'
+import { CliCommand } from '@sidekick-coder/zenith-kit/server/services/CliService'
 import db from '#server/facades/db.facade.ts'
 
-arte.command('sql:update')
+const command = new CliCommand('sql:update')
     .need('db')
     .arguments('<table>')
     .description('Update rows in a database table')
@@ -48,3 +48,5 @@ arte.command('sql:update')
 
         console.log(response)
     })
+
+export default command

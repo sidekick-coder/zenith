@@ -1,9 +1,9 @@
-import arte from '#server/facades/arte.facade.ts'
+import { CliCommand } from '@sidekick-coder/zenith-kit/server/services/CliService'
 import { create } from '#server/queries/create.ts'
 import Permission from '#shared/entities/permission.entity.ts'
 import cli from '#server/services/cli.service.ts'
 
-arte.command('permission:create')
+const command = new CliCommand('permission:create')
     .need('db')
     .helpGroup('permission')
     .description('Create a new permission')
@@ -40,3 +40,5 @@ arte.command('permission:create')
 
         cli.ui.object(permission)
     })
+
+export default command

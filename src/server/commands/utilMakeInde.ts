@@ -1,7 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 import { camelCase } from 'lodash-es'
-import arte from '#server/facades/arte.facade.ts'
+import { CliCommand } from '@sidekick-coder/zenith-kit/server/services/CliService'
 
 function makeObjectBarrelIndex(files: string[], name = 'all'): string {
     // Generate imports
@@ -28,7 +28,7 @@ function makeReExportBarrelIndex(files: string[]): string {
     return files.map(file => `export * from './${file}'`).join('\n')
 }
 
-arte.command('util:make-index')
+const command = new CliCommand('util:make-index')
     .helpGroup('utils')
     .requiredOption('-d, --directory <directory>', 'Directory to where generate index.ts file')
     .option('-m --mode <mode>', 'Mode of index file: "object" or "re-export"', 're-export')
@@ -71,3 +71,5 @@ arte.command('util:make-index')
         console.log(`✅ Generated index.ts in ${directory}`)
         console.log(`📝 Imported ${files.length} files into "${name}" object`)
     })
+
+export default command

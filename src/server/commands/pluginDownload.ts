@@ -1,9 +1,8 @@
 import { logger } from '@sidekick-coder/zenith-kit/server'
-import arte from '#server/facades/arte.facade.ts'
+import { CliCommand } from '@sidekick-coder/zenith-kit/server/services/CliService'
 import pluginDownloadService from '#server/facades/pluginDownloadService.ts'
 
-arte
-    .command('plugin:download')
+const command = new CliCommand('plugin:download')
     .helpGroup('plugins')
     .requiredOption('-r, --repository <repository>', 'The git repository URL of the plugin to download')
     .option('--ssh-key-file <sshKeyFile>', 'Path to the SSH key file for accessing the repository')
@@ -15,3 +14,5 @@ arte
             logger.error(error)
         }
     })
+
+export default command

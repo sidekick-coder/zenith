@@ -4,8 +4,8 @@ import chokidar from 'chokidar'
 import { debounce } from 'lodash-es'
 import { serverPath, env } from '@sidekick-coder/zenith-kit/server'
 import config from '@sidekick-coder/zenith-kit/server/facades/config'
+import { CliCommand } from '@sidekick-coder/zenith-kit/server/services/CliService'
 import logger from '#server/facades/logger.facade.ts'
-import arte from '#server/facades/arte.facade.ts'
 
 let child: cp.ChildProcess | null = null
 
@@ -98,8 +98,7 @@ function kill() {
 
 const reloadDebounced = debounce(reload, 500)
 
-arte
-    .command('serve')
+const command = new CliCommand('serve')
     .helpGroup('core')
     .option('-w, --watch', 'Watch for changes and restart server')
     .action(async (options) => {
@@ -168,3 +167,5 @@ arte
         })
 
     })
+
+export default command

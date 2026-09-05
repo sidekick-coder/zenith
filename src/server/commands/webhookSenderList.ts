@@ -1,4 +1,4 @@
-import { CliCommand } from '@sidekick-coder/zenith-kit/server'
+import { CliCommand } from '@sidekick-coder/zenith-kit/server/services/CliService'
 import webhookSenderRepository from '#server/facades/webhookSenderRepository.ts'
 
 const command = new CliCommand('webhook-sender:list')

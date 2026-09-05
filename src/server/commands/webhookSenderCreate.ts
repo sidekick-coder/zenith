@@ -1,5 +1,5 @@
-import { CliCommand } from '@sidekick-coder/zenith-kit/server'
 import { validator } from '@sidekick-coder/zenith-kit/shared'
+import { CliCommand } from '@sidekick-coder/zenith-kit/server/services/CliService'
 import { webhookSenderCreateSchema } from '#shared/schemas/webhookSenderSchema.ts'
 import webhookSenderRepository from '#server/facades/webhookSenderRepository.ts'
 

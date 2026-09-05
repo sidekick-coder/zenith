@@ -1,13 +1,13 @@
 import { confirm } from '@inquirer/prompts'
 import { migrator } from '@sidekick-coder/zenith-kit/server'
-import arte from '#server/facades/arte.facade.ts'
+import { CliCommand } from '@sidekick-coder/zenith-kit/server/services/CliService'
 
 interface Options {
     source?: string
     steps?: number
 }
 
-arte.command('migrator:fresh')
+const command = new CliCommand('migrator:fresh')
     .need('db', 'migrator', 'shell', 'drive')
     .helpGroup('migration')
     .description('Rollback all migrations and re-run them')
@@ -29,14 +29,14 @@ arte.command('migrator:fresh')
             return
         }
 
-        arte.table(toRollback, [
+        command.table(toRollback, [
             {
                 label: 'name',
                 value: 'name' 
             },
             {
                 label: 'source',
-                value: i => i.source || arte.colors.dim('root'),
+                value: i => i.source || command.colors.dim('root'),
                 width: 20 
             },
         ])
@@ -56,10 +56,12 @@ arte.command('migrator:fresh')
             steps: options.steps,
         })
 
-        arte.table(results.map(m => ({
+        command.table(results.map(m => ({
             name: m.name,
             source: m.source,
-            result: m.result === 'success' ? arte.colors.green(m.result) : arte.colors.red(m.result),
+            result: m.result === 'success' ? command.colors.green(m.result) : command.colors.red(m.result),
             error: m.error ? m.error.message : null,
         })))
     })
+
+export default command

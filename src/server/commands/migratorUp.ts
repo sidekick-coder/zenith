@@ -1,5 +1,6 @@
 import { confirm } from '@inquirer/prompts'
-import { CliCommand, migrator } from '@sidekick-coder/zenith-kit/server'
+import { migrator } from '@sidekick-coder/zenith-kit/server'
+import { CliCommand } from '@sidekick-coder/zenith-kit/server/services/CliService'
 
 interface Options {
     step?: number

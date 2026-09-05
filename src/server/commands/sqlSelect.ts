@@ -1,7 +1,7 @@
 import { sql } from 'kysely'
 import { search } from '@inquirer/prompts'
 import { tryCatch } from '@sidekick-coder/zenith-kit/shared/utils/tryCatch'
-import arte from '#server/facades/arte.facade.ts'
+import { CliCommand } from '@sidekick-coder/zenith-kit/server/services/CliService'
 import db from '#server/facades/db.facade.ts'
 import cli from '#server/services/cli.service.ts'
 
@@ -13,8 +13,7 @@ interface TableListOptions {
     where?: string
 }
 
-arte
-    .command('sql:select')
+const command = new CliCommand('sql:select')
     .need('db')
     .description('List rows from a database table')
     .helpGroup('sql')
@@ -80,3 +79,5 @@ arte
 
         cli.ui.table(rows)
     })
+
+export default command

@@ -1,11 +1,11 @@
 import { userRepository } from '@sidekick-coder/zenith-kit/server'
-import arte from '#server/facades/arte.facade.ts'
+import { CliCommand } from '@sidekick-coder/zenith-kit/server/services/CliService'
 import { create } from '#server/queries/create.ts'
 import Permission from '#shared/entities/permission.entity.ts'
 import { findOneOrFail, findOne } from '#server/queries/index.ts'
 import cli from '#server/services/cli.service.ts'
 
-arte.command('permission:attach')
+const command = new CliCommand('permission:attach')
     .need('db')
     .helpGroup('permission')
     .description('Add a permission to a entity')
@@ -75,3 +75,5 @@ arte.command('permission:attach')
 
         cli.ui.object(created)
     })
+
+export default command

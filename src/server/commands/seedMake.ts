@@ -1,10 +1,10 @@
 import fs from 'fs'
 import path from 'path'
-import arte from '#server/facades/arte.facade.ts'
 import { basePath } from '@sidekick-coder/zenith-kit/server/utils/basePath'
+import { CliCommand } from '@sidekick-coder/zenith-kit/server/services/CliService'
 import template from '#server/facades/template.facade.ts'
 
-arte.command('seed:make')
+const command = new CliCommand('seed:make')
     .helpGroup('seeder')
     .argument('<name>', 'Seed name')
     .action(async (name) => {
@@ -23,3 +23,5 @@ arte.command('seed:make')
 
         console.log(`Seed created: ${path.relative(basePath(), filename)}`)
     })
+
+export default command

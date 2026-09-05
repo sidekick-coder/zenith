@@ -1,4 +1,4 @@
-import arte from '#server/facades/arte.facade.ts'
+import { CliCommand } from '@sidekick-coder/zenith-kit/server/services/CliService'
 import seeder from '#server/facades/seeder.facade.ts'
 import logger from '#server/facades/logger.facade.ts'
 
@@ -7,7 +7,7 @@ interface SeederListOptions {
     name?: string
 }
 
-arte.command('seeder:list')
+const command = new CliCommand('seeder:list')
     .need('seeder', 'plugins')
     .helpGroup('database')
     .description('List all available seed files')
@@ -24,7 +24,7 @@ arte.command('seeder:list')
             return
         }
 
-        arte.table(seeds, [
+        command.table(seeds, [
             {
                 label: 'Name',
                 value: 'name'
@@ -40,3 +40,5 @@ arte.command('seeder:list')
             },
         ])
     })
+
+export default command

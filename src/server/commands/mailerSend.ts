@@ -1,9 +1,8 @@
 
+import { CliCommand } from '@sidekick-coder/zenith-kit/server/services/CliService'
 import mailer from '#server/facades/mailer.facade.ts'
-import arte from '#server/facades/arte.facade.ts'
 
-arte
-    .command('mailer:send')
+const command = new CliCommand('mailer:send')
     .need('mailer')
     .helpGroup('mailer')
     .requiredOption('-t, --to <to>', 'Recipient email address')
@@ -14,3 +13,5 @@ arte
 
         console.log(result)
     })
+
+export default command

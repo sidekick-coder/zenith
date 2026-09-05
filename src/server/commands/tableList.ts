@@ -1,10 +1,9 @@
 import { tryCatch } from '@sidekick-coder/zenith-kit/shared/utils/tryCatch'
-import arte from '#server/facades/arte.facade.ts'
+import { CliCommand } from '@sidekick-coder/zenith-kit/server/services/CliService'
 import db from '#server/facades/db.facade.ts'
 import cli from '#server/services/cli.service.ts'
 
-arte
-    .command('table:list')
+const command = new CliCommand('table:list')
     .need('db')
     .description('List all tables in the database')
     .helpGroup('table')
@@ -27,3 +26,5 @@ arte
 
         cli.ui.table(items)
     })
+
+export default command

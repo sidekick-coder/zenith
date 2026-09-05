@@ -1,5 +1,6 @@
-import { CliCommand, emmitter } from '@sidekick-coder/zenith-kit/server'
+import { emmitter } from '@sidekick-coder/zenith-kit/server'
 import { flatten, validator } from '@sidekick-coder/zenith-kit/shared'
+import { CliCommand } from '@sidekick-coder/zenith-kit/server/services/CliService'
 
 const command = new CliCommand('emmitter:emit')
 

@@ -1,4 +1,4 @@
-import { CliCommand } from '@sidekick-coder/zenith-kit/server'
+import { CliCommand } from '@sidekick-coder/zenith-kit/server/services/CliService'
 import logger from '#server/facades/logger.facade.ts'
 import pluginManager from '#server/facades/pluginManager.ts'
 

@@ -1,10 +1,10 @@
-import arte from '#server/facades/arte.facade.ts'
+import { CliCommand } from '@sidekick-coder/zenith-kit/server/services/CliService'
 import Permission from '#shared/entities/permission.entity.ts'
 import cli from '#server/services/cli.service.ts'
 import { list } from '#server/queries/list.ts'
 import db from '#server/facades/db.facade.ts'
 
-arte.command('permission:list')
+const command = new CliCommand('permission:list')
     .need('db')
     .helpGroup('permission')
     .description('Assign a permission to a user')
@@ -44,3 +44,5 @@ arte.command('permission:list')
 
         await db.destroy()
     })
+
+export default command

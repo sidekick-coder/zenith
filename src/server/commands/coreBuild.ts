@@ -1,11 +1,11 @@
-// import build from '#server/facades/server.facade.ts'
-import arte from '#server/facades/arte.facade.ts'
+import { CliCommand } from '@sidekick-coder/zenith-kit/server/services/CliService'
 
-arte
-    .command('build')
+const command = new CliCommand('build')
     .helpGroup('core')
     .action(async () => {
         const build = await import('#server/facades/server.facade.ts').then((mod) => mod.default)
 
         await build.build()
     })
+
+export default command

@@ -1,11 +1,10 @@
 import { orderBy } from 'lodash-es'
-import arte from '#server/facades/arte.facade.ts'
+import { CliCommand } from '@sidekick-coder/zenith-kit/server/services/CliService'
 import type { TableColumn } from '#server/utils/cliUi.ts'
 import router from '#server/facades/router.facade.ts'
 import { table } from '#server/utils/cliUi.ts'
 
-arte
-    .command('route:list')
+const command = new CliCommand('route:list')
     .helpGroup('router')
     .need('router', 'modules', 'plugins')
     .option('--json', 'Output in JSON format')
@@ -72,3 +71,5 @@ arte
 
         table(routes, columns)
     })
+
+export default command

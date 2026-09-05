@@ -1,12 +1,12 @@
 import { confirm } from '@inquirer/prompts'
 import { migrator } from '@sidekick-coder/zenith-kit/server'
-import arte from '#server/facades/arte.facade.ts'
+import { CliCommand } from '@sidekick-coder/zenith-kit/server/services/CliService'
 
 interface Options {
     source?: string
 }
 
-arte.command('migrator:rollback')
+const command = new CliCommand('migrator:rollback')
     .need('db', 'migrator', 'shell', 'drive')
     .helpGroup('migration')
     .description('Rollback pending migrations')
@@ -23,14 +23,14 @@ arte.command('migrator:rollback')
             return
         }
 
-        arte.table(executed, [
+        command.table(executed, [
             {
                 label: 'name',
                 value: 'name' 
             },
             {
                 label: 'source',
-                value: i => i.source || arte.colors.dim('root'),
+                value: i => i.source || command.colors.dim('root'),
                 width: 20 
             },
         ])
@@ -47,10 +47,12 @@ arte.command('migrator:rollback')
 
         const results = await migrator.rollback({ source: options.source })
 
-        arte.table(results.map(m => ({
+        command.table(results.map(m => ({
             name: m.name,
             source: m.source,
-            result: m.result === 'success' ? arte.colors.green(m.result) : arte.colors.red(m.result),
+            result: m.result === 'success' ? command.colors.green(m.result) : command.colors.red(m.result),
             error: m.error ? m.error.message : null,
         })))
     })
+
+export default command

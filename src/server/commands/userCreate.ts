@@ -1,4 +1,5 @@
-import { CliCommand, userRepository } from '@sidekick-coder/zenith-kit/server'
+import { userRepository } from '@sidekick-coder/zenith-kit/server'
+import { CliCommand } from '@sidekick-coder/zenith-kit/server/services/CliService'
 
 const command = new CliCommand('user:create')
 

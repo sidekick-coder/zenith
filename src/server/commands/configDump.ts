@@ -1,7 +1,7 @@
 import config from '@sidekick-coder/zenith-kit/server/facades/config'
-import arte from '#server/facades/arte.facade.ts'
+import { CliCommand } from '@sidekick-coder/zenith-kit/server/services/CliService'
 
-arte.command('config:dump')
+const command = new CliCommand('config:dump')
     .helpGroup('config')
     .option('-j, --json', 'Output in JSON format', )
     .action(async (options) => {
@@ -15,5 +15,7 @@ arte.command('config:dump')
             return
         }
 
-        arte.table(items)
+        command.table(items)
     })
+
+export default command

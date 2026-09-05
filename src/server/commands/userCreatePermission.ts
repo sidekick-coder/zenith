@@ -1,10 +1,10 @@
 import { userRepository } from '@sidekick-coder/zenith-kit/server'
 import type { UserEntity } from '@sidekick-coder/zenith-kit/shared'
-import arte from '#server/facades/arte.facade.ts'
+import { CliCommand } from '@sidekick-coder/zenith-kit/server/services/CliService'
 import { createUserPermission } from '#server/queries/index.ts'
 import cli from '#server/services/cli.service.ts'
 
-arte.command('user:create-permission')
+const command = new CliCommand('user:create-permission')
     .need('db')
     .helpGroup('user')
     .description('Create a new user permission')
@@ -41,3 +41,5 @@ arte.command('user:create-permission')
 
         cli.ui.object(permission)
     })
+
+export default command

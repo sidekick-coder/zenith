@@ -1,7 +1,7 @@
+import { CliCommand } from '@sidekick-coder/zenith-kit/server/services/CliService'
 import hasher from '#server/facades/hasher.facade.ts'
-import arte from '#server/facades/arte.facade.ts'
 
-arte.command('hasher:compare')
+const command = new CliCommand('hasher:compare')
     .helpGroup('hasher')
     .argument('<original>', 'Value to verify')
     .argument('<hash>', 'Hash to compare against')
@@ -10,3 +10,5 @@ arte.command('hasher:compare')
 
         console.log(isValid)
     })
+
+export default command

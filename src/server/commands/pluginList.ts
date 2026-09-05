@@ -1,9 +1,8 @@
-import arte from '#server/facades/arte.facade.ts'
+import { CliCommand } from '@sidekick-coder/zenith-kit/server/services/CliService'
 import logger from '#server/facades/logger.facade.ts'
 import pluginManager from '#server/facades/pluginManager.ts'
 
-arte
-    .command('plugin:list')
+const command = new CliCommand('plugin:list')
     .helpGroup('plugins')
     .action(async () => {
         const plugins = await pluginManager.list()
@@ -13,5 +12,7 @@ arte
             return
         }
 
-        arte.table(plugins)
+        command.table(plugins)
     })
+
+export default command
