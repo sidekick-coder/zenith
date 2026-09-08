@@ -11,8 +11,9 @@
   "scripts": {
     "start": "NODE_ENV=production node zenith serve",
     "dev": "node zenith serve -w",
-    "build": "node zenith build",
+    "build:client": "node zenith build",
     "build:server": "tsdown",
+    "build": "npm-run-all build:client build:server",
     "lint": "eslint",
     "test": "npm-run-all test:unit test:int test:ec2",
     "test:unit": "vitest run --project unit",

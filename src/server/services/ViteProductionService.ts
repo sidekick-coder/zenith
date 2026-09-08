@@ -152,12 +152,13 @@ export default class ViteProductionService extends ViteService {
             .html(JSON.stringify({
                 imports: {
                     'vue': '/api/vendor/vue.js',
-                    'vee-validate': '/api/vendor/vee-validate.js'
+                    'vee-validate': '/api/vendor/vee-validate.js',
+                    'vue-router': '/api/vendor/vue-router.js',
                 }
             }))
 
 
-        const { links, scripts } = this.chunksToHead(this.manifest, 'client/entry-browser.ts')
+        const { links, scripts } = this.chunksToHead(this.manifest, 'src/client/entry-browser.ts')
 
         ctx.head.push({
             link: links,

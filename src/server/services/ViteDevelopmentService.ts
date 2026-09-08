@@ -156,6 +156,8 @@ export default class ViteDevelopmentService extends ViteService {
             .attr('id', 'app')
             .html(rendered.html || '')
 
+
+
         let result = html.toString()
 
         const { transformHtmlTemplate } = await import('@unhead/vue/server')

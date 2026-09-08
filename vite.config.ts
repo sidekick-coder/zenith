@@ -19,7 +19,7 @@ export default defineConfig(({ mode }) => {
 
     const external: string[] = [
         'vue',
-        // 'vue-router',
+        'vue-router',
         // 'vee-validate',
         // 'reka-ui',
         // 'lucide-vue-next',

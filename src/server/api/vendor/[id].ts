@@ -6,6 +6,7 @@ import { BaseException } from '@sidekick-coder/zenith-kit/shared'
 const modules: Record<string, string> = {
     'vue': basePath('node_modules', 'vue', 'dist', 'vue.runtime.esm-browser.prod.js'),
     'vee-validate': basePath('node_modules', 'vee-validate/dist/vee-validate.mjs'),
+    'vue-router': basePath('node_modules', 'vue-router', 'dist', 'vue-router.esm-browser.prod.js'),
 }
 
 export default defineHandler(async ({ response, params }) => {

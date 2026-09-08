@@ -2,7 +2,7 @@
 import 'vue-sonner/style.css'
 import { ref, shallowRef } from 'vue'
 import { layout, emmitter } from '@sidekick-coder/zenith-kit/client'
-import { Toaster } from '#client/components/ui/sonner'
+import { Toaster } from '#client/components/ui/sonner/index.ts'
 
 const layoutId = ref(layout.currendId)
 const layoutComponent = shallowRef()
@@ -36,7 +36,7 @@ async function load() {
 
 emmitter.on('layout:change', load)
 
-load()
+await load()
 </script>
 <template>
     <Toaster

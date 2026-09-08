@@ -1,9 +1,5 @@
-// import { MysqlDialect, PostgresDialect, SqliteDialect } from 'kysely'
 import { createRequire } from 'module'
 import type { Dialect } from 'kysely'
-// import SQLite from 'better-sqlite3'
-// import { createPool } from 'mysql2'
-// import { Pool } from 'pg'
 import { DatabaseGateway, container, basePath } from '@sidekick-coder/zenith-kit/server'
 import type { Database } from '../contracts/database.contract.ts'
 import validator from '#shared/services/validator.service.ts'
@@ -100,6 +96,7 @@ export default class DatabaseService extends DatabaseGateway<Database> {
         }
 
         if (connection.dialect === 'memory') {
+            const SQLite = require('better-sqlite3')
             dialect = new SqliteDialect({ database: new SQLite(':memory:') })
         }
 

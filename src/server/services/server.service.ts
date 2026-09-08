@@ -15,7 +15,7 @@ export default class ServerService {
     public async build() {
 
         // remove .plugins files 
-        const files = await fg(basePath('client/.plugins/*.ts'))
+        const files = await fg(basePath('src/client/.plugins/*.ts'))
 
         for (const file of files) {
             logger.debug(`removing ${file}`)
@@ -27,15 +27,15 @@ export default class ServerService {
         const common: UserConfig = {
             resolve: {
                 alias: {
-                    '#client': basePath('client'),
-                    '#shared': basePath('shared'),
+                    '#client': basePath('src/client'),
+                    '#shared': basePath('src/shared'),
                 }
             }
         }
 
         await viteBuild(mergeConfig(common, {
             build: {
-                ssr: 'client/entry-node.ts',
+                ssr: 'src/client/entry-node.ts',
                 outDir: basePath('dist/client-node'),
             },
         }))
@@ -44,7 +44,7 @@ export default class ServerService {
             build: {
                 outDir: basePath('dist/client-browser'),
                 manifest: true,
-                rollupOptions: { input: { app: 'client/entry-browser.ts', } },
+                rollupOptions: { input: { app: 'src/client/entry-browser.ts', } },
             },
         }))
 
