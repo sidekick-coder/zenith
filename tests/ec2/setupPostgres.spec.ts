@@ -59,7 +59,7 @@ test.afterAll(async () => {
 
 test('should complete database setup', async ({ page }) => {
     // welcome
-    await page.goto(baseURL('/'))
+    await page.goto(baseURL('/'), { waitUntil: 'networkidle' })
 
     const startBtn = page.locator('a:has-text("Start Setup")')
 
@@ -85,6 +85,8 @@ test('should complete database setup', async ({ page }) => {
 
     await expect(page).toHaveURL(/.*\/setup\/user/)
 
+    await page.waitForLoadState('networkidle')
+
     // user setup
     await page.fill('[name="name"]', 'testuser')
     await page.fill('[name="username"]', 'testuser')
@@ -96,8 +98,12 @@ test('should complete database setup', async ({ page }) => {
 
     await expect(page).toHaveURL(/.*\/api\/reloader/)
 
+    await page.waitForLoadState('networkidle')
+
     // login
     await expect(page).toHaveURL(/.*\/login/, { timeout: 20000, }) // Increase timeout to wait for server reload
+
+    await page.waitForLoadState('networkidle')
 
     await page.fill('[name="uuid"]', 'testuser')
     await page.fill('[name="password"]', 'testpassword')

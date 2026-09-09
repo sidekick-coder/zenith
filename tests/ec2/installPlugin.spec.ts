@@ -26,12 +26,17 @@ async function createApp() {
     }
 
     const builder = new GenericContainer('zenith-test')
+        // .withLogConsumer((stream) => {
+        //     stream
+        //         .on('data', (line) => console.log(line.toString().trim()))
+        //         .on('err', (line) => console.error(line.toString().trim()))
+        // })
         .withExposedPorts(3000)
         .withEnvironment(env)
         .withHealthCheck({
             test: ['CMD-SHELL', 'curl -f http://localhost:3000/api/health || exit 1'],
             interval: 1000,
-            timeout: 1000,
+            timeout: 10000,
             retries: 30,
         })
 
@@ -73,6 +78,7 @@ async function goToInstallPage(page: Page) {
 
     if (!isLoggedIn) {
         await page.goto(baseURL('/auth/login'))
+        await page.waitForLoadState('networkidle')
 
         // login
         await page.fill('input[name="uuid"]', 'admin')
@@ -80,10 +86,11 @@ async function goToInstallPage(page: Page) {
         await page.click('button[type="submit"]')
 
         await page.waitForURL(baseURL('/'))
+        await page.waitForLoadState('networkidle')
     }
 
 
-    await page.goto(baseURL('/admin/plugins'))
+    await page.goto(baseURL('/admin/plugins'), { waitUntil: 'networkidle' })
 
     await page.click('a:has-text("Install")')
 
@@ -122,6 +129,7 @@ test('should install a plugin with ssh key', async ({ page }) => {
 
     await expect(page).toHaveURL(/.*\/admin\/plugins/)
 
+    await page.waitForLoadState('networkidle')
 
     await page.waitForSelector(`text=${identity}`)
 })

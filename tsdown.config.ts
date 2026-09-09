@@ -7,6 +7,10 @@ export default defineConfig([
             'src/server/cli.ts',
             'src/server/server.ts',
 
+            'src/server/migrations/*',
+            'src/server/routines/*',
+
+
             'src/server/commands/*',
             '!src/server/commands/*.test.ts',
 

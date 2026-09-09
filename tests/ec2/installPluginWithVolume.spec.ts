@@ -90,7 +90,7 @@ async function goToInstallPage(page: Page) {
     })
 
     if (!isLoggedIn) {
-        await page.goto(baseURL('/auth/login'))
+        await page.goto(baseURL('/auth/login'), { waitUntil: 'networkidle' })
 
         // login
         await page.fill('input[name="uuid"]', 'admin')
@@ -98,10 +98,11 @@ async function goToInstallPage(page: Page) {
         await page.click('button[type="submit"]')
 
         await page.waitForURL(baseURL('/'))
+        await page.waitForLoadState('networkidle')
     }
 
 
-    await page.goto(baseURL('/admin/plugins'))
+    await page.goto(baseURL('/admin/plugins'), { waitUntil: 'networkidle' })
 
     await page.click('a:has-text("Install")')
 
@@ -126,6 +127,7 @@ test('should install a plugin with ssh key on binded volume', async ({ page }) =
     await page.click('button[type="submit"]')
 
     await expect(page).toHaveURL(/.*\/admin\/plugins/)
+    await page.waitForLoadState('networkidle')
 
 
     await page.waitForSelector(`text=${identity}`)

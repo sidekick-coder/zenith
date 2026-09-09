@@ -7,6 +7,11 @@ let container: StartedTestContainer
 async function createZenithContainer() {
     const builder = new GenericContainer('zenith-test')
         .withExposedPorts(3000)
+        // .withLogConsumer((stream) => {
+        //     stream
+        //         .on('data', (line) => console.log(line.toString().trim()))
+        //         .on('err', (line) => console.error(line.toString().trim()))
+        // })
         .withHealthCheck({
             test: ['CMD-SHELL', 'curl -f http://localhost:3000/api/health || exit 1'],
             interval: 1000,
@@ -42,7 +47,11 @@ test.afterAll(async () => {
 
 test('should complete database setup', async ({ page }) => {
     // welcome
-    await page.goto(baseURL('/'))
+    await page.goto(baseURL('/'), { waitUntil: 'networkidle' })
+
+    page.on('console', msg => {
+        console.log(`Browser: "${msg.text()}"`)
+    })
 
     const startBtn = page.locator('a:has-text("Start Setup")')
 
@@ -56,6 +65,8 @@ test('should complete database setup', async ({ page }) => {
     // database setup
     await page.locator('[data-slot="select-trigger"]').click()
 
+    await expect(page.locator('[data-slot="select-item"]:has-text("SQLite")')).toBeVisible()
+
     await page.locator('[data-slot="select-item"]:has-text("SQLite")').click()
 
     const dbPath = '/tmp/test.db'
@@ -68,6 +79,8 @@ test('should complete database setup', async ({ page }) => {
 
     await expect(page).toHaveURL(/.*\/setup\/user/)
 
+    await page.waitForLoadState('networkidle')
+
     // user setup
     await page.fill('[name="name"]', 'testuser')
     await page.fill('[name="username"]', 'testuser')
@@ -79,8 +92,12 @@ test('should complete database setup', async ({ page }) => {
 
     await expect(page).toHaveURL(/.*\/api\/reloader/)
 
+    await page.waitForLoadState('networkidle')
+
     // login
     await expect(page).toHaveURL(/.*\/login/, { timeout: 20000, }) // Increase timeout to wait for server reload
+
+    await page.waitForLoadState('networkidle')
 
     await page.fill('[name="uuid"]', 'testuser')
     await page.fill('[name="password"]', 'testpassword')
@@ -88,6 +105,8 @@ test('should complete database setup', async ({ page }) => {
     await page.click('button:has-text("Log in")')
 
     await expect(page).toHaveURL(/.*\//)
+
+    await page.waitForLoadState('networkidle')
 
     await expect(page.locator('a:has-text("Dashboard")')).toBeVisible()
 })
