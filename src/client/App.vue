@@ -41,7 +41,7 @@ await load()
 <template>
     <Toaster
         position="top-right"
-        :toast-options="{ class: 'whitespace-pre-line' }"
+        :toast-options="{ class: 'whitespace-pre-line', closeButton: true, closeButtonPosition: 'top-right' }"
     />
 
     <!-- animate with tailwind fade in -->

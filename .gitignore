@@ -47,8 +47,8 @@ tmp/*
 docs/.vitepress/cache
 *.db
 
-client/.plugins/*
-!client/.plugins/.gitkeep
+src/client/.plugins/*
+!src/client/.plugins/.gitkeep
 
 upload/*
 !upload/.gitkeep
