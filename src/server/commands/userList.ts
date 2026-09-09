@@ -5,6 +5,7 @@ import { CliCommand } from '@sidekick-coder/zenith-kit/server/services/CliServic
 import { table } from '#server/utils/cliUi.ts'
 
 const command = new CliCommand('user:list')
+    .need('db')
     .helpGroup('user')
     .option('-l, --limit <limit>', 'Number of users to list', '10')
     .option('-o, --offset <offset>', 'Offset for listing users', '0')
