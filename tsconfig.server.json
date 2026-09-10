@@ -39,6 +39,7 @@
         "vite.config.ts",
         "tests/fixtures/**/*.ts",
         "src/server/**/*.ts",
+        "bin/*.ts",
         "src/shared/**/*.ts"
     ]
 }
