@@ -49,10 +49,6 @@ test('should complete database setup', async ({ page }) => {
     // welcome
     await page.goto(baseURL('/'), { waitUntil: 'networkidle' })
 
-    page.on('console', msg => {
-        console.log(`Browser: "${msg.text()}"`)
-    })
-
     const startBtn = page.locator('a:has-text("Start Setup")')
 
     await expect(page).toHaveTitle(/Zenith/)

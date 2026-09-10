@@ -6,3 +6,5 @@ modules/*
 !modules/.gitkeep
 config/*
 !config/.gitkeep
+plugins/*
+!plugins/.gitkeep

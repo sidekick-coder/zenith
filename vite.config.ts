@@ -17,9 +17,10 @@ if (process.env.VITEST_ALLOWED_HOSTS) {
 export default defineConfig(({ mode }) => {
     const ssr = mode === 'ssr'
 
-    const external: string[] = [
+    const external = [
         'vue',
-        'vue-router',
+        /^vue\//,
+        // 'vue-router',
         // 'vee-validate',
         // 'reka-ui',
         // 'lucide-vue-next',
@@ -38,7 +39,7 @@ export default defineConfig(({ mode }) => {
     return {
         clearScreen: false,
         root: import.meta.dirname,
-        optimizeDeps: { exclude: external, },
+        optimizeDeps: { exclude: ['vue'], },
         plugins: [
             vue({ template: { compilerOptions: { isCustomElement: (tag) => tag.startsWith('iconify-icon'), } } }),
             tailwindcss()
@@ -72,7 +73,7 @@ export default defineConfig(({ mode }) => {
             rolldownOptions: { external }
         },
         resolve: {
-            dedupe: external,
+            dedupe: ['vue', 'vue-router', 'vee-validate', 'reka-ui'],
             alias: {
                 'vue/server-renderer': path.resolve(import.meta.dirname, 'node_modules/vue/server-renderer/index.mjs'),
                 // 'vue': ssr 

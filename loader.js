@@ -4,6 +4,7 @@ import { pathToFileURL } from 'node:url'
 // Define exact target file paths for specifiers
 const imports = {
     'vue': pathToFileURL(path.resolve(import.meta.dirname, 'node_modules/vue/dist/vue.runtime.esm-bundler.js')).href,
+    'vue/server-renderer': pathToFileURL(path.resolve(import.meta.dirname, 'node_modules/@vue/server-renderer/dist/server-renderer.esm-bundler.js')).href,
     'vue-router': pathToFileURL(path.resolve(import.meta.dirname, 'node_modules/vue-router/vue-router.node.mjs')).href,
     'vee-validate': pathToFileURL(path.resolve(import.meta.dirname, 'node_modules/vee-validate/dist/vee-validate.mjs')).href,
 }

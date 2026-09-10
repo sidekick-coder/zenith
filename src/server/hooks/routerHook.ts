@@ -29,8 +29,6 @@ export default class extends LifecycleHook {
         }
 
         if (!needSetup) {
-            router.logger.info('setup is not required, auth and authorization middleware is enabled')
-
             router.use(authSilenceMiddleware, 'global')
             router.use(authorizationMiddleware, 'global')
         }

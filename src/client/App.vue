@@ -9,6 +9,10 @@ const layoutComponent = shallowRef()
 const loading = ref(true)
 
 async function load() {
+    if (layoutId.value === layout.currendId && layoutComponent.value) {
+        return
+    }
+
     loading.value = true
 
     let component = null
@@ -50,19 +54,15 @@ await load()
             :is="layoutComponent"
             v-if="layoutComponent"
         >
-            <suspense>
-                <component
-                    :is="Component"
-                    v-if="!loading"
-                />
-            </suspense>
-        </component>
-
-        <Suspense v-else>
             <component
                 :is="Component"
                 v-if="!loading"
             />
-        </Suspense>
+        </component>
+
+        <component
+            :is="Component"
+            v-else-if="!loading"
+        />
     </router-view>
 </template>

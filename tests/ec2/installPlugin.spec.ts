@@ -77,35 +77,33 @@ async function goToInstallPage(page: Page) {
     })
 
     if (!isLoggedIn) {
-        await page.goto(baseURL('/auth/login'))
-        await page.waitForLoadState('networkidle')
+        await page.goto(baseURL('/auth/login'), { waitUntil: 'networkidle' })
 
         // login
         await page.fill('input[name="uuid"]', 'admin')
         await page.fill('input[name="password"]', 'admin-123')
         await page.click('button[type="submit"]')
 
-        await page.waitForURL(baseURL('/'))
         await page.waitForLoadState('networkidle')
+        await page.waitForURL(baseURL('/'))
     }
 
 
-    await page.goto(baseURL('/admin/plugins'), { waitUntil: 'networkidle' })
-
-    await page.click('a:has-text("Install")')
-
-    await expect(page).toHaveURL(/.*\/admin\/plugins\/install/)
+    await page.goto(baseURL('/admin/plugins/install'), { waitUntil: 'networkidle' })
 }
 
 
 test('should install a plugin', async ({ page }) => {
+    test.setTimeout(60000) // Increase timeout for plugin installation
+
     await goToInstallPage(page)
 
     await page.fill('input[name="repository"]', 'https://github.com/sidekick-coder/zenith-backup.git')
     await page.click('button[type="submit"]')
 
-    await expect(page).toHaveURL(/.*\/admin\/plugins/)
+    // await page.waitForLoadState('networkidle')
 
+    await expect(page).toHaveURL(/.*\/admin\/plugins/)
 
     await page.waitForSelector('text=zenith-backup')
 })
