@@ -6,7 +6,8 @@ import LoggerService from '@sidekick-coder/zenith-kit/shared/services/LoggerServ
 import emmitter from '#server/facades/emmitter.facade.ts'
 import TranslatorService from '#server/services/translator.service.ts'
 
-export default class TrasnlatorLifecycleHook extends LifecycleHook {
+export default class extends LifecycleHook {
+    public hook_id = 'TrasnlatorLifecycleHook'
     public order = 3
 
     public async register(): Promise<void> {

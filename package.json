@@ -15,7 +15,7 @@
     "build:server": "tsdown",
     "build": "npm-run-all build:client build:server",
     "lint": "eslint",
-    "test": "npm-run-all test:unit test:int test:ec2",
+    "test": "npm-run-all test:unit test:int test:e2e",
     "test:unit": "vitest run --project unit",
     "test:int": "vitest run --project int",
     "test:e2e": "playwright test",
