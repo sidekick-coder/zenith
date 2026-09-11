@@ -13,13 +13,17 @@ if (process.env.VITEST_ALLOWED_HOSTS) {
     )
 }
 
-
-export default defineConfig(({ mode }) => {
-    const ssr = mode === 'ssr'
-
+export default defineConfig(() => {
     const external = [
         'vue',
         /^vue\//,
+
+        'vue-router',
+        /^vue-router\//,
+
+        'vee-validate',
+        /^vee-validate\//,
+
         // 'vue-router',
         // 'vee-validate',
         // 'reka-ui',
@@ -75,12 +79,9 @@ export default defineConfig(({ mode }) => {
         resolve: {
             dedupe: ['vue', 'vue-router', 'vee-validate', 'reka-ui'],
             alias: {
-                'vue/server-renderer': path.resolve(import.meta.dirname, 'node_modules/vue/server-renderer/index.mjs'),
-                // 'vue': ssr 
-                //     ? path.resolve(import.meta.dirname, 'node_modules/vue/dist/vue.esm-bundler.js')
-                //     : 'http://localhost:3000/vendor/vue',
                 vue: path.resolve(import.meta.dirname, 'node_modules/vue/dist/vue.esm-bundler.js'),
-                // 'reka-ui': path.resolve(import.meta.dirname, 'node_modules/reka-ui/dist/index.js'),
+                'vue/server-renderer': path.resolve(import.meta.dirname, 'node_modules/vue/server-renderer/index.mjs'),
+                'reka-ui': path.resolve(import.meta.dirname, 'node_modules/reka-ui/dist/index.js'),
             },
         }
 
