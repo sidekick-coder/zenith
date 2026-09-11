@@ -31,8 +31,8 @@ export default class extends LifecycleHook {
             ],
         })
 
-        ctx.setBrowserState('site', config.get('site', {}))
-        ctx.setBrowserState('branding', config.get('branding', {}))
+        ctx.setConfigValue('site', config.get('site', {}))
+        ctx.setConfigValue('branding', config.get('branding', {}))
         ctx.setConfigValue('setup', config.get('setup') || {})
         ctx.setConfigValue('emmitter.debug', emmitter.debug)
         ctx.setConfigValue('auth', config.get('auth', {}))
