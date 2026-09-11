@@ -11,8 +11,15 @@ import { useRouter } from 'vue-router'
 import { ChevronDown } from 'lucide-vue-next'
 
 import { tryCatch } from '@sidekick-coder/zenith-kit/shared/utils/tryCatch'
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+    FormImageUploader,
+} from '@sidekick-coder/zenith-kit/components'
 import FormTextField from '#client/components/FormTextField.vue'
-import FormImageUploader from '#client/components/FormImageUploader.vue'
+// import FormImageUploader from '#client/components/FormImageUploader.vue'
 import { $fetch } from '#client/utils/fetcher.ts'
 import Button from '#client/components/Button.vue'
 import UiButton from '#client/components/ui/button/Button.vue'
@@ -20,12 +27,6 @@ import Card from '#client/components/ui/card/Card.vue'
 import CardFooter from '#client/components/ui/card/CardFooter.vue'
 import CardContent from '#client/components/ui/card/CardContent.vue'
 import settingSiteValidator from '#shared/validators/settingSite.validator.ts'
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger
-} from '#client/components/ui/dropdown-menu'
 import PageTitle from '#client/components/PageTitle.vue'
 import PageSubtitle from '#client/components/PageSubtitle.vue'
 

@@ -56,39 +56,7 @@ const as = computed(() => {
 </script>
 
 <template>
-    <Tooltip v-if="tooltip">
-        <TooltipTrigger as-child>
-            <UiButton
-                v-bind="$attrs"
-                :disabled="disabled || loading"
-                :as
-                :href="to ? to : href"
-                :to
-                :type
-                @click="onClick"
-            >
-                <Icon
-                    v-if="loading"
-                    name="Loader2"
-                    class="animate-spin"
-                />
-
-                <span
-                    v-else-if="label"
-                    class="text-sm"
-                >
-                    {{ label }}
-                </span>
-
-                <slot v-else />
-            </UiButton>
-        </TooltipTrigger>
-        <TooltipContent :side="tooltipSide">
-            {{ tooltip }}
-        </TooltipContent>
-    </Tooltip>
     <UiButton
-        v-else
         v-bind="$attrs"
         :disabled="disabled || loading"            
         :as
