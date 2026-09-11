@@ -68,6 +68,9 @@ program
         }
 
 
+        console.log('building docker image for tests...')
+        run('npm', ['run', 'docker:build-test'])
+
         console.log('run tests before bumping version...')
         run('npm', ['run', 'test:e2e'])
 
