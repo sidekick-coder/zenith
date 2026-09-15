@@ -9,10 +9,10 @@ export default class extends LifecycleHook {
     public async onPageRequest(ctx: PageRequestContextEntity): Promise<void> {
         ctx.head.push({
             title: config.get('site.name') || 'Zenith',
-            htmlAttrs: {
-                lang: config.get('translator.defaultLocale') || 'en',
-                class: ctx.nodeState.get('preferences:dark_mode') ? 'dark' : 'light'
-            },
+            // htmlAttrs: {
+            //     lang: config.get('translator.defaultLocale') || 'en',
+            //     class: ctx.nodeState.get('preferences:dark_mode') ? 'dark' : 'light'
+            // },
             meta: [
                 {
                     name: 'viewport',

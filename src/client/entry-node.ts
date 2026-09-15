@@ -3,6 +3,8 @@ import kitCss from '@sidekick-coder/zenith-kit/styles.css?inline'
 import { renderToString } from 'vue/server-renderer'
 import { createHead } from '@unhead/vue/server'
 import * as VueServerRenderer from 'vue/server-renderer'
+import { ResolvableHead } from '@unhead/vue'
+import { CookieMapEntity } from '@sidekick-coder/zenith-kit/shared'
 import css from './assets/styles.css?inline'
 import type { EntryNodeRenderContract, EntryNodeRenderResult } from '#shared/contracts/EntryNodeRenderContract.ts'
 
@@ -21,6 +23,9 @@ export default async function(ctx: EntryNodeRenderContract): Promise<EntryNodeRe
     container.set('state', ctx.state || {})
     container.set('cookies', ctx.cookies)
 
+    const cookie = new CookieMapEntity()
+
+    cookie.load(ctx.cookies)
 
     const { app, router } = await createApp({
         logger: ctx.logger,
@@ -28,9 +33,24 @@ export default async function(ctx: EntryNodeRenderContract): Promise<EntryNodeRe
         containerEntries: ctx.container,
     })
 
-    const headItems: any[] = ctx.head || []
+    const headItems: ResolvableHead[] = ctx.head || []
+
+    let lang = 'en'
+    let darkMode = false
+    
+    if (cookie.get('lang')) {
+        lang = cookie.get('lang') || 'en'
+    }
+
+    if (cookie.get('dark_mode')) {
+        darkMode = cookie.get('dark_mode') === 'true'
+    }
 
     headItems.push({
+        htmlAttrs: {
+            lang: lang,
+            class: darkMode ? 'dark' : ''
+        },
         style: [
             {
                 innerHTML: css,
