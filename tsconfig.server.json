@@ -25,13 +25,13 @@
         "baseUrl": ".",
         "paths": {
             "#client/*": [
-                "client/*"
+                "src/client/*"
             ],
             "#server/*": [
-                "server/*"
+                "src/server/*"
             ],
             "#shared/*": [
-                "shared/*"
+                "src/shared/*"
             ]
         }
     },

@@ -1,7 +1,9 @@
 import './imports'
+import kitCss from '@sidekick-coder/zenith-kit/styles.css?inline'
 import { renderToString } from 'vue/server-renderer'
 import { createHead } from '@unhead/vue/server'
 import * as VueServerRenderer from 'vue/server-renderer'
+import css from './assets/styles.css?inline'
 import type { EntryNodeRenderContract, EntryNodeRenderResult } from '#shared/contracts/EntryNodeRenderContract.ts'
 
 if (!globalThis.imports) {
@@ -19,10 +21,26 @@ export default async function(ctx: EntryNodeRenderContract): Promise<EntryNodeRe
     container.set('state', ctx.state || {})
     container.set('cookies', ctx.cookies)
 
+
     const { app, router } = await createApp({
         logger: ctx.logger,
         configEntries: ctx.config,
         containerEntries: ctx.container,
+    })
+
+    const headItems: any[] = ctx.head || []
+
+    headItems.push({
+        style: [
+            {
+                innerHTML: css,
+                id: 'admin'
+            },
+            {
+                innerHTML: kitCss,
+                id: 'zenith-kit'
+            }
+        ]
     })
 
     const head = createHead({ init: ctx.head })
