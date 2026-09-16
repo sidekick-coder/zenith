@@ -1,4 +1,8 @@
 @theme inline {
+    --font-mono: var(--font-mono);
+    --font-sans: var(--font-sans);
+    --font-serif: var(--font-serif);
+
     --color-background: var(--background);
     --color-foreground: var(--foreground);
 
@@ -76,6 +80,10 @@
 
 /* zkit sync */
 :root {
+    --zkit-font-mono: var(--font-mono);
+    --zkit-font-sans: var(--font-sans);
+    --zkit-font-serif: var(--font-serif);
+
     --zkit-background: var(--background);
     --zkit-foreground: var(--foreground);
 
@@ -110,10 +118,7 @@
     --zkit-chart-4: var(--chart-4);
     --zkit-chart-5: var(--chart-5);
 
-    --zkit-radius-sm: var(--radius-sm);
-    --zkit-radius-md: var(--radius-md);
-    --zkit-radius-lg: var(--radius-lg);
-    --zkit-radius-xl: var(--radius-xl);
+    --zkit-radius: var(--radius);
 
     --zkit-sidebar: var(--sidebar);
     --zkit-sidebar-foreground: var(--sidebar-foreground);

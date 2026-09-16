@@ -4,6 +4,8 @@ import { ResolvableHead } from '@unhead/vue'
 import kitCss from '@sidekick-coder/zenith-kit/styles.css?inline'
 import css from '../assets/styles.css?inline'
 import { useThemes } from '#client/composables/useThemes.ts'
+import { useFonts } from '#client/composables/useFonts.ts'
+import { useRadii } from '#client/composables/useRadii.ts'
 
 export default class extends LifecycleHook {
     public async register() {
@@ -24,10 +26,17 @@ export default class extends LifecycleHook {
 
 
         const themes = useThemes()
+        const fonts = useFonts()
+        const radii = useRadii()
 
         const themeId = config.get('branding.theme', 'default')
+        const fontId = config.get('branding.fontFamily', 'inter')
+        const radiusId = config.get('branding.radius', 'md')
 
         const currentTheme = themes.find(theme => theme.id === themeId)
+        const currentFont = fonts.find(font => font.id === fontId) || fonts.find(font => font.id === 'inter')!
+        const currentRadius = radii.find(radius => radius.id === radiusId || radius.value === radiusId)
+            || radii.find(radius => radius.id === 'md')!
 
         if (currentTheme) {
             style.push({
@@ -36,9 +45,18 @@ export default class extends LifecycleHook {
             })
         }
 
+        style.push({
+            id: 'branding-preferences',
+            innerHTML: `:root { --radius: ${currentRadius.value}; --font-sans: ${currentFont.family}; }`,
+        })
 
-
-        head.push({ style: style })
+        head.push({
+            style,
+            link: [{
+                rel: 'stylesheet',
+                href: currentFont.url,
+            }],
+        })
     }
 
 }

@@ -147,11 +147,11 @@ export default class extends LifecycleHook {
         })
 
         menu.add({
-            label: $t('Colors'),
+            label: $t('Appearance'),
             layout: 'admin',
             group: $t('Site'),
             icon: 'Palette',
-            to: '/admin/settings/site/colors'
+            to: '/admin/settings/site/appearance'
         })
 
         menu.add({

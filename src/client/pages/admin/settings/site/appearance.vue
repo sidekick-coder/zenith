@@ -1,14 +1,15 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref, watch } from 'vue'
 import { toast } from 'vue-sonner'
-import { Card, CardContent, Icon, ZButton as Button, FormField, FormItem, FormLabel, FormMessage } from '@sidekick-coder/zenith-kit/components'
-import { FormImageUploader } from '@sidekick-coder/zenith-kit/components'
+import { Card, CardContent, Icon, ZButton as Button, FormField, FormImageUploader, FormItem, FormLabel, FormMessage, FormSelect } from '@sidekick-coder/zenith-kit/components'
 import { cn, useForm } from '@sidekick-coder/zenith-kit/client'
 
 import { $fetch } from '#client/utils/fetcher.ts'
 import PageTitle from '#client/components/PageTitle.vue'
 import PageSubtitle from '#client/components/PageSubtitle.vue'
 import schemas from '#shared/validators/index.ts'
+import { useFonts } from '#client/composables/useFonts.ts'
+import { useRadii } from '#client/composables/useRadii.ts'
 import { useThemes } from '#client/composables/useThemes.ts'
 
 const loading = ref(false)
@@ -16,6 +17,16 @@ const saving = ref(false)
 const logoUploading = ref(false)
 const logoUrl = ref<string | null>(null)
 const themes = useThemes()
+const fonts = useFonts()
+const radii = useRadii()
+const fontOptions = fonts.map(font => ({
+    label: font.name,
+    value: font.id,
+}))
+const radiusOptions = radii.map(radius => ({
+    label: radius.id,
+    value: radius.id,
+}))
 const styleRef = ref<HTMLElement>()
 
 const { handleSubmit, values, resetForm } = useForm(schemas.branding.update)
@@ -34,6 +45,8 @@ async function load() {
         values: {
             ...response,
             theme: response.theme || 'default',
+            radius: radii.find(radius => radius.id === response.radius || radius.value === response.radius)?.id || 'md',
+            fontFamily: response.fontFamily || 'inter',
         },
     })
 
@@ -70,14 +83,17 @@ function setPreview() {
     if (!styleRef.value) return
 
     const theme = themes.find((t) => t.id === values.theme)
+    const font = fonts.find((f) => f.id === values.fontFamily) || fonts.find((f) => f.id === 'inter')!
+    const radius = radii.find((r) => r.id === values.radius || r.value === values.radius)
+        || radii.find((r) => r.id === 'md')!
 
     if (!theme) return
 
-    styleRef.value.innerHTML = theme.css
+    styleRef.value.innerHTML = `${theme.css}\n:root { --radius: ${radius.value}; --font-sans: ${font.family}; }`
 
 }
 
-watch(() => values.theme, setPreview)
+watch([() => values.theme, () => values.radius, () => values.fontFamily], setPreview)
 
 onMounted(() => {
     styleRef.value = document.createElement('style')
@@ -135,6 +151,21 @@ onMounted(load)
                     :disabled="loading || saving"
                     purpose="branding"
                     :public="true"
+                />
+
+
+                <FormSelect
+                    name="radius"
+                    :label="$t('Border radius')"
+                    :disabled="loading || saving"
+                    :options="radiusOptions"
+                />
+
+                <FormSelect
+                    name="fontFamily"
+                    :label="$t('Font family')"
+                    :disabled="loading || saving"
+                    :options="fontOptions"
                 />
 
                 <FormField
