@@ -27,9 +27,29 @@ const radiusOptions = radii.map(radius => ({
     label: radius.id,
     value: radius.id,
 }))
-const styleRef = ref<HTMLElement>()
+const styleRef = ref<HTMLStyleElement>()
 
 const { handleSubmit, values, resetForm } = useForm(schemas.branding.update)
+
+function themePreviewUrl(themeId: string) {
+    const params = new URLSearchParams({
+        theme: themeId,
+        font: values.fontFamily || 'inter',
+        radius: values.radius || 'md',
+    })
+
+    return `/components?${params.toString()}`
+}
+
+function setPreview() {
+    if (!styleRef.value) return
+
+    const theme = themes.find(theme => theme.id === values.theme) || themes.find(theme => theme.id === 'default')!
+    const font = fonts.find(font => font.id === values.fontFamily) || fonts.find(font => font.id === 'inter')!
+    const radius = radii.find(radius => radius.id === values.radius) || radii.find(radius => radius.id === 'md')!
+
+    styleRef.value.innerHTML = `${theme.css}\n:root { --radius: ${radius.value}; --font-sans: ${font.family}; }`
+}
 
 async function load() {
     loading.value = true
@@ -79,32 +99,17 @@ const onSubmit = handleSubmit(async (data) => {
     }, 500)
 })
 
-function setPreview() {
-    if (!styleRef.value) return
-
-    const theme = themes.find((t) => t.id === values.theme)
-    const font = fonts.find((f) => f.id === values.fontFamily) || fonts.find((f) => f.id === 'inter')!
-    const radius = radii.find((r) => r.id === values.radius || r.value === values.radius)
-        || radii.find((r) => r.id === 'md')!
-
-    if (!theme) return
-
-    styleRef.value.innerHTML = `${theme.css}\n:root { --radius: ${radius.value}; --font-sans: ${font.family}; }`
-
-}
-
 watch([() => values.theme, () => values.radius, () => values.fontFamily], setPreview)
 
 onMounted(() => {
     styleRef.value = document.createElement('style')
     styleRef.value.id = 'theme-preview'
     document.head.appendChild(styleRef.value)
+    setPreview()
 })
 
 onUnmounted(() => {
-    if (styleRef.value) {
-        document.head.removeChild(styleRef.value)
-    }
+    styleRef.value?.remove()
 })
 
 onMounted(load)
@@ -178,12 +183,13 @@ onMounted(load)
                             class="grid grid-cols-1 gap-4 sm:grid-cols-4"
                             :disabled="loading || saving"
                         >
-                            <label
+                            <button
                                 v-for="theme in themes"
                                 :key="theme.id"
-                                :for="`theme-${theme.id}`"
+                                type="button"
+                                :disabled="loading || saving"
                                 :class="cn(
-                                    'group cursor-pointer overflow-hidden rounded-lg border-2 bg-card transition-colors hover:border-primary',
+                                    'group cursor-pointer overflow-hidden rounded-lg border-2 bg-card text-left transition-colors hover:border-primary disabled:cursor-not-allowed disabled:opacity-50',
                                     value === theme.id
                                         ? 'border-primary'
                                         : 'border-border'
@@ -191,15 +197,19 @@ onMounted(load)
                                 )"
                                 @click="setValue(theme.id)"
                             >
-                                <img
-                                    :src="theme.image"
-                                    :alt="$t('Preview of the :0 theme', [theme.id])"
-                                    class="aspect-video w-full object-cover"
-                                >
+                                <div class="aspect-video overflow-hidden">
+                                    <iframe
+                                        :src="themePreviewUrl(theme.id)"
+                                        :title="$t('Preview of the :0 theme', [theme.id])"
+                                        class="pointer-events-none size-[200%] origin-top-left scale-[0.5] border-0"
+                                        scrolling="no"
+                                        tabindex="-1"
+                                    />
+                                </div>
                                 <span class="block border-t px-4 py-4 text-sm font-medium font-bold">
                                     {{ theme.id }}
                                 </span>
-                            </label>
+                            </button>
                         </div>
                         <FormMessage />
                     </FormItem>

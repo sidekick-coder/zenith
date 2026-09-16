@@ -13,19 +13,16 @@ import ocean from '../themes/ocean.css?inline'
 
 interface Theme {
     id: string 
-    image?: string
     css: string 
 }
 
 const themes: Theme[] = [
     {
         id: 'default',
-        image: '/images/theme-default.png',
         css: defaultTheme
     },
     {
         id: 'dracula',
-        image: '/images/theme-dracula.png',
         css: dracula
     },
     {
