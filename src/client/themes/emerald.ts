@@ -22,4 +22,9 @@ export default defineTheme({
     ring: '#059669',
     sidebar: '#d1fae5',
     'sidebar-primary': '#059669',
+    'sidebar-primary-foreground': '#ecfdf5',
+    'sidebar-accent': '#a7f3d0',
+    'sidebar-accent-foreground': '#064e3b',
+    'sidebar-border': '#6ee7b7',
+    'sidebar-ring': '#059669',
 })
