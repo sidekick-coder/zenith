@@ -99,12 +99,12 @@ export default class ViteDevelopmentService extends ViteService {
         const body = html.child('body')
 
         ctx.head.push({
-            link: [
-                {
-                    rel: 'stylesheet',
-                    href: '/src/client/assets/styles.css'
-                },
-            ],
+            // link: [
+            //     {
+            //         rel: 'stylesheet',
+            //         href: '/src/client/assets/styles.css'
+            //     },
+            // ],
             script: [
                 {
                     type: 'module',

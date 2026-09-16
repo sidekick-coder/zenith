@@ -51,7 +51,6 @@ export async function createApp(options: AppOptions) {
     const app = container.get<App>('app')
     const router = container.get<Router>('router')
 
-
     return { 
         app, 
         router,
