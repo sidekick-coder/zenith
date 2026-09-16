@@ -6,6 +6,7 @@ import css from '../assets/styles.css?inline'
 import { useThemes } from '#client/composables/useThemes.ts'
 import { useFonts } from '#client/composables/useFonts.ts'
 import { useRadii } from '#client/composables/useRadii.ts'
+import { themeToCss } from '#client/composables/defineTheme.ts'
 
 export default class extends LifecycleHook {
     public async register() {
@@ -41,7 +42,7 @@ export default class extends LifecycleHook {
         if (currentTheme) {
             style.push({
                 id: `theme-${currentTheme.id}`,
-                innerHTML: currentTheme.css,
+                innerHTML: themeToCss(currentTheme),
             })
         }
 

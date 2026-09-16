@@ -1,69 +1,69 @@
-import defaultTheme from '../themes/default.css?inline'
-import dracula from '../themes/dracula.css?inline'
-import catppuccin from '../themes/catppuccin.css?inline'
-import nord from '../themes/nord.css?inline'
-import tokyoNight from '../themes/tokyo-night.css?inline'
-import rosePine from '../themes/rose-pine.css?inline'
-import solarized from '../themes/solarized.css?inline'
-import kanagawa from '../themes/kanagawa.css?inline'
-import everforest from '../themes/everforest.css?inline'
-import cyberpunk from '../themes/cyberpunk.css?inline'
-import synthwave from '../themes/synthwave.css?inline'
-import ocean from '../themes/ocean.css?inline'
+import type { Theme } from './defineTheme.ts'
+import defaultTheme from '../themes/default.ts'
+import dracula from '../themes/dracula.ts'
+import catppuccin from '../themes/catppuccin.ts'
+import nord from '../themes/nord.ts'
+import tokyoNight from '../themes/tokyo-night.ts'
+import rosePine from '../themes/rose-pine.ts'
+import solarized from '../themes/solarized.ts'
+import kanagawa from '../themes/kanagawa.ts'
+import everforest from '../themes/everforest.ts'
+import cyberpunk from '../themes/cyberpunk.ts'
+import synthwave from '../themes/synthwave.ts'
+import ocean from '../themes/ocean.ts'
 
-interface Theme {
-    id: string 
-    css: string 
+export interface ThemeDefinition extends Theme {
+    id: string
 }
 
-const themes: Theme[] = [
+const themes: ThemeDefinition[] = [
     {
         id: 'default',
-        css: defaultTheme
+        ...defaultTheme,
     },
     {
         id: 'dracula',
-        css: dracula
+        ...dracula,
     },
     {
         id: 'catppuccin',
-        css: catppuccin,
+        ...catppuccin,
     },
     {
         id: 'nord',
-        css: nord,
+        ...nord,
     },
     {
         id: 'tokyo-night',
-        css: tokyoNight,
+        ...tokyoNight,
     },
     {
         id: 'rose-pine',
-        css: rosePine,
+        ...rosePine,
     },
     {
         id: 'solarized',
-        css: solarized,
+        ...solarized,
     },
     {
         id: 'kanagawa',
-        css: kanagawa,
+        ...kanagawa,
     },
     {
         id: 'everforest',
-        css: everforest,
+        ...everforest,
     },
     {
         id: 'cyberpunk',
-        css: cyberpunk,
+        ...cyberpunk,
     },
     {
         id: 'synthwave',
-        css: synthwave,
+        ...synthwave,
     },
     {
         id: 'ocean',
-        css: ocean,
+        ...ocean,
     }
 ]
 

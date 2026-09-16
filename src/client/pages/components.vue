@@ -29,6 +29,7 @@ import {
 
 import { useFonts } from '#client/composables/useFonts.ts'
 import { useRadii } from '#client/composables/useRadii.ts'
+import { themeToCss } from '#client/composables/defineTheme.ts'
 import { useThemes } from '#client/composables/useThemes.ts'
 
 const themes = useThemes()
@@ -69,7 +70,7 @@ useHead(() => ({
     }],
     style: [{
         id: 'components-preview-theme',
-        innerHTML: `${selectedTheme.value.css}\n:root { --radius: ${selectedRadius.value.value}; --font-sans: ${selectedFont.value.family}; }`,
+        innerHTML: `${themeToCss(selectedTheme.value)}\n:root { --radius: ${selectedRadius.value.value}; --font-sans: ${selectedFont.value.family}; }`,
     }],
 }))
 </script>

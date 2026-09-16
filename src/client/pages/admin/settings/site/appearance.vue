@@ -7,7 +7,9 @@ import { cn, useForm } from '@sidekick-coder/zenith-kit/client'
 import { $fetch } from '#client/utils/fetcher.ts'
 import PageTitle from '#client/components/PageTitle.vue'
 import PageSubtitle from '#client/components/PageSubtitle.vue'
+import ThemePreview from '#client/components/ThemePreview.vue'
 import schemas from '#shared/validators/index.ts'
+import { themeToCss } from '#client/composables/defineTheme.ts'
 import { useFonts } from '#client/composables/useFonts.ts'
 import { useRadii } from '#client/composables/useRadii.ts'
 import { useThemes } from '#client/composables/useThemes.ts'
@@ -31,16 +33,6 @@ const styleRef = ref<HTMLStyleElement>()
 
 const { handleSubmit, values, resetForm } = useForm(schemas.branding.update)
 
-function themePreviewUrl(themeId: string) {
-    const params = new URLSearchParams({
-        theme: themeId,
-        font: values.fontFamily || 'inter',
-        radius: values.radius || 'md',
-    })
-
-    return `/components?${params.toString()}`
-}
-
 function setPreview() {
     if (!styleRef.value) return
 
@@ -48,7 +40,7 @@ function setPreview() {
     const font = fonts.find(font => font.id === values.fontFamily) || fonts.find(font => font.id === 'inter')!
     const radius = radii.find(radius => radius.id === values.radius) || radii.find(radius => radius.id === 'md')!
 
-    styleRef.value.innerHTML = `${theme.css}\n:root { --radius: ${radius.value}; --font-sans: ${font.family}; }`
+    styleRef.value.innerHTML = `${themeToCss(theme)}\n:root { --radius: ${radius.value}; --font-sans: ${font.family}; }`
 }
 
 async function load() {
@@ -197,15 +189,10 @@ onMounted(load)
                                 )"
                                 @click="setValue(theme.id)"
                             >
-                                <div class="aspect-video overflow-hidden">
-                                    <iframe
-                                        :src="themePreviewUrl(theme.id)"
-                                        :title="$t('Preview of the :0 theme', [theme.id])"
-                                        class="pointer-events-none size-[200%] origin-top-left scale-[0.5] border-0"
-                                        scrolling="no"
-                                        tabindex="-1"
-                                    />
-                                </div>
+                                <ThemePreview
+                                    :colors="theme.light"
+                                    class="aspect-video w-full"
+                                />
                                 <span class="block border-t px-4 py-4 text-sm font-medium font-bold">
                                     {{ theme.id }}
                                 </span>
