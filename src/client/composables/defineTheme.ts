@@ -82,8 +82,14 @@ const darkDefaults: ThemeColors = {
 
 export function defineTheme(light: ThemeColors = {}, dark: ThemeColors = light): Theme {
     return {
-        light: { ...lightDefaults, ...light },
-        dark: { ...darkDefaults, ...dark },
+        light: {
+            ...lightDefaults,
+            ...light 
+        },
+        dark: {
+            ...darkDefaults,
+            ...dark 
+        },
     }
 }
 
