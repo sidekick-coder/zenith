@@ -172,7 +172,7 @@ onMounted(load)
                     <FormItem>
                         <FormLabel>{{ $t('Theme') }}</FormLabel>
                         <div
-                            class="grid grid-cols-1 gap-4 sm:grid-cols-4"
+                            class="grid grid-cols-1 gap-4 sm:grid-cols-6"
                             :disabled="loading || saving"
                         >
                             <button

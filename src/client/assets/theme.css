@@ -122,5 +122,8 @@
 
     --zkit-sidebar: var(--sidebar);
     --zkit-sidebar-foreground: var(--sidebar-foreground);
+
+    --zkit-sidebar-primary: var(--sidebar-primary);
+    --zkit-sidebar-primary-foreground: var(--sidebar-primary-foreground);
 }
 

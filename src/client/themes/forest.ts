@@ -1,0 +1,25 @@
+import { defineTheme } from '#client/composables/defineTheme.ts'
+
+export default defineTheme({
+    background: '#14261e',
+    foreground: '#e4f0e8',
+    card: '#1b3328',
+    'card-foreground': '#e4f0e8',
+    popover: '#1b3328',
+    'popover-foreground': '#e4f0e8',
+    primary: '#86c98b',
+    'primary-foreground': '#14261e',
+    secondary: '#274536',
+    'secondary-foreground': '#e4f0e8',
+    muted: '#274536',
+    'muted-foreground': '#a6bdaa',
+    accent: '#365b43',
+    'accent-foreground': '#e4f0e8',
+    destructive: '#e57373',
+    'destructive-foreground': '#14261e',
+    border: '#426b50',
+    input: '#426b50',
+    ring: '#86c98b',
+    sidebar: '#0e1d15',
+    'sidebar-primary': '#86c98b',
+})
