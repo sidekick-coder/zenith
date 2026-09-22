@@ -16,9 +16,14 @@ const pluginId = computed(() => route.params.id as string)
 
 const item = ref<any>(null)
 const loading = ref(true)
-const tab = useRouteQuery('tab', 'migrations')
+const tab = useRouteQuery('tab', 'about')
 
 const tabs: any[] = [
+    {
+        id: 'about',
+        label: $t('About'),
+        component: defineAsyncComponent(() => import('#client/components/PluginAbout.vue')),
+    },
     {
         id: 'migrations',
         label: $t('Migrations'),
@@ -88,14 +93,6 @@ onMounted(load)
 
         <div class="w-full xl:w-4/12 2xl:w-3/12 flex flex-col space-y-6">
             <Card v-if="item">
-                <CardHeader>
-                    <CardTitle>
-                        {{ $t('Details') }}
-                    </CardTitle>
-                    <CardDescription>
-                        {{ $t('Plugin general information') }}
-                    </CardDescription>
-                </CardHeader>
                 <CardContent class="space-y-4">
                     <TextField
                         :label="$t('ID')"
@@ -110,11 +107,6 @@ onMounted(load)
                     <TextField
                         :label="$t('Version')"
                         :model-value="item.version || '-'"
-                        :readonly="true"
-                    />
-                    <TextField
-                        :label="$t('Directory')"
-                        :model-value="item.directory"
                         :readonly="true"
                     />
                     <TextField
