@@ -26,8 +26,8 @@ if (route.query.redirect) {
 const { handleSubmit } = useForm({
     validationSchema: toTypedSchema(
         v.object({
-            uuid: v.pipe(v.string()),
-            password: v.pipe(v.string(), v.minLength(6)),
+            uuid: v.string(),
+            password: v.string(),
         })),
 })
 
@@ -78,8 +78,8 @@ async function oauthLogin(provider: string) {
 
 <template>
     <AuthLayout
-        title="Log in to your account"
-        description="Enter your email and password below to log in"
+        title="Log in"
+        description="log in using your credentials"
     >
         <Button
             v-if="enableGoogleAuth"

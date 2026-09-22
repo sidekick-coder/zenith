@@ -3,7 +3,6 @@ import PageTitle from '#client/components/PageTitle.vue'
 import PageSubtitle from '#client/components/PageSubtitle.vue'
 import AuthSettingGeneral from '#client/components/AuthSettingGeneral.vue'
 import AuthSettingOauth from '#client/components/AuthSettingOauth.vue'
-import AuthSettingDesign from '#client/components/AuthSettingDesign.vue'
 </script>
 
 <template>
@@ -17,6 +16,5 @@ import AuthSettingDesign from '#client/components/AuthSettingDesign.vue'
     <div class="space-y-6">
         <AuthSettingGeneral />
         <AuthSettingOauth />
-        <AuthSettingDesign />
     </div>
 </template>
