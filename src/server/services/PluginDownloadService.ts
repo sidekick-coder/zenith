@@ -16,6 +16,7 @@ export interface PluginDownloadServiceOptions {
 
 export interface DownloadOptions {
     repository: string
+    branch: string
     sshKeyFile?: string
     sshKey?: string
 }
@@ -46,7 +47,7 @@ export default class PluginDownloadService {
     }
 
     private async downloadTmp(item: DownloadOptions) {
-        const { repository, sshKeyFile, sshKey } = item
+        const { repository, branch, sshKeyFile, sshKey } = item
 
         if (!repository) {
             throw new BaseException('repository is required for plugin download')
@@ -72,6 +73,7 @@ export default class PluginDownloadService {
             logger: this.logger.child({ label: 'plugin.git' }),
             shell: this.shell,
             debug: this.debug,
+            branch: branch,
             sshKeyFile: sshKeyFile,
             sshKey: sshKey,
         })
@@ -81,6 +83,7 @@ export default class PluginDownloadService {
         if (this.debug) {
             this.logger.debug('downloaded plugin to tmp', {
                 repository,
+                branch,
                 dir,
             })
         }
@@ -118,14 +121,12 @@ export default class PluginDownloadService {
             force: true
         })
 
-        // if keys were provided, save them to the plugin config entry
-        if (item.sshKeyFile) {
-            this.config.set(`plugins.registry.${config.id}.ssh_key_file`, item.sshKeyFile)
-        }
-
-        if (item.sshKey) {
-            this.config.set(`plugins.registry.${config.id}.ssh_key`, item.sshKey)
-        }
+        this.config.set(`plugins.registry.${config.id}`, {
+            branch: item.branch || 'main',
+            repository: item.repository,
+            ssh_key_file: item.sshKeyFile || null,
+            ssh_key: item.sshKey || null,
+        })
 
         this.logger.info('plugin downloaded', {
             repository: item.repository,

@@ -12,12 +12,14 @@ export default async function({ acl, body }: HttpContext) {
 
     const options = validator.validate(body, v.object({
         repository: v.string(),
+        branch: v.string(),
         ssh_key: v.optional(v.string()),
         ssh_key_file: v.optional(v.string()),
     }))
 
     const [error] = await tryCatch(() => pluginDownloadService.download({
         repository: options.repository,
+        branch: options.branch,
         sshKey: options.ssh_key,
         sshKeyFile: options.ssh_key_file
     }))

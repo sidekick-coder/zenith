@@ -15,9 +15,11 @@ const loading = ref(false)
 const saving = ref(false)
 const schema = validator.create(v => v.object({
     repository: v.string(),
+    branch: v.string(),
     ssh_key_file: v.optional(v.string()),
     ssh_key: v.optional(v.string()),
 }))
+
 const { handleSubmit } = useForm(schema)
 
 const onSubmit = handleSubmit(async (payload) => {
@@ -64,6 +66,13 @@ const onSubmit = handleSubmit(async (payload) => {
                     :label="$t('Repository')"
                     :hint="$t('The git repository URL of the plugin')"
                 />
+
+                <FormTextField
+                    name="branch"
+                    :label="$t('Branch')"
+                    :hint="$t('The branch of the plugin repository, e.g. stable, beta, etc.')"
+                />
+
                 <FormTextField
                     name="ssh_key_file"
                     :hint="$t('Path to the SSH key file inside the machine')"

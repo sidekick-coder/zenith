@@ -2,10 +2,9 @@ import cp from 'child_process'
 import path from 'path'
 import chokidar from 'chokidar'
 import { debounce } from 'lodash-es'
-import { serverPath, env } from '@sidekick-coder/zenith-kit/server'
+import { serverPath, logger, env } from '@sidekick-coder/zenith-kit/server'
 import config from '@sidekick-coder/zenith-kit/server/facades/config'
 import { CliCommand } from '@sidekick-coder/zenith-kit/server/services/CliService'
-import logger from '#server/facades/logger.facade.ts'
 
 let child: cp.ChildProcess | null = null
 
@@ -123,7 +122,7 @@ const command = new CliCommand('serve')
             .map(e => path.resolve(process.cwd(), e))
 
         if (!watchEntries.length) {
-            logger.warn('No watch entries specified. Watching default entries.')
+            logger.warn('No watch entries specified.')
             return
         }
 
@@ -133,10 +132,6 @@ const command = new CliCommand('serve')
             'package-lock.json',
             'yarn.lock'
         ]
-
-        if (config.get('arte.debug', false)) {
-            logger.debug('watching changes')
-        }
 
         logger.info('watching for changes', { entries: watchEntries, })
 

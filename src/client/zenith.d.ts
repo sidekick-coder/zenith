@@ -1,6 +1,4 @@
-import type ConfigService from '#shared/services/config.service.ts'
-import type DIService from '#shared/services/di.service.ts'
-import type TranslatorService from '#shared/services/translator.service.ts'
+import type { ConfigService, ContainerService, TranslatorService } from '@sidekick-coder/zenith-kit/shared'
 
 // Works correctly
 export {}
@@ -12,7 +10,7 @@ declare global {
     var __CONTAINER__: Record<string, any> | undefined
     var __STATE__: Record<string, any> | undefined
     var config: ConfigService | undefined // only on dev
-    var di: DIService | undefined // only on dev
+    var container: ContainerService | undefined // only on dev
     var $t: TranslatorService['t']
     var $dt: TranslatorService['datetime']
     var $d: TranslatorService['date']
