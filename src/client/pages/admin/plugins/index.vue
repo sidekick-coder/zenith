@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
-import { defineColumns, fetcher } from '@sidekick-coder/zenith-kit/client'
+import { defineColumns, fetcher, waitForServer } from '@sidekick-coder/zenith-kit/client'
 import { ZButton, ZDataTable } from '@sidekick-coder/zenith-kit/components'
 import Button from '#client/components/Button.vue'
 import Switch from '#client/components/ui/switch/Switch.vue'
@@ -86,12 +86,7 @@ async function confirmToggle() {
 
     if (error) return
 
-    const url = new URL('/api/reloader', window.location.origin)
-
-    url.searchParams.append('redirect_to', window.location.href)
-    url.searchParams.append('delay', '3000')
-
-    window.location.href = url.toString()
+    waitForServer({ redirectTo: window.location.href, })
 }
 </script>
 <template>

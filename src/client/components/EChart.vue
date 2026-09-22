@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { getThemeCurrent } from '@sidekick-coder/zenith-kit/client'
+import { getThemeColors } from '@sidekick-coder/zenith-kit/client'
 import * as echarts from 'echarts'
 import { onMounted, onUnmounted, ref } from 'vue'
 import type { PropType } from 'vue'
 
-const theme = getThemeCurrent()
+const theme = getThemeColors()
 
 const customTheme = {
     valueAxis: {

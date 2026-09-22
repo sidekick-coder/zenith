@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { toast } from '@sidekick-coder/zenith-kit/client'
+import { toast, waitForServer } from '@sidekick-coder/zenith-kit/client'
 
 import { DialogForm } from '@sidekick-coder/zenith-kit/components'
 import { $fetch } from '#client/utils/fetcher.ts'
@@ -59,12 +59,7 @@ async function uninstall(data: any) {
 
     await new Promise(resolve => setTimeout(resolve, 500))
 
-    const url = new URL('/api/reloader', window.location.origin)
-
-    url.searchParams.append('redirect_to', '/admin/plugins')
-    url.searchParams.append('delay', '3000')
-
-    window.location.href = url.toString()
+    waitForServer({ redirectTo: '/admin/plugins', })
 
 }
 

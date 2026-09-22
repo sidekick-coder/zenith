@@ -129,8 +129,10 @@ export default class PluginDownloadService {
         })
 
         this.logger.info('plugin downloaded', {
+            id: config.id,
             repository: item.repository,
             destination,
+            branch: item.branch || 'main',
         })
     }
 }
