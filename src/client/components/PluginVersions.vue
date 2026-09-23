@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, PropType } from 'vue'
-import { GitCommit, GitBranch, Download, Check, ChevronLeft, ChevronRight, GitPullRequest, RefreshCw } from 'lucide-vue-next'
+import { GitCommit, GitBranch, Download, Check, GitPullRequest, RefreshCw } from 'lucide-vue-next'
 import type { GitCommitEntity, PluginEntity } from '@sidekick-coder/zenith-kit/shared'
 import { Badge, ZButton as Button, ZPagination } from '@sidekick-coder/zenith-kit/components'
+import { waitForServer } from '@sidekick-coder/zenith-kit/client'
 import { $fetch } from '#client/utils/fetcher.ts'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '#client/components/ui/card/index.ts'
 import AlertButton from '#client/components/AlertButton.vue'
@@ -23,7 +24,7 @@ interface Version {
     git_commit_hash: string
 }
 
-const branches = computed(() => props.plugin.branches)
+const branches = computed(() => props.plugin.branches.filter(b => !!b.branch))
 
 const version = ref<Version | null>(null)
 const selected = ref<string>()
@@ -49,6 +50,10 @@ async function loadVersion() {
         selected.value = main.branch
     }
 
+    if (!main && branches.value.length > 0) {
+        selected.value = branches.value[0].branch
+    }
+
     const [error, response] = await $fetch.try(`/api/plugins/${props.plugin.id}/version`)
 
     if (error) return
@@ -57,6 +62,8 @@ async function loadVersion() {
 }
 
 async function loadCommits() {
+    if (!selected.value) return
+
     loading.value = true
 
     commits.value = []
@@ -89,18 +96,6 @@ function goToPage(p: number) {
     loadCommits()
 }
 
-function goNext() {
-    offset.value += limit.value
-
-    loadCommits()
-}
-
-function goPrev() {
-    offset.value -= Math.min(offset.value, limit.value)
-
-    loadCommits()
-}
-
 async function checkout(commit: GitCommitEntity) {
     const [error] = await $fetch.try(`/api/plugins/${props.plugin.id}/checkout`, {
         method: 'POST',
@@ -112,12 +107,7 @@ async function checkout(commit: GitCommitEntity) {
 
     if (error) return
 
-    const url = new URL('/api/reloader', window.location.origin)
-
-    url.searchParams.append('redirect_to', window.location.href)
-    url.searchParams.append('delay', '3000')
-
-    window.location.href = url.toString()
+    waitForServer()
 }
 
 watch(selected, () => {
@@ -194,7 +184,7 @@ onMounted(async () => {
                     @click="selected = b.branch"
                 >
                     <GitBranch class="size-3.5" />
-                    {{ $t(b.label) }}
+                    {{ b.label || b.branch }}
                 </Button>
             </div>
 

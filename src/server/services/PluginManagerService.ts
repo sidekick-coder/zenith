@@ -103,13 +103,51 @@ export default class PluginManagerService {
             return
         }
 
+        const branches: PluginEntryEntity['branches'] = []
+
+        for (const branch of pluginConfig.branches || []) {
+            if (typeof branch === 'string') {
+                branches.push({ branch })
+            }
+
+            if (typeof branch === 'object' && branch.branch) {
+                branches.push(branch)
+            }
+        }
+
+        if (branches.length === 0) {
+            const git = new GitGateway({ cwd: directory, })
+
+            const gitLocalBranches = await git.run('for-each-ref --format="%(refname:short)" refs/heads/')
+                .then(
+                    result => result.split('\n').map(b => b.trim())
+                        .filter(b => b.length > 0)
+                        .filter(b => !b.includes('HEAD'))
+                )
+
+            // sort by main, master, then alphabetically
+            gitLocalBranches.sort((a, b) => {
+                if (a === 'main') return -1
+                if (b === 'main') return 1
+                if (a === 'master') return -1
+                if (b === 'master') return 1
+                return a.localeCompare(b)
+            })
+
+            for (const branch of gitLocalBranches) {
+                if (branch.trim()) {
+                    branches.push({ branch: branch.trim() })
+                }
+            }
+        }
+
         const plugin = PluginEntryEntity.from({
             id: pluginConfig.id,
             aliases: pluginConfig.aliases || [],
             directory,
             name: pluginConfig.name || pkg.name || pluginConfig.id || 'unknown',
             enabled: this.config.get(`plugins.registry.${pluginConfig.id}.enabled`, false),
-            branches: pluginConfig.branches || [],
+            branches: branches,
         })
 
         if (this.debug) {
