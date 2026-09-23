@@ -4,12 +4,9 @@ import { toast, waitForServer } from '@sidekick-coder/zenith-kit/client'
 
 import { DialogForm } from '@sidekick-coder/zenith-kit/components'
 import { $fetch } from '#client/utils/fetcher.ts'
-import { $server } from '#client/utils/server.ts'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '#client/components/ui/card/index.ts'
 import AlertButton from '#client/components/AlertButton.vue'
 import Button from '#client/components/Button.vue'
-import Icon from '#client/components/Icon.vue'
-import schemas from '#shared/validators/index.ts'
 
 defineOptions({ inheritAttrs: false, })
 
@@ -22,28 +19,26 @@ const props = defineProps({
 
 
 const isInstalling = ref(false)
-const isSeeding = ref(false)
 const isBuilding = ref(false)
 
-async function installDependencies() {
-    toast.error($t('This feature is not available yet. Please install dependencies manually.'))
-    // if (isInstalling.value) {
-    //     return
-    // }
-    //
-    // isInstalling.value = true
-    //
-    // const [error] = await $fetch.try(`/api/modules/${props.module.id}/install-dependencies`, { method: 'POST' })
-    //
-    // if (error) {
-    //     isInstalling.value = false
-    //     return
-    // }
-    //
-    // setTimeout(() => {
-    //     isInstalling.value = false
-    //     toast.success($t('Module dependencies installed'))
-    // }, 500)
+async function install() {
+    if (isInstalling.value) {
+        return
+    }
+
+    isInstalling.value = true
+
+    const [error] = await $fetch.try(`/api/plugins/${props.plugin.id}/npm-install`, { method: 'POST' })
+
+    if (error) {
+        isInstalling.value = false
+        return
+    }
+
+    setTimeout(() => {
+        isInstalling.value = false
+        toast.success($t('Dependencies installed'))
+    }, 500)
 }
 
 async function uninstall(data: any) {
@@ -63,25 +58,24 @@ async function uninstall(data: any) {
 
 }
 
-async function buildModule() {
-    toast.error($t('This feature is not available yet. Please build the module manually.'))
-    // if (isBuilding.value) {
-    //     return
-    // }
-    //
-    // isBuilding.value = true
-    //
-    // const [error] = await $fetch.try(`/api/modules/${props.module.id}/build`, { method: 'POST' })
-    //
-    // if (error) {
-    //     isBuilding.value = false
-    //     return
-    // }
-    //
-    // setTimeout(() => {
-    //     isBuilding.value = false
-    //     toast.success($t('Module builded'))
-    // }, 500)
+async function build() {
+    if (isBuilding.value) {
+        return
+    }
+
+    isBuilding.value = true
+
+    const [error] = await $fetch.try(`/api/plugins/${props.plugin.id}/npm-build`, { method: 'POST' })
+
+    if (error) {
+        isBuilding.value = false
+        return
+    }
+
+    setTimeout(() => {
+        isBuilding.value = false
+        toast.success($t('Builded successfully'))
+    }, 500)
 }
 </script>
 
@@ -90,21 +84,19 @@ async function buildModule() {
         <Card>
             <CardHeader>
                 <CardTitle>{{ $t('Dependencies') }}</CardTitle>
-                <CardDescription>{{ $t('Install or update the module dependencies') }}</CardDescription>
+                <CardDescription>{{ $t('Install/update the module dependencies') }}</CardDescription>
             </CardHeader>
             <CardContent>
-                <Button
+                <AlertButton
                     variant="outline"
                     :disabled="isInstalling"
-                    @click="installDependencies"
+                    :loading="isInstalling"
+                    :title="$t('Install')"
+                    :description="$t('This may take some time. Are you sure you want to proceed?')"
+                    @confirm="install"
                 >
-                    <Icon
-                        v-if="isInstalling"
-                        name="LoaderCircle"
-                        class="size-4 mr-2 animate-spin"
-                    />
-                    {{ $t('Install Dependencies') }}
-                </Button>
+                    {{ $t('Install') }}
+                </AlertButton>
             </CardContent>
         </Card>
 
@@ -112,23 +104,19 @@ async function buildModule() {
             <CardHeader>
                 <CardTitle>{{ $t('Build') }}</CardTitle>
                 <CardDescription>
-                    {{ $t('Rebuild the module assets. This is an expensive operation that may take several minutes.') }}
+                    {{ $t('Build the plugin. This is an expensive operation that may take several minutes.') }}
                 </CardDescription>
             </CardHeader>
             <CardContent>
                 <AlertButton
                     variant="destructive"
                     :disabled="isBuilding"
-                    :title="$t('Build Module')"
-                    :description="$t('Building a module is an expensive operation that may take several minutes and consume significant system resources. Are you sure you want to proceed?')"
-                    @confirm="buildModule"
+                    :title="$t('Build')"
+                    :description="$t('This may take some time. Are you sure you want to proceed?')"
+                    :loading="isBuilding"
+                    @confirm="build"
                 >
-                    <Icon
-                        v-if="isBuilding"
-                        name="LoaderCircle"
-                        class="size-4 mr-2 animate-spin"
-                    />
-                    {{ $t('Build Module') }}
+                    {{ $t('Build') }}
                 </AlertButton>
             </CardContent>
         </Card>
