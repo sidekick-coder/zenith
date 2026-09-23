@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, computed, watch, onMounted, PropType } from 'vue'
 import { GitCommit, GitBranch, Download, Check, ChevronLeft, ChevronRight, GitPullRequest, RefreshCw } from 'lucide-vue-next'
-import type { GitCommitEntity } from '@sidekick-coder/zenith-kit/shared'
-import { toast } from '@sidekick-coder/zenith-kit/client'
-import { Badge, ZButton as Button } from '@sidekick-coder/zenith-kit/components'
+import type { GitCommitEntity, PluginEntity } from '@sidekick-coder/zenith-kit/shared'
+import { Badge, ZButton as Button, ZPagination } from '@sidekick-coder/zenith-kit/components'
 import { $fetch } from '#client/utils/fetcher.ts'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '#client/components/ui/card/index.ts'
 import AlertButton from '#client/components/AlertButton.vue'
@@ -12,7 +11,7 @@ defineOptions({ inheritAttrs: false })
 
 const props = defineProps({
     plugin: {
-        type: Object,
+        type: Object as PropType<PluginEntity>,
         required: true,
     },
 })
@@ -24,102 +23,80 @@ interface Version {
     git_commit_hash: string
 }
 
-const channels: { id: string; label: string }[] = [
-    {
-        id: 'commits',
-        label: 'Commits'
-    },
-]
+const branches = computed(() => props.plugin.branches)
 
 const version = ref<Version | null>(null)
-const currentChannel = ref<string>('commits')
+const selected = ref<string>()
 const fetching = ref(false)
 
 // commits table state
-const limit = 10
+const limit = ref(10)
+const offset = ref(0)
+const total = ref(0)
+const page = ref(1)
+const totalPages = ref(0)
 const commits = ref<GitCommitEntity[]>([])
-const commitsLoading = ref(false)
-const cursor = ref<string | null>(null)
-const cursorPrevious = ref<string | null>(null)
-const cursorNext = ref<string | null>(null)
-
-const currentVersionLabel = computed(() => {
-    if (!version.value) return null
-
-    if (version.value.version_channel?.startsWith('branch:')) {
-        return version.value.version_channel
-    }
-
-    return `commits:${version.value.git_commit_hash}`
-})
-
-const currentBranch = computed(() => {
-    if (!currentChannel.value.startsWith('branch:')) return undefined
-
-    return currentChannel.value.replace('branch:', '')
-})
+const loading = ref(false)
 
 function isCurrentCommit(c: GitCommitEntity) {
     return c.hash === version.value?.git_commit_hash || c.short_hash === version.value?.git_commit_hash
 }
 
 async function loadVersion() {
-    const [error, data] = await $fetch.try(`/api/plugins/${props.plugin.id}/version`)
+    const main = branches.value.find(b => b.main)
 
-    if (error) {
-        return
+    if (main) {
+        selected.value = main.branch
     }
 
-    version.value = data as Version
+    const [error, response] = await $fetch.try(`/api/plugins/${props.plugin.id}/version`)
 
-    currentChannel.value = version.value.version_channel || 'commits'
+    if (error) return
 
-    if (version.value.version_available_channels) {
-        version.value.version_available_channels
-            .forEach(c => channels.push({
-                id: c,
-                label: c,
-            }))
-    }
+    version.value = response
 }
 
 async function loadCommits() {
-    commitsLoading.value = true
+    loading.value = true
 
     commits.value = []
 
-    const query: Record<string, any> = { limit, }
-
-    if (cursor.value) {
-        query.cursor = cursor.value
-    }
-
-    if (currentBranch.value) {
-        query.branches = currentBranch.value
+    const query: Record<string, any> = {
+        limit: limit.value,
+        offset: offset.value,
+        branch: selected.value,
     }
 
     const [error, response] = await $fetch.try(`/api/plugins/${props.plugin.id}/git/commits`, { query })
 
     if (error) {
-        commitsLoading.value = false
+        loading.value = false
         return
     }
 
     commits.value = response.items
-    cursorPrevious.value = response.cursor_previous
-    cursorNext.value = response.cursor_next
+    page.value = Math.floor(offset.value / limit.value) + 1
+    total.value = response.total
+    totalPages.value = Math.ceil(total.value / limit.value)
 
-    commitsLoading.value = false
+    loading.value = false
+}
+
+function goToPage(p: number) {
+    page.value = p
+    offset.value = (p - 1) * limit.value
+
+    loadCommits()
 }
 
 function goNext() {
-    cursor.value = cursorNext.value
+    offset.value += limit.value
 
     loadCommits()
 }
 
 function goPrev() {
-    cursor.value = cursorPrevious.value
+    offset.value -= Math.min(offset.value, limit.value)
 
     loadCommits()
 }
@@ -129,7 +106,7 @@ async function checkout(commit: GitCommitEntity) {
         method: 'POST',
         data: {
             commit_hash: commit.hash,
-            version_channel: currentChannel.value,
+            version_channel: selected.value,
         },
     })
 
@@ -143,29 +120,14 @@ async function checkout(commit: GitCommitEntity) {
     window.location.href = url.toString()
 }
 
-async function fetchChanges() {
-    fetching.value = true
-    const [error] = await $fetch.try(`/api/plugins/${props.plugin.id}/git/fetch`, { method: 'POST' })
-
-    if (error) {
-        fetching.value = false
-        return
-    }
-
-    toast.success($t('Fetched changes successfully'))
-
-    fetching.value = false
-    cursor.value = null
-    loadCommits()
-}
-
-watch(currentChannel, () => {
-    cursor.value = null
+watch(selected, () => {
+    offset.value = 0
     loadCommits()
 })
 
 onMounted(async () => {
     await loadVersion()
+
     loadCommits()
 })
 </script>
@@ -186,29 +148,16 @@ onMounted(async () => {
             </div>
 
             <div class="flex items-center gap-2">
-                <Badge
-                    variant="outline"
-                    class="h-9 gap-1.5"
-                >
-                    <GitBranch class="size-3.5" />
-                    <template v-if="currentVersionLabel">
-                        {{ currentVersionLabel }}
-                    </template>
-                    <template v-else>
-                        {{ $t('Unknown') }}
-                    </template>
-                </Badge>
-
                 <Button
                     variant="outline"
                     size="icon"
                     class="size-9"
-                    :disabled="commitsLoading"
+                    :disabled="loading"
                     @click="loadCommits"
                 >
                     <RefreshCw
                         class="size-4"
-                        :class="commitsLoading ? 'animate-spin' : ''"
+                        :class="loading ? 'animate-spin' : ''"
                     />
                 </Button>
 
@@ -226,30 +175,32 @@ onMounted(async () => {
             </div>
         </CardHeader>
 
-        <CardContent class="space-y-4">
+        <CardContent v-if="!branches.length">
+            <div class="px-4 py-6 text-center text-sm text-muted-foreground">
+                {{ $t('No branches declared for this plugin') }}
+            </div>
+        </CardContent>
+
+        <CardContent
+            v-else
+            class="space-y-4"
+        >
             <div class="flex flex-wrap gap-2">
                 <Button
-                    v-for="channel in channels"
-                    :key="channel.id"
-                    :variant="currentChannel === channel.id ? 'default' : 'outline'"
+                    v-for="b in branches"
+                    :key="b.branch"
+                    :variant="selected === b.branch ? 'default' : 'outline'"
                     size="sm"
-                    @click="currentChannel = channel.id"
+                    @click="selected = b.branch"
                 >
-                    <GitBranch
-                        v-if="channel.id.startsWith('branch:')"
-                        class="size-3.5"
-                    />
-                    <GitCommit
-                        v-else
-                        class="size-3.5"
-                    />
-                    {{ $t(channel.label) }}
+                    <GitBranch class="size-3.5" />
+                    {{ $t(b.label) }}
                 </Button>
             </div>
 
             <div class="rounded-md border divide-y">
                 <div
-                    v-if="commitsLoading"
+                    v-if="loading"
                     class="px-4 py-6 text-center text-sm text-muted-foreground"
                 >
                     {{ $t('Loading...') }}
@@ -320,31 +271,13 @@ onMounted(async () => {
                         </div>
                     </div>
 
-                    <div
-                        v-if="cursorPrevious || cursorNext"
-                        class="flex items-center justify-end px-4 py-3"
-                    >
-                        <div class="flex items-center gap-1">
-                            <Button
-                                variant="outline"
-                                size="icon"
-                                class="size-8"
-                                :disabled="!cursorPrevious"
-                                @click="goPrev"
-                            >
-                                <ChevronLeft class="size-4" />
-                            </Button>
-                            <Button
-                                variant="outline"
-                                size="icon"
-                                class="size-8"
-                                :disabled="!cursorNext"
-                                @click="goNext"
-                            >
-                                <ChevronRight class="size-4" />
-                            </Button>
-                        </div>
-                    </div>
+                    <ZPagination
+                        v-if="totalPages > 1"
+                        :page="page"
+                        :total-pages="totalPages"
+                        class="my-4"
+                        @update:page="goToPage"
+                    />
                 </template>
             </div>
         </CardContent>

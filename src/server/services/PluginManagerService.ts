@@ -103,33 +103,13 @@ export default class PluginManagerService {
             return
         }
 
-        const gitGateay = new GitGateway({
-            logger: this.logger.child({ plugin: pluginConfig.id }),
-            cwd: directory,
-        })
-
-        const [error, gitInfo] = await $try(() => gitGateay.getInfo())
-
-        if (error) {
-            this.logger.warn('failed to get git info for plugin', {
-                directory,
-                error
-            })
-            return
-        }
-
-        const version_channel = this.config.get(`plugins.registry.${pluginConfig.id}.version_channel`, 'commits')
-        const version = `${version_channel}@${gitInfo.shortHash}`
-
         const plugin = PluginEntryEntity.from({
             id: pluginConfig.id,
             aliases: pluginConfig.aliases || [],
             directory,
             name: pluginConfig.name || pkg.name || pluginConfig.id || 'unknown',
-            version,
-            version_channel,
-            version_available_channels: pluginConfig.version_available_channels || ['branch:main'],
             enabled: this.config.get(`plugins.registry.${pluginConfig.id}.enabled`, false),
+            branches: pluginConfig.branches || [],
         })
 
         if (this.debug) {

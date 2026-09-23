@@ -43,7 +43,7 @@ export default defineConfig(() => {
     return {
         clearScreen: false,
         root: import.meta.dirname,
-        optimizeDeps: { exclude: ['vue'], },
+        optimizeDeps: { exclude: ['vue', '@sidekick-coder/zenith-kit/client'], },
         plugins: [
             vue({ template: { compilerOptions: { isCustomElement: (tag) => tag.startsWith('iconify-icon'), } } }),
             tailwindcss()
