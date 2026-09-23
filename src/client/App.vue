@@ -45,7 +45,16 @@ await load()
 <template>
     <Toaster
         position="top-right"
-        :toast-options="{ class: 'whitespace-pre-line', closeButton: true, closeButtonPosition: 'top-right' }"
+        close-button
+        :toast-options="{
+            unstyled: true,
+            classes: {
+                toast: 'flex items-center gap-2 pl-2 pr-8 py-3 bg-background text-foreground shadow-md border border-border rounded-md',
+                title: 'font-semibold text-foreground text-sm',
+                description: 'whitespace-pre-line text-sm text-foreground',
+                closeButton: 'text-foreground hover:text-foreground absolute top-3 right-1 rounded-md size-5 flex items-center justify-center',
+            }
+        }"
     />
 
     <!-- animate with tailwind fade in -->
