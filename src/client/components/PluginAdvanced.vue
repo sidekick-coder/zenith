@@ -88,7 +88,6 @@ async function build() {
             </CardHeader>
             <CardContent>
                 <AlertButton
-                    variant="outline"
                     :disabled="isInstalling"
                     :loading="isInstalling"
                     :title="$t('Install')"
@@ -100,6 +99,30 @@ async function build() {
             </CardContent>
         </Card>
 
+        <Card>
+            <CardHeader>
+                <CardTitle>{{ $t('Update') }}</CardTitle>
+                <CardDescription>
+                    {{ $t('Update plugin') }}
+                </CardDescription>
+            </CardHeader>
+            <CardContent class="flex gap-4">
+                <Button
+                    :disabled="isBuilding"
+                    :loading="isBuilding"
+                    :to="`/admin/plugins/${plugin.id}/update-git`"
+                >
+                    GIT
+                </Button>
+                <Button
+                    :disabled="isBuilding"
+                    :loading="isBuilding"
+                    :to="`/admin/plugins/${plugin.id}/update-bundle`"
+                >
+                    Bundle
+                </Button>
+            </CardContent>
+        </Card>
         <Card>
             <CardHeader>
                 <CardTitle>{{ $t('Build') }}</CardTitle>

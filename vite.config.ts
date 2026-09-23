@@ -64,7 +64,7 @@ export default defineConfig(() => {
                     '**/src/server',
                     '**/storage',
                     'plugins/*',
-                    'tmp',
+                    'tmp/*',
                     '**/logs',
                     '**/.env', // Ignores .env files in the root and subdirectories
                     '**/.env.*', // Ignores all .env-related files (e.g., .env.local, .env.development)

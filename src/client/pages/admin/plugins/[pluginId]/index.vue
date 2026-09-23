@@ -4,7 +4,7 @@ import { useRoute } from 'vue-router'
 import { useRouteQuery } from '@sidekick-coder/zenith-kit/components'
 import PageTitle from '#client/components/PageTitle.vue'
 import PageSubtitle from '#client/components/PageSubtitle.vue'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '#client/components/ui/card/index.ts'
+import { Card, CardContent } from '#client/components/ui/card/index.ts'
 import { Tabs, TabsList, TabsTrigger } from '#client/components/ui/tabs/index.ts'
 import { Skeleton } from '#client/components/ui/skeleton/index.ts'
 import TextField from '#client/components/TextField.vue'
@@ -12,7 +12,7 @@ import { $fetch } from '#client/utils/fetcher.ts'
 import TabsContent from '#client/components/ui/tabs/TabsContent.vue'
 
 const route = useRoute()
-const pluginId = computed(() => route.params.id as string)
+const pluginId = computed(() => route.params.pluginId as string)
 
 const item = ref<any>(null)
 const loading = ref(true)

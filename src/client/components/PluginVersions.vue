@@ -3,10 +3,9 @@ import { ref, computed, watch, onMounted } from 'vue'
 import { GitCommit, GitBranch, Download, Check, ChevronLeft, ChevronRight, GitPullRequest, RefreshCw } from 'lucide-vue-next'
 import type { GitCommitEntity } from '@sidekick-coder/zenith-kit/shared'
 import { toast } from '@sidekick-coder/zenith-kit/client'
+import { Badge, ZButton as Button } from '@sidekick-coder/zenith-kit/components'
 import { $fetch } from '#client/utils/fetcher.ts'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '#client/components/ui/card/index.ts'
-import { Badge } from '#client/components/ui/badge/index.ts'
-import { Button } from '#client/components/ui/button/index.ts'
 import AlertButton from '#client/components/AlertButton.vue'
 
 defineOptions({ inheritAttrs: false })
@@ -216,13 +215,13 @@ onMounted(async () => {
                 <Button
                     variant="outline"
                     :disabled="fetching"
-                    @click="fetchChanges"
+                    :to="`/admin/plugins/${props.plugin.id}/update`"
                 >
                     <Download
                         class="size-4"
                         :class="fetching ? 'animate-pulse' : ''"
                     />
-                    {{ $t('Check updates') }}
+                    {{ $t('Update') }}
                 </Button>
             </div>
         </CardHeader>

@@ -1,14 +1,21 @@
 <script lang="ts" setup>
 import { ZButton, Card, CardHeader, CardFooter, CardTitle, CardDescription } from '@sidekick-coder/zenith-kit/components'
+import { useRoute } from 'vue-router'
 import PageTitle from '#client/components/PageTitle.vue'
 import PageSubtitle from '#client/components/PageSubtitle.vue'
+
+const route = useRoute()
+
+const pluginId = route.params.pluginId as string
 </script>
 <template>
-    <form class="space-y-4 py-2">
+    <form
+        class="space-y-4 py-2"
+    >
         <div class="flex-1">
-            <PageTitle>{{ $t('Install plugin') }}</PageTitle>
+            <PageTitle>{{ $t('Update plugin') }}</PageTitle>
             <PageSubtitle>
-                {{ $t('Instlal new plugin') }}
+                {{ $t('Update plugin') }}
             </PageSubtitle>
         </div>
         <div class="flex flex-col gap-4">
@@ -18,15 +25,15 @@ import PageSubtitle from '#client/components/PageSubtitle.vue'
                         {{ $t('Remote repository') }}
                     </CardTitle>
                     <CardDescription>
-                        {{ $t('Install plugin from git remote repository') }}
+                        {{ $t('Update plugin from git remote repository') }}
                     </CardDescription>
                 </CardHeader>
                 <CardFooter>
                     <ZButton
                         type="submit"
-                        to="/admin/plugins/install-git"
+                        :to="`/admin/plugins/${pluginId}/update-git`"
                     >
-                        {{ $t('Install') }}
+                        {{ $t('Update') }}
                     </ZButton>
                 </CardFooter>
             </Card>
@@ -36,15 +43,15 @@ import PageSubtitle from '#client/components/PageSubtitle.vue'
                         {{ $t('Bundle') }}
                     </CardTitle>
                     <CardDescription>
-                        {{ $t('Install plugin from bundle file') }}
+                        {{ $t('Update plugin from bundle file') }}
                     </CardDescription>
                 </CardHeader>
                 <CardFooter>
                     <ZButton
                         type="submit"
-                        to="/admin/plugins/install-bundle"
+                        :to="`/admin/plugins/${pluginId}/update-bundle`"
                     >
-                        {{ $t('Install') }}
+                        {{ $t('Update') }}
                     </ZButton>
                 </CardFooter>
             </Card>

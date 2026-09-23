@@ -10,8 +10,7 @@ import ConfigService from '@sidekick-coder/zenith-kit/shared/services/ConfigServ
 import LoggerService from '@sidekick-coder/zenith-kit/shared/services/LoggerService'
 import cosmicconfig from 'cosmiconfig'
 import type PluginLoaderService from './PluginLoaderService.ts'
-// import PluginLoaderDevelopmentService from './PluginLoaderDevelopmentService.ts'
-// import PluginLoaderProductionService from './PluginLoaderProductionService.ts'
+import PluginUpdateService from './PluginUpdateService.ts'
 
 export interface PluginManagerServiceOptions {
     logger?: LoggerService
@@ -31,6 +30,8 @@ export default class PluginManagerService {
     public shell: ShellService
     public dirs: Set<string>
 
+    public updater: PluginUpdateService
+
     constructor(options: PluginManagerServiceOptions) {
         this.logger = options.logger || new LoggerService()
         this.entries = new Map()
@@ -42,6 +43,7 @@ export default class PluginManagerService {
             debug: this.debug
         })
         this.dirs = new Set()
+        this.updater = new PluginUpdateService()
 
         if (this.debug) {
             this.logger.debug('initialized in debug mode')

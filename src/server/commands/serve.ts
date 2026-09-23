@@ -148,7 +148,7 @@ const command = new CliCommand('serve')
         })
 
         watcher.on('all', (_event, path) => {
-            logger.info(`file change: ${path}`)
+            logger.warn(`file change: ${path}`)
 
             reloadDebounced()
         })
