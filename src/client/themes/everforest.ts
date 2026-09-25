@@ -32,6 +32,7 @@ export default defineTheme({
     chart5: '#4f5b58',
 
     border: '#4f5b58',
+
     input: '#4f5b58',
     ring: '#a7c080',
 

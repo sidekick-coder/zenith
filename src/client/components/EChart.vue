@@ -19,6 +19,12 @@ const customTheme = {
         axisLabel: { color: theme.foreground },
         splitLine: { lineStyle: { color: theme.foreground } },
     },
+    timeAxis: {
+        axisLine: { lineStyle: { color: theme.foreground } },
+        axisTick: { lineStyle: { color: theme.foreground } },
+        axisLabel: { color: theme.foreground },
+        splitLine: { lineStyle: { color: theme.foreground } },
+    },
     tooltip: {
         backgroundColor: theme.background,
         borderColor: theme.border,
@@ -33,6 +39,7 @@ const customTheme = {
             },
         },
     },
+    legend: { textStyle: { color: theme.foreground }, },
 }
 
 echarts.registerTheme('custom', customTheme)
