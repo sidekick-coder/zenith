@@ -1,4 +1,4 @@
-import { basePath } from '@sidekick-coder/zenith-kit/server/utils/basePath'
+import { serverPath } from '@sidekick-coder/zenith-kit/server/utils/basePath'
 import config from '@sidekick-coder/zenith-kit/server/facades/config'
 import container from '@sidekick-coder/zenith-kit/server/facades/container'
 import SeederService from '@sidekick-coder/zenith-kit/server/services/SeederService'
@@ -21,7 +21,7 @@ export default class extends LifecycleHook {
 
         seeder.addSource({
             id: 'root',
-            directory: basePath('server/seeders'),
+            directory: serverPath('seeders'),
         })
 
         container.set(SeederService, seeder)
