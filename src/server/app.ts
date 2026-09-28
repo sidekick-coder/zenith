@@ -113,6 +113,8 @@ export async function createApp(options: AppOptions = {}) {
 
     await lifecycle.addDirectory(serverPath('hooks'))
 
+    await lifecycle.emit('register', { include: ['TrasnlatorLifecycleHook'] })
+
     return {
         env,
         logger,
