@@ -9,7 +9,8 @@ export default defineHandler(async (ctx) => {
         v.extras.pagination(),
         v.object({ 
             search: v.optional(v.string()),
-            with: v.optional(v.extras.url.array(v.picklist(['metas'])))
+            with: v.optional(v.extras.url.array(v.picklist(['metas']))),
+            metas: v.optional(v.any())
         })
     ]))
 

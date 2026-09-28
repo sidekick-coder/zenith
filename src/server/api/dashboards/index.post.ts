@@ -4,9 +4,17 @@ import { dashboardSchema } from '@sidekick-coder/zenith-kit/shared'
 import dashboardRepository from '#server/facades/dashboardRepository.ts'
 
 export default defineHandler(async (ctx) => {
-    const payload = validator.validate(ctx.body, dashboardSchema.create)
+    const { metas, ...payload } = validator.validate(ctx.body, v => v.intersect([
+        dashboardSchema.create,
+        v.object({ metas: v.optional(v.record(v.string(), v.any())) })
+
+    ]))
 
     ctx.acl.authorize('create', 'Dashboard')
 
-    return dashboardRepository.create(payload)
+    const dash = await dashboardRepository.create(payload)
+
+    if (metas) {
+        await dashboardRepository.setMetas(dash.id, metas)
+    }
 })
