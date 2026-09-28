@@ -8,22 +8,22 @@ const theme = getThemeColors()
 
 const customTheme = {
     valueAxis: {
-        axisLine: { lineStyle: { color: theme.foreground } },
-        axisTick: { lineStyle: { color: theme.foreground } },
+        axisLine: { lineStyle: { color: theme.border } },
+        axisTick: { lineStyle: { color: theme.border } },
         axisLabel: { color: theme.foreground },
-        splitLine: { lineStyle: { color: theme.foreground } },
+        splitLine: { lineStyle: { color: theme.border } },
     },
     categoryAxis: {
-        axisLine: { lineStyle: { color: theme.foreground } },
-        axisTick: { lineStyle: { color: theme.foreground } },
+        axisLine: { lineStyle: { color: theme.border } },
+        axisTick: { lineStyle: { color: theme.border } },
         axisLabel: { color: theme.foreground },
-        splitLine: { lineStyle: { color: theme.foreground } },
+        splitLine: { lineStyle: { color: theme.border } },
     },
     timeAxis: {
-        axisLine: { lineStyle: { color: theme.foreground } },
-        axisTick: { lineStyle: { color: theme.foreground } },
+        axisLine: { lineStyle: { color: theme.border } },
+        axisTick: { lineStyle: { color: theme.border } },
         axisLabel: { color: theme.foreground },
-        splitLine: { lineStyle: { color: theme.foreground } },
+        splitLine: { lineStyle: { color: theme.border } },
     },
     tooltip: {
         backgroundColor: theme.background,
@@ -31,8 +31,8 @@ const customTheme = {
         borderWidth: 1,
         textStyle: { color: theme.foreground },
         axisPointer: {
-            lineStyle: { color: theme.foreground },
-            crossStyle: { color: theme.foreground },
+            lineStyle: { color: theme.border },
+            crossStyle: { color: theme.border },
             label: {
                 color: theme.primaryForeground,
                 backgroundColor: theme.primary 
