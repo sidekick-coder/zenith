@@ -14,23 +14,6 @@ export default class extends LifecycleHook {
             icon: 'LayoutDashboard',
             group: $t('Dashboards')
         })
-
-        const [error, response] = await fetcher.try('/api/dashboards')
-
-        if (error) {
-            console.error('Failed to fetch dashboards', error)
-            return
-        }
-
-        for (const d of response.items) {
-            this.menu.add({
-                layout: 'admin',
-                label: d.name,
-                to: `/admin/dashboards/${d.id}`,
-                icon: d.metas?.icon || 'LayoutDashboard',
-                group: $t('Dashboards')
-            })
-        }
     }
 
     public async register(): Promise<void> {
