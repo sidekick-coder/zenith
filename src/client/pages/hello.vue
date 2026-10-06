@@ -1,10 +1,9 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 
+import { auth, acl } from '@sidekick-coder/zenith-kit/client'
 import Button from '#client/components/Button.vue'
 import Icon from '#client/components/Icon.vue'
-import auth from '#client/facades/auth.facade.ts'
-import acl from '#client/facades/acl.facade.ts'
 
 const isLoggedIn = computed(() => auth.user)
 const canAccessDashboard = computed(() => acl.can('read', 'AdminDashboard'))

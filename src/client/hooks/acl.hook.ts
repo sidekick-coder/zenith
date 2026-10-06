@@ -1,21 +1,28 @@
-import { AclEntity } from '@sidekick-coder/zenith-kit/shared'
-import { container } from '@sidekick-coder/zenith-kit/client'
-import LifecycleHook from '#shared/entities/lifecycleHook.entity.ts'
-import config from '#client/facades/config.facade.ts'
-import logger from '#client/facades/logger.facade.ts'
+import { AclEntity, Permission, LifecycleHook } from '@sidekick-coder/zenith-kit/shared'
+import { container, config, logger } from '@sidekick-coder/zenith-kit/client'
 
 export default class AclLifecycleHook extends LifecycleHook {
     public async onRegister(): Promise<void> {
         const state = container.get<Record<string, any>>('state')
 
-        let permissions: any[] = []
+        let permissions: Pick<Permission, 'action' | 'subject' | 'name'>[] = []
 
         if (state['permissions']) {
             permissions = state['permissions']
         }
 
+        const authDisabled = config.get('auth.disabled', false)
+
+        if (authDisabled) {
+            permissions.push({
+                action: 'manage',
+                subject: 'all',
+                name: 'Manage All',
+            })
+        }
+
         const acl = new AclEntity({
-            permissions: permissions,
+            permissions: permissions as any[],
             debug: config.get('acl.debug') || config.get('app.debug'),
             logger: logger.child({ label: 'acl' }),
         })

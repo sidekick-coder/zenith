@@ -65,7 +65,7 @@ export default class extends LifecycleHook {
             group: $t('Auth'),
             layout: 'admin',
             icon: 'Settings',
-            to: '/admin/auth/settings'
+            to: '/admin/config/auth'
         })
 
         // storage

@@ -79,6 +79,16 @@ export class AuthorizationMiddleware implements Middleware {
 
         const permissions = Permission.applyContext(currentPermissions, permissionContext)
 
+        const authDisabled = config.get('auth.disabled', false)
+
+        if (authDisabled) {
+            permissions.push({
+                action: 'manage',
+                subject: 'all',
+                name: 'Manage All',
+            } as any)
+        }
+
         const acl = new Acl({
             permissions,
             debug: config.get('acl.debug') || config.get('app.debug'),

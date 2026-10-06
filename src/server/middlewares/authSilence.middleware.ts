@@ -1,6 +1,6 @@
 import {  UserEntity } from '@sidekick-coder/zenith-kit/shared'
 import type { Token } from '@sidekick-coder/zenith-kit/shared'
-import { userRepository, tokenRepository } from '@sidekick-coder/zenith-kit/server'
+import { userRepository, tokenRepository, config } from '@sidekick-coder/zenith-kit/server'
 import type { HttpContext, Middleware, } from '#server/contracts/router.contract.ts'
 
 export type AuthSilenceMiddlewareContext = {
@@ -10,6 +10,15 @@ export type AuthSilenceMiddlewareContext = {
 
 export class AuthSilenceMiddleware implements Middleware {
     public async handle(ctx: HttpContext): Promise<AuthSilenceMiddlewareContext> {
+        const authDisabled = config.get('auth.disabled', false)
+
+        if (authDisabled) {
+            return { 
+                user: undefined,
+                token: undefined,
+            }
+        }
+
         // Example authentication logic
         let token = ctx.cookie.get('Authorization')
 

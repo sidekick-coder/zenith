@@ -1,4 +1,4 @@
-import { container, AuthService } from '@sidekick-coder/zenith-kit/client'
+import { container, AuthService, config } from '@sidekick-coder/zenith-kit/client'
 import { UserEntity, LifecycleHook } from '@sidekick-coder/zenith-kit/shared'
 
 export default class AuthLifecycleHook extends LifecycleHook {
@@ -11,7 +11,10 @@ export default class AuthLifecycleHook extends LifecycleHook {
             user = UserEntity.from(state['auth:user'])
         }
 
-        const auth = new AuthService({ user })
+        const auth = new AuthService({
+            user,
+            disabled: config.get('auth.disabled', false)
+        })
 
         container.set(AuthService, auth)
     }

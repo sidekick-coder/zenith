@@ -5,7 +5,7 @@ import EnvService from '@sidekick-coder/zenith-kit/server/services/EnvService'
 import container from '@sidekick-coder/zenith-kit/server/facades/container'
 import LoggerService from '@sidekick-coder/zenith-kit/shared/services/LoggerService'
 import ConfigService from '@sidekick-coder/zenith-kit/shared/services/ConfigService'
-import { basePath, serverPath } from '@sidekick-coder/zenith-kit/server/utils/basePath'
+import { dataPath, serverPath } from '@sidekick-coder/zenith-kit/server/utils/basePath'
 import { tryCatch } from '@sidekick-coder/zenith-kit/shared/utils/tryCatch'
 
 import PluginManagerService from './services/PluginManagerService.ts'
@@ -43,8 +43,8 @@ export async function createApp(options: AppOptions = {}) {
             level: env.get('ZENITH_LOG_LEVEL', 'info'),
             transports: [
                 LoggerWinsonService.console(),
-                LoggerWinsonService.file(basePath('logs/error.log'), 'error'),
-                LoggerWinsonService.file(basePath('logs/console.log')),
+                LoggerWinsonService.file(dataPath('logs/error.log'), 'error'),
+                LoggerWinsonService.file(dataPath('logs/console.log')),
             ]
         })
     }
@@ -59,7 +59,7 @@ export async function createApp(options: AppOptions = {}) {
             .create({
                 env: env,
                 logger: logger.child({ label: 'config' }),
-                silent: true
+                silent: true,
             })
             .load()
     }

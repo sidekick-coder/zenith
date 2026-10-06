@@ -1,29 +1,22 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
-import { useForm } from 'vee-validate'
-import { toTypedSchema } from '@vee-validate/valibot'
-import { toast } from 'vue-sonner'
-
-import { $fetch } from '#client/utils/fetcher.ts'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardAction } from '#client/components/ui/card'
+import { useForm, toast, fetcher, config, waitForServer } from '@sidekick-coder/zenith-kit/client'
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardAction } from '@sidekick-coder/zenith-kit/components'
 import Button from '#client/components/Button.vue'
 import Icon from '#client/components/Icon.vue'
 import FormSwitch from '#client/components/FormSwitch.vue'
 import FormTextField from '#client/components/FormTextField.vue'
-import schemas from '#shared/validators/index.ts'
+import { authSchema } from '#shared/schemas/authSchema.ts'
 
 const loading = ref(false)
 const saving = ref(false)
 
-const { handleSubmit, resetForm } = useForm({
-    name: 'auth-settings-general',
-    validationSchema: toTypedSchema(schemas.auth.update),
-})
+const { handleSubmit, resetForm } = useForm(authSchema.update, { name: 'auth-settings-general', })
 
 async function load() {
     loading.value = true
 
-    const [error, response] = await $fetch.try<any>('/api/configs/auth')
+    const [error, response] = await fetcher.try<any>('/api/config/auth')
 
     if (error) {
         loading.value = false
@@ -40,7 +33,7 @@ async function load() {
 const onSubmit = handleSubmit(async (data) => {
     saving.value = true
 
-    const [error] = await $fetch.try('/api/configs/auth', {
+    const [error] = await fetcher.try('/api/config/auth', {
         method: 'PUT',
         data: data,
     })
@@ -50,15 +43,19 @@ const onSubmit = handleSubmit(async (data) => {
         return
     }
 
+    const needReload = data.disabled !== config.get('auth.disabled')
+
+    if (needReload) {
+        waitForServer({ redirectTo: '/', })
+    }
+
     setTimeout(() => {
         saving.value = false
         toast.success($t('Auth settings saved successfully'))
     }, 500)
 })
 
-onMounted(() => {
-    load()
-})
+onMounted(load)
 </script>
 
 <template>
@@ -91,6 +88,12 @@ onMounted(() => {
                 </CardAction>
             </CardHeader>
             <CardContent class="space-y-4">
+                <FormSwitch
+                    name="disabled"
+                    :label="$t('Disable Authentication (experimental)')"
+                    :hint="$t('Allow access to the application without login, use with extreme caution')"
+                    :disabled="loading || saving"
+                />
                 <FormSwitch
                     name="enable_registration"
                     :label="$t('Enable Sign Up')"

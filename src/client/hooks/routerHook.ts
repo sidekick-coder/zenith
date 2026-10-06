@@ -1,8 +1,8 @@
 import type { App } from 'vue'
 import { LifecycleHook } from '@sidekick-coder/zenith-kit/shared'
-import { container, config, authGuard, guestGuard, setupGuard } from '@sidekick-coder/zenith-kit/client'
+import { container, config, authGuard, guestGuard, setupGuard, auth } from '@sidekick-coder/zenith-kit/client'
 import type { Router } from '@sidekick-coder/zenith-kit/client'
-import { createRouter } from '#client/router'
+import { createRouter } from '#client/router.ts'
 
 export default class extends LifecycleHook {
     public hook_aliases = ['router']
@@ -27,9 +27,16 @@ export default class extends LifecycleHook {
             return true
         })
 
+
         router.auto(import.meta.glob<any>('../pages/admin/**/*.vue',), {
             strip: ['pages'],
-            guards: [authGuard],
+            guards: () => {
+                if (auth.disabled === true) {
+                    return []
+                }
+
+                return [authGuard]
+            },
             refine: (records) => records.map(record => {
                 record.meta = { layout: 'admin', }
 
