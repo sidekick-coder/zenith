@@ -1,6 +1,6 @@
 import fs from 'fs'
 import path from 'path'
-import { basePath } from '@sidekick-coder/zenith-kit/server/utils/basePath'
+import { dataPath } from '@sidekick-coder/zenith-kit/server/utils/basePath'
 import EnvService from '@sidekick-coder/zenith-kit/server/services/EnvService'
 import { GitGateway } from '@sidekick-coder/zenith-kit/server/gateways/GitGateway'
 import PluginEntryEntity from '@sidekick-coder/zenith-kit/server/entities/PluginEntryEntity'
@@ -217,11 +217,17 @@ export default class PluginManagerService {
     }
 
     public async loadDirsFromRoot() {
-        const entries = await fs.promises.readdir(basePath('plugins'), { withFileTypes: true })
+        const folder = dataPath('plugins')
+
+        if (!fs.existsSync(folder)) {
+            fs.mkdirSync(folder, { recursive: true })
+        }
+
+        const entries = await fs.promises.readdir(folder, { withFileTypes: true })
 
         for await (const entry of entries) {
             if (entry.isDirectory()) {
-                this.dirs.add(path.join(basePath('plugins'), entry.name))
+                this.dirs.add(path.join(folder, entry.name))
             }
         }
     }

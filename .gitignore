@@ -29,32 +29,17 @@ dist-ssr
 *.runtime
 *.volumes
 .env 
-database.sqlite
-config/*
-!config/.gitkeep
-modules/*
-!modules/.gitkeep
-storage/*
-!storage/.gitkeep
-!storage/uploads
-storage/uploads/*
-!storage/uploads/.gitkeep
-client-dist
 
-tmp/*
-!tmp/.gitkeep
+database.sqlite
+*.db
 
 docs/.vitepress/cache
-*.db
 
 src/client/.plugins/*
 !src/client/.plugins/.gitkeep
 
-upload/*
-!upload/.gitkeep
-
-plugins/*
-!plugins/.gitkeep
+data/*
+!data/.gitkeep
 
 # Playwright
 /test-results/

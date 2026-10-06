@@ -23,30 +23,15 @@ export default defineConfig(() => {
 
         'vee-validate',
         /^vee-validate\//,
-
-        // 'vue-router',
-        // 'vee-validate',
-        // 'reka-ui',
-        // 'lucide-vue-next',
-        // 'embla-carousel-vue',
-        // 'vaul-vue',
-        // '@vueuse/core',
-        // '@unhead/vue',
-        // '@vee-validate/valibot',
-        // '@vueuse/router',
-        //
-        // '@sidekick-coder/server',
-        // '@sidekick-coder/shared',
-        // '@sidekick-coder/client',
     ]
 
     return {
         clearScreen: false,
         root: import.meta.dirname,
-        optimizeDeps: { exclude: ['vue', '@sidekick-coder/zenith-kit/client', '@sidekick-coder/zenith-kit/components'], },
+        optimizeDeps: { exclude: ['vue'], },
         plugins: [
             vue({ template: { compilerOptions: { isCustomElement: (tag) => tag.startsWith('iconify-icon'), } } }),
-            tailwindcss()
+            tailwindcss(),
         ],
         define: {
             // This shims the process.env object so it doesn't throw a reference error
