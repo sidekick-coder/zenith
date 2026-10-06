@@ -2,7 +2,7 @@
 import { toTypedSchema } from '@vee-validate/valibot'
 import { useForm } from 'vee-validate'
 import * as v from 'valibot'
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { toast } from 'vue-sonner'
 import { tryCatch } from '@sidekick-coder/zenith-kit/shared/utils/tryCatch'
 import Button from '#client/components/Button.vue'
@@ -35,7 +35,7 @@ const types = [
     },
 ]
 
-const { handleSubmit, values } = useForm({
+const { handleSubmit, values, setFieldValue } = useForm({
     validationSchema: toTypedSchema(
         v.object({
             type: v.picklist(types.map(t => t.value), $t('Database Type')),
@@ -83,6 +83,30 @@ const onSubmit = handleSubmit(async (data) => {
         window.location.href = '/setup/user' // Redirect to the next step
     }, 1000)
 })
+
+function loadDefaults() {
+    if (values.type === 'sqlite') {
+        setFieldValue('options.database', '${{ data_path }}/zenith.db')
+    }
+
+    if (values.type === 'mysql') {
+        setFieldValue('options.host', 'localhost')
+        setFieldValue('options.port', 3306)
+        setFieldValue('options.database', '')
+        setFieldValue('options.user', '')
+        setFieldValue('options.password', '')
+    }
+
+    if (values.type === 'postgresql') {
+        setFieldValue('options.host', 'localhost')
+        setFieldValue('options.port', 5432)
+        setFieldValue('options.database', '')
+        setFieldValue('options.user', '')
+        setFieldValue('options.password', '')
+    }
+}
+
+watch(() => values.type, loadDefaults, { immediate: true })
 </script>
 
 <template>
@@ -117,7 +141,6 @@ const onSubmit = handleSubmit(async (data) => {
                         :label="$t('SQLite Database Path')"
                         placeholder="/path/to/database.sqlite"
                         autocomplete="off"
-                        value="zenith.db"
                     />
                 </template>
 
