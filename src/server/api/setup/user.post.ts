@@ -1,4 +1,5 @@
-import { config, defineHandler, drive, database, UserRepository } from '@sidekick-coder/zenith-kit/server'
+import fs from 'fs'
+import { config, defineHandler, database, UserRepository, dataPath } from '@sidekick-coder/zenith-kit/server'
 import { BaseException } from '@sidekick-coder/zenith-kit/shared'
 import { createUserPermission } from '#server/queries/createUserPermission.ts'
 import { generateKey } from '#server/utils/generateKey.ts'
@@ -29,7 +30,18 @@ export default defineHandler(async ({ body }) => {
         subject: 'all'
     })
 
-    drive.createDefaultDrives()
+    config.set('drive', {
+        default: 'uploads',
+        disks: {
+            uploads: {
+                name: 'Uploads',
+                type: 'fs',
+                config: { directory:  '${{ data_path }}/uploads' }
+            }
+        }
+    })
+
+    fs.promises.mkdir(dataPath('uploads'), { recursive: true })
 
     config.set('app.key', generateKey(32))
     config.set('setup.need_users', false, 'runtime')
