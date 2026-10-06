@@ -1,6 +1,6 @@
 import fs from 'fs'
 import path from 'path'
-import { basePath, tmpPath } from '@sidekick-coder/zenith-kit/server/utils/basePath'
+import { dataPath, tmpPath } from '@sidekick-coder/zenith-kit/server/utils/basePath'
 import { GitGateway } from '@sidekick-coder/zenith-kit/server/gateways/GitGateway'
 import ShellService from '@sidekick-coder/zenith-kit/server/services/ShellService'
 import BaseException from '@sidekick-coder/zenith-kit/shared/exceptions/BaseException'
@@ -80,6 +80,20 @@ export default class PluginDownloadService {
 
         await git.fetchAll()
 
+        // npm install if package.json exists
+        const packageJsonPath = path.join(dir, 'package.json')
+
+        if (fs.existsSync(packageJsonPath)) {
+            this.logger.info('installing npm dependencies for plugin', {
+                repository,
+                branch,
+                dir,
+            })
+
+            await this.shell.command('npm', ['install'], { cwd: dir, })
+        }
+
+
         if (this.debug) {
             this.logger.debug('downloaded plugin to tmp', {
                 repository,
@@ -108,7 +122,7 @@ export default class PluginDownloadService {
             throw new BaseException(`Plugin config file is invalid or missing 'id' field: ${configFilename}`)
         }
 
-        const destination = basePath('plugins', config.id)
+        const destination = dataPath('plugins', config.id)
 
         if (fs.existsSync(destination)) {
             throw new BaseException(`Plugin already exists at destination: ${destination}`)
@@ -121,12 +135,7 @@ export default class PluginDownloadService {
             force: true
         })
 
-        this.config.set(`plugins.registry.${config.id}`, {
-            branch: item.branch || 'main',
-            repository: item.repository,
-            ssh_key_file: item.sshKeyFile || null,
-            ssh_key: item.sshKey || null,
-        })
+        this.config.set(`plugins.registry.${config.id}`, { branch: item.branch || 'main', })
 
         this.logger.info('plugin downloaded', {
             id: config.id,
