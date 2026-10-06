@@ -1,4 +1,4 @@
-import { defineTheme } from '#client/composables/defineTheme.ts'
+import { defineTheme } from '@sidekick-coder/zenith-kit/client'
 
 export default defineTheme({
     background: '#eff1f5',

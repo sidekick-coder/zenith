@@ -1,4 +1,4 @@
-import { defineTheme } from '#client/composables/defineTheme.ts'
+import { defineTheme } from '@sidekick-coder/zenith-kit/client'
 import mocha from './catppuccin-mocha.ts'
 
 export default defineTheme({

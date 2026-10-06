@@ -1,3 +1,31 @@
-import { defineTheme } from '#client/composables/defineTheme.ts'
+import { defineTheme } from '@sidekick-coder/zenith-kit/client'
 
-export default defineTheme({ background: '#191724', foreground: '#e0def4', card: '#1f1d2e', 'card-foreground': '#e0def4', popover: '#1f1d2e', 'popover-foreground': '#e0def4', primary: '#c4a7e7', 'primary-foreground': '#191724', secondary: '#26233a', 'secondary-foreground': '#e0def4', muted: '#26233a', 'muted-foreground': '#908caa', accent: '#403d52', 'accent-foreground': '#e0def4', destructive: '#eb6f92', 'destructive-foreground': '#191724', border: '#403d52', input: '#403d52', ring: '#c4a7e7', sidebar: '#16141f', 'sidebar-foreground': '#e0def4', 'sidebar-primary': '#c4a7e7', 'sidebar-primary-foreground': '#191724', 'sidebar-accent': '#26233a', 'sidebar-accent-foreground': '#e0def4', 'sidebar-border': '#403d52', 'sidebar-ring': '#c4a7e7' })
+export default defineTheme({
+    background: '#191724',
+    foreground: '#e0def4',
+    card: '#1f1d2e',
+    'card-foreground': '#e0def4',
+    popover: '#1f1d2e',
+    'popover-foreground': '#e0def4',
+    primary: '#c4a7e7',
+    'primary-foreground': '#191724',
+    secondary: '#26233a',
+    'secondary-foreground': '#e0def4',
+    muted: '#26233a',
+    'muted-foreground': '#908caa',
+    accent: '#403d52',
+    'accent-foreground': '#e0def4',
+    destructive: '#eb6f92',
+    'destructive-foreground': '#191724',
+    border: '#403d52',
+    input: '#403d52',
+    ring: '#c4a7e7',
+    sidebar: '#16141f',
+    'sidebar-foreground': '#e0def4',
+    'sidebar-primary': '#c4a7e7',
+    'sidebar-primary-foreground': '#191724',
+    'sidebar-accent': '#26233a',
+    'sidebar-accent-foreground': '#e0def4',
+    'sidebar-border': '#403d52',
+    'sidebar-ring': '#c4a7e7' 
+})

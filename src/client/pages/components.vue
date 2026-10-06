@@ -27,9 +27,9 @@ import {
     ZButton as Button,
 } from '@sidekick-coder/zenith-kit/components'
 
+import { themeToCss } from '@sidekick-coder/zenith-kit/client'
 import { useFonts } from '#client/composables/useFonts.ts'
 import { useRadii } from '#client/composables/useRadii.ts'
-import { themeToCss } from '#client/composables/defineTheme.ts'
 import { useThemes } from '#client/composables/useThemes.ts'
 
 const themes = useThemes()
@@ -46,18 +46,63 @@ const selectedFont = computed(() => fonts.find(font => font.id === fontId.value)
 const selectedRadius = computed(() => radii.find(radius => radius.id === radiusId.value) || radii.find(radius => radius.id === 'md')!)
 
 const metrics = [
-    { label: 'Total Revenue', value: '$45,231.89', change: '+20.1% from last month', icon: 'DollarSign' },
-    { label: 'Subscriptions', value: '+2,350', change: '+180.1% from last month', icon: 'Users' },
-    { label: 'Sales', value: '+12,234', change: '+19% from last month', icon: 'CreditCard' },
-    { label: 'Active Now', value: '+573', change: '+201 since last hour', icon: 'Activity' },
+    {
+        label: 'Total Revenue',
+        value: '$45,231.89',
+        change: '+20.1% from last month',
+        icon: 'DollarSign' 
+    },
+    {
+        label: 'Subscriptions',
+        value: '+2,350',
+        change: '+180.1% from last month',
+        icon: 'Users' 
+    },
+    {
+        label: 'Sales',
+        value: '+12,234',
+        change: '+19% from last month',
+        icon: 'CreditCard' 
+    },
+    {
+        label: 'Active Now',
+        value: '+573',
+        change: '+201 since last hour',
+        icon: 'Activity' 
+    },
 ]
 
 const orders = [
-    { customer: 'Olivia Martin', email: 'olivia@example.com', amount: '+$1,999.00', initials: 'OM' },
-    { customer: 'Jackson Lee', email: 'jackson@example.com', amount: '+$39.00', initials: 'JL' },
-    { customer: 'Isabella Nguyen', email: 'isabella@example.com', amount: '+$299.00', initials: 'IN' },
-    { customer: 'William Kim', email: 'william@example.com', amount: '+$99.00', initials: 'WK' },
-    { customer: 'Sofia Davis', email: 'sofia@example.com', amount: '+$39.00', initials: 'SD' },
+    {
+        customer: 'Olivia Martin',
+        email: 'olivia@example.com',
+        amount: '+$1,999.00',
+        initials: 'OM' 
+    },
+    {
+        customer: 'Jackson Lee',
+        email: 'jackson@example.com',
+        amount: '+$39.00',
+        initials: 'JL' 
+    },
+    {
+        customer: 'Isabella Nguyen',
+        email: 'isabella@example.com',
+        amount: '+$299.00',
+        initials: 'IN' 
+    },
+    {
+        customer: 'William Kim',
+        email: 'william@example.com',
+        amount: '+$99.00',
+        initials: 'WK' 
+    },
+    {
+        customer: 'Sofia Davis',
+        email: 'sofia@example.com',
+        amount: '+$39.00',
+        initials: 'SD' 
+    },
 ]
 
 const bars = [42, 68, 51, 82, 57, 91, 73, 96, 66, 88, 59, 78]
@@ -81,52 +126,97 @@ useHead(() => ({
             <header class="mb-8 flex flex-col gap-4 border-b pb-6 lg:flex-row lg:items-center lg:justify-between">
                 <div class="flex items-center gap-3">
                     <div class="flex size-10 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-                        <Icon name="PanelsTopLeft" class="size-5" />
+                        <Icon
+                            name="PanelsTopLeft"
+                            class="size-5"
+                        />
                     </div>
                     <div>
-                        <p class="text-sm font-medium">{{ $t('Acme Inc.') }}</p>
-                        <p class="text-sm text-muted-foreground">{{ $t('Component showcase') }}</p>
+                        <p class="text-sm font-medium">
+                            {{ $t('Acme Inc.') }}
+                        </p>
+                        <p class="text-sm text-muted-foreground">
+                            {{ $t('Component showcase') }}
+                        </p>
                     </div>
                 </div>
 
-                <Badge variant="outline">{{ $t('URL preview') }}</Badge>
+                <Badge variant="outline">
+                    {{ $t('URL preview') }}
+                </Badge>
             </header>
 
             <section class="mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
                 <div>
-                    <h1 class="text-3xl font-bold tracking-tight">{{ $t('Dashboard') }}</h1>
-                    <p class="mt-1 text-muted-foreground">{{ $t('A collection of application interface components.') }}</p>
+                    <h1 class="text-3xl font-bold tracking-tight">
+                        {{ $t('Dashboard') }}
+                    </h1>
+                    <p class="mt-1 text-muted-foreground">
+                        {{ $t('A collection of application interface components.') }}
+                    </p>
                 </div>
                 <div class="flex gap-2">
                     <Button variant="outline">
-                        <Icon name="Download" class="mr-2 size-4" />
+                        <Icon
+                            name="Download"
+                            class="mr-2 size-4"
+                        />
                         {{ $t('Download') }}
                     </Button>
                     <Button>
-                        <Icon name="Plus" class="mr-2 size-4" />
+                        <Icon
+                            name="Plus"
+                            class="mr-2 size-4"
+                        />
                         {{ $t('Create report') }}
                     </Button>
                 </div>
             </section>
 
-            <Tabs v-model="activeTab" class="space-y-6">
+            <Tabs
+                v-model="activeTab"
+                class="space-y-6"
+            >
                 <TabsList>
-                    <TabsTrigger value="overview">{{ $t('Overview') }}</TabsTrigger>
-                    <TabsTrigger value="analytics">{{ $t('Analytics') }}</TabsTrigger>
-                    <TabsTrigger value="reports">{{ $t('Reports') }}</TabsTrigger>
-                    <TabsTrigger value="notifications">{{ $t('Notifications') }}</TabsTrigger>
+                    <TabsTrigger value="overview">
+                        {{ $t('Overview') }}
+                    </TabsTrigger>
+                    <TabsTrigger value="analytics">
+                        {{ $t('Analytics') }}
+                    </TabsTrigger>
+                    <TabsTrigger value="reports">
+                        {{ $t('Reports') }}
+                    </TabsTrigger>
+                    <TabsTrigger value="notifications">
+                        {{ $t('Notifications') }}
+                    </TabsTrigger>
                 </TabsList>
 
-                <TabsContent value="overview" class="space-y-6">
+                <TabsContent
+                    value="overview"
+                    class="space-y-6"
+                >
                     <section class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                        <Card v-for="metric in metrics" :key="metric.label">
+                        <Card
+                            v-for="metric in metrics"
+                            :key="metric.label"
+                        >
                             <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-2">
-                                <CardTitle class="text-sm font-medium">{{ $t(metric.label) }}</CardTitle>
-                                <Icon :name="metric.icon" class="size-4 text-muted-foreground" />
+                                <CardTitle class="text-sm font-medium">
+                                    {{ $t(metric.label) }}
+                                </CardTitle>
+                                <Icon
+                                    :name="metric.icon"
+                                    class="size-4 text-muted-foreground"
+                                />
                             </CardHeader>
                             <CardContent>
-                                <div class="text-2xl font-bold">{{ metric.value }}</div>
-                                <p class="text-xs text-muted-foreground">{{ $t(metric.change) }}</p>
+                                <div class="text-2xl font-bold">
+                                    {{ metric.value }}
+                                </div>
+                                <p class="text-xs text-muted-foreground">
+                                    {{ $t(metric.change) }}
+                                </p>
                             </CardContent>
                         </Card>
                     </section>
@@ -177,15 +267,25 @@ useHead(() => ({
                                 <CardDescription>{{ $t('You made 265 sales this month.') }}</CardDescription>
                             </CardHeader>
                             <CardContent class="space-y-6">
-                                <div v-for="order in orders" :key="order.email" class="flex items-center">
+                                <div
+                                    v-for="order in orders"
+                                    :key="order.email"
+                                    class="flex items-center"
+                                >
                                     <Avatar class="size-9">
                                         <AvatarFallback>{{ order.initials }}</AvatarFallback>
                                     </Avatar>
                                     <div class="ml-4 space-y-1">
-                                        <p class="text-sm font-medium leading-none">{{ order.customer }}</p>
-                                        <p class="text-sm text-muted-foreground">{{ order.email }}</p>
+                                        <p class="text-sm font-medium leading-none">
+                                            {{ order.customer }}
+                                        </p>
+                                        <p class="text-sm text-muted-foreground">
+                                            {{ order.email }}
+                                        </p>
                                     </div>
-                                    <div class="ml-auto font-medium">{{ order.amount }}</div>
+                                    <div class="ml-auto font-medium">
+                                        {{ order.amount }}
+                                    </div>
                                 </div>
                             </CardContent>
                         </Card>
@@ -198,7 +298,13 @@ useHead(() => ({
                                     <CardTitle>{{ $t('Project activity') }}</CardTitle>
                                     <CardDescription>{{ $t('Your team completed 24 tasks this week.') }}</CardDescription>
                                 </div>
-                                <Button variant="outline" size="sm" class="ml-auto">{{ $t('View all') }}</Button>
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    class="ml-auto"
+                                >
+                                    {{ $t('View all') }}
+                                </Button>
                             </CardHeader>
                             <CardContent class="space-y-5">
                                 <div>
@@ -233,13 +339,24 @@ useHead(() => ({
                             <CardContent class="space-y-3">
                                 <Input :placeholder="$t('Search anything...')" />
                                 <div class="flex gap-2">
-                                    <Button class="flex-1">{{ $t('Save') }}</Button>
-                                    <Button variant="secondary" class="flex-1">{{ $t('Cancel') }}</Button>
+                                    <Button class="flex-1">
+                                        {{ $t('Save') }}
+                                    </Button>
+                                    <Button
+                                        variant="secondary"
+                                        class="flex-1"
+                                    >
+                                        {{ $t('Cancel') }}
+                                    </Button>
                                 </div>
                                 <div class="flex flex-wrap gap-2 pt-2">
                                     <Badge>{{ $t('Default') }}</Badge>
-                                    <Badge variant="secondary">{{ $t('Secondary') }}</Badge>
-                                    <Badge variant="outline">{{ $t('Outline') }}</Badge>
+                                    <Badge variant="secondary">
+                                        {{ $t('Secondary') }}
+                                    </Badge>
+                                    <Badge variant="outline">
+                                        {{ $t('Outline') }}
+                                    </Badge>
                                 </div>
                             </CardContent>
                         </Card>
@@ -254,7 +371,11 @@ useHead(() => ({
                         </CardHeader>
                         <CardContent>
                             <div class="flex h-80 items-end gap-3 border-b px-4 pt-6">
-                                <div v-for="(height, index) in bars" :key="index" class="flex flex-1 items-end">
+                                <div
+                                    v-for="(height, index) in bars"
+                                    :key="index"
+                                    class="flex flex-1 items-end"
+                                >
                                     <div
                                         class="w-full rounded-t-sm bg-primary transition-all"
                                         :style="{ height: `${height}%` }"
@@ -262,7 +383,10 @@ useHead(() => ({
                                 </div>
                             </div>
                             <div class="mt-3 grid grid-cols-12 text-center text-xs text-muted-foreground">
-                                <span v-for="month in ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']" :key="month">{{ $t(month) }}</span>
+                                <span
+                                    v-for="month in ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']"
+                                    :key="month"
+                                >{{ $t(month) }}</span>
                             </div>
                         </CardContent>
                     </Card>
@@ -284,13 +408,26 @@ useHead(() => ({
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                    <TableRow v-for="order in orders" :key="order.email">
+                                    <TableRow
+                                        v-for="order in orders"
+                                        :key="order.email"
+                                    >
                                         <TableCell>
-                                            <div class="font-medium">{{ order.customer }}</div>
-                                            <div class="text-sm text-muted-foreground">{{ order.email }}</div>
+                                            <div class="font-medium">
+                                                {{ order.customer }}
+                                            </div>
+                                            <div class="text-sm text-muted-foreground">
+                                                {{ order.email }}
+                                            </div>
                                         </TableCell>
-                                        <TableCell><Badge variant="secondary">{{ $t('Complete') }}</Badge></TableCell>
-                                        <TableCell class="font-medium">{{ order.amount }}</TableCell>
+                                        <TableCell>
+                                            <Badge variant="secondary">
+                                                {{ $t('Complete') }}
+                                            </Badge>
+                                        </TableCell>
+                                        <TableCell class="font-medium">
+                                            {{ order.amount }}
+                                        </TableCell>
                                     </TableRow>
                                 </TableBody>
                             </Table>

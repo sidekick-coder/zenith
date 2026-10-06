@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { PropType } from 'vue'
-import type { ThemeColors } from '#client/composables/defineTheme.ts'
+import type { ThemeColors } from '@sidekick-coder/zenith-kit/client'
 
 defineProps({
     colors: {
@@ -40,8 +40,19 @@ defineProps({
             rx="2"
             :fill="colors.primary"
         />
-        <text x="32" y="13" :fill="colors.foreground" font-size="6" font-weight="700">Acme Inc.</text>
-        <text x="32" y="19" :fill="colors['muted-foreground']" font-size="4">Dashboard</text>
+        <text
+            x="32"
+            y="13"
+            :fill="colors.foreground"
+            font-size="6"
+            font-weight="700"
+        >Acme Inc.</text>
+        <text
+            x="32"
+            y="19"
+            :fill="colors['muted-foreground']"
+            font-size="4"
+        >Dashboard</text>
         <rect
             x="14"
             y="38"
@@ -78,14 +89,58 @@ defineProps({
             :fill="colors.card"
             :stroke="colors.border"
         />
-        <text x="23" y="51" :fill="colors['muted-foreground']" font-size="4">REVENUE</text>
-        <text x="23" y="66" :fill="colors.foreground" font-size="9" font-weight="700">$45,231</text>
-        <text x="115" y="51" :fill="colors['muted-foreground']" font-size="4">USERS</text>
-        <text x="115" y="66" :fill="colors.foreground" font-size="9" font-weight="700">2,350</text>
-        <text x="207" y="51" :fill="colors['muted-foreground']" font-size="4">SALES</text>
-        <text x="207" y="66" :fill="colors.foreground" font-size="9" font-weight="700">12,234</text>
-        <text x="299" y="51" :fill="colors['muted-foreground']" font-size="4">ACTIVE</text>
-        <text x="299" y="66" :fill="colors.foreground" font-size="9" font-weight="700">573</text>
+        <text
+            x="23"
+            y="51"
+            :fill="colors['muted-foreground']"
+            font-size="4"
+        >REVENUE</text>
+        <text
+            x="23"
+            y="66"
+            :fill="colors.foreground"
+            font-size="9"
+            font-weight="700"
+        >$45,231</text>
+        <text
+            x="115"
+            y="51"
+            :fill="colors['muted-foreground']"
+            font-size="4"
+        >USERS</text>
+        <text
+            x="115"
+            y="66"
+            :fill="colors.foreground"
+            font-size="9"
+            font-weight="700"
+        >2,350</text>
+        <text
+            x="207"
+            y="51"
+            :fill="colors['muted-foreground']"
+            font-size="4"
+        >SALES</text>
+        <text
+            x="207"
+            y="66"
+            :fill="colors.foreground"
+            font-size="9"
+            font-weight="700"
+        >12,234</text>
+        <text
+            x="299"
+            y="51"
+            :fill="colors['muted-foreground']"
+            font-size="4"
+        >ACTIVE</text>
+        <text
+            x="299"
+            y="66"
+            :fill="colors.foreground"
+            font-size="9"
+            font-weight="700"
+        >573</text>
         <rect
             x="14"
             y="92"
@@ -104,8 +159,19 @@ defineProps({
             :fill="colors.card"
             :stroke="colors.border"
         />
-        <text x="24" y="108" :fill="colors.foreground" font-size="6" font-weight="700">Overview</text>
-        <text x="24" y="115" :fill="colors['muted-foreground']" font-size="4">Monthly revenue</text>
+        <text
+            x="24"
+            y="108"
+            :fill="colors.foreground"
+            font-size="6"
+            font-weight="700"
+        >Overview</text>
+        <text
+            x="24"
+            y="115"
+            :fill="colors['muted-foreground']"
+            font-size="4"
+        >Monthly revenue</text>
         <path
             d="M28 190 C50 170 59 159 78 169 S106 148 126 161 S151 183 170 145 S199 135 228 121"
             fill="none"
@@ -113,27 +179,48 @@ defineProps({
             stroke-width="3"
             stroke-linecap="round"
         />
-        <text x="267" y="108" :fill="colors.foreground" font-size="6" font-weight="700">Recent sales</text>
+        <text
+            x="267"
+            y="108"
+            :fill="colors.foreground"
+            font-size="6"
+            font-weight="700"
+        >Recent sales</text>
         <circle
             cx="275"
             cy="130"
             r="7"
             :fill="colors.primary"
         />
-        <text x="288" y="132" :fill="colors.foreground" font-size="5">Olivia Martin</text>
+        <text
+            x="288"
+            y="132"
+            :fill="colors.foreground"
+            font-size="5"
+        >Olivia Martin</text>
         <circle
             cx="275"
             cy="153"
             r="7"
             :fill="colors.accent"
         />
-        <text x="288" y="155" :fill="colors.foreground" font-size="5">Jackson Lee</text>
+        <text
+            x="288"
+            y="155"
+            :fill="colors.foreground"
+            font-size="5"
+        >Jackson Lee</text>
         <circle
             cx="275"
             cy="176"
             r="7"
             :fill="colors.primary"
         />
-        <text x="288" y="178" :fill="colors.foreground" font-size="5">Isabella Nguyen</text>
+        <text
+            x="288"
+            y="178"
+            :fill="colors.foreground"
+            font-size="5"
+        >Isabella Nguyen</text>
     </svg>
 </template>
