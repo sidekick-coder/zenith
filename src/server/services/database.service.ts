@@ -32,9 +32,7 @@ export default class DatabaseService extends DatabaseGateway<Database> {
         const connection: any = { dialect }
 
         if (dialect === 'sqlite') {
-            let database = options.database || 'storage/database.sqlite'
-            database = database.startsWith('/') ? database : basePath(database)
-            connection.database = database
+            connection.database = options.database
         }
 
         if (dialect === 'mysql') {
