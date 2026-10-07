@@ -49,6 +49,14 @@ export class ZenithContainer extends GenericContainer {
             [key]: value
         })
     }
+
+    public withPrintLogs() {
+        this.withLogConsumer((stream) => {
+            stream
+                .on('data', (line) => console.log(line.toString().trim()))
+                .on('err', (line) => console.error(line.toString().trim()))
+        })
+    }
 }
 
 export function createZenithContainer() {

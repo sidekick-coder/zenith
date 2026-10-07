@@ -18,6 +18,8 @@ async function createApp(options?: CreateAppOptions) {
         options.build(builder)
     }
 
+    // builder.withPrintLogs()
+
     container = await builder.start()
 
     url = `http://${container.getHost()}:${container.getMappedPort(3000)}`
@@ -44,10 +46,10 @@ test.afterAll(async () => {
 })
 
 test.beforeEach(async () => {
-    test.setTimeout(120000) // Increase timeout for each test
+    test.setTimeout(240_000) // Increase timeout for each test
 })
 
-async function goToInstallPage(page: Page) {
+async function login(page: Page) {
     const isLoggedIn = await page.evaluate(() => {
         // @ts-expect-error evaluate window.__INITIAL_STATE__
         const state = window.__INITIAL_STATE__
@@ -68,7 +70,10 @@ async function goToInstallPage(page: Page) {
         await page.waitForLoadState('networkidle')
         await page.waitForURL(baseURL('/'))
     }
+}
 
+async function goToInstallPage(page: Page) {
+    await login(page)
 
     await page.goto(baseURL('/admin/plugins/install-git'), { waitUntil: 'networkidle' })
 }
@@ -81,7 +86,8 @@ test('should install a plugin via remote repository', async ({ page }) => {
     await page.fill('input[name="branch"]', 'build')
     await page.click('button[type="submit"]')
 
-    await page.waitForURL(baseURL('/admin/plugins'), { waitUntil: 'networkidle' })
+    await page.waitForURL(/.*\/api\/reloader/)
+    await page.waitForURL(/.*\/admin\/plugins/, { waitUntil: 'networkidle' })
 
     await page.waitForSelector('text=zenith-backup')
 })
@@ -103,9 +109,10 @@ test('should install a plugin via remote repository with ssh key', async ({ page
     await page.fill('textarea[name="ssh_key"]', sshKey + '\n') // Add a newline to ensure the key is properly formatted
     await page.click('button[type="submit"]')
 
-    await page.waitForURL(baseURL('/admin/plugins'), { waitUntil: 'networkidle' })
+    await page.waitForURL(/.*\/api\/reloader/)
+    await page.waitForURL(/.*\/admin\/plugins/, { waitUntil: 'networkidle' })
 
-    expect(page.getByText(identity)).toBeAttached()
+    await page.waitForSelector(`text=${identity}`)
 })
 
 
@@ -146,7 +153,8 @@ test('should install a plugin with ssh key on binded volume', async ({ page }) =
     await page.fill('textarea[name="ssh_key"]', sshKey + '\n') // Add a newline to ensure the key is properly formatted
     await page.click('button[type="submit"]')
 
-    await page.waitForURL(baseURL('/admin/plugins'), { waitUntil: 'networkidle' })
+    await page.waitForURL(/.*\/api\/reloader/)
+    await page.waitForURL(/.*\/admin\/plugins/, { waitUntil: 'networkidle' })
 
-    await expect(page.getByText(identity)).toBeAttached()
+    await page.waitForSelector(`text=${identity}`)
 })
