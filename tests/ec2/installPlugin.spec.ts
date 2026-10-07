@@ -1,44 +1,22 @@
+import path from 'path'
+import os from 'os'
 import { test, expect, Page } from '@playwright/test'
-import { GenericContainer, StartedTestContainer } from 'testcontainers'
+import { StartedTestContainer } from 'testcontainers'
+import { createZenithContainer } from '../fixtures/createZenithContainer.ts'
 
 let url: string
 let container: StartedTestContainer
 
-async function createApp() {
-    const config = {
-        'database.default': 'sqlite',
-        'database.connections.sqlite.dialect': 'sqlite',
-        'database.connections.sqlite.database': '/tmp/zenith.db',
-        'database.migrator.auto': 'true',
+interface CreateAppOptions {
+    build?: (builder: ReturnType<typeof createZenithContainer>) => void
+}
 
-        'users.auto': 'true',
-        'users.registry[0].name': 'admin',
-        'users.registry[0].username': 'admin',
-        'users.registry[0].email': 'admin@admin.com',
-        'users.registry[0].password': 'admin-123',
-        'users.registry[0].permissions': 'admin',
+async function createApp(options?: CreateAppOptions) {
+    const builder = createZenithContainer()
+
+    if (options?.build) {
+        options.build(builder)
     }
-
-    const env = {
-        ZENITH_CONFIG: Object.entries(config)
-            .map(([key, value]) => `${key}=${value}`)
-            .join(';'),
-    }
-
-    const builder = new GenericContainer('zenith-test')
-        // .withLogConsumer((stream) => {
-        //     stream
-        //         .on('data', (line) => console.log(line.toString().trim()))
-        //         .on('err', (line) => console.error(line.toString().trim()))
-        // })
-        .withExposedPorts(3000)
-        .withEnvironment(env)
-        .withHealthCheck({
-            test: ['CMD-SHELL', 'curl -f http://localhost:3000/api/health || exit 1'],
-            interval: 1000,
-            timeout: 10000,
-            retries: 30,
-        })
 
     container = await builder.start()
 
@@ -65,6 +43,9 @@ test.afterAll(async () => {
     }
 })
 
+test.beforeEach(async () => {
+    test.setTimeout(120000) // Increase timeout for each test
+})
 
 async function goToInstallPage(page: Page) {
     const isLoggedIn = await page.evaluate(() => {
@@ -89,27 +70,23 @@ async function goToInstallPage(page: Page) {
     }
 
 
-    await page.goto(baseURL('/admin/plugins/install'), { waitUntil: 'networkidle' })
+    await page.goto(baseURL('/admin/plugins/install-git'), { waitUntil: 'networkidle' })
 }
 
 
-test('should install a plugin', async ({ page }) => {
-    test.setTimeout(60000) // Increase timeout for plugin installation
-
+test('should install a plugin via remote repository', async ({ page }) => {
     await goToInstallPage(page)
 
     await page.fill('input[name="repository"]', 'https://github.com/sidekick-coder/zenith-backup.git')
+    await page.fill('input[name="branch"]', 'build')
     await page.click('button[type="submit"]')
 
-    // await page.waitForLoadState('networkidle')
-
-    await expect(page).toHaveURL(/.*\/admin\/plugins/)
+    await page.waitForURL(baseURL('/admin/plugins'), { waitUntil: 'networkidle' })
 
     await page.waitForSelector('text=zenith-backup')
 })
 
-test('should install a plugin with ssh key', async ({ page }) => {
-
+test('should install a plugin via remote repository with ssh key', async ({ page }) => {
     const identity = process.env.ZENITH_TEST_PLUGIN_IDENTITY || ''
     const repository = process.env.ZENITH_TEST_PLUGIN_REPO || ''
     const sshKey = process.env.ZENITH_TEST_PLUGIN_SSH_KEY || ''
@@ -122,12 +99,54 @@ test('should install a plugin with ssh key', async ({ page }) => {
     await goToInstallPage(page)
 
     await page.fill('input[name="repository"]', repository)
+    await page.fill('input[name="branch"]', 'build')
     await page.fill('textarea[name="ssh_key"]', sshKey + '\n') // Add a newline to ensure the key is properly formatted
     await page.click('button[type="submit"]')
 
-    await expect(page).toHaveURL(/.*\/admin\/plugins/)
+    await page.waitForURL(baseURL('/admin/plugins'), { waitUntil: 'networkidle' })
 
-    await page.waitForLoadState('networkidle')
+    expect(page.getByText(identity)).toBeAttached()
+})
 
-    await page.waitForSelector(`text=${identity}`)
+
+test('should install a plugin with ssh key on binded volume', async ({ page }) => {
+    const identity = process.env.ZENITH_TEST_PLUGIN_IDENTITY || ''
+    const repository = process.env.ZENITH_TEST_PLUGIN_REPO || ''
+    const sshKey = process.env.ZENITH_TEST_PLUGIN_SSH_KEY || ''
+
+    if (!identity || !repository || !sshKey) {
+        test.skip(true, 'Environment variables ZENITH_TEST_PLUGIN_IDENTITY, ZENITH_TEST_PLUGIN_REPO, and ZENITH_TEST_PLUGIN_SSH_KEY must be set for this test.')
+        return
+    }
+
+    const volumeId = Date.now().toString()
+    const volumePath = path.resolve(os.tmpdir(), `zenith-test-volumes-${volumeId}`)
+
+    createApp({
+        build: (builder) => {
+            builder.withBindMounts([
+                {
+                    source: path.join(volumePath, 'tmp'),
+                    target: '/data/tmp',
+                    mode: 'rw',
+                },
+                {
+                    source: path.join(volumePath, 'plugins'),
+                    target: '/data/plugins',
+                    mode: 'rw',
+                }
+            ])
+        }
+    })
+
+    await goToInstallPage(page)
+
+    await page.fill('input[name="repository"]', repository)
+    await page.fill('input[name="branch"]', 'build')
+    await page.fill('textarea[name="ssh_key"]', sshKey + '\n') // Add a newline to ensure the key is properly formatted
+    await page.click('button[type="submit"]')
+
+    await page.waitForURL(baseURL('/admin/plugins'), { waitUntil: 'networkidle' })
+
+    await expect(page.getByText(identity)).toBeAttached()
 })

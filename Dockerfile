@@ -20,7 +20,6 @@ COPY package.json package-lock.json* ./
 
 RUN npm install
 
-
 FROM deps AS build
 
 COPY . .
@@ -28,7 +27,8 @@ COPY . .
 RUN npm run build
 
 ENV NODE_ENV=production
-ENV RUNTIME_CONFIG_PATH=/tmp/runtime-config.txt
+ENV ZENITH_RUNTIME_CONFIG_PATH=/tmp/runtime-config.txt
+ENV ZENITH_TMP_PATH=/tmp
 
 EXPOSE 3000
 

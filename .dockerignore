@@ -1,10 +1,5 @@
 node_modules
 storage
 .env
-client-dist/
-modules/*
-!modules/.gitkeep
-config/*
-!config/.gitkeep
-plugins/*
-!plugins/.gitkeep
+data/*
+!data/.gitkeep
