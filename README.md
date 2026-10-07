@@ -8,3 +8,4 @@ A versatile JavaScript CMS that allows extensions via modules, that can be used 
 
 </div>
 
+![Zenith](./screenshots/themes.png)
