@@ -5,6 +5,7 @@ import { resolve } from 'path'
 import fg from 'fast-glob'
 import { basePath } from '@sidekick-coder/zenith-kit/server/utils/basePath'
 import { TranslatorService as Base } from '@sidekick-coder/zenith-kit/shared'
+import pluginManager from '#server/facades/pluginManager.ts'
 
 interface ScanOptions {
     directory: string
@@ -16,6 +17,16 @@ export default class TranslatorService extends Base {
 
     public discover() {
         const files: string[] = fg.sync(basePath('langs', '*.json'))
+
+        for (const p of pluginManager.list()) {
+            if (!fs.existsSync(p.makePath('langs'))) {
+                continue
+            }
+
+            const pluginFiles: string[] = fg.sync(p.makePath('langs', '*.json'))
+
+            files.push(...pluginFiles)
+        }
 
         for (const file of files) {
             const locale = path.basename(file, '.json')
