@@ -31,7 +31,7 @@ export default class extends LifecycleHook {
     public async onPageRequest(ctx: PageRequestContextEntity): Promise<void> {
         const service = container.get<TranslatorService>(TranslatorService)
 
-        let locale = config.get('translator.defaultLocale', 'en-US')
+        let locale = config.get('translator.default_locale', 'en-US')
 
         const metas = ctx.nodeState.get('user:metas') || {}
 
@@ -39,15 +39,17 @@ export default class extends LifecycleHook {
             locale = metas['locale']
         }
 
-        ctx.setState('translator:locales', service.locales)
-        ctx.setState('translator:locale', locale)
-        ctx.setState('translator:entries', await service.getEntries(locale))
+        ctx.setState('translator', {
+            locale: locale,
+            locales: service.locales,
+            entries: await service.getEntries(locale)
+        })
     }
 
 
     public async load(): Promise<void> {
         const service = container.get<TranslatorService>(TranslatorService)
-        const defaultLocale = config.get('translator.defaultLocale', 'en-US')
+        const defaultLocale = config.get('translator.default_locale', 'en-US')
 
         await service.load(defaultLocale)
 

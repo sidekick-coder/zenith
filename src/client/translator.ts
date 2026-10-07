@@ -1,31 +1,37 @@
-import TranslatorService from '#shared/services/translator.service.ts'
+import { LoggerService, TranslatorService } from '@sidekick-coder/zenith-kit/shared'
 
-const state = globalThis.__STATE__ || {}
-const locales = state['translator:locales'] || []
-const locale = state['translator:locale'] || 'en-US'
-const entries = state['translator:entries'] || {}
-        
-const service = new TranslatorService({
-    locale: locale,
-    // debug: config.getOne(['translator.debug', 'app.debug'], false),
-    entries: new Map(Object.entries(entries)),
-    // logger: logger.child({ label: 'translator' })
-})
-        
-for (const locale of locales) {
-    service.localeLoaders.set(locale, async () => {
-        return {}
-    })
+export interface TranslatorServicePayload {
+    locales?: string[]
+    locale?: string
+    entries?: Record<string, string>
+    logger?: LoggerService
+    debug?: boolean
 }
 
-// di.set(TranslatorService, service)
+export function createTranslatorService(payload: TranslatorServicePayload): TranslatorService {
+    const locales = payload.locales || ['en-US']
+    const locale = payload.locale || locales[0] || 'en-US'
+    const entries = payload.entries || {}
 
+    const service = new TranslatorService({
+        locale: locale,
+        debug: payload.debug,
+        entries: new Map(Object.entries(entries)),
+        logger: payload.logger
+    })
 
-globalThis.$t = service.t.bind(service)
-globalThis.$t = service.t.bind(service)
-globalThis.$dt = service.datetime.bind(service)
-globalThis.$d = service.date.bind(service)
-globalThis.$translator = service
+    for (const locale of locales) {
+        service.localeLoaders.set(locale, async () => {
+            return {}
+        })
+    }
 
+    globalThis.$t = service.t.bind(service)
+    globalThis.$t = service.t.bind(service)
+    globalThis.$dt = service.datetime.bind(service)
+    globalThis.$d = service.date.bind(service)
+    globalThis.$translator = service
 
-export default service
+    return service
+}
+

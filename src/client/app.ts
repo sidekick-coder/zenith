@@ -1,10 +1,9 @@
-import './translator.ts'
-
 import { container, LifecycleService } from '@sidekick-coder/zenith-kit/client'
-import { ConfigService, EmmitterService, LoggerService } from '@sidekick-coder/zenith-kit/shared'
+import { ConfigService, EmmitterService, LoggerService, TranslatorService } from '@sidekick-coder/zenith-kit/shared'
 import type { App } from 'vue'
 import type { Router } from 'vue-router'
 import { createPluginManager } from './plugins.ts'
+import { createTranslatorService } from './translator.ts'
 
 interface AppOptions {
     logger: LoggerService
@@ -16,6 +15,7 @@ export async function createApp(options: AppOptions) {
     const logger = options.logger || new LoggerService()
 
     const config = new ConfigService()
+
     const lifecycle = new LifecycleService({
         debug: config.getOne(['lifecycle.debug', 'app.debug', 'debug'], false),
         logger: logger.child({ label: 'lifecycle' }),
@@ -36,11 +36,18 @@ export async function createApp(options: AppOptions) {
         logger: logger.child({ label: 'emmitter' }),
     })
 
+    const translator = createTranslatorService({
+        ...container.get<Record<string,any>>('state').translator,
+        debug: config.getOne(['translator.debug', 'app.debug', 'debug'], false),
+        logger: logger.child({ label: 'translator' }),
+    })
+
     container
         .set(ConfigService, config)
         .set(LifecycleService, lifecycle)
         .set(LoggerService, logger)
         .set(EmmitterService, emmiter)
+        .set(TranslatorService, translator)
 
     await manager.register()
 

@@ -2,10 +2,9 @@ import fs from 'fs'
 import path from 'path'
 import { readFile } from 'fs/promises'
 import { resolve } from 'path'
-import { glob } from 'glob'
 import fg from 'fast-glob'
 import { basePath } from '@sidekick-coder/zenith-kit/server/utils/basePath'
-import Base from '#shared/services/translator.service.ts'
+import { TranslatorService as Base } from '@sidekick-coder/zenith-kit/shared'
 
 interface ScanOptions {
     directory: string
@@ -15,16 +14,13 @@ interface ScanOptions {
 export default class TranslatorService extends Base {
     public sources = new Map<string, string[]>()
 
-    public discover(){
-        const files: string[] = fg.sync([
-            basePath('langs', '*.json'),
-            basePath('modules', '**', 'langs', '*.json'),
-        ], { deep: 3 })
+    public discover() {
+        const files: string[] = fg.sync(basePath('langs', '*.json'))
 
         for (const file of files) {
             const locale = path.basename(file, '.json')
             const source = this.sources.get(locale) || []
-            
+
             source.push(file)
 
             this.sources.set(locale, source)
@@ -35,7 +31,7 @@ export default class TranslatorService extends Base {
         }
 
         if (this.debug) {
-            this.logger.debug('discovered translation files',  Object.fromEntries(this.sources))
+            this.logger.debug('discovered translation files', Object.fromEntries(this.sources))
         }
 
         // default is en
@@ -62,8 +58,6 @@ export default class TranslatorService extends Base {
     public async scan(options: ScanOptions) {
         const { directory, exclude } = options
 
-        const resolvedDirectory = resolve(directory)
-
         const ignore = [
             '**/node_modules/**',
             '**/dist/**',
@@ -78,7 +72,7 @@ export default class TranslatorService extends Base {
             ignore.push(...exclude)
         }
 
-        const files: string[] = await fg.sync('**/*.{js,ts,vue}', {
+        const files: string[] = fg.sync('**/*.{js,ts,vue}', {
             cwd: directory,
             ignore,
             onlyFiles: true
@@ -115,5 +109,5 @@ export default class TranslatorService extends Base {
 
         return record
     }
-   
+
 }
