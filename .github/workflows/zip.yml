@@ -41,12 +41,12 @@ jobs:
 
             - name: Create ZIP (Linux)
               if: runner.os == 'Linux'
-              run: zip -r zenith-${{ matrix.platform }}.zip dist node_modules package.json
+              run: zip -r zenith-${{ matrix.platform }}.zip zenith.js loader.js dist node_modules package.json
 
             - name: Create ZIP (Windows)
               if: runner.os == 'Windows'
               shell: pwsh
-              run: Compress-Archive -Path dist,node_modules,package.json -DestinationPath zenith-${{ matrix.platform }}.zip
+              run: Compress-Archive -Path zenith.js,loader.js,dist,node_modules,package.json -DestinationPath zenith-${{ matrix.platform }}.zip
 
             - name: Upload release asset
               if: github.event_name == 'release'
