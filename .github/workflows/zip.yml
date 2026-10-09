@@ -1,4 +1,4 @@
-name: Build Server Packages
+name: build-zip
 
 on:
     release:
