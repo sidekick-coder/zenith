@@ -9,8 +9,36 @@ const imports = {
     'vee-validate': pathToFileURL(path.resolve(import.meta.dirname, 'node_modules/vee-validate/dist/vee-validate.mjs')).href,
 }
 
+const checked = new Set()
+
+function check(specifier) {
+    if (checked.has(specifier)) {
+        return
+    }
+
+    checked.add(specifier)
+
+    // ignore relative 
+    if (specifier.startsWith('./') || specifier.startsWith('../')) {
+        return
+    }
+
+    // ignore if specifier is a path URL
+    if (specifier.startsWith('file://') || specifier.startsWith('http://') || specifier.startsWith('https://')) {
+        return
+    }
+
+    if (!specifier.startsWith('/')) {
+        return
+    }
+
+    console.warn(`Warning: Specifier "${specifier}" may cause issues on windows.`)
+}
+
 
 export async function resolve(specifier, context, nextResolve) {
+    check(specifier)
+
     if (Object.hasOwn(imports, specifier)) {
         return nextResolve(imports[specifier], context)
     }

@@ -1,5 +1,6 @@
 import fs from 'fs'
 import path from 'path'
+import { pathToFileURL } from 'url'
 import { tryCatch } from '@sidekick-coder/zenith-kit/shared/utils/tryCatch'
 import Router from './router.service.ts'
 import type Route from '#server/entities/route.entity.ts'
@@ -53,8 +54,10 @@ export default class RouterRegister<C = {}> extends Router<C> {
                 filename: entry.filepath,
             }
         }
+
+        const url = pathToFileURL(entry.filepath).toString()
     
-        const unached = `${entry.filepath}?t=${Date.now()}` // Prevent caching issues
+        const unached = `${url}?t=${Date.now()}` // Prevent caching issues
 
         this.on('added', hook)
     
@@ -90,9 +93,10 @@ export default class RouterRegister<C = {}> extends Router<C> {
             }
 
             const fullPath = path.join(entry.filepath, file)
-                
+
             const fileRouterRegisterEntry = { 
                 filepath: fullPath,
+                url: pathToFileURL(fullPath).toString(),
                 metadata: entry.metadata 
             }
 
