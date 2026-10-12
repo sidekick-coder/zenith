@@ -26,6 +26,8 @@ COPY . .
 
 RUN npm run build
 
+RUN npm prune --production
+
 ENV NODE_ENV=production
 ENV ZENITH_RUNTIME_CONFIG_PATH=/tmp/runtime-config.txt
 ENV ZENITH_TMP_PATH=/tmp
