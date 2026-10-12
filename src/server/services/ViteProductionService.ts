@@ -1,4 +1,5 @@
 import fs from 'fs'
+import { pathToFileURL } from 'url'
 import type { Application } from 'express'
 import type { Request, Response } from 'express'
 import { basePath, PageRequestContextEntity } from '@sidekick-coder/zenith-kit/server'
@@ -44,7 +45,9 @@ export default class ViteProductionService extends ViteService {
             throw new BaseException('entrypoint not found, make sure to build the client before starting the server')
         }
 
-        const mod = await import(filename)
+        const url = pathToFileURL(filename).href
+
+        const mod = await import(url)
 
         if (!mod) {
             throw new BaseException('failed to load entrypoint module')
