@@ -90,6 +90,7 @@ export default class extends LifecycleHook {
             component: () => import('../pages/errors/404.vue'),
         })
 
+
         app.use(router as any)
     }
 }

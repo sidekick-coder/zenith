@@ -4,6 +4,8 @@ import { createHead } from '@unhead/vue/server'
 import * as VueServerRenderer from 'vue/server-renderer'
 import { ResolvableHead } from '@unhead/vue'
 import { CookieMapEntity } from '@sidekick-coder/zenith-kit/shared'
+import { container, FetchService, FetchNodeService } from '@sidekick-coder/zenith-kit/client'
+import { createApp } from './app.ts'
 import type { EntryNodeRenderContract, EntryNodeRenderResult } from '#shared/contracts/EntryNodeRenderContract.ts'
 
 if (!globalThis.imports) {
@@ -13,8 +15,7 @@ if (!globalThis.imports) {
 globalThis.imports.set('vue/server-renderer', () => Promise.resolve(VueServerRenderer))
 
 export default async function(ctx: EntryNodeRenderContract): Promise<EntryNodeRenderResult> {
-    const { container, FetchService, FetchNodeService } = await import('@sidekick-coder/zenith-kit/client')
-    const { createApp } = await import('./app.ts')
+    container.clear()
 
     container.set(FetchService, new FetchNodeService())
     container.set('RouterService', ctx.serverRouter)

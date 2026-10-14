@@ -8,7 +8,7 @@ export default class extends LifecycleHook {
         layout.add('admin', AdminLayout)
     }
 
-    public async onLoad(): Promise<void> {
+    public async boot(): Promise<void> {
         layout.setCurrent(route.meta?.layout as string)
         layout.setOptions(route.meta?.layoutOptions || {})
 
