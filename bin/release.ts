@@ -19,9 +19,11 @@ program
     .option('--patch', 'Bump patch version')
     .option('--minor', 'Bump minor version')
     .option('--major', 'Bump major version')
+    .option('--skip-test', 'Skip running tests before bumping version')
     .action(async (options) => {
         const staged = exec('git diff --cached --name-only')
         const unstaged = exec('git diff --name-only')
+        const skipTests = options.skipTest || false
 
         if (staged || unstaged) {
             console.error('Error: there are uncommitted changes. Please commit or stash them before releasing.')
@@ -67,12 +69,13 @@ program
             process.exit(1)
         }
 
+        if (!skipTests) {
+            console.log('building docker image for tests...')
+            run('npm', ['run', 'docker:build-test'])
 
-        console.log('building docker image for tests...')
-        run('npm', ['run', 'docker:build-test'])
-
-        console.log('run tests before bumping version...')
-        run('npm', ['run', 'test:e2e'])
+            console.log('run tests before bumping version...')
+            run('npm', ['run', 'test:e2e'])
+        }
 
         console.log(`\nBumping ${bump} version...`)
         run('npm', ['version', bump])
