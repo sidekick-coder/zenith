@@ -1,6 +1,6 @@
 import path from 'path'
 import fs from 'fs'
-import { basePath, config  } from '@sidekick-coder/zenith-kit/server'
+import { config, dataPath  } from '@sidekick-coder/zenith-kit/server'
 import type { HttpContext } from '@sidekick-coder/zenith-kit/server'
 import { BaseException, validator } from '@sidekick-coder/zenith-kit/shared'
 import pluginManager from '#server/facades/pluginManager.ts'
@@ -20,7 +20,7 @@ export default function ({ acl, params }: HttpContext) {
     const dir = plugin.makePath()
     const dirname = path.dirname(dir)
 
-    if (dirname !== basePath('plugins')) {
+    if (dirname !== dataPath('plugins')) {
         throw new BaseException('Plugin not installed via the plugins directory cannot be uninstalled', 400)
     }
 
