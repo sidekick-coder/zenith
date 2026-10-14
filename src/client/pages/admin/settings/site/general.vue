@@ -1,64 +1,33 @@
 <script lang="ts" setup>
-import { useForm } from 'vee-validate'
-import { toTypedSchema } from '@vee-validate/valibot'
 import {
-    computed,
     onMounted,
     ref
 } from 'vue'
 import { toast } from 'vue-sonner'
-import { useRouter } from 'vue-router'
-import { ChevronDown } from 'lucide-vue-next'
 
-import { tryCatch } from '@sidekick-coder/zenith-kit/shared/utils/tryCatch'
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
-    FormImageUploader,
-} from '@sidekick-coder/zenith-kit/components'
+import { useForm, fetcher } from '@sidekick-coder/zenith-kit/client'
+import { FormImageUploader, } from '@sidekick-coder/zenith-kit/components'
 import FormTextField from '#client/components/FormTextField.vue'
-// import FormImageUploader from '#client/components/FormImageUploader.vue'
-import { $fetch } from '#client/utils/fetcher.ts'
 import Button from '#client/components/Button.vue'
-import UiButton from '#client/components/ui/button/Button.vue'
 import Card from '#client/components/ui/card/Card.vue'
 import CardFooter from '#client/components/ui/card/CardFooter.vue'
 import CardContent from '#client/components/ui/card/CardContent.vue'
-import settingSiteValidator from '#shared/validators/settingSite.validator.ts'
+import siteSchema from '#shared/schemas/siteSchema.ts'
 import PageTitle from '#client/components/PageTitle.vue'
 import PageSubtitle from '#client/components/PageSubtitle.vue'
-
-const router = useRouter()
 
 const loading = ref(false)
 const saving = ref(false)
 const setting = ref<any>({})
-const { handleSubmit, setValues, setFieldValue } = useForm({ validationSchema: toTypedSchema(settingSiteValidator.create) })
 
-const availableRoutes = computed(() => {
-    return router.getRoutes()
-        .filter(route => route.path && !route.path.includes('*') && route.path !== '/')
-        .map(route => ({
-            path: route.path,
-            name: route.name || route.path
-        }))
-        .sort((a, b) => a.path.localeCompare(b.path))
-})
-
-function selectRoute(routePath: string) {
-    setFieldValue('home_route_path', routePath)
-}
+const { handleSubmit, setValues } = useForm(siteSchema())
 
 const onSubmit = handleSubmit(async (form) => {
     saving.value = true
 
-    const [error] = await tryCatch(() => {
-        return $fetch('/api/configs/site', {
-            method: 'PUT',
-            data: form,
-        })
+    const [error] = await fetcher.try('/api/config/site', {
+        method: 'PUT',
+        data: form,
     })
 
     if (error) {
@@ -75,7 +44,7 @@ const onSubmit = handleSubmit(async (form) => {
 async function load() {
     loading.value = true
 
-    const [error, response] = await tryCatch(() => $fetch<any>('/api/configs/site'))
+    const [error, response] = await fetcher.try('/api/config/site')
 
     if (error) return
 
@@ -83,9 +52,9 @@ async function load() {
 
     setting.value = response
 
-    setTimeout(() => {
-        loading.value = false
-    }, 1000)
+    await new Promise((resolve) => setTimeout(resolve, 800))
+
+    loading.value = false
 }
 
 onMounted(load)
@@ -123,37 +92,16 @@ onMounted(load)
                 />
 
                 <FormTextField
-                    name="home_route_path"
-                    :label="$t('Home route path')"
-                >
-                    <template #append>
-                        <DropdownMenu>
-                            <DropdownMenuTrigger as-child>
-                                <UiButton
-                                    type="button"
-                                    variant="outline"
-                                    size="sm"
-                                    class="h-10 px-3"
-                                >
-                                    <ChevronDown class="h-4 w-4" />
-                                </UiButton>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent
-                                align="end"
-                                class="w-64"
-                            >
-                                <DropdownMenuItem
-                                    v-for="route in availableRoutes"
-                                    :key="route.path"
-                                    class="cursor-pointer"
-                                    @click="selectRoute(route.path)"
-                                >
-                                    {{ route.path }}
-                                </DropdownMenuItem>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
-                    </template>
-                </FormTextField>
+                    name="home_path"
+                    clearable
+                    :label="$t('Home path')"
+                />
+
+                <FormTextField
+                    name="home_redirect_path"
+                    clearable
+                    :label="$t('Home redirect path')"
+                />
             </CardContent>
 
             <CardFooter class="justify-end">

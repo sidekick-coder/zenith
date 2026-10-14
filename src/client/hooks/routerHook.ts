@@ -72,18 +72,27 @@ export default class extends LifecycleHook {
         const router = container.get<Router>('router')
         const app = container.get<App>('app')
 
-        const homeRoute = config.get('site.home_route_path', '/hello')
+        const homeRedirectPath = config.get('site.home_redirect_path', null)
+        const homePath = config.get('site.home_path', '/hello')
 
-        const route = router.resolve(homeRoute)
-        const record = route.matched[route.matched.length - 1]
+        if (homeRedirectPath) {
+            router.addRoute({
+                path: '/',
+                redirect: homeRedirectPath,
+            })
+        }
 
-        if (record) {
+        if (homePath && !homeRedirectPath) {
+            const route = router.resolve(homePath)
+            const record = route.matched[route.matched.length - 1]
+
             router.addRoute({
                 ...record,
                 path: '/',
                 name: 'home',
             })
         }
+
 
         router.addRoute({
             path: '/:pathMatch(.*)*',

@@ -3,7 +3,6 @@ import * as permission from './permission.validator.ts'
 import * as permissionAssignment from './permissionAssignment.validator.ts'
 import * as url from './url.validator.ts'
 import * as role from './role.validator.ts'
-import * as settingSite from './settingSite.validator.ts'
 import * as user from './user.validator.ts'
 import * as userMeta from './userMeta.validator.ts'
 import * as fileMeta from './fileMeta.validator.ts'
@@ -28,7 +27,6 @@ const schemas = {
     query: url,
     url,
     role,
-    settingSite,
     user,
     userMeta,
     fileMeta,
