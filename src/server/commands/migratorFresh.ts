@@ -9,7 +9,7 @@ interface Options {
 
 const command = new CliCommand('migrator:fresh')
     .need('db', 'migrator', 'shell', 'drive')
-    .helpGroup('migration')
+    .helpGroup('migrator')
     .description('Rollback all migrations and re-run them')
     .option('-s, --source <string>', 'Filter by source name')
     .option('-n, --steps <number>', 'Number of migrations to rollback before running fresh', Number)

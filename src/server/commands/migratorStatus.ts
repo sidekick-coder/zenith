@@ -8,7 +8,7 @@ const colors = command.colors
 
 command
     .need('db', 'migrator', 'plugins')
-    .helpGroup('migration')
+    .helpGroup('migrator')
     .option('-s, --source <source>', 'Filter by source')
     .option('-r, --root ', 'Run only root migrations')
     .action(async (options: any) => {

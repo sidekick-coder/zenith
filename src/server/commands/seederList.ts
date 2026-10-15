@@ -9,7 +9,7 @@ interface SeederListOptions {
 
 const command = new CliCommand('seeder:list')
     .need('seeder', 'plugins')
-    .helpGroup('database')
+    .helpGroup('seeder')
     .description('List all available seed files')
     .option('-s, --source <source>', 'Filter seeds by source')
     .option('-n, --name <names...>', 'Filter seeds by name(s)')

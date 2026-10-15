@@ -8,7 +8,7 @@ interface Options {
 
 const command = new CliCommand('migrator:rollback')
     .need('db', 'migrator', 'shell', 'drive')
-    .helpGroup('migration')
+    .helpGroup('migrator')
     .description('Rollback pending migrations')
     .option('-s, --source <string>', 'Filter by source name')
     .action(async (options: Options) => {

@@ -11,7 +11,7 @@ interface SeederRunOptions {
 
 const command = new CliCommand('seeder:run')
     .need('seeder', 'database', 'plugins')
-    .helpGroup('database')
+    .helpGroup('seeder')
     .description('Run database seed files')
     .option('-s, --source <source>', 'Filter seeds by module name')
     .option('-n, --name <names...>', 'Filter seeds by name(s)')

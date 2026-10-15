@@ -10,7 +10,7 @@ const command = new CliCommand('migrator:latest')
 
 command
     .need('db', 'migrator', 'shell', 'drive')
-    .helpGroup('migration')
+    .helpGroup('migrator')
     .description('Run all pending migrations')
     .option('-s, --source <string>', 'Filter by source name')
     .action(async (options: Options) => {

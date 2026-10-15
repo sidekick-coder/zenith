@@ -13,7 +13,7 @@ const colors = command.colors
 
 command
     .need('db', 'migrator', 'shell', 'drive')
-    .helpGroup('migration')
+    .helpGroup('migrator')
     .description('Rollback executed migrations')
     .option('-n, --step-number <number>', 'Number of migrations to rollback', Number)
     .option('-s, --source <string>', 'Filter by source name')
