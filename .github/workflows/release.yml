@@ -31,3 +31,9 @@ jobs:
               uses: softprops/action-gh-release@v2
               with:
                   body: ${{ steps.git-cliff.outputs.content }}
+
+            - name: trigger-zip-workflow
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              run: gh workflow run build-zip.yml --ref ${{ github.ref }} --repo ${{ github.repository }}
+
