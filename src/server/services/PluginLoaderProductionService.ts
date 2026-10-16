@@ -1,5 +1,6 @@
 import fs from 'fs'
 import path from 'path'
+import { pathToFileURL } from 'url'
 import PluginEntity from '@sidekick-coder/zenith-kit/server/entities/PluginEntity'
 import PluginEntryEntity from '@sidekick-coder/zenith-kit/server/entities/PluginEntryEntity'
 import type { EventContract } from '@sidekick-coder/zenith-kit/server/contracts/EventContract'
@@ -78,7 +79,9 @@ export default class PluginLoaderProductionService extends PluginLoaderService {
             return
         }
 
-        let contructor = await import(entry)
+        const url = pathToFileURL(entry).href
+
+        let contructor = await import(url)
 
         contructor = contructor.default || contructor
 
