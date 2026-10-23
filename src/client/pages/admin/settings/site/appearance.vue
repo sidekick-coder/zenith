@@ -9,10 +9,10 @@ import { $fetch } from '#client/utils/fetcher.ts'
 import PageTitle from '#client/components/PageTitle.vue'
 import PageSubtitle from '#client/components/PageSubtitle.vue'
 import ThemePreview from '#client/components/ThemePreview.vue'
-import schemas from '#shared/validators/index.ts'
 import { useFonts } from '#client/composables/useFonts.ts'
 import { useRadii } from '#client/composables/useRadii.ts'
 import { useThemes } from '#client/composables/useThemes.ts'
+import { brandingSchema } from '#shared/schemas/brandingSchema.ts'
 
 const loading = ref(false)
 const saving = ref(false)
@@ -31,7 +31,7 @@ const radiusOptions = radii.map(radius => ({
 }))
 const styleRef = ref<HTMLStyleElement>()
 
-const { handleSubmit, values, resetForm } = useForm(schemas.branding.update)
+const { handleSubmit, values, resetForm } = useForm(brandingSchema.update())
 
 function setPreview() {
     if (!styleRef.value) return
@@ -46,7 +46,7 @@ function setPreview() {
 async function load() {
     loading.value = true
 
-    const [error, response] = await $fetch.try<any>('/api/branding')
+    const [error, response] = await $fetch.try<any>('/api/config/branding')
 
     if (error) {
         loading.value = false
@@ -74,7 +74,7 @@ async function load() {
 const onSubmit = handleSubmit(async (data) => {
     saving.value = true
 
-    const [error] = await $fetch.try('/api/branding', {
+    const [error] = await $fetch.try('/api/config/branding', {
         method: 'PUT',
         data,
     })

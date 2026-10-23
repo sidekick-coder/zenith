@@ -8,7 +8,6 @@ import * as userMeta from './userMeta.validator.ts'
 import * as fileMeta from './fileMeta.validator.ts'
 import * as connection from './connection.validator.ts'
 import * as modules from './modules.validator.ts'
-import * as branding from './branding.validator.ts'
 import * as pwa from './pwa.validator.ts'
 import * as fileUploadSession from './fileUploadSession.validator.ts'
 import * as metadata from './metadata.validator.ts'
@@ -33,7 +32,6 @@ const schemas = {
     fileUploadSession,
     connection,
     modules,
-    branding,
     pwa,
     file,
     translator,
