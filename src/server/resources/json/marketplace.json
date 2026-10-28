@@ -1,0 +1,12 @@
+{
+    "items": [
+        {
+            "repository": "https://github.com/sidekick-coder/zenith-backup.git",
+            "branch": "build"
+        },
+        {
+            "repository": "https://github.com/sidekick-coder/zenith-plugin-webhook.git",
+            "branch": "release"
+        }
+    ]
+}
