@@ -5,6 +5,7 @@ import PluginEntity from '@sidekick-coder/zenith-kit/server/entities/PluginEntit
 import PluginEntryEntity from '@sidekick-coder/zenith-kit/server/entities/PluginEntryEntity'
 import type { EventContract } from '@sidekick-coder/zenith-kit/server/contracts/EventContract'
 import emmitter from '@sidekick-coder/zenith-kit/server/facades/emmitter'
+import type { DefinePlugin } from '@sidekick-coder/zenith-kit/server'
 import PluginLoaderService from './PluginLoaderService.ts'
 
 export default class PluginLoaderDevelopmentService extends PluginLoaderService {
@@ -73,26 +74,19 @@ export default class PluginLoaderDevelopmentService extends PluginLoaderService 
 
         const url = pathToFileURL(entry).href
 
-        let contructor = await import(url)
+        const mod = await import(url)
 
-        contructor = contructor.default || contructor
+        const def: DefinePlugin = mod.default || mod
 
-        if (typeof contructor !== 'function') {
-            logger.error(`default export of plugin ${plugin.id} is not a constructor function`)
+        if (!def || typeof def.load !== 'function') {
+            logger.warn(`${plugin.id} server entry does not export a load function, skipping...`)
             return
         }
 
-        if (!contructor.fromPluginDiscoverEntity) {
-            logger.error(`looks like plugin ${plugin.id} is not a instance of PluginEntity`)
-            return
-        }
-
-        const instance: PluginEntity = contructor.fromPluginDiscoverEntity(plugin)
-
-        await instance.load()
+        await def.load()
 
         if (this.debug) {
-            logger.debug(`loaded plugin (${plugin.id} v${instance.version})`)
+            logger.debug(`loaded plugin (${plugin.id} v${plugin.version})`)
         }
     }
 

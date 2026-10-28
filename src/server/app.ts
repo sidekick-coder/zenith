@@ -9,7 +9,6 @@ import { dataPath, serverPath } from '@sidekick-coder/zenith-kit/server/utils/ba
 import { tryCatch } from '@sidekick-coder/zenith-kit/shared/utils/tryCatch'
 
 import PluginManagerService from './services/PluginManagerService.ts'
-import WebhookSenderManager from './managers/WebhookSenderManager.ts'
 import PluginDownloadService from './services/PluginDownloadService.ts'
 import LoggerWinsonService from '#server/services/loggerWinson.service.ts'
 
@@ -74,6 +73,19 @@ export async function createApp(options: AppOptions = {}) {
 
     container.set(EmmitterService, emmiter)
 
+    // lifecycle
+    const lifecycle = new LifecycleService({
+        debug: config.getOne(['lifecycle.debug', 'app.debug', 'debug'], false),
+        logger: logger.child({ label: 'lifecycle' }),
+        onError: async (error) => {
+            logger.error(error.message, error)
+
+            process.exit(1)
+        }
+    })
+
+    container.set(LifecycleService, lifecycle)
+
     // plugins
     const pluginManager = await PluginManagerService
         .create()
@@ -91,25 +103,6 @@ export async function createApp(options: AppOptions = {}) {
 
     container.set(PluginManagerService, pluginManager)
     container.set(PluginDownloadService, pluginDownloadService)
-
-    // webhook senders 
-    const webhookSenderManager = await WebhookSenderManager
-        .create()
-        .setLogger(logger.child({ label: 'webhook-senders' }))
-        .setDebug(config.getOne(['webhooks.debug', 'app.debug', 'debug'], false))
-        .load()
-
-    container.set(WebhookSenderManager, webhookSenderManager)
-
-    const lifecycle = new LifecycleService({
-        debug: config.getOne(['lifecycle.debug', 'app.debug', 'debug'], false),
-        logger: logger.child({ label: 'lifecycle' }),
-        onError: async (error) => {
-            logger.error(error.message, error)
-
-            process.exit(1)
-        }
-    })
 
     await lifecycle.addDirectory(serverPath('hooks'))
 

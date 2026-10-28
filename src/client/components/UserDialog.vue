@@ -5,9 +5,6 @@ import { toTypedSchema } from '@vee-validate/valibot'
 import { ref } from 'vue'
 
 import { tryCatch } from '@sidekick-coder/zenith-kit/shared/utils/tryCatch'
-import FormTextField from '#client/components/FormTextField.vue'
-import { $fetch } from '#client/utils/fetcher.ts'
-import Button from '#client/components/Button.vue'
 import {
     Dialog,
     DialogContent,
@@ -16,7 +13,10 @@ import {
     DialogHeader,
     DialogTitle,
     DialogTrigger,
-} from '#client/components/ui/dialog'
+    FormTextField
+} from '@sidekick-coder/zenith-kit/components'
+import { $fetch } from '#client/utils/fetcher.ts'
+import Button from '#client/components/Button.vue'
 
 const emit = defineEmits(['submit'])
 

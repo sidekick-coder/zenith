@@ -153,13 +153,6 @@ export default class extends LifecycleHook {
         })
 
         menu.add({
-            group: $t('Others'),
-            label: $t('Webhook senders'),
-            layout: 'admin',
-            to: '/admin/webhook-senders',
-        })
-
-        menu.add({
             layout: 'admin',
             label: $t('Plugins'),
             to: '/admin/plugins',
