@@ -135,6 +135,11 @@ async function confirmToggle() {
             >
                 {{ $t('Install') }}
             </ZButton>
+            <ZButton
+                to="/admin/plugins/marketplace"
+            >
+                {{ $t('Marketplace') }}
+            </ZButton>
         </div>
     </div>
 

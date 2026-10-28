@@ -4,8 +4,6 @@ import path from 'node:path'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import PluginMarketplaceService from './pluginMarketplace.service.ts'
 
-const encode = (value: string) => Buffer.from(value).toString('base64')
-
 describe('PluginMarketplaceService', () => {
     const directories: string[] = []
 
@@ -29,39 +27,31 @@ describe('PluginMarketplaceService', () => {
         }))
 
         const fetch = vi.fn(async (url: string) => {
-            if (url.endsWith('/readme?ref=release')) {
-                return new Response(JSON.stringify({
-                    encoding: 'base64',
-                    content: encode('# Example'),
-                }))
+            if (url.endsWith('/README.md')) {
+                return new Response('# Example')
             }
 
-            if (url.endsWith('/contents/package.json?ref=release')) {
-                return new Response(JSON.stringify({
-                    encoding: 'base64',
-                    content: encode('{"name":"example","version":"1.2.3"}'),
-                }))
+            if (url.endsWith('/package.json')) {
+                return new Response('{"name":"example","version":"1.2.3"}')
             }
 
-            if (url.endsWith('/contents/zenith.config.yml?ref=release')) {
-                return new Response(JSON.stringify({
-                    encoding: 'base64',
-                    content: encode('id: example'),
-                }))
+            if (url.endsWith('/zenith.config.yml')) {
+                return new Response('id: example')
             }
 
-            return new Response(JSON.stringify({ sha: 'abc123' }))
+            return new Response('From aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa Mon Sep 17 00:00:00 2001')
         })
 
         const entries = await PluginMarketplaceService.create({
             marketplaceFilename,
+            cachePath: path.join(directory, 'cache'),
             fetch: fetch as typeof globalThis.fetch,
         }).list()
 
         expect(entries).toEqual([{
             repository: 'https://github.com/acme/example.git',
             branch: 'release',
-            hash: 'abc123',
+            hash: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
             version: '1.2.3',
             readme: '# Example',
             packageJson: {
@@ -70,6 +60,20 @@ describe('PluginMarketplaceService', () => {
             },
             zenithConfig: { id: 'example' },
         }])
+
+        await PluginMarketplaceService.create({
+            marketplaceFilename,
+            cachePath: path.join(directory, 'cache'),
+            fetch: fetch as typeof globalThis.fetch,
+        }).list()
+
+        expect(fetch).toHaveBeenCalledTimes(4)
+        expect(fetch).toHaveBeenCalledWith(
+            'https://raw.githubusercontent.com/acme/example/release/README.md',
+        )
+        expect(fetch).toHaveBeenCalledWith(
+            'https://github.com/acme/example/commit/release.patch',
+        )
     })
 
     it('rejects marketplace entries outside GitHub', async () => {

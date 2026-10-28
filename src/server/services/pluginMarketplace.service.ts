@@ -1,7 +1,10 @@
 import { readFile } from 'node:fs/promises'
-import { serverPath } from '@sidekick-coder/zenith-kit/server/utils/basePath'
+import * as cacache from 'cacache'
+import { dataPath, serverPath } from '@sidekick-coder/zenith-kit/server/utils/basePath'
 import { load as loadYaml } from 'js-yaml'
 import * as v from 'valibot'
+
+const cacheDuration = 24 * 60 * 60 * 1000
 
 const marketplaceSchema = v.object({
     items: v.array(v.object({
@@ -11,15 +14,6 @@ const marketplaceSchema = v.object({
 })
 
 type MarketplaceItem = v.InferOutput<typeof marketplaceSchema>['items'][number]
-
-interface GitHubContent {
-    content: string
-    encoding: string
-}
-
-interface GitHubCommit {
-    sha: string
-}
 
 export interface PluginMarketplaceEntry {
     repository: string
@@ -34,16 +28,19 @@ export interface PluginMarketplaceEntry {
 
 export interface PluginMarketplaceServiceOptions {
     marketplaceFilename?: string
+    cachePath?: string
     fetch?: typeof globalThis.fetch
 }
 
 export default class PluginMarketplaceService {
     private marketplaceFilename: string
+    private cachePath: string
     private fetch: typeof globalThis.fetch
 
     constructor(options: PluginMarketplaceServiceOptions = {}) {
         this.marketplaceFilename = options.marketplaceFilename
             ?? serverPath('resources/json/marketplace.json')
+        this.cachePath = options.cachePath ?? dataPath('cache/plugin-marketplace')
         this.fetch = options.fetch ?? globalThis.fetch
     }
 
@@ -59,7 +56,7 @@ export default class PluginMarketplaceService {
 
         return Promise.all(marketplace.items.map(async item => {
             try {
-                return await this.get(item)
+                return await this.getCached(item)
             } catch (error) {
                 if (error instanceof Error) {
                     return {
@@ -74,29 +71,62 @@ export default class PluginMarketplaceService {
         }))
     }
 
+    private async getCached(item: MarketplaceItem): Promise<PluginMarketplaceEntry> {
+        const key = `${item.repository}@${item.branch}`
+        const cacheInfo = await cacache.get.info(this.cachePath, key)
+
+        if (cacheInfo) {
+            const cached = JSON.parse(
+                (await cacache.get(this.cachePath, key)).data.toString('utf8'),
+            ) as {
+                entry: PluginMarketplaceEntry
+                expiresAt: number
+            }
+
+            if (cached.expiresAt > Date.now()) {
+                return cached.entry
+            }
+        }
+
+        const entry = await this.get(item)
+
+        await cacache.put(this.cachePath, key, JSON.stringify({
+            entry,
+            expiresAt: Date.now() + cacheDuration,
+        }))
+
+        return entry
+    }
+
     private async get(item: MarketplaceItem): Promise<PluginMarketplaceEntry> {
         const { owner, repository } = this.getGitHubRepository(item.repository)
         const branch = encodeURIComponent(item.branch)
-        const apiUrl = `https://api.github.com/repos/${owner}/${repository}`
+        const rawUrl = `https://raw.githubusercontent.com/${owner}/${repository}/${branch}`
+        const repositoryUrl = `https://github.com/${owner}/${repository}`
         const resource = `${item.repository}@${item.branch}`
 
         const [readme, packageJsonContent, zenithConfigContent, commit] = await Promise.all([
-            this.getContent(`${apiUrl}/readme?ref=${branch}`, 'README', resource),
-            this.getContent(`${apiUrl}/contents/package.json?ref=${branch}`, 'package.json', resource),
-            this.getContent(`${apiUrl}/contents/zenith.config.yml?ref=${branch}`, 'zenith.config.yml', resource),
-            this.getJson<GitHubCommit>(`${apiUrl}/commits/${branch}`, 'commit', resource),
+            this.getText(`${rawUrl}/README.md`, 'README', resource),
+            this.getText(`${rawUrl}/package.json`, 'package.json', resource),
+            this.getText(`${rawUrl}/zenith.config.yml`, 'zenith.config.yml', resource),
+            this.getText(`${repositoryUrl}/commit/${branch}.patch`, 'commit', resource),
         ])
 
         const packageJson = JSON.parse(packageJsonContent) as Record<string, unknown>
+        const hash = /^From ([0-9a-f]{40}) /m.exec(commit)?.[1]
 
         if (Array.isArray(packageJson) || packageJson === null) {
             throw new Error(`Invalid package.json in ${resource}`)
         }
 
+        if (!hash) {
+            throw new Error(`Unable to read commit hash from ${resource}`)
+        }
+
         return {
             repository: item.repository,
             branch: item.branch,
-            hash: commit.sha,
+            hash,
             version: typeof packageJson.version === 'string' ? packageJson.version : undefined,
             readme,
             packageJson,
@@ -104,18 +134,8 @@ export default class PluginMarketplaceService {
         }
     }
 
-    private async getContent(url: string, filename: string, resource: string): Promise<string> {
-        const content = await this.getJson<GitHubContent>(url, filename, resource)
-
-        if (content.encoding !== 'base64') {
-            throw new Error(`Unsupported ${filename} encoding in ${resource}: ${content.encoding}`)
-        }
-
-        return Buffer.from(content.content, 'base64').toString('utf8')
-    }
-
-    private async getJson<T>(url: string, filename: string, resource: string): Promise<T> {
-        const response = await this.fetch(url, { headers: { Accept: 'application/vnd.github+json' }, })
+    private async getText(url: string, filename: string, resource: string): Promise<string> {
+        const response = await this.fetch(url)
 
         if (!response.ok) {
             throw new Error(
@@ -123,7 +143,7 @@ export default class PluginMarketplaceService {
             )
         }
 
-        return response.json() as Promise<T>
+        return response.text()
     }
 
     private getGitHubRepository(repository: string) {
