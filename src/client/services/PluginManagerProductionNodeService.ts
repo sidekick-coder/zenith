@@ -29,31 +29,30 @@ export default class PluginManagerProductionNodeService extends PluginMangerServ
         const entries = container.has('plugin:entries') ? container.get('plugin:entries') as any[] : []
 
         for (const e of entries) {
-            const fn = this.imports.get(e.id)
+
+            const importFn = this.imports.get(e.id)
 
             if (!this.imports.has(e.id)) {
                 this.logger.warn(`No import found for plugin ${e.id}`)
                 continue
             }
 
-            const pluginModule = await fn!()
+            const mod = await importFn!()
 
-            const contructor = pluginModule.default as any as typeof PluginEntity
+            const fn = mod.default || mod 
 
-            if (!contructor.from) {
-                this.logger.error(`Looks like plugin ${e.id} is not an instance of PluginEntity, missing static from method`)
+            if (!fn || !fn.load) {
+                this.logger.error(`Looks like plugin ${e.id} is not an instance of PluginEntity, missing load method`)
                 continue
             }
 
-            const instance = contructor.from(e)
-
-            await instance.load()
+            await fn.load()
 
             if (this.debug) {
-                this.logger.debug(`plugin loaded (${instance.id} v${instance.version})`, {
-                    context: 'client-node',
-                    id: instance.id,
-                    version: instance.version
+                this.logger.debug(`plugin loaded (${e.id} v${e.version})`, {
+                    context: 'client-browser',
+                    id: e.id,
+                    version: e.version
                 })
             }
         }
