@@ -2,9 +2,15 @@ import { readFile } from 'node:fs/promises'
 import * as cacache from 'cacache'
 import { dataPath, serverPath } from '@sidekick-coder/zenith-kit/server/utils/basePath'
 import { load as loadYaml } from 'js-yaml'
+import MarkdownIt from 'markdown-it'
 import * as v from 'valibot'
 
 const cacheDuration = 24 * 60 * 60 * 1000
+const markdown = new MarkdownIt({
+    html: false,
+    linkify: true,
+    typographer: true,
+})
 
 const marketplaceSchema = v.object({
     items: v.array(v.object({
@@ -20,7 +26,11 @@ export interface PluginMarketplaceEntry {
     branch: string
     hash?: string
     version?: string
+    name?: string
+    description?: string
+    repository_name?: string
     readme?: string
+    readme_html?: string
     packageJson?: Record<string, unknown>
     zenithConfig?: unknown
     error?: string
@@ -71,8 +81,14 @@ export default class PluginMarketplaceService {
         }))
     }
 
+    public async find(pluginId: string): Promise<PluginMarketplaceEntry | undefined> {
+        const entries = await this.list()
+
+        return entries.find(entry => this.getPluginId(entry) === pluginId)
+    }
+
     private async getCached(item: MarketplaceItem): Promise<PluginMarketplaceEntry> {
-        const key = `${item.repository}@${item.branch}`
+        const key = `v3:${item.repository}@${item.branch}`
         const cacheInfo = await cacache.get.info(this.cachePath, key)
 
         if (cacheInfo) {
@@ -114,6 +130,7 @@ export default class PluginMarketplaceService {
 
         const packageJson = JSON.parse(packageJsonContent) as Record<string, unknown>
         const hash = /^From ([0-9a-f]{40}) /m.exec(commit)?.[1]
+        const zenithConfig = loadYaml(zenithConfigContent)
 
         if (Array.isArray(packageJson) || packageJson === null) {
             throw new Error(`Invalid package.json in ${resource}`)
@@ -127,10 +144,14 @@ export default class PluginMarketplaceService {
             repository: item.repository,
             branch: item.branch,
             hash,
-            version: typeof packageJson.version === 'string' ? packageJson.version : undefined,
+            version: hash,
+            name: this.getName(zenithConfig, packageJson, `${owner}/${repository}`),
+            description: this.getDescription(zenithConfig, packageJson),
+            repository_name: `${owner}/${repository}`,
             readme,
+            readme_html: markdown.render(readme),
             packageJson,
-            zenithConfig: loadYaml(zenithConfigContent),
+            zenithConfig,
         }
     }
 
@@ -170,5 +191,51 @@ export default class PluginMarketplaceService {
             owner,
             repository: name,
         }
+    }
+
+    private getPluginId(entry: PluginMarketplaceEntry): string | undefined {
+        if (
+            typeof entry.zenithConfig === 'object'
+            && entry.zenithConfig !== null
+            && 'id' in entry.zenithConfig
+            && typeof entry.zenithConfig.id === 'string'
+        ) {
+            return entry.zenithConfig.id
+        }
+
+        return typeof entry.packageJson?.name === 'string'
+            ? entry.packageJson.name
+            : undefined
+    }
+
+    private getName(
+        config: unknown,
+        packageJson: Record<string, unknown>,
+        repositoryName: string,
+    ): string {
+        return this.getConfigString(config, 'name')
+            || (typeof packageJson.name === 'string' ? packageJson.name : undefined)
+            || repositoryName
+    }
+
+    private getDescription(
+        config: unknown,
+        packageJson: Record<string, unknown>,
+    ): string | undefined {
+        return this.getConfigString(config, 'description')
+            || (typeof packageJson.description === 'string' ? packageJson.description : undefined)
+    }
+
+    private getConfigString(config: unknown, key: 'name' | 'description'): string | undefined {
+        if (
+            typeof config === 'object'
+            && config !== null
+            && key in config
+            && typeof config[key] === 'string'
+        ) {
+            return config[key]
+        }
+
+        return undefined
     }
 }

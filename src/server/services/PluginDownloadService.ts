@@ -90,7 +90,10 @@ export default class PluginDownloadService {
                 dir,
             })
 
-            await this.shell.command('npm', ['install'], { cwd: dir, })
+            await this.shell.command('npm', ['install', '--omit=dev'], {
+                cwd: dir,
+                env: process.env,
+            })
         }
 
 

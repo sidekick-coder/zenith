@@ -42,18 +42,22 @@ describe('PluginMarketplaceService', () => {
             return new Response('From aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa Mon Sep 17 00:00:00 2001')
         })
 
-        const entries = await PluginMarketplaceService.create({
+        const service = PluginMarketplaceService.create({
             marketplaceFilename,
             cachePath: path.join(directory, 'cache'),
             fetch: fetch as typeof globalThis.fetch,
-        }).list()
+        })
+        const entries = await service.list()
 
         expect(entries).toEqual([{
             repository: 'https://github.com/acme/example.git',
             branch: 'release',
             hash: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-            version: '1.2.3',
+            version: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+            name: 'example',
+            repository_name: 'acme/example',
             readme: '# Example',
+            readme_html: '<h1>Example</h1>\n',
             packageJson: {
                 name: 'example',
                 version: '1.2.3',
@@ -61,11 +65,7 @@ describe('PluginMarketplaceService', () => {
             zenithConfig: { id: 'example' },
         }])
 
-        await PluginMarketplaceService.create({
-            marketplaceFilename,
-            cachePath: path.join(directory, 'cache'),
-            fetch: fetch as typeof globalThis.fetch,
-        }).list()
+        await expect(service.find('example')).resolves.toEqual(entries[0])
 
         expect(fetch).toHaveBeenCalledTimes(4)
         expect(fetch).toHaveBeenCalledWith(

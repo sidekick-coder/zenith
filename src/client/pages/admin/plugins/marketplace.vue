@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter, ZButton } from '@sidekick-coder/zenith-kit/components'
+import { Card, CardContent, CardHeader, CardTitle, CardFooter, ZButton } from '@sidekick-coder/zenith-kit/components'
 import Icon from '#client/components/Icon.vue'
 import PageSubtitle from '#client/components/PageSubtitle.vue'
 import PageTitle from '#client/components/PageTitle.vue'
@@ -12,15 +12,12 @@ interface MarketplaceItem {
     branch: string
     hash?: string
     version?: string
+    name?: string
+    description?: string
+    repository_name?: string
     error?: string
-    packageJson?: {
-        name?: string
-        description?: string
-    }
     zenithConfig?: {
         id?: string
-        name?: string
-        description?: string
     }
 }
 
@@ -31,22 +28,8 @@ interface MarketplaceResponse {
 const items = ref<MarketplaceItem[]>([])
 const loading = ref(false)
 
-function name(item: MarketplaceItem) {
-    return item.zenithConfig?.name || item.packageJson?.name || item.repository
-}
-
-function description(item: MarketplaceItem) {
-    return item.zenithConfig?.description || item.packageJson?.description || item.repository
-}
-
-function repositoryName(item: MarketplaceItem) {
-    return item.repository
-        .replace(/^https:\/\/github\.com\//, '')
-        .replace(/\.git$/, '')
-}
-
 function pluginPath(item: MarketplaceItem) {
-    const id = item.zenithConfig?.id || item.packageJson?.name || repositoryName(item)
+    const id = item.zenithConfig?.id || item.name || item.repository_name || item.repository
 
     return `/admin/plugins/marketplace/${encodeURIComponent(id)}`
 }
@@ -103,7 +86,7 @@ onMounted(load)
                     </div>
                     <div class="flex flex-col min-w-0 gap-1">
                         <CardTitle class="truncate">
-                            {{ name(item) }}
+                            {{ item.name || item.repository_name || item.repository }}
                         </CardTitle>
                         <a
                             :href="item.repository"
@@ -111,7 +94,7 @@ onMounted(load)
                             rel="noreferrer"
                             class="text-xs text-muted-foreground truncate"
                         >
-                            {{ repositoryName(item) }}
+                            {{ item.repository_name || item.repository }}
                         </a>
                     </div>
                 </div>
@@ -126,7 +109,7 @@ onMounted(load)
 
             <CardContent>
                 <div>
-                    {{ description(item) || $t('No description available') }}
+                    {{ item.description || $t('No description available') }}
                 </div>
                 <div
                     v-if="item.error"
