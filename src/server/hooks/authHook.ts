@@ -3,6 +3,7 @@ import container from '@sidekick-coder/zenith-kit/server/facades/container'
 import PageRequestContextEntity from '@sidekick-coder/zenith-kit/server/entities/PageRequestContextEntity'
 import LifecycleHook from '@sidekick-coder/zenith-kit/shared/entities/LifecycleHook'
 
+import { hasher, tokenRepository, userRepository } from '@sidekick-coder/zenith-kit/server'
 import emmitter from '#server/facades/emmitter.facade.ts'
 import AuthService from '#server/services/auth.service.ts'
 import Permission from '#server/entities/permission.entity.ts'
@@ -56,7 +57,11 @@ export default class extends LifecycleHook {
     }
 
     public async register(): Promise<void> {
-        const auth = new AuthService()
+        const auth = AuthService
+            .create()
+            .setHasher(hasher)
+            .setUserRepository(userRepository)
+            .setTokenRepository(tokenRepository)
 
         container.set(AuthService, auth)
 

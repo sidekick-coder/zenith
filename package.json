@@ -30,7 +30,7 @@
     "@aws-sdk/s3-request-presigner": "^3.956.0",
     "@casl/ability": "^6.7.3",
     "@inquirer/prompts": "^8.3.2",
-    "@sidekick-coder/zenith-kit": "^0.4.15",
+    "@sidekick-coder/zenith-kit": "^0.4.16",
     "@unhead/vue": "^2.0.19",
     "@unovis/ts": "^1.6.1",
     "@unovis/vue": "^1.6.1",
