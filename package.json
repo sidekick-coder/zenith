@@ -1,7 +1,7 @@
 {
   "name": "zenith",
   "private": true,
-  "version": "0.4.11",
+  "version": "0.5.0",
   "type": "module",
   "imports": {
     "#client/*": "./src/client/*",
