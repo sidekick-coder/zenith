@@ -1,11 +1,10 @@
 import fs from 'fs'
 import { pathToFileURL } from 'url'
 import { clientPath } from '@sidekick-coder/zenith-kit/server/utils/basePath'
-import PluginEntity from '@sidekick-coder/zenith-kit/server/entities/PluginEntity'
 import PluginEntryEntity from '@sidekick-coder/zenith-kit/server/entities/PluginEntryEntity'
 import type { EventContract } from '@sidekick-coder/zenith-kit/server/contracts/EventContract'
 import emmitter from '@sidekick-coder/zenith-kit/server/facades/emmitter'
-import type { DefinePlugin } from '@sidekick-coder/zenith-kit/server'
+import type { DefinePlugin } from '@sidekick-coder/zenith-kit/shared'
 import PluginLoaderService from './PluginLoaderService.ts'
 
 export default class PluginLoaderDevelopmentService extends PluginLoaderService {

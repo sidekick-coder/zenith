@@ -2,7 +2,7 @@
 import { ref } from 'vue'
 import { toast, waitForServer } from '@sidekick-coder/zenith-kit/client'
 
-import { DialogForm } from '@sidekick-coder/zenith-kit/components'
+import { DialogForm, Switch } from '@sidekick-coder/zenith-kit/components'
 import { $fetch } from '#client/utils/fetcher.ts'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '#client/components/ui/card/index.ts'
 import AlertButton from '#client/components/AlertButton.vue'
@@ -10,11 +10,10 @@ import Button from '#client/components/Button.vue'
 
 defineOptions({ inheritAttrs: false, })
 
-const props = defineProps({
-    plugin: {
-        type: Object,
-        required: true,
-    },
+
+const plugin = defineModel('plugin', {
+    type: Object,
+    required: true,
 })
 
 
@@ -28,7 +27,7 @@ async function install() {
 
     isInstalling.value = true
 
-    const [error] = await $fetch.try(`/api/plugins/${props.plugin.id}/npm-install`, { method: 'POST' })
+    const [error] = await $fetch.try(`/api/plugins/${plugin.value.id}/npm-install`, { method: 'POST' })
 
     if (error) {
         isInstalling.value = false
@@ -43,7 +42,7 @@ async function install() {
 
 async function uninstall(data: any) {
 
-    const [error] = await $fetch.try(`/api/plugins/${props.plugin.id}/uninstall`, {
+    const [error] = await $fetch.try(`/api/plugins/${plugin.value.id}/uninstall`, {
         method: 'DELETE',
         data
     })
@@ -65,7 +64,7 @@ async function build() {
 
     isBuilding.value = true
 
-    const [error] = await $fetch.try(`/api/plugins/${props.plugin.id}/npm-build`, { method: 'POST' })
+    const [error] = await $fetch.try(`/api/plugins/${plugin.value.id}/npm-build`, { method: 'POST' })
 
     if (error) {
         isBuilding.value = false
@@ -77,10 +76,49 @@ async function build() {
         toast.success($t('Builded successfully'))
     }, 500)
 }
+
+async function developmentMode() {
+    const [error] = await $fetch.try(`/api/plugins/${plugin.value.id}/configure`, {
+        method: 'POST',
+        data: { development_mode: !plugin.value.developmentMode }
+    })
+
+    if (error) {
+        return
+    }
+
+    plugin.value.developmentMode = !plugin.value.developmentMode
+
+    setTimeout(() => {
+        toast.success($t('Development mode updated'))
+    }, 500)
+}
 </script>
 
 <template>
     <div class="space-y-4">
+        <Card>
+            <CardHeader>
+                <CardTitle>{{ $t('Development mode') }}</CardTitle>
+                <CardDescription>
+                    {{ $t('load plugin in development mode. This is used for plugin development') }}
+                </CardDescription>
+            </CardHeader>
+            <CardContent>
+                <div class="flex items-center gap-2">
+                    <AlertButton
+                        :disabled="isInstalling"
+                        :loading="isInstalling"
+                        :title="plugin.developmentMode ? $t('Disable') : $t('Enable')"
+                        :description="$t('This may take some time. Are you sure you want to proceed?')"
+                        :variant="plugin.developmentMode ? 'destructive' : 'default'"
+                        @confirm="developmentMode"
+                    >
+                        {{ plugin.developmentMode ? $t('Disable') : $t('Enable') }}
+                    </AlertButton>
+                </div>
+            </CardContent>
+        </Card>
         <Card>
             <CardHeader>
                 <CardTitle>{{ $t('Dependencies') }}</CardTitle>

@@ -115,8 +115,9 @@ export default class PluginManagerService {
             }
         }
 
+        const git = new GitGateway({ cwd: directory, })
+
         if (branches.length === 0) {
-            const git = new GitGateway({ cwd: directory, })
 
             const gitLocalBranches = await git.run('for-each-ref --format="%(refname:short)" refs/heads/')
                 .then(
@@ -141,14 +142,20 @@ export default class PluginManagerService {
             }
         }
 
+        const gitRef = await git.run('rev-parse HEAD').catch(() => 'unknown')
+
         const plugin = PluginEntryEntity.from({
             id: pluginConfig.id,
             aliases: pluginConfig.aliases || [],
             directory,
             name: pluginConfig.name || pkg.name || pluginConfig.id || 'unknown',
-            enabled: this.config.get(`plugins.registry.${pluginConfig.id}.enabled`, false),
             branches: branches,
+            version: pluginConfig.version || pkg.version || '0.0.0',
         })
+
+        plugin.enabled = plugin.get('enabled', false)
+        plugin.developmentMode = plugin.get('development_mode', false)
+        plugin.version = gitRef
 
         if (this.debug) {
             this.logger.debug(`discovered plugin ${plugin.name} (${plugin.id})`, {
