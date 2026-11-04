@@ -1,35 +1,15 @@
 import { test, expect } from '@playwright/test'
-import { GenericContainer, StartedTestContainer } from 'testcontainers'
+import ZenithContainerStarted from '../entities/ZenithContainerStarted.ts'
+import ZenithContainer from '../entities/ZenithContainer.ts'
 
-let url: string
-let container: StartedTestContainer
+let container: ZenithContainerStarted
 
 async function createZenithContainer() {
-    const builder = new GenericContainer('zenith-test')
-        .withExposedPorts(3000)
-        // .withLogConsumer((stream) => {
-        //     stream
-        //         .on('data', (line) => console.log(line.toString().trim()))
-        //         .on('err', (line) => console.error(line.toString().trim()))
-        // })
-        .withHealthCheck({
-            test: ['CMD-SHELL', 'curl -f http://localhost:3000/api/health || exit 1'],
-            interval: 1000,
-            timeout: 1000,
-            retries: 30,
-        })
+    const builder = ZenithContainer.create()
+
+    builder.setConfig({})
 
     container = await builder.start()
-
-    url = `http://${container.getHost()}:${container.getMappedPort(3000)}`
-}
-
-function baseURL(...args: string[]) {
-    const u = new URL(url)
-
-    u.pathname = args.join('/')
-
-    return u.toString()
 }
 
 test.beforeAll(async () => {
@@ -44,10 +24,9 @@ test.afterAll(async () => {
     }
 })
 
-
 test('should complete database setup', async ({ page }) => {
     // welcome
-    await page.goto(baseURL('/'), { waitUntil: 'networkidle' })
+    await page.goto(container.makeURL('/'), { waitUntil: 'networkidle' })
 
     const startBtn = page.locator('a:has-text("Start Setup")')
 

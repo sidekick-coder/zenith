@@ -1,0 +1,140 @@
+import path from 'path'
+import os from 'os'
+import { test, Page } from '@playwright/test'
+import ZenithContainer from '../entities/ZenithContainer.ts'
+import ZenithContainerStarted from '../entities/ZenithContainerStarted.ts'
+
+let url: string
+let container: ZenithContainerStarted
+
+
+interface CreateAppOptions {
+    build?: (builder: ZenithContainer) => void
+}
+
+async function createApp(options?: CreateAppOptions) {
+    const builder = ZenithContainer.create()
+
+    if (options?.build) {
+        options.build(builder)
+    }
+
+    // builder.withPrintLogs()
+
+    container = await builder.start()
+
+    url = `http://${container.getHost()}:${container.getMappedPort(3000)}`
+}
+
+function baseURL(...args: string[]) {
+    const u = new URL(url)
+
+    u.pathname = args.join('/')
+
+    return u.toString()
+}
+
+test.beforeAll(async () => {
+    test.setTimeout(120000) // Increase timeout for container startup
+
+    await createApp()
+})
+
+test.afterAll(async () => {
+    if (container) {
+        await container.stop()
+    }
+})
+
+test.beforeEach(async () => {
+    test.setTimeout(240_000) // Increase timeout for each test
+})
+
+
+
+async function goToInstallPage(page: Page) {
+    await login(page)
+
+    await page.goto(baseURL('/admin/plugins/install-git'), { waitUntil: 'networkidle' })
+}
+
+
+test('should load plugin api routes', async ({ page }) => {
+    await goToInstallPage(page)
+
+    await page.fill('input[name="repository"]', 'https://github.com/sidekick-coder/zenith-backup.git')
+    await page.fill('input[name="branch"]', 'build')
+    await page.click('button[type="submit"]')
+
+    await page.waitForURL(/.*\/api\/reloader/)
+    await page.waitForURL(/.*\/admin\/plugins/, { waitUntil: 'networkidle' })
+
+    await page.waitForSelector('text=zenith-backup')
+})
+
+test('should install a plugin via remote repository with ssh key', async ({ page }) => {
+    const identity = process.env.ZENITH_TEST_PLUGIN_IDENTITY || ''
+    const repository = process.env.ZENITH_TEST_PLUGIN_REPO || ''
+    const sshKey = process.env.ZENITH_TEST_PLUGIN_SSH_KEY || ''
+
+    if (!identity || !repository || !sshKey) {
+        test.skip(true, 'Environment variables ZENITH_TEST_PLUGIN_IDENTITY, ZENITH_TEST_PLUGIN_REPO, and ZENITH_TEST_PLUGIN_SSH_KEY must be set for this test.')
+        return
+    }
+
+    await goToInstallPage(page)
+
+    await page.fill('input[name="repository"]', repository)
+    await page.fill('input[name="branch"]', 'build')
+    await page.fill('textarea[name="ssh_key"]', sshKey + '\n') // Add a newline to ensure the key is properly formatted
+    await page.click('button[type="submit"]')
+
+    await page.waitForURL(/.*\/api\/reloader/)
+    await page.waitForURL(/.*\/admin\/plugins/, { waitUntil: 'networkidle' })
+
+    await page.waitForSelector(`text=${identity}`)
+})
+
+
+test('should install a plugin with ssh key on binded volume', async ({ page }) => {
+    const identity = process.env.ZENITH_TEST_PLUGIN_IDENTITY || ''
+    const repository = process.env.ZENITH_TEST_PLUGIN_REPO || ''
+    const sshKey = process.env.ZENITH_TEST_PLUGIN_SSH_KEY || ''
+
+    if (!identity || !repository || !sshKey) {
+        test.skip(true, 'Environment variables ZENITH_TEST_PLUGIN_IDENTITY, ZENITH_TEST_PLUGIN_REPO, and ZENITH_TEST_PLUGIN_SSH_KEY must be set for this test.')
+        return
+    }
+
+    const volumeId = Date.now().toString()
+    const volumePath = path.resolve(os.tmpdir(), `zenith-test-volumes-${volumeId}`)
+
+    createApp({
+        build: (builder) => {
+            builder.withBindMounts([
+                {
+                    source: path.join(volumePath, 'tmp'),
+                    target: '/data/tmp',
+                    mode: 'rw',
+                },
+                {
+                    source: path.join(volumePath, 'plugins'),
+                    target: '/data/plugins',
+                    mode: 'rw',
+                }
+            ])
+        }
+    })
+
+    await goToInstallPage(page)
+
+    await page.fill('input[name="repository"]', repository)
+    await page.fill('input[name="branch"]', 'build')
+    await page.fill('textarea[name="ssh_key"]', sshKey + '\n') // Add a newline to ensure the key is properly formatted
+    await page.click('button[type="submit"]')
+
+    await page.waitForURL(/.*\/api\/reloader/)
+    await page.waitForURL(/.*\/admin\/plugins/, { waitUntil: 'networkidle' })
+
+    await page.waitForSelector(`text=${identity}`)
+})

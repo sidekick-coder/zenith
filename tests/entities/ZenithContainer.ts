@@ -1,10 +1,11 @@
 import { GenericContainer } from 'testcontainers'
+import ZenithContainerStarted from './ZenithContainerStarted.ts'
 
-export class ZenithContainer extends GenericContainer {
+export default class ZenithContainer extends GenericContainer {
     private _config: Record<string, string> = {}
 
-    constructor() {
-        super('zenith-test')
+    constructor(image = 'zenith-test') {
+        super(image)
 
         this.withExposedPorts(3000)
         this.withHealthCheck({
@@ -27,6 +28,10 @@ export class ZenithContainer extends GenericContainer {
             'users.registry[0].password': 'admin-123',
             'users.registry[0].permissions': 'admin',
         })
+    }
+
+    public static create(image = 'zenith-test') {
+        return new ZenithContainer(image)
     }
 
     public setConfig(config: Record<string, string>) {
@@ -57,8 +62,10 @@ export class ZenithContainer extends GenericContainer {
                 .on('err', (line) => console.error(line.toString().trim()))
         })
     }
-}
 
-export function createZenithContainer() {
-    return new ZenithContainer()
+    public async start(): Promise<ZenithContainerStarted> {
+        const c = await super.start()
+
+        return new ZenithContainerStarted(c)
+    }
 }

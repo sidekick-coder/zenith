@@ -6,7 +6,8 @@
   "imports": {
     "#client/*": "./src/client/*",
     "#server/*": "./src/server/*",
-    "#shared/*": "./src/shared/*"
+    "#shared/*": "./src/shared/*",
+    "#tests/*": "./tests/*"
   },
   "scripts": {
     "start": "NODE_ENV=production node zenith serve",

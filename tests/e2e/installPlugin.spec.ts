@@ -1,18 +1,18 @@
 import path from 'path'
 import os from 'os'
 import { test, expect, Page } from '@playwright/test'
-import { StartedTestContainer } from 'testcontainers'
-import { createZenithContainer } from '../fixtures/createZenithContainer.ts'
+import ZenithContainer from '#tests/entities/ZenithContainer.ts'
+import ZenithContainerStarted from '#tests/entities/ZenithContainerStarted.ts'
 
 let url: string
-let container: StartedTestContainer
+let container: ZenithContainerStarted
 
 interface CreateAppOptions {
-    build?: (builder: ReturnType<typeof createZenithContainer>) => void
+    build?: (builder: ZenithContainer) => void
 }
 
 async function createApp(options?: CreateAppOptions) {
-    const builder = createZenithContainer()
+    const builder = ZenithContainer.create()
 
     if (options?.build) {
         options.build(builder)
