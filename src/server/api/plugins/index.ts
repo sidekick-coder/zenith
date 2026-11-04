@@ -1,10 +1,9 @@
-import type { HttpContext } from '@sidekick-coder/zenith-kit/server'
-import pluginManager from '#server/facades/pluginManager.ts'
+import { defineHandler, pluginService  } from '@sidekick-coder/zenith-kit/server'
 
-export default function ({ acl }: HttpContext) {
+export default defineHandler(async ({ acl }) => {
     acl.authorize('list', 'Plugin')
 
-    const plugins = pluginManager.list() 
+    const plugins = await pluginService.repository.findMany() 
 
     return { items: plugins }
-}
+})

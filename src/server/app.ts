@@ -8,8 +8,9 @@ import ConfigService from '@sidekick-coder/zenith-kit/shared/services/ConfigServ
 import { dataPath, serverPath } from '@sidekick-coder/zenith-kit/server/utils/basePath'
 import { tryCatch } from '@sidekick-coder/zenith-kit/shared/utils/tryCatch'
 
-import PluginManagerService from './services/PluginManagerService.ts'
-import PluginDownloadService from './services/PluginDownloadService.ts'
+import PluginService from '#server/services/PluginService.ts'
+// import PluginManagerService from './services/PluginManagerService.ts'
+// import PluginDownloadService from './services/PluginDownloadService.ts'
 import LoggerWinsonService from '#server/services/loggerWinson.service.ts'
 
 globalThis.$try = tryCatch
@@ -87,22 +88,32 @@ export async function createApp(options: AppOptions = {}) {
     container.set(LifecycleService, lifecycle)
 
     // plugins
-    const pluginManager = await PluginManagerService
-        .create()
-        .setConfig(config)
-        .setEnv(env)
-        .setLogger(logger.child({ label: 'plugins' }))
+    const pluginService = new PluginService()
+
+    pluginService
         .setDebug(config.getOne(['plugins.debug', 'app.debug', 'debug'], false))
-        .load()
+        .setLogger(logger.child({ label: 'plugins' }))
 
-    const pluginDownloadService = PluginDownloadService.create({
-        logger: logger.child({ label: 'plugin-download' }),
-        config: config,
-        debug: config.getOne(['plugins.debug', 'app.debug', 'debug'], false)
-    })
+    await pluginService.load()
 
-    container.set(PluginManagerService, pluginManager)
-    container.set(PluginDownloadService, pluginDownloadService)
+    container.set(PluginService, pluginService)
+
+    // const pluginManager = await PluginManagerService
+    //     .create()
+    //     .setConfig(config)
+    //     .setEnv(env)
+    //     .setLogger(logger.child({ label: 'plugins' }))
+    //     .setDebug(config.getOne(['plugins.debug', 'app.debug', 'debug'], false))
+    //     .load()
+    //
+    // const pluginDownloadService = PluginDownloadService.create({
+    //     logger: logger.child({ label: 'plugin-download' }),
+    //     config: config,
+    //     debug: config.getOne(['plugins.debug', 'app.debug', 'debug'], false)
+    // })
+    //
+    // container.set(PluginManagerService, pluginManager)
+    // container.set(PluginDownloadService, pluginDownloadService)
 
     await lifecycle.addDirectory(serverPath('hooks'))
 
@@ -113,7 +124,6 @@ export async function createApp(options: AppOptions = {}) {
         logger,
         config,
         emmiter,
-        pluginManager,
         lifecycle
     }
 }

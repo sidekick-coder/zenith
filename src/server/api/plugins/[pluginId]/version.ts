@@ -1,12 +1,11 @@
-import { GitGateway } from '@sidekick-coder/zenith-kit/server'
+import { GitGateway, pluginService } from '@sidekick-coder/zenith-kit/server'
 import { validator } from '@sidekick-coder/zenith-kit/shared'
 import type { HttpContext } from '#server/contracts/httpContext.contract.ts'
-import pluginManager from '#server/facades/pluginManager.ts'
 
 export default async function ({ acl, params }: HttpContext) {
     const pluginId = validator.validate(params.pluginId, v => v.string())
 
-    const plugin = pluginManager.findOrFail(pluginId)
+    const plugin = await pluginService.repository.findByIdOrFail(pluginId)
 
     acl.authorize('read', 'Plugin', plugin)
 
@@ -17,7 +16,5 @@ export default async function ({ acl, params }: HttpContext) {
     return {
         git_head: gitInfo.head,
         git_commit_hash: gitInfo.shortHash,
-        version_channel: plugin.version_channel,
-        version_available_channels: plugin.version_available_channels,
     }
 }

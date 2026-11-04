@@ -3,7 +3,7 @@ import path from 'path'
 import { dataPath } from '@sidekick-coder/zenith-kit/server/utils/basePath'
 import EnvService from '@sidekick-coder/zenith-kit/server/services/EnvService'
 import { GitGateway } from '@sidekick-coder/zenith-kit/server/gateways/GitGateway'
-import PluginEntryEntity from '@sidekick-coder/zenith-kit/server/entities/PluginEntryEntity'
+import PluginEntity from '@sidekick-coder/zenith-kit/server/entities/PluginEntity'
 import ShellService from '@sidekick-coder/zenith-kit/server/services/ShellService'
 import BaseException from '@sidekick-coder/zenith-kit/shared/exceptions/BaseException'
 import ConfigService from '@sidekick-coder/zenith-kit/shared/services/ConfigService'
@@ -22,7 +22,7 @@ export interface PluginManagerServiceOptions {
 
 export default class PluginManagerService {
     public static __container_entry_key = 'PluginManagerService'
-    public entries: Map<string, PluginEntryEntity>
+    public entries: Map<string, any>
     public logger: LoggerService
     public debug = false
     public env: EnvService
@@ -103,7 +103,7 @@ export default class PluginManagerService {
             return
         }
 
-        const branches: PluginEntryEntity['branches'] = []
+        const branches: PluginEntity['branches'] = []
 
         for (const branch of pluginConfig.branches || []) {
             if (typeof branch === 'string') {
@@ -144,7 +144,7 @@ export default class PluginManagerService {
 
         const gitRef = await git.run('rev-parse HEAD').catch(() => 'unknown')
 
-        const plugin = PluginEntryEntity.from({
+        const plugin = PluginEntity.from({
             id: pluginConfig.id,
             aliases: pluginConfig.aliases || [],
             directory,
@@ -293,26 +293,6 @@ export default class PluginManagerService {
 
     public list() {
         return Array.from(this.entries.values())
-    }
-
-    public enable(id: string) {
-        const plugin = this.findOrFail(id)
-
-        this.config.set(`plugins.registry.${plugin.id}.enabled`, true)
-    }
-
-    public disable(id: string) {
-        const plugin = this.findOrFail(id)
-
-        this.config.set(`plugins.registry.${plugin.id}.enabled`, false)
-    }
-
-    public toggle(id: string) {
-        if (this.config.get(`plugins.registry.${id}.enabled`)) {
-            return this.disable(id)
-        }
-
-        return this.enable(id)
     }
 
     public find(idNameOrAlias: string) {

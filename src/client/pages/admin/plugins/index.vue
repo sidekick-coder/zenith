@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
-import { defineColumns, fetcher, waitForServer } from '@sidekick-coder/zenith-kit/client'
+import { defineColumns, fetcher, PluginEntity, waitForServer } from '@sidekick-coder/zenith-kit/client'
 import { ZButton, ZDataTable } from '@sidekick-coder/zenith-kit/components'
 import Button from '#client/components/Button.vue'
 import Switch from '#client/components/ui/switch/Switch.vue'
@@ -20,12 +20,12 @@ import PageSubtitle from '#client/components/PageSubtitle.vue'
 
 const items = ref<any[]>([])
 const loading = ref(false)
-const columns = defineColumns<any>([
+const columns = defineColumns<PluginEntity>([
     {
         id: 'enabled',
         label: $t('Enabled'),
         field: 'enabled',
-        width: 80
+        class: 'w-22',
     },
     {
         id: 'name',
@@ -35,12 +35,7 @@ const columns = defineColumns<any>([
     {
         id: 'version',
         label: $t('Version'),
-        field: 'version',
-    },
-    {
-        id: 'directory',
-        label: $t('Directory'),
-        field: 'directory',
+        class: 'w-20',
     },
     { id: 'actions' }
 ])
@@ -174,8 +169,11 @@ async function confirmToggle() {
             </div>
         </template>
         <template #row-version="{ row }">
-            <router-link :to="`/admin/plugins/${row.id}?tab=versions`">
-                {{ row.version }}
+            <router-link
+                :to="`/admin/plugins/${row.id}?tab=versions`"
+                class="text-primary hover:underline"
+            >
+                {{ row.version.slice(0, 4) }}
             </router-link>
         </template>
 

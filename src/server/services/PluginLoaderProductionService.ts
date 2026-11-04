@@ -202,12 +202,6 @@ export default class PluginLoaderProductionService extends PluginLoaderService {
 
             entries.push(pluginEntry)
 
-            // if (container.has(ExpressService)) {
-            //     const http = container.get<ExpressService>(ExpressService)
-            //
-            //     http.use(`/plugins/${plugin.id}/vendor`, express.static(plugin.makePath('dist', 'client-browser')))
-            // }
-
             if (this.debug) {
                 logger.debug('load client-browser plugin entry: ' + pluginEntry.id, { entry: pluginEntry })
             }
