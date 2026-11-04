@@ -2,7 +2,7 @@ import { emmitter, router, PluginEntity, RouterFileBaseRoutingService } from '@s
 import path from 'node:path'
 
 export default class extends PluginEntity {
-    async load() {
+    public async load() {
         emmitter.on('router:registered', async () => {
             await RouterFileBaseRoutingService
                 .create(path.resolve(import.meta.dirname, 'api'))
@@ -14,4 +14,3 @@ export default class extends PluginEntity {
         })
     }
 }
-

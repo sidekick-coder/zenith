@@ -41,5 +41,10 @@
         "src/server/**/*.ts",
         "bin/*.ts",
         "src/shared/**/*.ts"
+    ],
+    "exclude": [
+        "node_modules",
+        "dist",
+        "tests/fixtures"
     ]
 }

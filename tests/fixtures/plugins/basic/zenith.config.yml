@@ -1,9 +1,5 @@
-id: basic
-name: basic
+id: assets
+name: my-plugin
 description: A plugin for zenith
 branches:
-    - branch: main
-      label: Main
-
-    - branch: release
-      label: Release
+   - main

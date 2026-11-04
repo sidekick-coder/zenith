@@ -35,6 +35,10 @@ export default class TestPlugin {
 
         this.config = yaml as Record<string, any>
         this.id = this.config.id
+
+        // build plugin
+        cp.execSync('npm install', { cwd: this.directory })
+        cp.execSync('npm run build', { cwd: this.directory })
     }
 
     public async clean() {
