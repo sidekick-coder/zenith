@@ -1,5 +1,5 @@
 import { Page } from '@playwright/test'
-import { ZenithContainerStarted } from '../entities/ZenithContainerStarted.ts'
+import ZenithContainerStarted from '../entities/ZenithContainerStarted.ts'
 
 interface LoginOptions {
     container: ZenithContainerStarted
@@ -8,7 +8,7 @@ interface LoginOptions {
     password?: string
 }
 
-export async function login(options: LoginOptions) {
+export async function doLogin(options: LoginOptions) {
     const container = options.container
     const page = options.page
     const username = options.username || 'admin'

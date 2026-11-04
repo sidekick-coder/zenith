@@ -1,0 +1,9 @@
+id: basic
+name: basic
+description: A plugin for zenith
+branches:
+    - branch: main
+      label: Main
+
+    - branch: release
+      label: Release

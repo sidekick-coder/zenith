@@ -1,10 +1,9 @@
 import path from 'path'
 import os from 'os'
-import { test, expect, Page } from '@playwright/test'
+import { test, Page } from '@playwright/test'
 import ZenithContainer from '#tests/entities/ZenithContainer.ts'
 import ZenithContainerStarted from '#tests/entities/ZenithContainerStarted.ts'
 
-let url: string
 let container: ZenithContainerStarted
 
 interface CreateAppOptions {
@@ -21,16 +20,6 @@ async function createApp(options?: CreateAppOptions) {
     // builder.withPrintLogs()
 
     container = await builder.start()
-
-    url = `http://${container.getHost()}:${container.getMappedPort(3000)}`
-}
-
-function baseURL(...args: string[]) {
-    const u = new URL(url)
-
-    u.pathname = args.join('/')
-
-    return u.toString()
 }
 
 test.beforeAll(async () => {
@@ -60,7 +49,7 @@ async function login(page: Page) {
     })
 
     if (!isLoggedIn) {
-        await page.goto(baseURL('/auth/login'), { waitUntil: 'networkidle' })
+        await page.goto(container.makeURL('/auth/login'), { waitUntil: 'networkidle' })
 
         // login
         await page.fill('input[name="uuid"]', 'admin')
@@ -68,14 +57,14 @@ async function login(page: Page) {
         await page.click('button[type="submit"]')
 
         await page.waitForLoadState('networkidle')
-        await page.waitForURL(baseURL('/'))
+        await page.waitForURL(container.makeURL('/'))
     }
 }
 
 async function goToInstallPage(page: Page) {
     await login(page)
 
-    await page.goto(baseURL('/admin/plugins/install-git'), { waitUntil: 'networkidle' })
+    await page.goto(container.makeURL('/admin/plugins/install-git'), { waitUntil: 'networkidle' })
 }
 
 

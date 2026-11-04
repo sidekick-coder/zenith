@@ -22,10 +22,10 @@ export default defineConfig({
             {
                 test: {
                     name: 'int',
-                    include: ['server/tests/int/**/*.test.ts'],
-                    setupFiles: ['server/tests/int/setup.ts'],
-                    testTimeout: 60000, // Increase timeout for integration tests
-                    hookTimeout: 60000, // Increase hook timeout for integration tests
+                    include: ['tests/integration/**/*.spec.ts'],
+                    // setupFiles: ['tests/int/setup.ts'],
+                    testTimeout: 120_000, // Increase timeout for integration tests
+                    hookTimeout: 120_000, // Increase hook timeout for integration tests
                 }
             }
         ]

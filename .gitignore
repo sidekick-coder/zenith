@@ -1,6 +1,4 @@
 # Logs
-logs/*
-!logs/.gitkeep
 *.log
 npm-debug.log*
 yarn-debug.log*
@@ -9,8 +7,7 @@ pnpm-debug.log*
 lerna-debug.log*
 
 node_modules
-dist
-dist-ssr
+dist/*
 *.local
 
 # Editor directories and files
@@ -30,10 +27,9 @@ dist-ssr
 *.volumes
 .env 
 
-database.sqlite
-*.db
-
+# docs
 docs/.vitepress/cache
+docs/.vitepress/dist
 
 src/client/.plugins/*
 !src/client/.plugins/.gitkeep
