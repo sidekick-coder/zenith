@@ -8,7 +8,7 @@ register('../../loader.js', import.meta.url)
 const isDev = process.env.NODE_ENV !== 'production' && process.env.NODE_ENV !== 'test'
 const isProd = process.env.NODE_ENV === 'production'
 
-const prettyLogger = isDev || process.env.ZENITH_LOG_PRETTY === 'true' 
+const prettyLogger = isDev || process.env.ZENITH_LOG_PRETTY === 'true'
 
 const logger = LoggerWinsonService.create({
     level: process.env.ZENITH_LOG_LEVEL || 'info',
@@ -32,7 +32,10 @@ async function exit(code = 0) {
 process.on('SIGINT', () => exit(0))
 
 process.on('message', (data: any) => {
-    if (data?.type === 'shutdown') exit(0)
+    if (data?.type === 'shutdown') {
+        logger.info('server stopping...')
+        exit(0)
+    }
 })
 
 await lifecycle.emit(['register', 'load', 'boot'])

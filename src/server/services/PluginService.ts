@@ -1,7 +1,9 @@
 import fs from 'fs'
 import { pathToFileURL } from 'url'
 import path from 'path'
-import { PluginService as BasePluginService, clientPath, config, dataPath, emmitter, env, PluginEntity } from '@sidekick-coder/zenith-kit/server'
+import express from 'express'
+import { PluginService as BasePluginService, clientPath, config, dataPath, emmitter, env, PluginEntity  } from '@sidekick-coder/zenith-kit/server'
+import type { EventContract } from '@sidekick-coder/zenith-kit/server'
 
 export default class PluginService extends BasePluginService {
     public async registerDirsFromRoot() {
@@ -127,40 +129,55 @@ export default class PluginService extends BasePluginService {
         }
     }
 
-    public enable(id: string) {
-        config.set(`plugins.registry.${id}.enabled`, true)
-    }
+    public async onPageRequestStart({ nodeContainer, browserContainer }: EventContract['page:request:start'], plugins: PluginEntity[]) {
+        const browserEntries = [] as any
+        const nodeEntries = [] as any 
 
-    public disable(id: string) {
-        config.set(`plugins.registry.${id}.enabled`, false)
-    }
-
-    public toggle(id: string) {
-        if (config.get(`plugins.registry.${id}.enabled`)) {
-            return this.disable(id)
-        }
-
-        return this.enable(id)
-    }
-
-    public async load() {
-        await this.register()
-        // implement on parent
-        const plugins = await this.repository.findMany({ enabled: true })
-        const entries = [] as any
-
-        for await (const plugin of plugins) {
-            await this.loadPluginServerEntry(plugin)
-
-            entries.push({
+        for (const plugin of plugins) {
+            nodeEntries.push({
                 id: plugin.id,
                 name: plugin.name,
                 version: plugin.version,
                 enabled: plugin.enabled,
-                developmentMode: plugin.developmentMode,
+                entry: plugin.makePath('dist', 'client-node', 'index.mjs'),
+                developmentMode: plugin.developmentMode
             })
+
+            const entry = plugin.clientManifest['src/client/index.ts']
+
+            browserEntries.push({
+                id: plugin.id,
+                name: plugin.name,
+                version: plugin.version,
+                enabled: plugin.enabled,
+                entry: path.join('/plugins', plugin.id, 'vendor', entry?.file),
+                developmentMode: plugin.developmentMode
+            })
+
         }
 
-        emmitter.on('page:request:start', c => c.setNodeContainerValue('plugin:entries', entries))
+        browserContainer.set('plugin:entries', browserEntries)
+        nodeContainer.set('plugin:entries', nodeEntries)
+    }
+
+    public async onHttpRegistered({ http }: EventContract['http:registered'], plugins: PluginEntity[]) {
+        for (const plugin of plugins) {
+            http.use(`/plugins/${plugin.id}/vendor`, express.static(plugin.makePath('dist', 'client-browser')))
+        }
+    }
+
+    public async load() {
+        await this.register()
+
+        // implement on parent
+        const plugins = await this.repository.findMany({ enabled: true })
+
+        for await (const plugin of plugins) {
+            await this.loadPluginServerEntry(plugin)
+            await this.loadPluginClientEntry(plugin)
+        }
+
+        emmitter.on('page:request:start', c => this.onPageRequestStart(c, plugins))
+        emmitter.on('http:registered', c => this.onHttpRegistered(c, plugins))
     }
 }

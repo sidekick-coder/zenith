@@ -47,10 +47,6 @@ export default defineConfig(() => {
                 ignored: [
                     '**/src/shared',
                     '**/src/server',
-                    '**/storage',
-                    'plugins/*',
-                    'tmp/*',
-                    '**/logs',
                     '**/.env', // Ignores .env files in the root and subdirectories
                     '**/.env.*', // Ignores all .env-related files (e.g., .env.local, .env.development)
                     '**/vite.config.*', // Ignores Vite config files
@@ -64,11 +60,18 @@ export default defineConfig(() => {
         },
         resolve: {
             dedupe: ['vue', 'vue-router', 'vee-validate', 'reka-ui'],
-            alias: {
-                vue: path.resolve(import.meta.dirname, 'node_modules/vue/dist/vue.esm-bundler.js'),
-                'vue/server-renderer': path.resolve(import.meta.dirname, 'node_modules/vue/server-renderer/index.mjs'),
-                'reka-ui': path.resolve(import.meta.dirname, 'node_modules/reka-ui/dist/index.js'),
-            },
+            alias: [
+                {
+                    find: /^vue$/,
+                    replacement: path.resolve(import.meta.dirname, 'node_modules/vue/dist/vue.runtime.esm-bundler.js'),
+                }
+            ]
+            // alias: {
+            // vue: path.resolve(import.meta.dirname, 'node_modules/vue/dist/vue.runtime.esm-bundler.js'),
+            // 'vue/server-renderer': path.resolve(import.meta.dirname, 'node_modules/vue/server-renderer/index.mjs'),
+            // 'reka-ui': path.resolve(import.meta.dirname, 'node_modules/reka-ui/dist/index.js'),
+            // 'vee-validate': path.resolve(import.meta.dirname, 'node_modules/vee-validate/dist/vee-validate.mjs'),
+            // },
         }
 
     }

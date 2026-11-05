@@ -4,6 +4,7 @@ import type { App } from 'vue'
 import type { Router } from 'vue-router'
 import { createPluginManager } from './plugins.ts'
 import { createTranslatorService } from './translator.ts'
+import PluginService from './services/PluginService.ts'
 
 interface AppOptions {
     logger: LoggerService
@@ -21,13 +22,10 @@ export async function createApp(options: AppOptions) {
         logger: logger.child({ label: 'lifecycle' }),
     })
 
+
     container.loadFromRecord(options.containerEntries || {})
     config.loadFromRecord(options.configEntries || [])
 
-    const manager = await createPluginManager({
-        config,
-        logger: logger.child({ label: 'plugin-manager' }),
-    })
 
     lifecycle.addImports(import.meta.glob('./hooks/*.ts', { eager: true }))
 
@@ -37,7 +35,7 @@ export async function createApp(options: AppOptions) {
     })
 
     const translator = createTranslatorService({
-        ...container.get<Record<string,any>>('state').translator,
+        ...container.get<Record<string, any>>('state').translator,
         debug: config.getOne(['translator.debug', 'app.debug', 'debug'], false),
         logger: logger.child({ label: 'translator' }),
     })
@@ -49,17 +47,18 @@ export async function createApp(options: AppOptions) {
         .set(EmmitterService, emmiter)
         .set(TranslatorService, translator)
 
-    await manager.register()
-
-    await manager.load()
+    await PluginService.create()
+        .setDebug(config.getOne(['plugins.debug', 'app.debug', 'debug'], false))
+        .setLogger(logger.child({ label: 'plugins' }))
+        .load()
 
     await lifecycle.emit(['register', 'load', 'boot'])
 
     const app = container.get<App>('app')
     const router = container.get<Router>('router')
 
-    return { 
-        app, 
+    return {
+        app,
         router,
         config,
         lifecycle,
