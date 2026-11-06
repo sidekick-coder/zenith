@@ -2,7 +2,6 @@ import { container, LifecycleService } from '@sidekick-coder/zenith-kit/client'
 import { ConfigService, EmmitterService, LoggerService, TranslatorService } from '@sidekick-coder/zenith-kit/shared'
 import type { App } from 'vue'
 import type { Router } from 'vue-router'
-import { createPluginManager } from './plugins.ts'
 import { createTranslatorService } from './translator.ts'
 import PluginService from './services/PluginService.ts'
 
@@ -25,7 +24,6 @@ export async function createApp(options: AppOptions) {
 
     container.loadFromRecord(options.containerEntries || {})
     config.loadFromRecord(options.configEntries || [])
-
 
     lifecycle.addImports(import.meta.glob('./hooks/*.ts', { eager: true }))
 

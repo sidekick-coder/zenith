@@ -2,7 +2,7 @@ import { container, logger } from '@sidekick-coder/zenith-kit/client'
 import { LoggerService } from '@sidekick-coder/zenith-kit/shared'
 
 export default class PluginService {
-    public debug: boolean 
+    public debug: boolean
     public logger: LoggerService
 
     constructor() {
@@ -55,49 +55,62 @@ export default class PluginService {
         await load()
 
         if (this.debug) {
-            logger.debug(`plugin loaded ${plugin.name}(${plugin.id})`, {
-                pluginId: plugin.id,
-                developmentMode: plugin.developmentMode 
-            })
+            logger.debug(`plugin loaded "${plugin.name}"`, plugin)
         }
     }
 
-    public async loadNodeSide() {
+    public async loadNodeSide(plugin: any) {
         const { pathToFileURL } = await import('url')
 
-        const entries = container.get<any[]>('plugin:entries')
+        const url = pathToFileURL(plugin.entry)
 
-        for await (const e of entries) {
-            const url = pathToFileURL(e.entry)
+        const fn = () => import(/* @vite-ignore */ url.href)
 
-            const fn = () => import(/* @vite-ignore */ url.href)
-
-            await this.loadPluginEntry(fn, e)
-        }
+        await this.loadPluginEntry(fn, plugin)
 
     }
 
-    public async loadBrowserSide() {
-        const entries = container.get<any[]>('plugin:entries')
+    public async loadBrowserSide(plugin: any) {
+        const url = new URL(plugin.entry, window.location.origin)
 
-        for await (const e of entries) {
-            const url = new URL(e.entry, window.location.origin)
+        const fn = () => import(/* @vite-ignore */ url.toString())
 
-            const fn = () => import(/* @vite-ignore */ url.toString())
+        await this.loadPluginEntry(fn, plugin)
+    }
 
-            await this.loadPluginEntry(fn, e)
-        }
+    public async loadPluginServerEntryDevelopmentMode(plugin: any) {
+        const mod = await import(`../.plugins/${plugin.id}.ts`)
+        const fn = mod.default || mod
+        const filename = mod.__filename
+
+        plugin.entry = filename
+
+        await this.loadPluginEntry(fn, plugin)
     }
 
     public async load() {
 
-        if (import.meta.env.SSR) {
-            await this.loadNodeSide()
+        const entries = container.get<any[]>('plugin:entries')
+
+        for await (const e of entries) {
+            if (!e.entry) {
+                continue
+            }
+
+            if (e.developmentMode) {
+                await this.loadPluginServerEntryDevelopmentMode(e)
+                continue
+            }
+
+            if (import.meta.env.SSR) {
+                await this.loadNodeSide(e)
+            }
+
+            if (!import.meta.env.SSR) {
+                await this.loadBrowserSide(e)
+            }
         }
 
-        if (!import.meta.env.SSR) {
-            await this.loadBrowserSide()
-        }
 
     }
 }

@@ -1,4 +1,4 @@
-import LoggerService from '#shared/services/logger.service.ts'
+import { LoggerService } from '@sidekick-coder/zenith-kit/shared'
 
 const colors: any = {
     reset: '\x1b[0m',

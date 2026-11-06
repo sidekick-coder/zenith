@@ -62,7 +62,11 @@ export default class PluginService extends BasePluginService {
         }
 
         if (!fs.existsSync(filename)) {
-            this.logger.warn('plugin server entry not found, skipping...', { pluginId: plugin.id })
+            this.logger.warn('plugin server entry not found, skipping...', {
+                pluginId: plugin.id,
+                directory: plugin.directory,
+                entry: filename 
+            })
             return
         }
 
@@ -95,9 +99,10 @@ export default class PluginService extends BasePluginService {
 
         await load()
 
-        this.logger.info(`plugin loaded ${plugin.name}(${plugin.id})`, {
-            pluginId: plugin.id,
-            directory: plugin.directory
+        this.logger.info(`plugin loaded "${plugin.name}"`, {
+            id: plugin.id,
+            directory: plugin.directory,
+            entry: filename
         })
     }
 
@@ -116,6 +121,7 @@ export default class PluginService extends BasePluginService {
         }
 
         let content = `const fn = async () => import('${entry}')\n\n`
+        content += 'export const __filename = `' + entry + '`\n\n'
 
         content += 'export default fn\n\n'
 
@@ -134,12 +140,14 @@ export default class PluginService extends BasePluginService {
         const nodeEntries = [] as any 
 
         for (const plugin of plugins) {
+            const nodeExist = fs.existsSync(plugin.makePath('dist', 'client-node', 'index.mjs'))
+
             nodeEntries.push({
                 id: plugin.id,
                 name: plugin.name,
                 version: plugin.version,
                 enabled: plugin.enabled,
-                entry: plugin.makePath('dist', 'client-node', 'index.mjs'),
+                entry: nodeExist ? plugin.makePath('dist', 'client-node', 'index.mjs') : null,
                 developmentMode: plugin.developmentMode
             })
 
@@ -150,7 +158,7 @@ export default class PluginService extends BasePluginService {
                 name: plugin.name,
                 version: plugin.version,
                 enabled: plugin.enabled,
-                entry: path.join('/plugins', plugin.id, 'vendor', entry?.file),
+                entry: entry?.file ? path.join('/plugins', plugin.id, 'vendor', entry.file) : null,
                 developmentMode: plugin.developmentMode
             })
 

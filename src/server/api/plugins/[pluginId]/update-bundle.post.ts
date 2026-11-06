@@ -1,12 +1,11 @@
 import fs from 'fs'
 import { BaseException, createId } from '@sidekick-coder/zenith-kit/shared'
 import { tryCatch } from '@sidekick-coder/zenith-kit/shared/utils/tryCatch'
-import { tmpPath } from '@sidekick-coder/zenith-kit/server'
+import { pluginService, tmpPath } from '@sidekick-coder/zenith-kit/server'
 import type { HttpContext } from '#server/contracts/httpContext.contract.ts'
 
 import validator from '#shared/services/validator.service.ts'
 import ShellException from '#server/exceptions/ShellException.ts'
-import pluginManager from '#server/facades/pluginManager.ts'
 
 function streamToFile(stream: NodeJS.ReadableStream, filePath: string): Promise<void> {
     return new Promise((resolve, reject) => {
@@ -28,9 +27,9 @@ export default async function({ acl, request, params }: HttpContext) {
 
     await streamToFile(request, filename)
 
-    const plugin = pluginManager.findOrFail(pluginId)
+    const plugin = await pluginService.repository.findByIdOrFail(pluginId)
 
-    const [error] = await tryCatch(() => pluginManager.updater.bundle(plugin, { filename: filename }))
+    const [error] = await tryCatch(() => pluginService.updater.bundle(plugin, { filename: filename }))
 
     if (error instanceof ShellException) {
         let message = `Failed to install module: ${error.message}`

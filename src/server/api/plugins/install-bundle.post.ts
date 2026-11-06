@@ -2,12 +2,11 @@ import fs from 'fs'
 import * as v from 'valibot'
 import { BaseException, createId } from '@sidekick-coder/zenith-kit/shared'
 import { tryCatch } from '@sidekick-coder/zenith-kit/shared/utils/tryCatch'
-import { tmpPath } from '@sidekick-coder/zenith-kit/server'
+import { pluginService, tmpPath } from '@sidekick-coder/zenith-kit/server'
 import type { HttpContext } from '#server/contracts/httpContext.contract.ts'
 import validator from '#shared/services/validator.service.ts'
 import server from '#server/facades/server.facade.ts'
 import ShellException from '#server/exceptions/ShellException.ts'
-import pluginDownloadService from '#server/facades/pluginDownloadService.ts'
 
 function streamToFile(stream: NodeJS.ReadableStream, filePath: string): Promise<void> {
     return new Promise((resolve, reject) => {
@@ -30,7 +29,7 @@ export default async function({ acl, query, request }: HttpContext) {
 
     const branch = validator.validate(query.branch, v.string())
 
-    const [error] = await tryCatch(() => pluginDownloadService.download({
+    const [error] = await tryCatch(() => pluginService.downloader.download({
         repository: filename,
         branch: branch,
     }))

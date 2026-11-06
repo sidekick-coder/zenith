@@ -37,6 +37,7 @@ export default class extends LifecycleHook {
         ctx.setConfigValue('emmitter.debug', emmitter.debug)
         ctx.setConfigValue('auth', config.get('auth', {}))
         ctx.setConfigValue('oauth', { google_enabled: config.get('oauth.google_enabled', false), })
+        ctx.setConfigValue('plugins', { debug: config.getOne(['plugins.debug', 'app.debug', 'debug'], false), })
     }
 
     public async register(): Promise<void> {
