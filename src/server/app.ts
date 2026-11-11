@@ -87,16 +87,6 @@ export async function createApp(options: AppOptions = {}) {
 
     container.set(LifecycleService, lifecycle)
 
-    // plugins
-    const pluginService = new PluginService()
-
-    pluginService
-        .setDebug(config.getOne(['plugins.debug', 'app.debug', 'debug'], false))
-        .setLogger(logger.child({ label: 'plugins' }))
-
-    await pluginService.load()
-
-    container.set(PluginService, pluginService)
 
     // const pluginManager = await PluginManagerService
     //     .create()
@@ -118,6 +108,17 @@ export async function createApp(options: AppOptions = {}) {
     await lifecycle.addDirectory(serverPath('hooks'))
 
     await lifecycle.emit('register', { include: ['TrasnlatorLifecycleHook'] })
+
+    // plugins
+    const pluginService = new PluginService()
+
+    pluginService
+        .setDebug(config.getOne(['plugins.debug', 'app.debug', 'debug'], false))
+        .setLogger(logger.child({ label: 'plugins' }))
+
+    await pluginService.load()
+
+    container.set(PluginService, pluginService)
 
     return {
         env,

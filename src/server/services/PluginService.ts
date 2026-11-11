@@ -102,7 +102,8 @@ export default class PluginService extends BasePluginService {
         this.logger.info(`plugin loaded "${plugin.name}"`, {
             id: plugin.id,
             directory: plugin.directory,
-            entry: filename
+            entry: filename,
+            mode: plugin.developmentMode ? 'development' : 'production'
         })
     }
 
@@ -187,5 +188,7 @@ export default class PluginService extends BasePluginService {
 
         emmitter.on('page:request:start', c => this.onPageRequestStart(c, plugins))
         emmitter.on('http:registered', c => this.onHttpRegistered(c, plugins))
+
+        await emmitter.emitAndWait('plugins:loaded', { plugins })
     }
 }
