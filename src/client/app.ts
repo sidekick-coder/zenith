@@ -1,7 +1,6 @@
-import { container, LifecycleService } from '@sidekick-coder/zenith-kit/client'
+import { container, LifecycleService, RouterService } from '@sidekick-coder/zenith-kit/client'
 import { ConfigService, EmmitterService, LoggerService, TranslatorService } from '@sidekick-coder/zenith-kit/shared'
 import type { App } from 'vue'
-import type { Router } from 'vue-router'
 import { createTranslatorService } from './translator.ts'
 import PluginService from './services/PluginService.ts'
 
@@ -53,7 +52,7 @@ export async function createApp(options: AppOptions) {
     await lifecycle.emit(['register', 'load', 'boot'])
 
     const app = container.get<App>('app')
-    const router = container.get<Router>('router')
+    const router = container.get<RouterService>(RouterService)
 
     return {
         app,

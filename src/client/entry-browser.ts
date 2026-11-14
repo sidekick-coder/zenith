@@ -22,7 +22,7 @@ async function main() {
 
     app.use(head)
 
-    await router.isReady()
+    await router.vueRouter.isReady()
 
     app.mount('#app')
 

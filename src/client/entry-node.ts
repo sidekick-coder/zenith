@@ -69,9 +69,9 @@ export default async function(ctx: EntryNodeRenderContract): Promise<EntryNodeRe
 
     app.use(head)
 
-    await router.push(ctx.url)
+    await router.vueRouter.push(ctx.url)
 
-    await router.isReady()
+    await router.vueRouter.isReady()
 
     const ssrContext = {}
 
