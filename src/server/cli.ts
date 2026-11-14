@@ -34,6 +34,12 @@ container.set(CliService, cli)
 await emmiter.emitAndWait('cli:registered', { cli })
 
 async function onPreAction(command: CliCommand) {
+
+    // enable logger console transport
+    logger.addTransport(LoggerWinsonService.console())
+
+    container.set(LoggerWinsonService, logger)
+
     const include = Array.from(command.needs)
     const defaults = ['TrasnlatorLifecycleHook']
 

@@ -227,4 +227,8 @@ export default class LoggerWinsonService extends LoggerService {
 
         return new LoggerWinsonService(childLogger)
     }
+
+    public addTransport(transport: any): void {
+        this.logger.add(transport)
+    }
 }
