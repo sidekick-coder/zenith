@@ -1,4 +1,4 @@
-import { container, logger } from '@sidekick-coder/zenith-kit/client'
+import { container } from '@sidekick-coder/zenith-kit/client'
 import { LoggerService } from '@sidekick-coder/zenith-kit/shared'
 
 export default class PluginService {
@@ -48,14 +48,14 @@ export default class PluginService {
         }
 
         if (!load) {
-            logger.warn('plugin wihout a load function, skipping...', { pluginId: plugin.id })
+            this.logger.warn('plugin wihout a load function, skipping...', { pluginId: plugin.id })
             return null
         }
 
         await load()
 
         if (this.debug) {
-            logger.debug(`plugin loaded "${plugin.name}"`, plugin)
+            this.logger.debug(`plugin loaded "${plugin.name}"`, plugin)
         }
     }
 
@@ -93,12 +93,14 @@ export default class PluginService {
         const entries = container.get<any[]>('plugin:entries')
 
         for await (const e of entries) {
-            if (!e.entry) {
-                continue
-            }
 
             if (e.developmentMode) {
                 await this.loadPluginServerEntryDevelopmentMode(e)
+                continue
+            }
+
+            if (!e.entry) {
+                this.logger.warn('plugin without an entry, skipping...', { plugin: e })
                 continue
             }
 
