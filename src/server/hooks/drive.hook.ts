@@ -1,8 +1,5 @@
-import config from '@sidekick-coder/zenith-kit/server/facades/config'
-import di from '#server/facades/di.facade.ts'
-import logger from '#server/facades/logger.facade.ts'
-import DriveService from '#server/services/drive.service.ts'
-import LifecycleHook from '#shared/entities/lifecycleHook.entity.ts'
+import { config, container, DriveService, logger } from '@sidekick-coder/zenith-kit/server'
+import { LifecycleHook } from '@sidekick-coder/zenith-kit/shared'
 
 export default class DriveLifecycleHook extends LifecycleHook {
     public order = 3
@@ -13,11 +10,11 @@ export default class DriveLifecycleHook extends LifecycleHook {
             logger: logger.child({ label: 'drive' }) 
         })
         
-        di.set(DriveService, service)
+        container.set(DriveService, service)
     }
 
     public async onLoad(): Promise<void> {
-        const drive = di.get<DriveService>(DriveService)
+        const drive = container.get<DriveService>(DriveService)
 
         await drive.load()
     }
