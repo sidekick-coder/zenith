@@ -1,4 +1,4 @@
-import { container, config, MenuService, fetcher, auth } from '@sidekick-coder/zenith-kit/client'
+import { container, config, MenuService, auth, emmitter } from '@sidekick-coder/zenith-kit/client'
 import { LifecycleHook } from '@sidekick-coder/zenith-kit/shared'
 
 export default class extends LifecycleHook {
@@ -20,6 +20,7 @@ export default class extends LifecycleHook {
         const menu = new MenuService()
 
         container.set(MenuService, menu)
+
 
         this.menu = menu
 
@@ -160,6 +161,7 @@ export default class extends LifecycleHook {
             group: $t('Plugins'),
         })
 
+        await emmitter.emitAndWait('menu:registered', { menu })
     }
 
     public async onBoot(): Promise<void> {
