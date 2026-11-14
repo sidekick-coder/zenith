@@ -1,4 +1,4 @@
-import { AclEntity, Permission, LifecycleHook } from '@sidekick-coder/zenith-kit/shared'
+import { AclEntity, PermissionEntity as Permission, LifecycleHook } from '@sidekick-coder/zenith-kit/shared'
 import { container, config, logger } from '@sidekick-coder/zenith-kit/client'
 
 export default class AclLifecycleHook extends LifecycleHook {

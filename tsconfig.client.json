@@ -27,9 +27,9 @@
         }
     },
     "include": [
-        "client/**/*.ts",
-        "client/**/*.d.ts",
-        "client/**/*.vue",
-        "shared/**/*.ts"
+        "src/client/**/*.ts",
+        "src/client/**/*.d.ts",
+        "src/client/**/*.vue",
+        "src/shared/**/*.ts"
     ]
 }

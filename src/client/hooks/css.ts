@@ -1,6 +1,6 @@
 import { container, config, themeToCss } from '@sidekick-coder/zenith-kit/client'
 import { LifecycleHook } from '@sidekick-coder/zenith-kit/shared'
-import { ResolvableHead } from '@unhead/vue'
+import type { ResolvableHead } from '@unhead/vue'
 import kitCss from '@sidekick-coder/zenith-kit/styles.css?inline'
 import css from '../assets/styles.css?inline'
 import { useThemes } from '#client/composables/useThemes.ts'
