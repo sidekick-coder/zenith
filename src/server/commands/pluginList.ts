@@ -1,12 +1,12 @@
 import { CliCommand } from '@sidekick-coder/zenith-kit/server/services/CliService'
 import logger from '@sidekick-coder/zenith-kit/server/facades/logger'
-import pluginManager from '#server/facades/pluginManager.ts'
+import { pluginService } from '@sidekick-coder/zenith-kit/server'
 
 const command = new CliCommand('plugin:list')
     .helpGroup('plugins')
     .option('-j, --json', 'Output in JSON format')
-    .action((options) => {
-        const plugins = pluginManager.list()
+    .action(async (options) => {
+        const plugins = await pluginService.repository.findMany()
 
         if (!plugins.length) {
             logger.info('No plugins found')
