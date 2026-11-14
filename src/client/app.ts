@@ -1,3 +1,4 @@
+import 'iconify-icon'
 import { container, LifecycleService, RouterService } from '@sidekick-coder/zenith-kit/client'
 import { ConfigService, EmmitterService, LoggerService, TranslatorService } from '@sidekick-coder/zenith-kit/shared'
 import type { App } from 'vue'

@@ -1,18 +1,10 @@
-import './imports'
 import { renderToString } from 'vue/server-renderer'
 import { createHead } from '@unhead/vue/server'
-import * as VueServerRenderer from 'vue/server-renderer'
-import { ResolvableHead } from '@unhead/vue'
+import type { ResolvableHead } from '@unhead/vue'
 import { CookieMapEntity } from '@sidekick-coder/zenith-kit/shared'
 import { container, FetchService, FetchNodeService } from '@sidekick-coder/zenith-kit/client'
 import { createApp } from './app.ts'
 import type { EntryNodeRenderContract, EntryNodeRenderResult } from '#shared/contracts/EntryNodeRenderContract.ts'
-
-if (!globalThis.imports) {
-    globalThis.imports = new Map<string, () => Promise<any>>()
-}
-
-globalThis.imports.set('vue/server-renderer', () => Promise.resolve(VueServerRenderer))
 
 export default async function(ctx: EntryNodeRenderContract): Promise<EntryNodeRenderResult> {
     container.clear()
