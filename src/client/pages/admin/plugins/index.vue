@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
-import { defineColumns, fetcher, PluginEntity, waitForServer } from '@sidekick-coder/zenith-kit/client'
+import { defineColumns, fetcher, waitForServer } from '@sidekick-coder/zenith-kit/client'
+import type { PluginEntity } from '@sidekick-coder/zenith-kit/shared'
 import { ZButton, ZDataTable } from '@sidekick-coder/zenith-kit/components'
 import Button from '#client/components/Button.vue'
 import Switch from '#client/components/ui/switch/Switch.vue'

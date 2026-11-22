@@ -3,29 +3,44 @@ import { defineTheme } from '@sidekick-coder/zenith-kit/client'
 export default defineTheme({
     background: '#0b1d2a',
     foreground: '#d9f0ff',
+
     card: '#102b3e',
-    'card-foreground': '#d9f0ff',
+    cardForeground: '#d9f0ff',
+
     popover: '#102b3e',
-    'popover-foreground': '#d9f0ff',
+    popoverForeground: '#d9f0ff',
+
     primary: '#00a8e8',
-    'primary-foreground': '#06141d',
+    primaryForeground: '#06141d',
+
     secondary: '#16394f',
-    'secondary-foreground': '#d9f0ff',
+    secondaryForeground: '#d9f0ff',
+
     muted: '#16394f',
-    'muted-foreground': '#91b4c8',
+    mutedForeground: '#91b4c8',
+
     accent: '#1d4d68',
-    'accent-foreground': '#d9f0ff',
+    accentForeground: '#d9f0ff',
+
     destructive: '#ff6b6b',
-    'destructive-foreground': '#06141d',
+    destructiveForeground: '#06141d',
+
     border: '#1d4d68',
     input: '#1d4d68',
     ring: '#00a8e8',
     sidebar: '#071722',
-    'sidebar-foreground': '#d9f0ff',
-    'sidebar-primary': '#00a8e8',
-    'sidebar-primary-foreground': '#06141d',
-    'sidebar-accent': '#16394f',
-    'sidebar-accent-foreground': '#d9f0ff',
-    'sidebar-border': '#1d4d68',
-    'sidebar-ring': '#00a8e8' 
+
+    sidebarForeground: '#d9f0ff',
+    sidebarPrimary: '#00a8e8',
+    sidebarPrimaryForeground: '#06141d',
+    sidebarAccent: '#16394f',
+    sidebarAccentForeground: '#d9f0ff',
+    sidebarBorder: '#1d4d68',
+    sidebarRing: '#00a8e8',
+
+    chart1: '#00a8e8',
+    chart2: '#16394f',
+    chart3: '#1d4d68',
+    chart4: '#ff6b6b',
+    chart5: '#d9f0ff',
 })

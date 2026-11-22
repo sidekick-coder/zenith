@@ -3,3 +3,4 @@ storage
 .env
 data/*
 !data/.gitkeep
+dist
