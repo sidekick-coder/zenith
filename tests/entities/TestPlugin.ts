@@ -9,6 +9,7 @@ export default class TestPlugin {
     public id: string
     public source: string
     public directory: string
+    public debug: boolean = false
     public config: Record<string, any> = {}
 
     constructor(name: string = 'basic') {
@@ -25,10 +26,21 @@ export default class TestPlugin {
         fs.mkdirSync(this.directory, { recursive: true })
         fs.cpSync(this.source, this.directory, { recursive: true })
 
+        const stdio = this.debug ? 'inherit' : 'ignore'
+
         // start git
-        cp.execSync('git init', { cwd: this.directory })
-        cp.execSync('git add .', { cwd: this.directory })
-        cp.execSync('git commit -m "Initial commit"', { cwd: this.directory })
+        cp.execSync('git init', {
+            cwd: this.directory,
+            stdio 
+        })
+        cp.execSync('git add .', {
+            cwd: this.directory,
+            stdio 
+        })
+        cp.execSync('git commit -m "Initial commit"', {
+            cwd: this.directory,
+            stdio 
+        })
 
         // load zenith.config.yml
         const yaml = load(fs.readFileSync(path.join(this.directory, 'zenith.config.yml'), 'utf8'))
@@ -37,8 +49,14 @@ export default class TestPlugin {
         this.id = this.config.id
 
         // build plugin
-        cp.execSync('npm install', { cwd: this.directory })
-        cp.execSync('npm run build', { cwd: this.directory })
+        cp.execSync('npm install', {
+            cwd: this.directory,
+            stdio 
+        })
+        cp.execSync('npm run build', {
+            cwd: this.directory,
+            stdio 
+        })
     }
 
     public async clean() {
