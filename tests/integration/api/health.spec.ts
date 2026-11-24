@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { http, HttpTesterService } from '@sidekick-coder/zenith-kit/server'
+import { http } from '@sidekick-coder/zenith-kit/server'
+import { HttpTesterService } from '@sidekick-coder/zenith-kit/test'
 
 describe('GET /api/health', () => {
     const api = new HttpTesterService({ http })

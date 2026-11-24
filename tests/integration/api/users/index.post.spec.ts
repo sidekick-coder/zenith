@@ -1,7 +1,7 @@
-
 import { beforeEach, describe, expect, it } from 'vitest'
-import { http, HttpTesterService } from '@sidekick-coder/zenith-kit/server'
-import { makeUser } from '#server/tests/fixtures/users.ts'
+import { http } from '@sidekick-coder/zenith-kit/server'
+import { HttpTesterService } from '@sidekick-coder/zenith-kit/test'
+import { makeUser } from '#tests/utils/users.ts'
 
 describe('POST /api/users', () => {
     let api: HttpTesterService

@@ -4,7 +4,7 @@ import { createApp } from '#server/app.ts'
 import seeder from '#server/facades/seeder.facade.ts'
 
 if (!process.env.ZENITH_BASE_PATH) {
-    process.env.ZENITH_BASE_PATH = path.resolve(import.meta.dirname, '..', '..', '..')
+    process.env.ZENITH_BASE_PATH = path.resolve(import.meta.dirname, '..', '..')
 }
 
 const logger = new LoggerService()
