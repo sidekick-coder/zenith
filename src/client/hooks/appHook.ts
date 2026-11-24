@@ -1,7 +1,5 @@
 import { createSSRApp } from 'vue'
 import type { App as VueApp } from 'vue'
-import type { Vue3TouchEventsOptions } from 'vue3-touch-events'
-import Vue3TouchEvents from 'vue3-touch-events'
 import di from '../utils/di'
 import LifecycleHook from '#shared/entities/lifecycleHook.entity.ts'
 import logger from '#client/facades/logger.facade.ts'
@@ -26,8 +24,6 @@ export default class AppLifecycleHook extends LifecycleHook {
         app.config.globalProperties.$dt = $dt
         app.config.globalProperties.$d = $d
         app.config.globalProperties.$translator = $translator
-
-        app.use<Vue3TouchEventsOptions>(Vue3TouchEvents, { disableClick: false, })
     }
 
     public async onShutdown(): Promise<void> {

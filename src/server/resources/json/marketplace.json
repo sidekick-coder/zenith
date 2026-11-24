@@ -7,6 +7,14 @@
         {
             "repository": "https://github.com/sidekick-coder/zenith-plugin-webhook.git",
             "branch": "release"
+        },
+        {
+            "repository": "https://github.com/sidekick-coder/zenith-plugin-queue.git",
+            "branch": "release"
+        },
+        {
+            "repository": "https://github.com/sidekick-coder/zenith-plugin-mcp.git",
+            "branch": "release"
         }
     ]
 }
