@@ -1,7 +1,7 @@
 import { join } from 'path'
 import { defineAuthHandler } from '@sidekick-coder/zenith-kit/server'
+import { drive } from '@sidekick-coder/zenith-kit/server'
 import FileUploadSession from '#server/entities/fileUploadSession.entity.ts'
-import drive from '#server/facades/drive.facade.ts'
 import normalizers from '#server/normalizers/index.ts'
 import validator from '#shared/services/validator.service.ts'
 import { cuid } from '#server/utils/cuid.util.ts'

@@ -1,7 +1,7 @@
 import mime from 'mime'
 import { defineAuthHandler } from '@sidekick-coder/zenith-kit/server'
+import { drive } from '@sidekick-coder/zenith-kit/server'
 import BaseException from '#server/exceptions/base.ts'
-import drive from '#server/facades/drive.facade.ts'
 import validator from '#shared/services/validator.service.ts'
 
 export default defineAuthHandler(async ({ acl, params, response }) => {

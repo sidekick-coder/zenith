@@ -1,5 +1,5 @@
-import { CliCommand } from '@sidekick-coder/zenith-kit/server/services/CliService'
-import drive from '#server/facades/drive.facade.ts'
+import { CliCommand } from '@sidekick-coder/zenith-kit/server'
+import { drive } from '@sidekick-coder/zenith-kit/server'
 
 const command = new CliCommand('drive:create-defaults')
     .need('drive')

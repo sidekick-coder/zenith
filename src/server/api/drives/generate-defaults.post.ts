@@ -1,5 +1,5 @@
 import { defineAuthHandler } from '@sidekick-coder/zenith-kit/server'
-import drive from '#server/facades/drive.facade.ts'
+import { drive } from '@sidekick-coder/zenith-kit/server'
 
 export default defineAuthHandler(async ({ acl }) => {
     acl.authorize('create', 'Drive')
