@@ -1,6 +1,6 @@
-import di from './di.facade.ts'
-import DatabaseService from '#server/services/database.service.ts'
+import { container } from '@sidekick-coder/zenith-kit/server'
+import DatabaseService from '#server/services/DatabaseService.ts'
 
-const db = di.proxy<DatabaseService>(DatabaseService)
+const db = container.proxy<DatabaseService>(DatabaseService)
 
 export default db

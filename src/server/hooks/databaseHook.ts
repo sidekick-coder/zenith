@@ -4,7 +4,7 @@ import LifecycleHook from '@sidekick-coder/zenith-kit/shared/entities/LifecycleH
 import config from '@sidekick-coder/zenith-kit/server/facades/config'
 import emmitter from '#server/facades/emmitter.facade.ts'
 import logger from '#server/facades/logger.facade.ts'
-import DatabaseService from '#server/services/database.service.ts'
+import DatabaseService from '#server/services/DatabaseService.ts'
 
 export default class DatabaseLifecycleHook extends LifecycleHook {
     public order = 2
