@@ -1,8 +1,8 @@
 import mime from 'mime'
 import { defineHandler } from '@sidekick-coder/zenith-kit/server'
 import { drive } from '@sidekick-coder/zenith-kit/server'
+import { encrypt } from '@sidekick-coder/zenith-kit/server'
 import BaseException from '#server/exceptions/base.ts'
-import encrypt from '#server/facades/encrypt.facade.ts'
 import validator from '#shared/services/validator.service.ts'
 
 export default defineHandler(async ({ params, query, request }) => {

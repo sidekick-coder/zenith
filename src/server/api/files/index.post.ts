@@ -1,8 +1,8 @@
 import mime from 'mime'
 import { defineAuthHandler } from '@sidekick-coder/zenith-kit/server'
+import { encrypt } from '@sidekick-coder/zenith-kit/server'
 import File from '#server/entities/file.entity.ts'
 import validator from '#shared/services/validator.service.ts'
-import encrypt from '#server/facades/encrypt.facade.ts'
 
 export default defineAuthHandler(async ({ query }) => {
     const key = validator.validate(query.key, v => v.string())

@@ -1,5 +1,5 @@
+import { hasher } from '@sidekick-coder/zenith-kit/server'
 import { CliCommand } from '@sidekick-coder/zenith-kit/server/services/CliService'
-import hasher from '#server/facades/hasher.facade.ts'
 
 const command = new CliCommand('hasher:compare')
     .helpGroup('hasher')

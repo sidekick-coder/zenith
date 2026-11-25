@@ -2,11 +2,11 @@ import fs from 'fs'
 import path, { join, relative } from 'path'
 import mime from 'mime'
 import { basePath } from '@sidekick-coder/zenith-kit/server/utils/basePath'
+import { BaseException } from '@sidekick-coder/zenith-kit/shared'
+import { encrypt } from '@sidekick-coder/zenith-kit/server'
 import DriveEntity from '#shared/entities/driveEntry.entity.ts'
 import BaseDrive from '#server/gateways/driveBase.gateway.ts'
 import validator from '#shared/services/validator.service.ts'
-import encrypt from '#server/facades/encrypt.facade.ts'
-import BaseException from '#server/exceptions/base.ts'
 
 export interface DriveFSConfig {
     directory: string
