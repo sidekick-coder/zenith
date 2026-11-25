@@ -1,5 +1,5 @@
 import { createHead } from '@unhead/vue/client'
-import ClientLoggerService from './services/logger.service.ts'
+import ClientLoggerService from './services/LoggerService.ts'
 
 async function main() {
     const { createApp } = await import('./app.ts')
