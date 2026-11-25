@@ -1,5 +1,5 @@
 import { defineHandler } from '@sidekick-coder/zenith-kit/server'
-import auth from '#server/facades/auth.facade.ts'
+import { auth } from '@sidekick-coder/zenith-kit/server'
 import validator from '#shared/services/validator.service.ts'
 
 export default defineHandler(async ({ body }) => {

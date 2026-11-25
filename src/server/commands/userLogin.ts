@@ -1,6 +1,5 @@
-import { CliCommand } from '@sidekick-coder/zenith-kit/server/services/CliService'
+import { CliCommand, auth } from '@sidekick-coder/zenith-kit/server'
 import cli from '#server/services/cli.service.ts'
-import auth from '#server/facades/auth.facade.ts'
 
 const command = new CliCommand('user:login')
     .need('db')

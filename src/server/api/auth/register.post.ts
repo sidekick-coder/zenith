@@ -1,6 +1,6 @@
 import { BaseException } from '@sidekick-coder/zenith-kit/shared'
 import { defineHandler, config } from '@sidekick-coder/zenith-kit/server'
-import auth from '#server/facades/auth.facade.ts'
+import { auth } from '@sidekick-coder/zenith-kit/server'
 import validator from '#shared/services/validator.service.ts'
 import schemas from '#shared/validators/index.ts'
 

@@ -1,7 +1,7 @@
 import { userRepository  } from '@sidekick-coder/zenith-kit/server'
 import { defineHandler } from '@sidekick-coder/zenith-kit/server'
 import { BaseException, validator } from '@sidekick-coder/zenith-kit/shared'
-import auth from '#server/facades/auth.facade.ts'
+import { auth } from '@sidekick-coder/zenith-kit/server'
 
 export default defineHandler(async ({ params, acl }) => {
     const id = validator.validate(params.id, v => v.extras.number())

@@ -1,11 +1,11 @@
 import { randomBytes, randomUUID } from 'crypto'
 import { defineHandler, userRepository } from '@sidekick-coder/zenith-kit/server'
 import config from '@sidekick-coder/zenith-kit/server/facades/config'
+import { auth } from '@sidekick-coder/zenith-kit/server'
 import env from '#server/facades/env.facade.ts'
 import OauthToken from '#server/entities/oauthToken.entity.ts'
 import OauthAccount from '#server/entities/oauthAccount.entity.ts'
 import { undeleted } from '#server/queries/softDelete.ts'
-import auth from '#server/facades/auth.facade.ts'
 
 export default defineHandler(async ({ query, response, cookie }) => {
     const code = query.code
