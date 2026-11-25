@@ -88,7 +88,7 @@ onMounted(load)
                     purpose="favicon"
                     :public="true"
                     :max-size="1024 * 1024"
-                    :file-url="setting.favicon_url || '/favicon'"
+                    :file-url="setting.favicon_url || '/api/favicon'"
                 />
 
                 <FormTextField

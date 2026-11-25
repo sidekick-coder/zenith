@@ -23,7 +23,7 @@ const { handleSubmit, resetForm } = useForm({
 async function load() {
     loading.value = true
 
-    const [error, response] = await $fetch.try<any>('/api/configs/oauth')
+    const [error, response] = await $fetch.try<any>('/api/config/oauth')
 
     if (error) {
         loading.value = false
@@ -40,7 +40,7 @@ async function load() {
 const onSubmit = handleSubmit(async (data) => {
     saving.value = true
 
-    const [error] = await $fetch.try('/api/configs/oauth', {
+    const [error] = await $fetch.try('/api/config/oauth', {
         method: 'PATCH',
         data,
     })
