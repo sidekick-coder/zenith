@@ -26,7 +26,7 @@ export default class extends LifecycleHook {
                 },
                 {
                     rel: 'manifest',
-                    href: '/pwa.json'
+                    href: '/api/pwa.json'
                 },
             ],
         })
