@@ -87,24 +87,6 @@ export async function createApp(options: AppOptions = {}) {
 
     container.set(LifecycleService, lifecycle)
 
-
-    // const pluginManager = await PluginManagerService
-    //     .create()
-    //     .setConfig(config)
-    //     .setEnv(env)
-    //     .setLogger(logger.child({ label: 'plugins' }))
-    //     .setDebug(config.getOne(['plugins.debug', 'app.debug', 'debug'], false))
-    //     .load()
-    //
-    // const pluginDownloadService = PluginDownloadService.create({
-    //     logger: logger.child({ label: 'plugin-download' }),
-    //     config: config,
-    //     debug: config.getOne(['plugins.debug', 'app.debug', 'debug'], false)
-    // })
-    //
-    // container.set(PluginManagerService, pluginManager)
-    // container.set(PluginDownloadService, pluginDownloadService)
-
     await lifecycle.addDirectory(serverPath('hooks'))
 
     await lifecycle.emit('register', { include: ['TrasnlatorLifecycleHook'] })

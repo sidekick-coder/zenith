@@ -1,6 +1,6 @@
 
 import { CliCommand } from '@sidekick-coder/zenith-kit/server/services/CliService'
-import auth from '#server/facades/auth.facade.ts'
+import { auth } from '@sidekick-coder/zenith-kit/server'
 import logger from '#server/facades/logger.facade.ts'
 
 const command = new CliCommand('user:forget-password')

@@ -1,6 +1,6 @@
 import { CliCommand } from '@sidekick-coder/zenith-kit/server/services/CliService'
+import { pluginService } from '@sidekick-coder/zenith-kit/server'
 import logger from '#server/facades/logger.facade.ts'
-import pluginManager from '#server/facades/pluginManager.ts'
 
 const command = new CliCommand('plugin:commit-checkout')
 
@@ -11,7 +11,7 @@ command
     .option('-h, --commit-hash <commitHash>', 'Commit hash to checkout')
     .option('-c, --version-channel <versionChannel>', 'Version channel to set after checkout')
     .action(async (options) => {
-        const plugins = pluginManager.list()
+        const plugins = await pluginService.repository.findMany()
 
         let pluginId = options.pluginId
 
@@ -25,7 +25,7 @@ command
             })
         }
 
-        const plugin = pluginManager.findOrFail(pluginId)
+        const plugin = await pluginService.repository.findByIdOrFail(pluginId)
         const hash = options.commitHash 
         const versionChannel = options.versionChannel || plugin.version_channel
 

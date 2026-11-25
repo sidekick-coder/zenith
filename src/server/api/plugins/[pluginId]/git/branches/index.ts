@@ -1,11 +1,10 @@
-import { defineHandler } from '@sidekick-coder/zenith-kit/server'
+import { defineHandler, pluginService } from '@sidekick-coder/zenith-kit/server'
 import { validator } from '@sidekick-coder/zenith-kit/shared'
-import pluginManager from '#server/facades/pluginManager.ts'
 
 export default defineHandler(async ({ acl, params }) => {
     const pluginId = validator.validate(params.pluginId, v => v.string())
 
-    const plugin = pluginManager.findOrFail(pluginId)
+    const plugin = await pluginService.repository.findByIdOrFail(pluginId)
 
     acl.authorize('read', 'Plugin', plugin)
 

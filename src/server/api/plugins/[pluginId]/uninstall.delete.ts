@@ -1,15 +1,15 @@
 import path from 'path'
 import fs from 'fs'
-import { config, dataPath  } from '@sidekick-coder/zenith-kit/server'
+import { config, dataPath, pluginService } from '@sidekick-coder/zenith-kit/server'
+import { defineAuthHandler  } from '@sidekick-coder/zenith-kit/server'
 import type { HttpContext } from '@sidekick-coder/zenith-kit/server'
 import { BaseException, validator } from '@sidekick-coder/zenith-kit/shared'
-import pluginManager from '#server/facades/pluginManager.ts'
 import server from '#server/facades/server.facade.ts'
 
-export default function ({ acl, params }: HttpContext) {
+export default defineAuthHandler(async({ acl, params }: HttpContext) => {
     const pluginId = validator.validate(params.pluginId, v => v.string())
 
-    const plugin = pluginManager.findOrFail(pluginId)
+    const plugin = await pluginService.repository.findByIdOrFail(pluginId)
 
     acl.authorize('uninstall', 'Plugin', plugin)
 
@@ -34,4 +34,4 @@ export default function ({ acl, params }: HttpContext) {
     setTimeout(() => server.reload(), 2000)
 
     return plugin
-}
+})

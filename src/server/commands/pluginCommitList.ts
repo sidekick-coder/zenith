@@ -1,6 +1,6 @@
 import { CliCommand } from '@sidekick-coder/zenith-kit/server/services/CliService'
+import { pluginService } from '@sidekick-coder/zenith-kit/server'
 import logger from '#server/facades/logger.facade.ts'
-import pluginManager from '#server/facades/pluginManager.ts'
 
 const command = new CliCommand('plugin:commit-list')
 
@@ -10,7 +10,7 @@ command
     .option('-p, --plugin-id <pluginId>', 'Plugin ID to list versions for')
     .option('-c, --cursor <cursor>', 'Cursor for pagination')
     .action(async (options) => {
-        const plugins = pluginManager.list()
+        const plugins = await pluginService.repository.findMany()
 
         let pluginId = options.pluginId
 
@@ -24,7 +24,7 @@ command
             })
         }
 
-        const plugin = pluginManager.findOrFail(pluginId)
+        const plugin = await pluginService.repository.findByIdOrFail(pluginId)
 
         if (!plugin) {
             logger.error(`Plugin with ID ${pluginId} not found`)

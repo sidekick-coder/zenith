@@ -1,11 +1,11 @@
 import * as v from 'valibot'
+import { pluginService } from '@sidekick-coder/zenith-kit/server'
 import { BaseException } from '@sidekick-coder/zenith-kit/shared'
 import { tryCatch } from '@sidekick-coder/zenith-kit/shared/utils/tryCatch'
 import type { HttpContext } from '#server/contracts/httpContext.contract.ts'
 
 import validator from '#shared/services/validator.service.ts'
 import ShellException from '#server/exceptions/ShellException.ts'
-import pluginManager from '#server/facades/pluginManager.ts'
 
 export default async function({ acl, params, body }: HttpContext) {
     acl.authorize('update', 'Plugin')
@@ -18,9 +18,9 @@ export default async function({ acl, params, body }: HttpContext) {
         ssh_key_file: v.optional(v.string()),
     }))
 
-    const plugin = pluginManager.findOrFail(pluginId)
+    const plugin = await pluginService.repository.findByIdOrFail(pluginId)
 
-    const [error] = await tryCatch(() => pluginManager.updater.remote(plugin, {
+    const [error] = await tryCatch(() => pluginService.updater.remote(plugin, {
         repository: options.repository,
         sshKey: options.ssh_key,
         sshKeyFile: options.ssh_key_file

@@ -1,6 +1,6 @@
 import { CliCommand } from '@sidekick-coder/zenith-kit/server/services/CliService'
+import { pluginService } from '@sidekick-coder/zenith-kit/server'
 import logger from '#server/facades/logger.facade.ts'
-import pluginManager from '#server/facades/pluginManager.ts'
 
 const command = new CliCommand('plugin:git-fetch')
 
@@ -12,7 +12,7 @@ command
         let pluginId = options.pluginId
 
         if (!pluginId) {
-            const plugins = pluginManager.list()
+            const plugins = await pluginService.repository.findMany()
 
             pluginId = await command.inquirer.select({
                 message: 'Select a plugin to list versions for',
@@ -23,7 +23,7 @@ command
             })
         }
 
-        const plugin = pluginManager.findOrFail(pluginId)
+        const plugin = await pluginService.repository.findByIdOrFail(pluginId)
 
         if (!plugin) {
             logger.error(`Plugin with ID ${pluginId} not found`)

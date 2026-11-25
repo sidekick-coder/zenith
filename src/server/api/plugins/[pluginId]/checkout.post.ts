@@ -1,6 +1,6 @@
 import type { HttpContext } from '@sidekick-coder/zenith-kit/server'
+import { pluginService } from '@sidekick-coder/zenith-kit/server'
 import { validator } from '@sidekick-coder/zenith-kit/shared'
-import pluginManager from '#server/facades/pluginManager.ts'
 import server from '#server/facades/server.facade.ts'
 
 export default async function({ params, body, acl }: HttpContext) {
@@ -9,7 +9,7 @@ export default async function({ params, body, acl }: HttpContext) {
 
     const payload = validator.validate(body, v => v.object({ commit_hash: v.string(), }))
 
-    const plugin = pluginManager.findOrFail(id)
+    const plugin = await pluginService.repository.findByIdOrFail(id)
 
     acl.authorize('update', 'Plugin', plugin)
 
