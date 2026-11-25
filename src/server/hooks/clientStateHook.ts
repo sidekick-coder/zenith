@@ -22,7 +22,7 @@ export default class extends LifecycleHook {
             link: [
                 {
                     rel: 'icon',
-                    href: '/favicon'
+                    href: '/api/favicon'
                 },
                 {
                     rel: 'manifest',

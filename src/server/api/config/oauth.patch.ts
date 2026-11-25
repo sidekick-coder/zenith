@@ -1,21 +1,8 @@
-import config from '@sidekick-coder/zenith-kit/server/facades/config'
-import rootRouter from '#server/facades/router.facade.ts'
-import validator from '#shared/services/validator.service.ts'
-import authMiddleware from '#server/middlewares/auth.middleware.ts'
-import schemas from '#shared/validators/index.ts'
+import { defineAuthHandler, config } from '@sidekick-coder/zenith-kit/server'
+import { validator } from '@sidekick-coder/zenith-kit/shared'
 import File from '#server/entities/file.entity.ts'
 
-const router = rootRouter.prefix('/api/configs/oauth')
-    .use(authMiddleware)
-    .group()
-
-router.get('/', async ({ acl }) => {
-    acl.authorize('read', 'Config', { key: 'oauth' })
-
-    return config.get('oauth', {})
-})
-
-router.patch('/', async ({ body, acl }) => {
+export default defineAuthHandler(async ({ acl, body }) => {
     acl.authorize('update', 'Config', { key: 'oauth' })
 
     const payload = validator.validate(body, v => v.object({
@@ -24,9 +11,9 @@ router.patch('/', async ({ body, acl }) => {
         google_client_secret: v.optional(v.string()),
     }))
 
-    const auth: any = { 
+    const auth: any = {
         ...config.get('oauth', {}),
-        ...payload
+        ...payload,
     }
 
     if (auth.image_id) {
@@ -42,5 +29,3 @@ router.patch('/', async ({ body, acl }) => {
 
     return config.get('oauth', {})
 })
-
-export default router

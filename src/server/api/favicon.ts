@@ -1,10 +1,9 @@
 import fs from 'fs'
-import { clientPath, env } from '@sidekick-coder/zenith-kit/server'
-import config from '@sidekick-coder/zenith-kit/server/facades/config'
-import router from '#server/facades/router.facade.ts'
+import { clientPath, defineHandler, env } from '@sidekick-coder/zenith-kit/server'
+import { config } from '@sidekick-coder/zenith-kit/server'
 import File from '#server/entities/file.entity.ts'
 
-router.get('/favicon', async ({ response }) => {
+export default defineHandler(async ({ response }) => {
     const fileId = config.get('site.favicon_image_id', null)
     let defaultIcon = clientPath('public', 'favicon.ico')
 
@@ -18,7 +17,6 @@ router.get('/favicon', async ({ response }) => {
         const file = await File.findOrFail(fileId)
 
         response.set('Content-Type', file.mimetype || 'image/x-icon')
-
         contents = await file.read()
     }
 
