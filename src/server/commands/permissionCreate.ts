@@ -1,7 +1,6 @@
 import { CliCommand } from '@sidekick-coder/zenith-kit/server/services/CliService'
 import { create } from '#server/queries/create.ts'
 import Permission from '#shared/entities/permission.entity.ts'
-import cli from '#server/services/cli.service.ts'
 
 const command = new CliCommand('permission:create')
     .need('db')
@@ -38,7 +37,7 @@ const command = new CliCommand('permission:create')
     
         console.log('✓ Permission created and assigned successfully')
 
-        cli.ui.object(permission)
+        command.object(permission)
     })
 
 export default command

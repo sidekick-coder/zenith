@@ -1,6 +1,5 @@
 import { CliCommand } from '@sidekick-coder/zenith-kit/server/services/CliService'
 import Permission from '#shared/entities/permission.entity.ts'
-import cli from '#server/services/cli.service.ts'
 import { list } from '#server/queries/list.ts'
 import db from '#server/facades/db.facade.ts'
 
@@ -40,7 +39,7 @@ const command = new CliCommand('permission:list')
             }
         })
 
-        cli.ui.table(permissions)
+        command.table(permissions)
 
         await db.destroy()
     })

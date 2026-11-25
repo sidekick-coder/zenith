@@ -3,7 +3,6 @@ import { CliCommand } from '@sidekick-coder/zenith-kit/server/services/CliServic
 import { create } from '#server/queries/create.ts'
 import Permission from '#shared/entities/permission.entity.ts'
 import { findOneOrFail, findOne } from '#server/queries/index.ts'
-import cli from '#server/services/cli.service.ts'
 
 const command = new CliCommand('permission:attach')
     .need('db')
@@ -51,7 +50,7 @@ const command = new CliCommand('permission:attach')
 
         if (exists) {
             console.log(`⚠️ Permission ID '${permissionId}' is already assigned to ${type} ID '${id}'. Skipping assignment.`)
-            cli.ui.object(exists)
+            command.object(exists)
             return
         }
 
@@ -73,7 +72,7 @@ const command = new CliCommand('permission:attach')
             return
         }
 
-        cli.ui.object(created)
+        command.object(created)
     })
 
 export default command

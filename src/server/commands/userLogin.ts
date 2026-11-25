@@ -1,5 +1,4 @@
 import { CliCommand, auth } from '@sidekick-coder/zenith-kit/server'
-import cli from '#server/services/cli.service.ts'
 
 const command = new CliCommand('user:login')
     .need('db')
@@ -20,7 +19,7 @@ const command = new CliCommand('user:login')
             return
         }
         
-        cli.ui.object(result)
+        command.object(result)
     })
 
 export default command

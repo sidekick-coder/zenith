@@ -3,7 +3,6 @@ import { search } from '@inquirer/prompts'
 import { tryCatch } from '@sidekick-coder/zenith-kit/shared/utils/tryCatch'
 import { CliCommand } from '@sidekick-coder/zenith-kit/server/services/CliService'
 import db from '#server/facades/db.facade.ts'
-import cli from '#server/services/cli.service.ts'
 
 interface TableListOptions {
     table?: string
@@ -77,7 +76,7 @@ const command = new CliCommand('sql:select')
 
         const rows = response.rows as Record<string, any>[]
 
-        cli.ui.table(rows)
+        command.table(rows)
     })
 
 export default command

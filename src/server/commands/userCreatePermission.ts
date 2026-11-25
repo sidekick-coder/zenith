@@ -2,7 +2,6 @@ import { userRepository } from '@sidekick-coder/zenith-kit/server'
 import type { UserEntity } from '@sidekick-coder/zenith-kit/shared'
 import { CliCommand } from '@sidekick-coder/zenith-kit/server/services/CliService'
 import { createUserPermission } from '#server/queries/index.ts'
-import cli from '#server/services/cli.service.ts'
 
 const command = new CliCommand('user:create-permission')
     .need('db')
@@ -39,7 +38,7 @@ const command = new CliCommand('user:create-permission')
             conditions: JSON.parse(conditions)
         })
 
-        cli.ui.object(permission)
+        command.object(permission)
     })
 
 export default command
