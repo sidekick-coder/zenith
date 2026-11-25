@@ -3,7 +3,7 @@ import { dataPath, serverPath } from '@sidekick-coder/zenith-kit/server/utils/ba
 import container from '@sidekick-coder/zenith-kit/server/facades/container'
 import emmitter from '@sidekick-coder/zenith-kit/server/facades/emmitter'
 import { createApp } from './app.ts'
-import LoggerWinsonService from './services/loggerWinson.service.ts'
+import LoggerWinsonService from './services/LoggerWinsonService.ts'
 
 const logger = LoggerWinsonService.create({
     level: process.env.ZENITH_LOG_LEVEL || 'info',

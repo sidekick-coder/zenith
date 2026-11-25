@@ -1,7 +1,7 @@
 import { register } from 'module'
 import { dataPath } from '@sidekick-coder/zenith-kit/server'
 import { createApp } from './app.ts'
-import LoggerWinsonService from '#server/services/loggerWinson.service.ts'
+import LoggerWinsonService from '#server/services/LoggerWinsonService.ts'
 
 register('../../loader.js', import.meta.url)
 

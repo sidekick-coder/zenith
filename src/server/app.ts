@@ -9,9 +9,7 @@ import { dataPath, serverPath } from '@sidekick-coder/zenith-kit/server/utils/ba
 import { tryCatch } from '@sidekick-coder/zenith-kit/shared/utils/tryCatch'
 
 import PluginService from '#server/services/PluginService.ts'
-// import PluginManagerService from './services/PluginManagerService.ts'
-// import PluginDownloadService from './services/PluginDownloadService.ts'
-import LoggerWinsonService from '#server/services/loggerWinson.service.ts'
+import LoggerWinsonService from '#server/services/LoggerWinsonService.ts'
 
 globalThis.$try = tryCatch
 
