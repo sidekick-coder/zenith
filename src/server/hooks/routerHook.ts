@@ -5,7 +5,6 @@ import container from '@sidekick-coder/zenith-kit/server/facades/container'
 import RouterService from '@sidekick-coder/zenith-kit/server/services/RouterService'
 import { serverPath } from '@sidekick-coder/zenith-kit/server/utils/basePath'
 import logger from '@sidekick-coder/zenith-kit/server/facades/logger'
-import RouterFileBaseRoutingService from '@sidekick-coder/zenith-kit/server/services/RouterFileBaseRoutingService'
 import RouterRegister from '#server/services/routerRegister.service.ts'
 import setupMiddleware from '#server/middlewares/setup.middleware.ts'
 import authSilenceMiddleware from '#server/middlewares/authSilence.middleware.ts'
@@ -41,15 +40,11 @@ export default class extends LifecycleHook {
     public async onLoad(): Promise<void> {
         const router = container.get<RouterRegister>(RouterService)
 
-        router.addDir(serverPath('routes'), { module: 'root' })
-
-        await RouterFileBaseRoutingService
-            .create(serverPath('api'))
-            .setPrefix('/api')
-            .setDebug(true)
-            .setRouter(router)
-            .setModule('root')
-            .load()
+        router.addSource({
+            id: 'root',
+            directory: serverPath('api'),
+            prefix: '/api',
+        })
 
         await emmitter.emitAndWait('router:loaded', { router })
 
