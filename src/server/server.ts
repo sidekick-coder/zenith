@@ -1,5 +1,5 @@
 import { register } from 'module'
-import { basePath } from '@sidekick-coder/zenith-kit/server'
+import { dataPath } from '@sidekick-coder/zenith-kit/server'
 import { createApp } from './app.ts'
 import LoggerWinsonService from '#server/services/loggerWinson.service.ts'
 
@@ -13,8 +13,8 @@ const prettyLogger = isDev || process.env.ZENITH_LOG_PRETTY === 'true'
 const logger = LoggerWinsonService.create({
     level: process.env.ZENITH_LOG_LEVEL || 'info',
     transports: [
-        LoggerWinsonService.file(basePath('logs/error.log'), 'error'),
-        LoggerWinsonService.file(basePath('logs/app.log')),
+        LoggerWinsonService.file(dataPath('logs/error.log'), 'error'),
+        LoggerWinsonService.file(dataPath('logs/app.log')),
         prettyLogger ? LoggerWinsonService.console() : LoggerWinsonService.consoleJson(),
     ]
 })

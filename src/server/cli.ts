@@ -1,5 +1,5 @@
 import  CliService, { CliCommand } from '@sidekick-coder/zenith-kit/server/services/CliService'
-import { basePath, serverPath } from '@sidekick-coder/zenith-kit/server/utils/basePath'
+import { dataPath, serverPath } from '@sidekick-coder/zenith-kit/server/utils/basePath'
 import container from '@sidekick-coder/zenith-kit/server/facades/container'
 import emmitter from '@sidekick-coder/zenith-kit/server/facades/emmitter'
 import { createApp } from './app.ts'
@@ -8,8 +8,8 @@ import LoggerWinsonService from './services/loggerWinson.service.ts'
 const logger = LoggerWinsonService.create({
     level: process.env.ZENITH_LOG_LEVEL || 'info',
     transports: [
-        LoggerWinsonService.file(basePath('logs/error.log'), 'error'),
-        LoggerWinsonService.file(basePath('logs/app.log')),
+        LoggerWinsonService.file(dataPath('logs/error.log'), 'error'),
+        LoggerWinsonService.file(dataPath('logs/app.log')),
     ]
 })
 
