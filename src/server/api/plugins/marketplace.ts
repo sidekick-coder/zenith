@@ -1,5 +1,5 @@
 import type { HttpContext } from '@sidekick-coder/zenith-kit/server'
-import PluginMarketplaceService from '#server/services/pluginMarketplace.service.ts'
+import PluginMarketplaceService from '#server/services/PluginMarketplaceService.ts'
 
 export default async function({ acl }: HttpContext) {
     acl.authorize('list', 'Plugin')

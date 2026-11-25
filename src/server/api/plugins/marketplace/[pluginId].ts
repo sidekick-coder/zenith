@@ -1,7 +1,7 @@
 import { BaseException } from '@sidekick-coder/zenith-kit/shared'
 import type { HttpContext } from '@sidekick-coder/zenith-kit/server'
 import { validator } from '@sidekick-coder/zenith-kit/shared'
-import PluginMarketplaceService from '#server/services/pluginMarketplace.service.ts'
+import PluginMarketplaceService from '#server/services/PluginMarketplaceService.ts'
 
 export default async function({ acl, params }: HttpContext) {
     acl.authorize('list', 'Plugin')

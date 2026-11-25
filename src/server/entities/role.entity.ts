@@ -4,7 +4,7 @@ import type { ModelCreateOptions } from '#server/mixins/model.mixin.ts'
 import Permission from '#server/entities/permission.entity.ts'
 import PermissionAssignment from '#server/entities/permissionAssignment.entity.ts'
 import Base from '#shared/entities/role.entity.ts'
-import HasManythroughService from '#server/services/hasManythrough.service.ts'
+import HasManythroughService from '#server/services/HasManythroughService.ts'
 
 export default class Role extends composeWith(Base, Model('roles')) {
 

@@ -1,5 +1,5 @@
 import { CliCommand } from '@sidekick-coder/zenith-kit/server/services/CliService'
-import PluginMarketplaceService from '#server/services/pluginMarketplace.service.ts'
+import PluginMarketplaceService from '#server/services/PluginMarketplaceService.ts'
 
 const command = new CliCommand('plugin:marketplace-list')
     .helpGroup('plugins')

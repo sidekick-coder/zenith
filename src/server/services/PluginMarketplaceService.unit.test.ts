@@ -2,7 +2,7 @@ import { mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import PluginMarketplaceService from './pluginMarketplace.service.ts'
+import PluginMarketplaceService from './PluginMarketplaceService.ts'
 
 describe('PluginMarketplaceService', () => {
     const directories: string[] = []
