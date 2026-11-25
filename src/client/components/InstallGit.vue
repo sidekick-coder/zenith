@@ -6,9 +6,7 @@ import { toTypedSchema } from '@vee-validate/valibot'
 import { useRouter } from 'vue-router'
 
 import { $fetch } from '#client/utils/fetcher.ts'
-import {
-    Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter 
-} from '#client/components/ui/card'
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '#client/components/ui/card'
 import FormTextField from '#client/components/FormTextField.vue'
 import FormTextarea from '#client/components/FormTextarea.vue'
 import Button from '#client/components/Button.vue'

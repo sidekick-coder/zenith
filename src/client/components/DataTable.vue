@@ -40,9 +40,7 @@ export function defineColumns<T extends Record<string, any> = any>(columns: Data
 </script>
 <script setup lang="ts" generic="T extends Record<string, any>">
 
-defineOptions({ 
-    inheritAttrs: false
-})
+defineOptions({ inheritAttrs: false })
 
 const props = defineProps({
     selection: {

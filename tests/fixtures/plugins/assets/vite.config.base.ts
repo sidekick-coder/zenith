@@ -3,11 +3,7 @@ import vue from '@vitejs/plugin-vue'
 import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig({
-    define: {
-        'process.env': {
-            NODE_ENV: 'production',
-        }
-    },
+    define: { 'process.env': { NODE_ENV: 'production', } },
     plugins: [
         vue({
             template: {

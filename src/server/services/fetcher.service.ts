@@ -1,5 +1,3 @@
-import { tryCatch } from '@sidekick-coder/zenith-kit/shared/utils/tryCatch'
-
 interface FetcherOptions {
     headers?: Record<string, string>
     timeout?: number

@@ -8,7 +8,8 @@ export default async function ({ acl, query }: HttpContext) {
 
     const payload = validator.validate(query, v.object({
         source: v.optional(v.string()),
-        names: v.optional(v.pipe(v.string(), v.transform(v => v.split(',').map(n => n.trim()).filter(Boolean)))),
+        names: v.optional(v.pipe(v.string(), v.transform(v => v.split(',').map(n => n.trim())
+            .filter(Boolean)))),
     }))
 
     return seeder.list({

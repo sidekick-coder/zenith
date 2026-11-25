@@ -1,6 +1,6 @@
 import { createRequire } from 'module'
 import type { Dialect } from 'kysely'
-import { DatabaseGateway, container, basePath } from '@sidekick-coder/zenith-kit/server'
+import { DatabaseGateway, container } from '@sidekick-coder/zenith-kit/server'
 import type { Database } from '../contracts/database.contract.ts'
 import validator from '#shared/services/validator.service.ts'
 import schemas from '#shared/validators/index.ts'

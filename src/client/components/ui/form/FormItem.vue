@@ -1,8 +1,9 @@
 <script lang="ts" setup>
 import { useId } from 'reka-ui'
-import { type HTMLAttributes, provide } from 'vue'
-import { cn } from '#client/lib/utils'
+import {  provide } from 'vue'
+import type { HTMLAttributes } from 'vue'
 import { FORM_ITEM_INJECTION_KEY } from './injectionKeys'
+import { cn } from '#client/lib/utils'
 
 const props = defineProps<{
   class?: HTMLAttributes['class']
@@ -13,10 +14,10 @@ provide(FORM_ITEM_INJECTION_KEY, id)
 </script>
 
 <template>
-  <div
-    data-slot="form-item"
-    :class="cn('grid gap-2', props.class)"
-  >
-    <slot />
-  </div>
+    <div
+        data-slot="form-item"
+        :class="cn('grid gap-2', props.class)"
+    >
+        <slot />
+    </div>
 </template>

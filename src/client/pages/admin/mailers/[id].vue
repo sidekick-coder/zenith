@@ -81,7 +81,10 @@ onMounted(load)
 </script>
 
 <template>
-    <div v-if="loading" class="flex flex-col space-y-3">
+    <div
+        v-if="loading"
+        class="flex flex-col space-y-3"
+    >
         <Skeleton class="h-[125px] w- rounded-xl" />
         <div class="space-y-2">
             <Skeleton class="h-4 w-[80%]" />
@@ -89,7 +92,10 @@ onMounted(load)
         </div>
     </div>
 
-    <div v-else class="flex flex-wrap [&>*]:px-4 gap-y-4 -mx-4">
+    <div
+        v-else
+        class="flex flex-wrap [&>*]:px-4 gap-y-4 -mx-4"
+    >
         <div class="w-full flex items-center justify-between">
             <div>
                 <PageTitle>
@@ -112,13 +118,26 @@ onMounted(load)
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <form class="space-y-4 w-full" @submit.prevent="onSubmit">
-                        <FormTextField name="id" :label="$t('ID')" :readonly="true" />
+                    <form
+                        class="space-y-4 w-full"
+                        @submit.prevent="onSubmit"
+                    >
+                        <FormTextField
+                            name="id"
+                            :label="$t('ID')"
+                            :readonly="true"
+                        />
 
-                        <FormTextField name="name" :label="$t('Name')" />
+                        <FormTextField
+                            name="name"
+                            :label="$t('Name')"
+                        />
 
                         <div class="flex gap-3 pt-4 justify-end">
-                            <Button type="submit" :loading="saving">
+                            <Button
+                                type="submit"
+                                :loading="saving"
+                            >
                                 {{ $t('Save') }}
                             </Button>
                         </div>
@@ -128,14 +147,29 @@ onMounted(load)
         </div>
 
         <div class="w-full xl:w-8/12 2xl:w-9/12 flex flex-col space-y-6">
-            <Tabs v-if="mailer" v-model="tab" class="w-full">
+            <Tabs
+                v-if="mailer"
+                v-model="tab"
+                class="w-full"
+            >
                 <TabsList>
-                    <TabsTrigger v-for="t in tabs" :key="t.id" :value="t.id">
+                    <TabsTrigger
+                        v-for="t in tabs"
+                        :key="t.id"
+                        :value="t.id"
+                    >
                         {{ t.label }}
                     </TabsTrigger>
                 </TabsList>
-                <TabsContent v-for="t in tabs" :key="t.id" :value="t.id">
-                    <component :is="t.component" :mailer="mailer" />
+                <TabsContent
+                    v-for="t in tabs"
+                    :key="t.id"
+                    :value="t.id"
+                >
+                    <component
+                        :is="t.component"
+                        :mailer="mailer"
+                    />
                 </TabsContent>
             </Tabs>
         </div>

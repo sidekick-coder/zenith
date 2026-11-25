@@ -1,5 +1,5 @@
 <script lang="ts">
-    export interface FormField {
+export interface FormField {
         component: 
             'text-field' 
             | 'textarea' 

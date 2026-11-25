@@ -6,7 +6,7 @@ export default class extends PluginEntity {
         lifecycle.on('load', async () => {
             this.addPagesFolder(import.meta.glob('./pages/**/*.vue'), {
                 strip: ['pages'],
-                prefix: `/admin/assets`,
+                prefix: '/admin/assets',
             })
         })
     }

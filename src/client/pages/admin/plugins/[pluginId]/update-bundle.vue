@@ -1,8 +1,8 @@
 <script lang="ts" setup>
-import { useForm, toast, fetcher, waitForServer } from '@sidekick-coder/zenith-kit/client'
+import { useForm, toast, fetcher } from '@sidekick-coder/zenith-kit/client'
 import { ref } from 'vue'
 
-import { FormTextField, FormFilePicker, ZButton } from '@sidekick-coder/zenith-kit/components'
+import { FormFilePicker, ZButton } from '@sidekick-coder/zenith-kit/components'
 
 import { validator } from '@sidekick-coder/zenith-kit/shared'
 import { useRoute, useRouter } from 'vue-router'

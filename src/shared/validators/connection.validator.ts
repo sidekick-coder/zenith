@@ -1,4 +1,4 @@
-import validator from "#shared/services/validator.service.ts";
+import validator from '#shared/services/validator.service.ts'
 
 export const number = () => validator.create(v => v.pipe(
     v.union([v.string(), v.number()]),
@@ -22,6 +22,4 @@ export const postgresql = validator.create(v => v.object({
     password: v.string(),
 }))
 
-export const sqlite = validator.create(v => v.object({
-    database: v.string(),
-}))
+export const sqlite = validator.create(v => v.object({ database: v.string(), }))

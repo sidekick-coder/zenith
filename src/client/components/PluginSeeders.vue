@@ -6,7 +6,6 @@ import { $fetch } from '#client/utils/fetcher.ts'
 import DataTable, { defineColumns } from '#client/components/DataTable.vue'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '#client/components/ui/card'
 import AlertButton from '#client/components/AlertButton.vue'
-import Button from '#client/components/Button.vue'
 
 defineOptions({ inheritAttrs: false })
 
@@ -76,7 +75,10 @@ async function runOne(seeder: Seeder) {
 
     const [error] = await $fetch.try('/api/seeders/run', {
         method: 'POST',
-        body: { source: props.plugin.id, names: [seeder.name] },
+        body: {
+            source: props.plugin.id,
+            names: [seeder.name] 
+        },
     })
 
     runningSeed.value = null

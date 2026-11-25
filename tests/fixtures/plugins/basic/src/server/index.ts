@@ -1,5 +1,5 @@
-import { emmitter, router, PluginEntity, RouterFileBaseRoutingService } from '@sidekick-coder/zenith-kit/server'
 import path from 'node:path'
+import { emmitter, router, PluginEntity, RouterFileBaseRoutingService } from '@sidekick-coder/zenith-kit/server'
 
 export default class extends PluginEntity {
     public async load() {

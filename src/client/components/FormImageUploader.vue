@@ -23,6 +23,7 @@ defineProps({
     label: {
         type: String,
         required: false,
+        default: '',
     },
     hint: {
         type: String,

@@ -220,7 +220,7 @@ watch(() => props.showSearchInput, (showSearchInput) => {
                 v-model="model"
                 :disabled="disabled"
                 :multiple="multiple"
-                >
+            >
                 <SelectTrigger
                     :class="cn('!h-10', variant === 'horizontal' ? 'rounded-l-none flex-1' : 'w-full', $attrs.class as any)"
                 >

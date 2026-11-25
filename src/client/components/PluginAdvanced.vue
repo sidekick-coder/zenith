@@ -2,7 +2,7 @@
 import { ref } from 'vue'
 import { toast, waitForServer } from '@sidekick-coder/zenith-kit/client'
 
-import { DialogForm, Switch } from '@sidekick-coder/zenith-kit/components'
+import { DialogForm } from '@sidekick-coder/zenith-kit/components'
 import { $fetch } from '#client/utils/fetcher.ts'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '#client/components/ui/card/index.ts'
 import AlertButton from '#client/components/AlertButton.vue'

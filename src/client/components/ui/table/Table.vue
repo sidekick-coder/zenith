@@ -9,9 +9,15 @@ const props = defineProps<{
 </script>
 
 <template>
-  <div data-slot="table-container" :class="cn('relative w-full overflow-auto', props.wrapperClass)">
-    <table data-slot="table" :class="cn('w-full caption-bottom text-sm', props.class)">
-      <slot />
-    </table>
-  </div>
+    <div
+        data-slot="table-container"
+        :class="cn('relative w-full overflow-auto', props.wrapperClass)"
+    >
+        <table
+            data-slot="table"
+            :class="cn('w-full caption-bottom text-sm', props.class)"
+        >
+            <slot />
+        </table>
+    </div>
 </template>

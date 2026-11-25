@@ -28,9 +28,7 @@ const onSubmit = handleSubmit(async (data) => {
 
     const [error] = await $fetch.try(`/api/drives/${props.drive.id}`, {
         method: 'PUT',
-        data: {
-            config: data
-        }
+        data: { config: data }
     })
 
     if (error) {
@@ -47,11 +45,7 @@ const onSubmit = handleSubmit(async (data) => {
 
 watch(() => props.drive, (newDrive) => {
     if (newDrive) {
-        resetForm({
-            values: {
-                ...(newDrive.config || {})
-            }
-        })
+        resetForm({ values: { ...(newDrive.config || {}) } })
     }
 }, { immediate: true })
 </script>

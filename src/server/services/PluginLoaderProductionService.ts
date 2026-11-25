@@ -1,7 +1,6 @@
 import fs from 'fs'
 import path from 'path'
 import { pathToFileURL } from 'url'
-import PluginEntity from '@sidekick-coder/zenith-kit/server/entities/PluginEntity'
 import PluginEntryEntity from '@sidekick-coder/zenith-kit/server/entities/PluginEntryEntity'
 import type { EventContract } from '@sidekick-coder/zenith-kit/server/contracts/EventContract'
 import express from 'express'

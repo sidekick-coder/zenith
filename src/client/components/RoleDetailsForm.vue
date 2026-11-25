@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { useForm } from 'vee-validate'
-import * as v from 'valibot'
 import { toTypedSchema } from '@vee-validate/valibot'
 import { toast } from 'vue-sonner'
 

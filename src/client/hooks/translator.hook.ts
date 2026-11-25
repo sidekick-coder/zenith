@@ -1,8 +1,4 @@
 import LifecycleHook from '#shared/entities/lifecycleHook.entity.ts'
-import di from '#client/utils/di.ts'
-import config from '#client/facades/config.facade.ts'
-import TranslatorService from '#shared/services/translator.service.ts'
-import logger from '#client/facades/logger.facade.ts'
 
 export default class TranslatorLifecycleHook extends LifecycleHook {
     public async onRegister(): Promise<void> {

@@ -5,9 +5,7 @@ import { migrator } from '@sidekick-coder/zenith-kit/server'
 export default async function ({ acl, query }: HttpContext) {
     acl.authorize('list', 'Migration')
 
-    const payload = validator.validate(query, v => v.object({
-        source: v.optional(v.string()),
-    }))
+    const payload = validator.validate(query, v => v.object({ source: v.optional(v.string()), }))
 
     const migrations = await migrator.list({ source: payload.source })
 

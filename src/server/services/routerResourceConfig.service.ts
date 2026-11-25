@@ -20,9 +20,7 @@ export default class RouterResourceConfig extends RouterResourceService {
     public async index(_ctx: HttpContext) {
         const items = await this.model.list()
 
-        return {
-            items: items
-        }
+        return { items: items }
     }
 
     public async show(ctx: HttpContext) {
@@ -38,9 +36,7 @@ export default class RouterResourceConfig extends RouterResourceService {
 
         await this.model.create(data)
 
-        return {
-            message: 'Resource created successfully'
-        }
+        return { message: 'Resource created successfully' }
     }
 
     public async update(ctx: HttpContext) {
@@ -57,8 +53,6 @@ export default class RouterResourceConfig extends RouterResourceService {
 
         await this.model.destroy(id)
 
-        return {
-            success: true,
-        }
+        return { success: true, }
     }
 }

@@ -8,8 +8,7 @@ import * as v from 'valibot'
 import { tryCatch } from '@sidekick-coder/zenith-kit/shared/utils/tryCatch'
 import { $fetch } from '#client/utils/fetcher.ts'
 import FormTextField from '#client/components/FormTextField.vue'
-import Button from '#client/components/Button.vue'
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '#client/components/ui/card'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '#client/components/ui/card'
 import type File from '#shared/entities/file.entity.ts'
 
 const props = defineProps({

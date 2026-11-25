@@ -2,7 +2,6 @@
 import { RouterLink } from 'vue-router'
 import { computed } from 'vue'
 import Icon from './Icon.vue'
-import { Tooltip, TooltipContent, TooltipTrigger } from '#client/components/ui/tooltip'
 import UiButton from '#client/components/ui/button/Button.vue'
 
 export interface Props {

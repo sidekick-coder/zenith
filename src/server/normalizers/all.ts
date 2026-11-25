@@ -30,7 +30,7 @@ export function toDb(payload: Record<string, any>) {
 export function fromDb(value: Record<string, any>) {
     const result = { ...value }
 
-    for (const key in result) {
+    for (const _key in result) {
         // result[key] = parseValue(result[key])
     }
 

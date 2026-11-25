@@ -15,7 +15,7 @@ import di from '#client/utils/di.ts'
 import auth from '#client/facades/auth.facade.ts'
 import translator from '#client/facades/translator.facade.ts'
 
-const props = defineProps({
+defineProps({
     title: {
         type: String,
         default: $t('Preferences'),

@@ -19,11 +19,11 @@ export interface RenderResult {
 }
 
 export default class ViteEntryPointService {
-    public async load(options: LoadOptions): Promise<void> {
+    public async load(_options: LoadOptions): Promise<void> {
         // implementation here
     }
 
-    public async render(context: RenderOptions): Promise<RenderResult> {
+    public async render(_context: RenderOptions): Promise<RenderResult> {
         // implementation here
         return {
             html: '',

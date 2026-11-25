@@ -4,12 +4,9 @@ import { X } from 'lucide-vue-next'
 import Icon from './Icon.vue'
 import { Input } from '#client/components/ui/input'
 import { Button } from '#client/components/ui/button'
-import { cn } from '#client/lib/utils'
 
 
-defineOptions({
-    inheritAttrs: false,
-})
+defineOptions({ inheritAttrs: false, })
 
 const model = defineModel({
     type: Array as () => string[],

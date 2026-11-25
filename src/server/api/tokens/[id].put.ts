@@ -6,9 +6,7 @@ import tokenRepository from '#server/facades/tokenRepository.ts'
 export default async function({ acl, params, body }: HttpContext) {
     acl.authorize('update', 'Token')
 
-    const payload = validator.validate(body, v.object({
-        name: v.pipe(v.string(), v.minLength(1)),
-    }))
+    const payload = validator.validate(body, v.object({ name: v.pipe(v.string(), v.minLength(1)), }))
 
     await tokenRepository.updateById(params.id, { name: payload.name })
 

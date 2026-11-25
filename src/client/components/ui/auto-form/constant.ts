@@ -9,17 +9,17 @@ import AutoFormFieldNumber from './AutoFormFieldNumber.vue'
 import AutoFormFieldObject from './AutoFormFieldObject.vue'
 
 export const INPUT_COMPONENTS: InputComponents = {
-  date: AutoFormFieldDate,
-  select: AutoFormFieldEnum,
-  radio: AutoFormFieldEnum,
-  checkbox: AutoFormFieldBoolean,
-  switch: AutoFormFieldBoolean,
-  textarea: AutoFormFieldInput,
-  number: AutoFormFieldNumber,
-  string: AutoFormFieldInput,
-  file: AutoFormFieldFile,
-  array: AutoFormFieldArray,
-  object: AutoFormFieldObject,
+    date: AutoFormFieldDate,
+    select: AutoFormFieldEnum,
+    radio: AutoFormFieldEnum,
+    checkbox: AutoFormFieldBoolean,
+    switch: AutoFormFieldBoolean,
+    textarea: AutoFormFieldInput,
+    number: AutoFormFieldNumber,
+    string: AutoFormFieldInput,
+    file: AutoFormFieldFile,
+    array: AutoFormFieldArray,
+    object: AutoFormFieldObject,
 }
 
 /**
@@ -29,12 +29,12 @@ export const INPUT_COMPONENTS: InputComponents = {
 export const DEFAULT_ZOD_HANDLERS: {
   [key: string]: keyof typeof INPUT_COMPONENTS
 } = {
-  ZodString: 'string',
-  ZodBoolean: 'checkbox',
-  ZodDate: 'date',
-  ZodEnum: 'select',
-  ZodNativeEnum: 'select',
-  ZodNumber: 'number',
-  ZodArray: 'array',
-  ZodObject: 'object',
+    ZodString: 'string',
+    ZodBoolean: 'checkbox',
+    ZodDate: 'date',
+    ZodEnum: 'select',
+    ZodNativeEnum: 'select',
+    ZodNumber: 'number',
+    ZodArray: 'array',
+    ZodObject: 'object',
 }

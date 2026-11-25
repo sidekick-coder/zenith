@@ -1,14 +1,8 @@
 <script setup lang="ts">
 import { ZButton, Icon } from '@sidekick-coder/zenith-kit/components'
-import { config, useDarkMode } from '@sidekick-coder/zenith-kit/client'
+import { useDarkMode } from '@sidekick-coder/zenith-kit/client'
 
 const darkMode = useDarkMode()
-
-const authConfig = config.get('auth', {
-    title: 'Welcome',
-    quote: 'Your journey to productivity starts here.',
-    quote_author: 'The Team',
-})
 
 defineProps<{
     title?: string;

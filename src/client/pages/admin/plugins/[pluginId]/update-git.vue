@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { useForm, toast, fetcher, waitForServer } from '@sidekick-coder/zenith-kit/client'
+import { useForm, toast, fetcher } from '@sidekick-coder/zenith-kit/client'
 import { ref } from 'vue'
 
 import { FormTextField, FormTextarea, ZButton } from '@sidekick-coder/zenith-kit/components'

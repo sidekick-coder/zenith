@@ -19,9 +19,7 @@ interface DataIteratorFetchCallback {
 </script>
 
 <script setup lang="ts" generic="T extends Record<string, any>">
-defineOptions({ 
-    inheritAttrs: false
-})
+defineOptions({ inheritAttrs: false })
 
 const props = defineProps({
     class: {

@@ -24,9 +24,7 @@ export default class Acl {
         })
 
         if (this.debug) {
-            this.logger.debug('initialized in debug mode', {
-                permissions: this.permissions,
-            })
+            this.logger.debug('initialized in debug mode', { permissions: this.permissions, })
         }
     }
 

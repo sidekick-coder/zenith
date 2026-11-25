@@ -8,19 +8,31 @@ export function useRGBA(payload?: MaybeRef<string | null | undefined>) {
             if (type.value === 'rgba') return extractRGBA(color.value)
             if (type.value === 'rgb') {
                 const rgb = extracRGB(color.value)
-                return { ...rgb, a: 1 }
+                return {
+                    ...rgb,
+                    a: 1 
+                }
             }
             if (type.value === 'hex' && color.value.length === 7) {
                 const rgb = hexToRGB(color.value)
-                return { ...rgb, a: 1 }
+                return {
+                    ...rgb,
+                    a: 1 
+                }
             }
             if (type.value === 'hsl') {
                 const rgb = hslToRgb(color.value)
-                return { ...rgb, a: 1 }
+                return {
+                    ...rgb,
+                    a: 1 
+                }
             }
             if (type.value === 'oklch') {
                 const rgb = oklchToRgb(color.value)
-                return { ...rgb, a: 1 }
+                return {
+                    ...rgb,
+                    a: 1 
+                }
             }
             return null
         },

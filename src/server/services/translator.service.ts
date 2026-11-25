@@ -5,7 +5,6 @@ import { resolve } from 'path'
 import fg from 'fast-glob'
 import { basePath } from '@sidekick-coder/zenith-kit/server/utils/basePath'
 import { TranslatorService as Base } from '@sidekick-coder/zenith-kit/shared'
-import pluginManager from '#server/facades/pluginManager.ts'
 
 interface ScanOptions {
     directory: string

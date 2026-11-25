@@ -78,11 +78,7 @@ function findFetchOptions(response: any) {
 async function fetchOptions() {
     if (!props.fetch) return
 
-    const response = await $fetch(props.fetch, {
-        query: {
-            limit: 1000,
-        },
-    })
+    const response = await $fetch(props.fetch, { query: { limit: 1000, }, })
 
     options.value = findFetchOptions(response)
 }

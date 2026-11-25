@@ -1,14 +1,8 @@
 import { UserEntity } from '@sidekick-coder/zenith-kit/shared'
 import { env, container, userRepository } from '@sidekick-coder/zenith-kit/server'
-import config from '@sidekick-coder/zenith-kit/server/facades/config'
 import { AuthService as BaseAuthService } from '@sidekick-coder/zenith-kit/server'
-import hasher from '#server/facades/hasher.facade.ts'
-import db from '#server/facades/db.facade.ts'
-import TokenService from '#server/services/token.service.ts'
 import EmailTemplate from '#server/entities/emailTemplate.entity.ts'
 import MailerService from '#server/services/mailer.service.ts'
-import mailer from '#server/facades/mailer.facade.ts'
-import { undeleted } from '#server/queries/softDelete.ts'
 
 export interface LoginCredentials {
     uuid: string

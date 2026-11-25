@@ -30,7 +30,5 @@ export async function loadFileUrl<T extends Record<string, any>>(entities: T[], 
 }
 
 export function createFileUrlLoader<T extends Record<string, any>>(options?: FileLoaderOptions) {
-    return defineLoader<T>({
-        load: (entities) => loadFileUrl(entities, options),
-    })
+    return defineLoader<T>({ load: (entities) => loadFileUrl(entities, options), })
 }

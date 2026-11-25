@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { ref  } from 'vue'
 import type { PropType } from 'vue'
 import { computed } from 'vue'
 import { tryCatch } from '@sidekick-coder/zenith-kit/shared/utils/tryCatch'

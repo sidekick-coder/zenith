@@ -27,7 +27,7 @@ export default class CookieService {
         return this.cookies.get(fullName) || defaultValue
     }
 
-    public set(name: string, value: string, options?: any) {
+    public set(name: string, value: string, _options?: any) {
         const fullName = this.prefix + name
 
         this.cookies.set(fullName, value)

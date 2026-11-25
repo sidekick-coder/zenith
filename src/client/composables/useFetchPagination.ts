@@ -1,5 +1,5 @@
-import { computed, isRef, onMounted, onServerPrefetch, readonly, ref, watch  } from 'vue'
-import type { MaybeRef, Ref } from 'vue'
+import { computed, onMounted, onServerPrefetch, ref, watch  } from 'vue'
+import type { Ref } from 'vue'
 import { watchDebounced } from '@vueuse/core'
 import { useState } from './useState.ts'
 import type Pagination from '#shared/entities/pagination.entity.ts'
@@ -111,9 +111,7 @@ export function useFetchPagination<T = any>(url: string, options: UseFetchPagina
     watchDebounced(
         () => JSON.parse(JSON.stringify(query.value)),
         onQueryChange,
-        {
-            debounce: options.debounce || 1000
-        }
+        { debounce: options.debounce || 1000 }
     )
 
     if (options.immediate !== false) {

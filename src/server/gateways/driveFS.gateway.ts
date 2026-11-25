@@ -1,21 +1,19 @@
 import fs from 'fs'
 import path, { join, relative } from 'path'
 import mime from 'mime'
+import { basePath } from '@sidekick-coder/zenith-kit/server/utils/basePath'
 import DriveEntity from '#shared/entities/driveEntry.entity.ts'
 import BaseDrive from '#server/gateways/driveBase.gateway.ts'
 import validator from '#shared/services/validator.service.ts'
 import encrypt from '#server/facades/encrypt.facade.ts'
 import BaseException from '#server/exceptions/base.ts'
-import { basePath } from '@sidekick-coder/zenith-kit/server/utils/basePath'
 
 export interface DriveFSConfig {
     directory: string
 }
 
 export default class DriveFS extends BaseDrive {
-    private schema = validator.create((v) => v.object({
-        directory: v.pipe(v.string(), v.minLength(1)),
-    }))
+    private schema = validator.create((v) => v.object({ directory: v.pipe(v.string(), v.minLength(1)), }))
 
     constructor(data: Pick<BaseDrive, 'id' | 'name' | 'description' | 'config'>) {
         super(data)
@@ -186,9 +184,7 @@ export default class DriveFS extends BaseDrive {
         
         const filepath = filename.startsWith('/') ? filename : `/${filename}`
 
-        return encrypt.url(`/api/drives/${this.id}/stream${filepath}`, {
-            expires: options?.expires || '30m'
-        })
+        return encrypt.url(`/api/drives/${this.id}/stream${filepath}`, { expires: options?.expires || '30m' })
     }
 
     public uploadUrl: BaseDrive['uploadUrl'] = async (filename, options) => {

@@ -1,5 +1,5 @@
 import { pathToFileURL } from 'url'
-import { container, PluginEntity } from '@sidekick-coder/zenith-kit/client'
+import { container } from '@sidekick-coder/zenith-kit/client'
 import PluginMangerService from './PluginManagerService'
 
 export default class PluginManagerProductionNodeService extends PluginMangerService {

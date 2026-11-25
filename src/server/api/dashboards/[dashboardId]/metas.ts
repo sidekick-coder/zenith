@@ -1,5 +1,5 @@
 import { defineHandler } from '@sidekick-coder/zenith-kit/server'
-import { unflatten, validator } from '@sidekick-coder/zenith-kit/shared'
+import { validator } from '@sidekick-coder/zenith-kit/shared'
 import dashboardMetaRepository from '#server/facades/dashboardMetaRepository.ts'
 import dashboardRepository from '#server/facades/dashboardRepository.ts'
 import { loadMetas } from '#server/loaders/loadMetas.ts'

@@ -7,9 +7,7 @@ import { toast } from 'vue-sonner'
 import { useRouter } from 'vue-router'
 
 import { $fetch } from '#client/utils/fetcher.ts'
-import {
-    Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter 
-} from '#client/components/ui/card'
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '#client/components/ui/card'
 import FormTextField from '#client/components/FormTextField.vue'
 import Button from '#client/components/Button.vue'
 import { Input } from '#client/components/ui/input'
@@ -20,9 +18,7 @@ const router = useRouter()
 const uploading = ref(false)
 const selectedFile = ref<File | null>(null)
 
-const schema = v.object({
-    id: v.pipe(v.string(), v.minLength(1, $t('Module ID is required'))),
-})
+const schema = v.object({ id: v.pipe(v.string(), v.minLength(1, $t('Module ID is required'))), })
 
 const { handleSubmit, setFieldValue } = useForm({
     name: 'install',
@@ -66,9 +62,7 @@ const onSubmit = handleSubmit(async (_form) => {
     const payload = {
         method: 'POST',
         body: formData,
-        query: {
-            id: _form.id,
-        },
+        query: { id: _form.id, },
     }
 
     await $server.reloadAfter({
