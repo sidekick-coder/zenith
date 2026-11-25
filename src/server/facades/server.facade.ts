@@ -1,4 +1,4 @@
-import ServerService from '#server/services/server.service.ts'
+import ServerService from '#server/services/ServerService.ts'
 
 const server = new ServerService()
 
