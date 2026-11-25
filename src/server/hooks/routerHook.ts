@@ -5,7 +5,6 @@ import container from '@sidekick-coder/zenith-kit/server/facades/container'
 import RouterService from '@sidekick-coder/zenith-kit/server/services/RouterService'
 import { serverPath } from '@sidekick-coder/zenith-kit/server/utils/basePath'
 import logger from '@sidekick-coder/zenith-kit/server/facades/logger'
-import RouterRegister from '#server/services/routerRegister.service.ts'
 import setupMiddleware from '#server/middlewares/setup.middleware.ts'
 import authSilenceMiddleware from '#server/middlewares/authSilence.middleware.ts'
 import authorizationMiddleware from '#server/middlewares/authorization.middleware.ts'
@@ -15,7 +14,7 @@ export default class extends LifecycleHook {
     public hook_aliases = ['router']
 
     public async onRegister(): Promise<void> {
-        const router = new RouterRegister({
+        const router = new RouterService({
             debug: config.getOne(['router.debug', 'app.debug', 'debug'], false),
             logger: logger.child({ label: 'router' })
         })
@@ -38,7 +37,7 @@ export default class extends LifecycleHook {
     }
 
     public async onLoad(): Promise<void> {
-        const router = container.get<RouterRegister>(RouterService)
+        const router = container.get<RouterService>(RouterService)
 
         router.addSource({
             id: 'root',
@@ -51,13 +50,13 @@ export default class extends LifecycleHook {
     }
 
     public async onBoot(): Promise<void> {
-        const router = container.get<RouterRegister>(RouterService)
+        const router = container.get<RouterService>(RouterService)
 
         await router.load()
     }
 
     public async onShutdown(): Promise<void> {
-        const router = container.get<RouterRegister>(RouterService)
+        const router = container.get<RouterService>(RouterService)
 
         router.clear()
     }
